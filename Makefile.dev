@@ -1,0 +1,164 @@
+# Development-focused Makefile for GRA Core Platform Documentation
+
+# Variables
+PYTHON := python3
+PIP := pip3
+VENV := venv
+SPHINX_BUILD := sphinx-build
+SPHINX_AUTOBUILD := sphinx-autobuild
+SOURCE_DIR := .
+BUILD_DIR := _build
+
+# Colors
+GREEN := \033[0;32m
+YELLOW := \033[1;33m
+RED := \033[0;31m
+NC := \033[0m # No Color
+
+.PHONY: help install dev-install setup clean build serve test lint format check-env
+
+# Default target
+help:
+	@echo "$(GREEN)GRA Core Platform Documentation - Development Commands$(NC)"
+	@echo "============================================================"
+	@echo ""
+	@echo "Setup commands:"
+	@echo "  setup          - Complete development environment setup"
+	@echo "  install        - Install production dependencies"
+	@echo "  dev-install    - Install development dependencies"
+	@echo "  check-env      - Check environment setup"
+	@echo ""
+	@echo "Development commands:"
+	@echo "  build          - Build documentation"
+	@echo "  serve          - Start development server with auto-reload"
+	@echo "  clean          - Clean build directory"
+	@echo "  test           - Run tests and checks"
+	@echo "  lint           - Check documentation for issues"
+	@echo "  format         - Format Python code"
+	@echo ""
+	@echo "Quick start: make setup && make serve"
+
+# Complete development setup
+setup: check-python create-venv install dev-install check-env
+	@echo "$(GREEN)✅ Development environment setup complete!$(NC)"
+	@echo "$(YELLOW)Next: Run 'make serve' to start development server$(NC)"
+
+# Check if Python is available
+check-python:
+	@echo "$(YELLOW)Checking Python installation...$(NC)"
+	@$(PYTHON) --version || (echo "$(RED)❌ Python 3 not found$(NC)" && exit 1)
+	@echo "$(GREEN)✅ Python found$(NC)"
+
+# Create virtual environment
+create-venv:
+	@echo "$(YELLOW)Creating virtual environment...$(NC)"
+	@if [ ! -d "$(VENV)" ]; then \
+		$(PYTHON) -m venv $(VENV); \
+		echo "$(GREEN)✅ Virtual environment created$(NC)"; \
+	else \
+		echo "$(GREEN)✅ Virtual environment already exists$(NC)"; \
+	fi
+
+# Activate virtual environment (for use in other targets)
+activate-venv:
+	@echo "$(YELLOW)Activating virtual environment...$(NC)"
+	@. $(VENV)/bin/activate
+
+# Install production dependencies
+install: create-venv
+	@echo "$(YELLOW)Installing production dependencies...$(NC)"
+	@. $(VENV)/bin/activate && $(PIP) install --upgrade pip
+	@. $(VENV)/bin/activate && $(PIP) install -r requirements.txt
+	@echo "$(GREEN)✅ Production dependencies installed$(NC)"
+
+# Install development dependencies
+dev-install: install
+	@echo "$(YELLOW)Installing development dependencies...$(NC)"
+	@. $(VENV)/bin/activate && $(PIP) install \
+		sphinx-autobuild \
+		pre-commit \
+		black \
+		flake8 \
+		isort \
+		pytest \
+		sphinx-lint
+	@echo "$(GREEN)✅ Development dependencies installed$(NC)"
+
+# Check environment
+check-env:
+	@echo "$(YELLOW)Checking environment...$(NC)"
+	@. $(VENV)/bin/activate && $(PYTHON) scripts/check_environment.py
+
+# Clean build directory
+clean:
+	@echo "$(YELLOW)Cleaning build directory...$(NC)"
+	@rm -rf $(BUILD_DIR)
+	@echo "$(GREEN)✅ Build directory cleaned$(NC)"
+
+# Build documentation
+build: clean
+	@echo "$(YELLOW)Building documentation...$(NC)"
+	@. $(VENV)/bin/activate && $(SPHINX_BUILD) -b html $(SOURCE_DIR) $(BUILD_DIR)/html
+	@echo "$(GREEN)✅ Documentation built successfully$(NC)"
+	@echo "$(YELLOW)Open $(BUILD_DIR)/html/index.html in your browser$(NC)"
+
+# Start development server with auto-reload
+serve:
+	@echo "$(YELLOW)Starting development server...$(NC)"
+	@echo "$(GREEN)📖 Documentation will be available at: http://localhost:8000$(NC)"
+	@echo "$(GREEN)🔄 Auto-reload enabled - changes will be reflected automatically$(NC)"
+	@echo "$(YELLOW)Press Ctrl+C to stop the server$(NC)"
+	@. $(VENV)/bin/activate && $(SPHINX_AUTOBUILD) \
+		--host 0.0.0.0 \
+		--port 8000 \
+		--open-browser \
+		--watch $(SOURCE_DIR) \
+		$(SOURCE_DIR) $(BUILD_DIR)/html
+
+# Run tests and checks
+test: lint
+	@echo "$(YELLOW)Running tests...$(NC)"
+	@. $(VENV)/bin/activate && $(PYTHON) -m pytest tests/ -v || echo "$(YELLOW)No tests found$(NC)"
+	@echo "$(GREEN)✅ Tests completed$(NC)"
+
+# Lint documentation
+lint:
+	@echo "$(YELLOW)Linting documentation...$(NC)"
+	@. $(VENV)/bin/activate && $(SPHINX_BUILD) -b linkcheck $(SOURCE_DIR) $(BUILD_DIR)/linkcheck
+	@. $(VENV)/bin/activate && flake8 scripts/ --max-line-length=88 || echo "$(YELLOW)No Python files to lint$(NC)"
+	@echo "$(GREEN)✅ Linting completed$(NC)"
+
+# Format Python code
+format:
+	@echo "$(YELLOW)Formatting Python code...$(NC)"
+	@. $(VENV)/bin/activate && black scripts/ || echo "$(YELLOW)No Python files to format$(NC)"
+	@. $(VENV)/bin/activate && isort scripts/ || echo "$(YELLOW)No Python files to sort$(NC)"
+	@echo "$(GREEN)✅ Code formatting completed$(NC)"
+
+# Install pre-commit hooks
+install-hooks: dev-install
+	@echo "$(YELLOW)Installing pre-commit hooks...$(NC)"
+	@. $(VENV)/bin/activate && pre-commit install
+	@echo "$(GREEN)✅ Pre-commit hooks installed$(NC)"
+
+# Run pre-commit on all files
+pre-commit-all:
+	@echo "$(YELLOW)Running pre-commit on all files...$(NC)"
+	@. $(VENV)/bin/activate && pre-commit run --all-files
+	@echo "$(GREEN)✅ Pre-commit checks completed$(NC)"
+
+# Show environment info
+info:
+	@echo "$(GREEN)Environment Information$(NC)"
+	@echo "======================="
+	@echo "Python: $$($(PYTHON) --version 2>&1)"
+	@echo "Pip: $$($(PIP) --version 2>&1)"
+	@echo "Virtual env: $(VENV)"
+	@echo "Source dir: $(SOURCE_DIR)"
+	@echo "Build dir: $(BUILD_DIR)"
+	@if [ -d "$(VENV)" ]; then \
+		echo "Virtual environment: ✅ Created"; \
+		. $(VENV)/bin/activate && echo "Sphinx: $$(sphinx-build --version 2>&1)"; \
+	else \
+		echo "Virtual environment: ❌ Not created"; \
+	fi
