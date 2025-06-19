@@ -1,0 +1,60 @@
+{%- extends "pydata_sphinx_theme/layout.html" %}
+
+{%- block extrahead %}
+{{ super() }}
+<!-- LLM Chatbot Styles -->
+<link rel="stylesheet" href="{{ pathto('_static/css/llm-chatbot.css', 1) }}">
+{%- endblock extrahead %}
+
+{%- block footer %}
+{{ super() }}
+
+<!-- LLM Chatbot Widget -->
+<div id="llm-chatbot-root"></div>
+
+<!-- LLM Chatbot Scripts -->
+<script src="{{ pathto('_static/js/llm-chatbot.js', 1) }}"></script>
+
+<script>
+// Initialize chatbot with custom configuration
+document.addEventListener('DOMContentLoaded', function() {
+    // Configuration for the LLM chatbot
+    const chatbotConfig = {
+        apiEndpoint: '{{ chatbot_api_endpoint | default("/api/chat") }}',
+        model: '{{ chatbot_model | default("gpt-3.5-turbo") }}',
+        maxTokens: {{ chatbot_max_tokens | default(500) }},
+        temperature: {{ chatbot_temperature | default(0.1) }},
+        enabled: {{ chatbot_enabled | default("true") | lower }},
+        systemPrompt: `You are a helpful AI assistant for the {{ project }} documentation.
+        
+Your role:
+- Answer questions about {{ project }} features, installation, configuration, and usage
+- Provide code examples and best practices
+- Help users navigate the documentation
+- Explain technical concepts clearly
+- Direct users to relevant documentation sections
+
+Guidelines:
+- Only answer questions related to {{ project }} documentation
+- If you don't know something, say so and suggest checking the documentation
+- Provide concise but helpful answers
+- Include relevant links to documentation sections when possible
+- Be friendly and professional
+
+Current page: {{ pagename }}
+Documentation version: {{ version }}`
+    };
+    
+    // Initialize the chatbot
+    if (typeof LLMDocumentationChatbot !== 'undefined') {
+        window.llmChatbot = new LLMDocumentationChatbot(chatbotConfig);
+        
+        // Add keyboard shortcut hint to help
+        const helpText = document.querySelector('.help-text');
+        if (helpText) {
+            helpText.innerHTML += '<br><small>💡 Press Alt+A to open AI assistant</small>';
+        }
+    }
+});
+</script>
+{%- endblock footer %}

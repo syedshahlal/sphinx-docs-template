@@ -110,12 +110,25 @@ html_theme_options = {
     "show_version_warning": True,
 }
 
+# LLM Chatbot configuration
+chatbot_enabled = True
+chatbot_api_endpoint = '/api/chat'  # Your LLM API endpoint
+chatbot_model = 'gpt-3.5-turbo'
+chatbot_max_tokens = 500
+chatbot_temperature = 0.1
+
 html_context = {
     "github_user": "gra-community",
     "github_repo": "gra-core",
     "github_version": "main",
     "doc_path": "docs",
     "default_mode": "light",
+    # Chatbot configuration
+    "chatbot_enabled": chatbot_enabled,
+    "chatbot_api_endpoint": chatbot_api_endpoint,
+    "chatbot_model": chatbot_model,
+    "chatbot_max_tokens": chatbot_max_tokens,
+    "chatbot_temperature": chatbot_temperature,
 }
 
 html_static_path = ['_static']
@@ -123,6 +136,7 @@ html_css_files = [
     'css/boa-theme.css',
     'css/custom.css',
     'css/chatbot.css',
+    'css/llm-chatbot.css',  # Add this line
 ]
 
 html_js_files = [
@@ -130,6 +144,7 @@ html_js_files = [
     'js/version-compare.js',
     'js/chatbot.js',
     'js/custom.js',
+    'js/llm-chatbot.js',  # Add this line
 ]
 
 # -- Extension configuration -------------------------------------------------
