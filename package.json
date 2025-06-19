@@ -27,8 +27,11 @@
   "dependencies": {
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "fs": "latest",
+    "http": "latest",
     "lucide-react": "^0.454.0",
     "next": "15.2.4",
+    "path": "latest",
     "react": "^19",
     "react-dom": "^19",
     "tailwind-merge": "^2.5.5",
