@@ -1,0 +1,91 @@
+{%- extends "pydata_sphinx_theme/layout.html" %}
+
+{%- block htmltitle %}
+  <title>{{ title|striptags|e }}{{ titlesuffix }}</title>
+{%- endblock %}
+
+{%- block extrahead %}
+  {{ super() }}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+{%- endblock extrahead %}
+
+{%- block docs_navbar %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top bd-navbar" id="navbar-main">
+  <div class="bd-navbar-elements">
+    <div class="navbar-header-items">
+      <div class="navbar-item">
+        <a class="navbar-brand logo" href="{{ pathto(master_doc) }}">
+          <div class="logo-container">
+            <div class="logo-icon">GRA</div>
+            <span class="logo-text">{{ project }}</span>
+            <span class="version-badge">{{ version }}</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div class="navbar-center-items">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('user-guide/installation') }}">User Guide</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('api/core') }}">API Reference</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('examples/quickstart') }}">Examples</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('changelog') }}">Changelog</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            More
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{{ pathto('contributing/guide') }}">Contributing</a></li>
+            <li><a class="dropdown-item" href="{{ pathto('community') }}">Community</a></li>
+            <li><a class="dropdown-item" href="{{ pathto('support') }}">Support</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="navbar-end-items">
+      <div class="navbar-item">
+        <div class="search-container">
+          <input type="search" class="form-control" placeholder="Search" aria-label="Search">
+          <kbd class="search-kbd">Ctrl K</kbd>
+        </div>
+      </div>
+      <div class="navbar-item">
+        <a href="{{ theme_github_url }}" class="btn btn-sm btn-outline-secondary">
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+      <div class="navbar-item">
+        <a href="{{ theme_twitter_url }}" class="btn btn-sm btn-outline-secondary">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </div>
+      <div class="navbar-item">
+        <button class="btn btn-sm btn-outline-secondary theme-switch-button" title="Toggle theme">
+          <i class="fas fa-sun"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+{%- endblock docs_navbar %}
+
+{%- block announcement %}
+{%- if theme_announcement %}
+<div class="announcement-banner">
+  <div class="announcement-content">
+    {{ theme_announcement }}
+  </div>
+</div>
+{%- endif %}
+{%- endblock announcement %}
