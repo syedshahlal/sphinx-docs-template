@@ -164,6 +164,16 @@ body {
   margin-top: var(--spacing-xs);
   background: var(--background-color);
   min-width: 200px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .dropdown-item {
@@ -972,5 +982,128 @@ body {
 
   .search-input {
     width: 100%;
+  }
+}
+
+/* Enhanced dropdown animations */
+.dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Better focus states */
+.nav-link:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Improved button styling */
+.btn-outline-secondary {
+  border-color: var(--border-color);
+  color: var(--text-muted);
+  background: var(--surface-color);
+  transition: all 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(227, 24, 55, 0.2);
+}
+
+/* Loading states */
+.nav-link.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.nav-link.loading::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: var(--spacing-xs);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Better mobile menu styling */
+@media (max-width: 991px) {
+  #mobile-nav-menu {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-top: var(--spacing-sm);
+    padding: var(--spacing-sm);
+    box-shadow: var(--shadow-md);
+  }
+
+  #mobile-nav-menu .nav-link {
+    border-radius: 6px;
+    margin-bottom: 2px;
+  }
+
+  #mobile-nav-menu .nav-link:hover {
+    background: var(--primary-color);
+    color: white !important;
+  }
+
+  #mobile-nav-menu .nav-link i {
+    width: 20px;
+    text-align: center;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .nav-link {
+    border: 2px solid currentColor;
+  }
+
+  .nav-link:hover {
+    background: var(--text-color);
+    color: var(--background-color) !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .boa-navbar,
+  .sidebar,
+  .chatbot-widget {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding: 0 !important;
   }
 }

@@ -25,7 +25,7 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <a href="#" className="text-gray-700 hover:text-gray-900">
+            <a href="#" className="text-gray-700 hover:text-gray-900 font-mono font-light">
               User Guide
             </a>
             <a href="#" className="text-gray-700 hover:text-gray-900">

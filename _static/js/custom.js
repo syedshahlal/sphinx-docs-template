@@ -48,35 +48,89 @@ function initializeSearch() {
 
 function initializeNavigation() {
   // Mobile navigation toggle
-  const navToggle = document.querySelector(".navbar-toggler")
+  const navToggle = document.getElementById("mobile-nav-toggle")
+  const mobileNavMenu = document.getElementById("mobile-nav-menu")
   const sidebar = document.getElementById("sidebar")
 
-  if (navToggle && sidebar) {
-    navToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("show")
+  if (navToggle && mobileNavMenu) {
+    navToggle.addEventListener("click", (e) => {
+      e.preventDefault()
 
-      // Add overlay for mobile
-      let overlay = document.querySelector(".sidebar-overlay")
-      if (!overlay) {
-        overlay = document.createElement("div")
-        overlay.className = "sidebar-overlay"
-        document.body.appendChild(overlay)
+      const isVisible = mobileNavMenu.style.display !== "none"
 
-        overlay.addEventListener("click", () => {
-          sidebar.classList.remove("show")
-          overlay.classList.remove("show")
-        })
+      if (isVisible) {
+        mobileNavMenu.style.display = "none"
+        navToggle.querySelector("i").className = "fas fa-bars"
+        navToggle.setAttribute("aria-expanded", "false")
+      } else {
+        mobileNavMenu.style.display = "block"
+        navToggle.querySelector("i").className = "fas fa-times"
+        navToggle.setAttribute("aria-expanded", "true")
       }
+    })
 
-      overlay.classList.toggle("show")
+    // Close mobile menu when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!navToggle.contains(e.target) && !mobileNavMenu.contains(e.target)) {
+        mobileNavMenu.style.display = "none"
+        navToggle.querySelector("i").className = "fas fa-bars"
+        navToggle.setAttribute("aria-expanded", "false")
+      }
+    })
+
+    // Close mobile menu on window resize
+    window.addEventListener("resize", () => {
+      if (window.innerWidth >= 992) {
+        mobileNavMenu.style.display = "none"
+        navToggle.querySelector("i").className = "fas fa-bars"
+        navToggle.setAttribute("aria-expanded", "false")
+      }
     })
   }
 
-  // Initialize sidebar functionality
+  // Sidebar toggle for mobile
+  if (navToggle && sidebar) {
+    // Add separate handler for sidebar toggle on smaller screens
+    const handleSidebarToggle = () => {
+      if (window.innerWidth < 768) {
+        sidebar.classList.toggle("show")
+
+        // Add overlay for mobile
+        let overlay = document.querySelector(".sidebar-overlay")
+        if (!overlay) {
+          overlay = document.createElement("div")
+          overlay.className = "sidebar-overlay"
+          document.body.appendChild(overlay)
+
+          overlay.addEventListener("click", () => {
+            sidebar.classList.remove("show")
+            overlay.classList.remove("show")
+          })
+        }
+
+        overlay.classList.toggle("show")
+      }
+    }
+
+    // Double-tap on mobile nav toggle to open sidebar
+    let tapCount = 0
+    navToggle.addEventListener("click", () => {
+      tapCount++
+      setTimeout(() => {
+        if (tapCount === 2) {
+          handleSidebarToggle()
+        }
+        tapCount = 0
+      }, 300)
+    })
+  }
+
+  // Initialize other navigation features
   initializeSidebarSearch()
   initializeSidebarCollapse()
   initializeActiveNavigation()
   initializeNestedNavigation()
+  initializeDropdowns()
 }
 
 function initializeSidebarSearch() {
@@ -419,3 +473,73 @@ const copyButtonStyles = `
 const styleSheet = document.createElement("style")
 styleSheet.textContent = copyButtonStyles
 document.head.appendChild(styleSheet)
+
+function initializeDropdowns() {
+  // Handle dropdown menus
+  const dropdownToggles = document.querySelectorAll(".dropdown-toggle")
+
+  dropdownToggles.forEach((toggle) => {
+    toggle.addEventListener("click", (e) => {
+      e.preventDefault()
+
+      const dropdownMenu = toggle.nextElementSibling
+      const isOpen = dropdownMenu.classList.contains("show")
+
+      // Close all other dropdowns
+      document.querySelectorAll(".dropdown-menu.show").forEach((menu) => {
+        menu.classList.remove("show")
+      })
+
+      // Toggle current dropdown
+      if (!isOpen) {
+        dropdownMenu.classList.add("show")
+        toggle.setAttribute("aria-expanded", "true")
+      } else {
+        dropdownMenu.classList.remove("show")
+        toggle.setAttribute("aria-expanded", "false")
+      }
+    })
+  })
+
+  // Close dropdowns when clicking outside
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dropdown")) {
+      document.querySelectorAll(".dropdown-menu.show").forEach((menu) => {
+        menu.classList.remove("show")
+      })
+      document.querySelectorAll(".dropdown-toggle").forEach((toggle) => {
+        toggle.setAttribute("aria-expanded", "false")
+      })
+    }
+  })
+
+  // Close dropdowns on escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      document.querySelectorAll(".dropdown-menu.show").forEach((menu) => {
+        menu.classList.remove("show")
+      })
+      document.querySelectorAll(".dropdown-toggle").forEach((toggle) => {
+        toggle.setAttribute("aria-expanded", "false")
+      })
+    }
+  })
+}
+
+// Add active state detection for navigation
+function setActiveNavigation() {
+  const currentPath = window.location.pathname
+  const navLinks = document.querySelectorAll(".navbar-nav .nav-link")
+
+  navLinks.forEach((link) => {
+    const href = link.getAttribute("href")
+    if (href && currentPath.includes(href.replace(/\/index\.html$/, ""))) {
+      link.classList.add("active")
+    }
+  })
+}
+
+// Initialize active navigation on page load
+document.addEventListener("DOMContentLoaded", () => {
+  setActiveNavigation()
+})
