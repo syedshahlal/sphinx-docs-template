@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeCopyButtons()
   initializeScrollSpy()
   initializeTooltips()
+  initializeHelpModal()
 
   // Add smooth scrolling to anchor links
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
@@ -21,6 +22,86 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   })
 })
+
+function initializeHelpModal() {
+  const helpButton = document.getElementById("help-button")
+
+  if (helpButton) {
+    helpButton.addEventListener("click", () => {
+      // Create help modal if it doesn't exist
+      let helpModal = document.getElementById("help-modal")
+      if (!helpModal) {
+        createHelpModal()
+        helpModal = document.getElementById("help-modal")
+      }
+
+      // Show the modal
+      if (typeof bootstrap !== "undefined" && bootstrap.Modal) {
+        const modal = new bootstrap.Modal(helpModal)
+        modal.show()
+      } else {
+        // Fallback for when Bootstrap is not available
+        helpModal.style.display = "block"
+        helpModal.classList.add("show")
+      }
+    })
+  }
+}
+
+function createHelpModal() {
+  const modalHtml = `
+    <div class="modal fade" id="help-modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="fas fa-question-circle me-2"></i>Need Help?
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="help-options">
+              <div class="help-option">
+                <i class="fas fa-robot text-primary"></i>
+                <div>
+                  <h6>AI Assistant</h6>
+                  <p>Use the chatbot in the bottom-right corner for instant help</p>
+                </div>
+              </div>
+              <div class="help-option">
+                <i class="fas fa-keyboard text-info"></i>
+                <div>
+                  <h6>Keyboard Shortcuts</h6>
+                  <p><kbd><i class="fas fa-keyboard me-1"></i>Ctrl + K</kbd> - Search documentation<br>
+                     <kbd>Alt + S</kbd> - Focus sidebar search<br>
+                     <kbd>Alt + C</kbd> - Toggle chatbot</p>
+                </div>
+              </div>
+              <div class="help-option">
+                <i class="fas fa-users text-success"></i>
+                <div>
+                  <h6>Community</h6>
+                  <p>Join our community forum for discussions and support</p>
+                </div>
+              </div>
+              <div class="help-option">
+                <i class="fas fa-envelope text-warning"></i>
+                <div>
+                  <h6>Contact Support</h6>
+                  <p>Email us at <a href="mailto:support@gra-platform.org">support@gra-platform.org</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+
+  document.body.insertAdjacentHTML("beforeend", modalHtml)
+}
 
 function initializeSearch() {
   const searchInput = document.querySelector(".search-input")

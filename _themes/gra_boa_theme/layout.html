@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <meta name="theme-color" content="#e31837">
 {%- endblock extrahead %}
 
@@ -21,10 +21,41 @@
       <div class="navbar-item">
         <a class="navbar-brand logo" href="{{ pathto(master_doc) }}">
           <div class="logo-container">
-            <img src="{{ pathto('_static/images/gra-logo.png', 1) }}" alt="GRA Logo" class="logo-img">
+            <!-- Bank of America Logo -->
+            <div class="boa-logo">
+              <svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+                <!-- Bank of America Flag Design -->
+                <rect width="120" height="40" fill="#e31837"/>
+                <rect x="0" y="0" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="8" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="16" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="24" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="32" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="0" width="40" height="20" fill="#012169"/>
+                <!-- Stars pattern -->
+                <circle cx="8" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="16" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="24" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="32" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="12" cy="8" r="1" fill="#ffffff"/>
+                <circle cx="20" cy="8" r="1" fill="#ffffff"/>
+                <circle cx="28" cy="8" r="1" fill="#ffffff"/>
+                <circle cx="8" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="16" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="24" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="32" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="12" cy="16" r="1" fill="#ffffff"/>
+                <circle cx="20" cy="16" r="1" fill="#ffffff"/>
+                <circle cx="28" cy="16" r="1" fill="#ffffff"/>
+                <!-- Bank of America Text -->
+                <text x="50" y="15" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff">BANK OF</text>
+                <text x="50" y="25" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff">AMERICA</text>
+                <text x="50" y="35" font-family="Arial, sans-serif" font-size="6" fill="#ffffff">DOCUMENTATION</text>
+              </svg>
+            </div>
             <div class="brand-text">
               <span class="brand-name">{{ project }}</span>
-              <span class="brand-tagline">Documentation</span>
+              <span class="brand-tagline">Documentation Portal</span>
             </div>
           </div>
         </a>
@@ -41,30 +72,35 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ pathto('user-guide/index') }}" 
              {% if 'user-guide' in pagename %}aria-current="page"{% endif %}>
+            <i class="fas fa-book me-2"></i>
             User Guide
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ pathto('api/index') }}"
              {% if 'api' in pagename %}aria-current="page"{% endif %}>
+            <i class="fas fa-code me-2"></i>
             API Reference
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ pathto('examples/index') }}"
              {% if 'examples' in pagename %}aria-current="page"{% endif %}>
+            <i class="fas fa-lightbulb me-2"></i>
             Examples
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ pathto('tutorials/index') }}"
              {% if 'tutorials' in pagename %}aria-current="page"{% endif %}>
+            <i class="fas fa-chalkboard-teacher me-2"></i>
             Tutorials
           </a>
         </li>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" role="button" 
              data-bs-toggle="dropdown" aria-expanded="false" id="more-dropdown">
+            <i class="fas fa-ellipsis-h me-2"></i>
             More
           </a>
           <ul class="dropdown-menu" aria-labelledby="more-dropdown">
@@ -91,6 +127,12 @@
               <a class="dropdown-item" href="{{ pathto('support') }}">
                 <i class="fas fa-life-ring me-2"></i>
                 Support
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ pathto('roadmap') }}">
+                <i class="fas fa-road me-2"></i>
+                Roadmap
               </a>
             </li>
           </ul>
@@ -127,7 +169,9 @@
                  aria-label="Search documentation"
                  autocomplete="off">
           <i class="fas fa-search search-icon" aria-hidden="true"></i>
-          <kbd class="search-kbd" aria-hidden="true">Ctrl K</kbd>
+          <kbd class="search-kbd" aria-hidden="true">
+            <i class="fas fa-keyboard me-1"></i>Ctrl K
+          </kbd>
         </div>
       </div>
 
@@ -151,6 +195,16 @@
            rel="noopener noreferrer">
           <i class="fab fa-github" aria-hidden="true"></i>
         </a>
+      </div>
+
+      <!-- Help/Support -->
+      <div class="navbar-item">
+        <button class="btn btn-sm btn-outline-secondary" 
+                id="help-button"
+                title="Get help"
+                aria-label="Get help">
+          <i class="fas fa-question-circle" aria-hidden="true"></i>
+        </button>
       </div>
     </div>
 
@@ -205,6 +259,12 @@
             Support
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('roadmap') }}">
+            <i class="fas fa-road me-2"></i>
+            Roadmap
+          </a>
+        </li>
       </ul>
     </div>
   </div>
@@ -219,7 +279,7 @@
       <div class="sidebar-sticky">
         <div class="sidebar-header">
           <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-            <span>Navigation</span>
+            <span><i class="fas fa-sitemap me-2"></i>Navigation</span>
             <button class="btn btn-sm sidebar-collapse-btn" id="sidebar-collapse" title="Collapse all sections">
               <i class="fas fa-compress-alt"></i>
             </button>
@@ -229,6 +289,9 @@
         <!-- Search in sidebar -->
         <div class="sidebar-search px-3 mb-3">
           <div class="input-group input-group-sm">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
             <input type="text" class="form-control" id="sidebar-search" placeholder="Search navigation...">
             <button class="btn btn-outline-secondary" type="button" id="sidebar-search-clear" style="display: none;">
               <i class="fas fa-times"></i>
@@ -341,9 +404,9 @@
                   </a>
                   <div class="collapse" id="web-examples">
                     <ul class="nav-section-sublist">
-                      <li><a class="nav-link" href="{{ pathto('examples/web/basic-app') }}">Basic Web App</a></li>
-                      <li><a class="nav-link" href="{{ pathto('examples/web/rest-api') }}">REST API</a></li>
-                      <li><a class="nav-link" href="{{ pathto('examples/web/authentication') }}">Authentication</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/web/basic-app') }}"><i class="fas fa-circle me-2"></i>Basic Web App</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/web/rest-api') }}"><i class="fas fa-circle me-2"></i>REST API</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/web/authentication') }}"><i class="fas fa-circle me-2"></i>Authentication</a></li>
                     </ul>
                   </div>
                 </li>
@@ -355,9 +418,9 @@
                   </a>
                   <div class="collapse" id="data-examples">
                     <ul class="nav-section-sublist">
-                      <li><a class="nav-link" href="{{ pathto('examples/data/etl-pipeline') }}">ETL Pipeline</a></li>
-                      <li><a class="nav-link" href="{{ pathto('examples/data/analytics') }}">Analytics Dashboard</a></li>
-                      <li><a class="nav-link" href="{{ pathto('examples/data/real-time') }}">Real-time Processing</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/data/etl-pipeline') }}"><i class="fas fa-circle me-2"></i>ETL Pipeline</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/data/analytics') }}"><i class="fas fa-circle me-2"></i>Analytics Dashboard</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/data/real-time') }}"><i class="fas fa-circle me-2"></i>Real-time Processing</a></li>
                     </ul>
                   </div>
                 </li>
@@ -475,8 +538,10 @@
         <div class="sidebar-footer">
           <div class="sidebar-version-info">
             <small class="text-muted">
-              Version {{ version }}<br>
-              <a href="{{ pathto('changelog') }}" class="text-muted">View changelog</a>
+              <i class="fas fa-tag me-1"></i>Version {{ version }}<br>
+              <a href="{{ pathto('changelog') }}" class="text-muted">
+                <i class="fas fa-history me-1"></i>View changelog
+              </a>
             </small>
           </div>
         </div>
@@ -489,20 +554,30 @@
         <!-- Breadcrumbs -->
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ pathto(master_doc) }}">Home</a></li>
+            <li class="breadcrumb-item">
+              <a href="{{ pathto(master_doc) }}">
+                <i class="fas fa-home me-1"></i>Home
+              </a>
+            </li>
             {% for parent in parents %}
-            <li class="breadcrumb-item"><a href="{{ parent.link|e }}">{{ parent.title }}</a></li>
+            <li class="breadcrumb-item">
+              <a href="{{ parent.link|e }}">{{ parent.title }}</a>
+            </li>
             {% endfor %}
-            <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+            <li class="breadcrumb-item active" aria-current="page">
+              <i class="fas fa-file-alt me-1"></i>{{ title }}
+            </li>
           </ol>
         </nav>
 
         <!-- Version Warning -->
         {% if version != theme_latest_version %}
         <div class="alert alert-warning version-warning" role="alert">
-          <i class="fas fa-exclamation-triangle"></i>
+          <i class="fas fa-exclamation-triangle me-2"></i>
           You are viewing documentation for version {{ version }}. 
-          <a href="{{ pathto('index', 1) }}" class="alert-link">View latest version ({{ theme_latest_version }})</a>
+          <a href="{{ pathto('index', 1) }}" class="alert-link">
+            <i class="fas fa-arrow-right me-1"></i>View latest version ({{ theme_latest_version }})
+          </a>
         </div>
         {% endif %}
 
@@ -517,14 +592,14 @@
             <div class="col-md-6">
               {% if prev %}
               <a href="{{ prev.link|e }}" class="btn btn-outline-primary">
-                <i class="fas fa-arrow-left"></i> {{ prev.title }}
+                <i class="fas fa-arrow-left me-2"></i>{{ prev.title }}
               </a>
               {% endif %}
             </div>
             <div class="col-md-6 text-end">
               {% if next %}
               <a href="{{ next.link|e }}" class="btn btn-outline-primary">
-                {{ next.title }} <i class="fas fa-arrow-right"></i>
+                {{ next.title }}<i class="fas fa-arrow-right ms-2"></i>
               </a>
               {% endif %}
             </div>
@@ -536,7 +611,9 @@
     <!-- Right Sidebar (TOC) -->
     <nav class="col-lg-2 d-none d-lg-block toc-sidebar">
       <div class="toc-sticky">
-        <h6 class="toc-heading">On this page</h6>
+        <h6 class="toc-heading">
+          <i class="fas fa-list me-2"></i>On this page
+        </h6>
         {{ toc }}
       </div>
     </nav>
@@ -552,8 +629,10 @@
   </div>
   <div class="chatbot-container" id="chatbot-container" style="display: none;">
     <div class="chatbot-header">
-      <h5>Documentation Assistant</h5>
-      <button class="chatbot-close" id="chatbot-close">×</button>
+      <h5><i class="fas fa-robot me-2"></i>Documentation Assistant</h5>
+      <button class="chatbot-close" id="chatbot-close">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
     <div class="chatbot-messages" id="chatbot-messages">
       <div class="message bot-message">
@@ -561,7 +640,7 @@
           <i class="fas fa-robot"></i>
         </div>
         <div class="message-content">
-          Hi! I can help you find information in the GRA Core Platform documentation. What would you like to know?
+          <i class="fas fa-wave-square me-2"></i>Hi! I can help you find information in the GRA Core Platform documentation. What would you like to know?
         </div>
       </div>
     </div>
@@ -572,7 +651,10 @@
       </button>
     </div>
     <div class="chatbot-footer">
-      <small class="text-muted">Powered by AI • Answers based on documentation</small>
+      <small class="text-muted">
+        <i class="fas fa-magic me-1"></i>Powered by AI • 
+        <i class="fas fa-book me-1"></i>Answers based on documentation
+      </small>
     </div>
   </div>
 </div>
@@ -583,18 +665,64 @@
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Compare Documentation Versions</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title">
+          <i class="fas fa-code-compare me-2"></i>Compare Documentation Versions
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
       <div class="modal-body">
         <div class="row">
           <div class="col-md-6">
-            <h6>Version <span id="compare-version-1"></span></h6>
+            <h6><i class="fas fa-tag me-2"></i>Version <span id="compare-version-1"></span></h6>
             <div id="compare-content-1" class="compare-content"></div>
           </div>
           <div class="col-md-6">
-            <h6>Version <span id="compare-version-2"></span></h6>
+            <h6><i class="fas fa-tag me-2"></i>Version <span id="compare-version-2"></span></h6>
             <div id="compare-content-2" class="compare-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="help-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-question-circle me-2"></i>Need Help?
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="help-options">
+          <div class="help-option">
+            <i class="fas fa-robot text-primary"></i>
+            <h6>AI Assistant</h6>
+            <p>Use the chatbot in the bottom-right corner for instant help</p>
+          </div>
+          <div class="help-option">
+            <i class="fas fa-keyboard text-info"></i>
+            <h6>Keyboard Shortcuts</h6>
+            <p><kbd>Ctrl + K</kbd> - Search documentation<br>
+               <kbd>Alt + S</kbd> - Focus sidebar search<br>
+               <kbd>Alt + C</kbd> - Toggle chatbot</p>
+          </div>
+          <div class="help-option">
+            <i class="fas fa-users text-success"></i>
+            <h6>Community</h6>
+            <p>Join our community forum for discussions and support</p>
+          </div>
+          <div class="help-option">
+            <i class="fas fa-envelope text-warning"></i>
+            <h6>Contact Support</h6>
+            <p>Email us at <a href="mailto:support@gra-platform.org">support@gra-platform.org</a></p>
           </div>
         </div>
       </div>
