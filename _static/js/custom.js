@@ -54,24 +54,234 @@ function initializeNavigation() {
   if (navToggle && sidebar) {
     navToggle.addEventListener("click", () => {
       sidebar.classList.toggle("show")
+
+      // Add overlay for mobile
+      let overlay = document.querySelector(".sidebar-overlay")
+      if (!overlay) {
+        overlay = document.createElement("div")
+        overlay.className = "sidebar-overlay"
+        document.body.appendChild(overlay)
+
+        overlay.addEventListener("click", () => {
+          sidebar.classList.remove("show")
+          overlay.classList.remove("show")
+        })
+      }
+
+      overlay.classList.toggle("show")
     })
   }
 
-  // Collapsible sidebar sections
-  document.querySelectorAll(".sidebar .toctree-l1 > a").forEach((link) => {
-    const parent = link.parentElement
-    const sublist = parent.querySelector("ul")
+  // Initialize sidebar functionality
+  initializeSidebarSearch()
+  initializeSidebarCollapse()
+  initializeActiveNavigation()
+  initializeNestedNavigation()
+}
 
-    if (sublist) {
-      link.addEventListener("click", (e) => {
-        if (link.getAttribute("href") === "#") {
-          e.preventDefault()
-          parent.classList.toggle("expanded")
+function initializeSidebarSearch() {
+  const searchInput = document.getElementById("sidebar-search")
+  const clearButton = document.getElementById("sidebar-search-clear")
+
+  if (!searchInput) return
+
+  searchInput.addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase().trim()
+
+    if (query) {
+      clearButton.style.display = "block"
+      filterNavigation(query)
+    } else {
+      clearButton.style.display = "none"
+      clearNavigationFilter()
+    }
+  })
+
+  if (clearButton) {
+    clearButton.addEventListener("click", () => {
+      searchInput.value = ""
+      clearButton.style.display = "none"
+      clearNavigationFilter()
+      searchInput.focus()
+    })
+  }
+}
+
+function filterNavigation(query) {
+  const navLinks = document.querySelectorAll(".sidebar-nav .nav-link")
+  const navSections = document.querySelectorAll(".nav-section")
+
+  let hasVisibleItems = false
+
+  navSections.forEach((section) => {
+    const sectionLinks = section.querySelectorAll(".nav-link")
+    let sectionHasMatch = false
+
+    sectionLinks.forEach((link) => {
+      const text = link.textContent.toLowerCase()
+      const listItem = link.closest(".nav-item")
+
+      if (text.includes(query)) {
+        listItem.style.display = "block"
+        link.classList.add("search-highlight")
+        sectionHasMatch = true
+        hasVisibleItems = true
+      } else {
+        listItem.style.display = "none"
+        link.classList.remove("search-highlight")
+      }
+    })
+
+    // Show/hide entire section based on matches
+    if (sectionHasMatch) {
+      section.style.display = "block"
+      // Expand section if it has matches
+      const collapseElement = section.querySelector(".collapse")
+      if (collapseElement && !collapseElement.classList.contains("show")) {
+        collapseElement.classList.add("show")
+      }
+    } else {
+      section.style.display = "none"
+    }
+  })
+
+  // Show "no results" message if needed
+  showNoResultsMessage(!hasVisibleItems)
+}
+
+function clearNavigationFilter() {
+  const navLinks = document.querySelectorAll(".sidebar-nav .nav-link")
+  const navItems = document.querySelectorAll(".sidebar-nav .nav-item")
+  const navSections = document.querySelectorAll(".nav-section")
+
+  navItems.forEach((item) => {
+    item.style.display = "block"
+  })
+
+  navLinks.forEach((link) => {
+    link.classList.remove("search-highlight")
+  })
+
+  navSections.forEach((section) => {
+    section.style.display = "block"
+  })
+
+  hideNoResultsMessage()
+}
+
+function showNoResultsMessage(show) {
+  let message = document.getElementById("no-results-message")
+
+  if (show && !message) {
+    message = document.createElement("div")
+    message.id = "no-results-message"
+    message.className = "text-center text-muted p-3"
+    message.innerHTML = `
+      <i class="fas fa-search mb-2"></i><br>
+      <small>No matching navigation items found</small>
+    `
+    document.querySelector(".sidebar-nav").appendChild(message)
+  } else if (!show && message) {
+    message.remove()
+  }
+}
+
+function hideNoResultsMessage() {
+  const message = document.getElementById("no-results-message")
+  if (message) {
+    message.remove()
+  }
+}
+
+function initializeSidebarCollapse() {
+  const collapseButton = document.getElementById("sidebar-collapse")
+
+  if (collapseButton) {
+    collapseButton.addEventListener("click", () => {
+      const allSections = document.querySelectorAll(".nav-section .collapse")
+      const isExpanding = Array.from(allSections).some((section) => !section.classList.contains("show"))
+
+      allSections.forEach((section) => {
+        if (isExpanding) {
+          section.classList.add("show")
+        } else {
+          section.classList.remove("show")
         }
       })
+
+      // Update button icon
+      const icon = collapseButton.querySelector("i")
+      if (isExpanding) {
+        icon.className = "fas fa-expand-alt"
+        collapseButton.title = "Expand all sections"
+      } else {
+        icon.className = "fas fa-compress-alt"
+        collapseButton.title = "Collapse all sections"
+      }
+    })
+  }
+}
+
+function initializeActiveNavigation() {
+  // Highlight current page in navigation
+  const currentPath = window.location.pathname
+  const navLinks = document.querySelectorAll(".sidebar-nav .nav-link")
+
+  navLinks.forEach((link) => {
+    const href = link.getAttribute("href")
+    if (href && (currentPath.endsWith(href) || currentPath.includes(href.replace(".html", "")))) {
+      link.classList.add("current")
+
+      // Expand parent sections
+      let parent = link.closest(".collapse")
+      while (parent) {
+        parent.classList.add("show")
+        parent = parent.parentElement.closest(".collapse")
+      }
     }
   })
 }
+
+function initializeNestedNavigation() {
+  // Handle nested navigation toggles
+  const toggles = document.querySelectorAll(".nav-toggle")
+
+  toggles.forEach((toggle) => {
+    toggle.addEventListener("click", (e) => {
+      e.preventDefault()
+
+      const target = toggle.getAttribute("data-bs-target")
+      const targetElement = document.querySelector(target)
+
+      if (targetElement) {
+        targetElement.classList.toggle("show")
+        toggle.setAttribute("aria-expanded", targetElement.classList.contains("show"))
+      }
+    })
+  })
+}
+
+// Add keyboard navigation
+document.addEventListener("keydown", (e) => {
+  // Alt + S to focus sidebar search
+  if (e.altKey && e.key === "s") {
+    e.preventDefault()
+    const searchInput = document.getElementById("sidebar-search")
+    if (searchInput) {
+      searchInput.focus()
+    }
+  }
+
+  // Escape to clear sidebar search
+  if (e.key === "Escape") {
+    const searchInput = document.getElementById("sidebar-search")
+    if (searchInput && searchInput === document.activeElement) {
+      searchInput.value = ""
+      document.getElementById("sidebar-search-clear").style.display = "none"
+      clearNavigationFilter()
+    }
+  }
+})
 
 function initializeCopyButtons() {
   // Add copy buttons to code blocks
