@@ -10,7 +10,9 @@ export function Header() {
 
   const [theme, setTheme] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("theme") || "light"
+      const stored = localStorage.getItem("gra-docs-theme")
+      if (stored) return stored
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
     }
     return "light"
   })
@@ -18,17 +20,62 @@ export function Header() {
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light"
     setTheme(newTheme)
-    localStorage.setItem("theme", newTheme)
+    localStorage.setItem("gra-docs-theme", newTheme)
+
+    // Apply theme to document
     document.documentElement.setAttribute("data-theme", newTheme)
+    document.body.setAttribute("data-theme", newTheme)
+
+    // Update CSS custom properties for immediate effect
+    const root = document.documentElement
+    if (newTheme === "dark") {
+      root.style.setProperty("--background-color", "#1a1a1a")
+      root.style.setProperty("--text-color", "#ffffff")
+      root.style.setProperty("--surface-color", "#2d2d2d")
+      root.style.setProperty("--border-color", "#404040")
+      root.style.setProperty("--primary-color", "#ff4757")
+    } else {
+      root.style.setProperty("--background-color", "#ffffff")
+      root.style.setProperty("--text-color", "#333333")
+      root.style.setProperty("--surface-color", "#fafafa")
+      root.style.setProperty("--border-color", "#e0e0e0")
+      root.style.setProperty("--primary-color", "#e31837")
+    }
   }
 
   useEffect(() => {
+    // Apply theme on mount and when theme changes
     document.documentElement.setAttribute("data-theme", theme)
+    document.body.setAttribute("data-theme", theme)
+
+    // Apply CSS variables
+    const root = document.documentElement
+    if (theme === "dark") {
+      root.style.setProperty("--background-color", "#1a1a1a")
+      root.style.setProperty("--text-color", "#ffffff")
+      root.style.setProperty("--surface-color", "#2d2d2d")
+      root.style.setProperty("--border-color", "#404040")
+      root.style.setProperty("--primary-color", "#ff4757")
+      document.body.style.backgroundColor = "#1a1a1a"
+      document.body.style.color = "#ffffff"
+    } else {
+      root.style.setProperty("--background-color", "#ffffff")
+      root.style.setProperty("--text-color", "#333333")
+      root.style.setProperty("--surface-color", "#fafafa")
+      root.style.setProperty("--border-color", "#e0e0e0")
+      root.style.setProperty("--primary-color", "#e31837")
+      document.body.style.backgroundColor = "#ffffff"
+      document.body.style.color = "#333333"
+    }
   }, [theme])
 
   return (
     <>
-      <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
+      <header
+        className={`border-b sticky top-0 z-50 transition-all duration-300 ${
+          theme === "dark" ? "border-gray-700 bg-gray-900" : "border-gray-200 bg-white"
+        }`}
+      >
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Title */}
@@ -37,27 +84,59 @@ export function Header() {
                 <span className="text-white font-bold text-sm">GRA</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="font-semibold text-gray-900">GRA Core Platform</span>
-                <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">v1.0.0 (stable)</span>
+                <span className={`font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                  GRA Core Platform
+                </span>
+                <span
+                  className={`px-2 py-1 rounded text-xs ${
+                    theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  v1.0.0 (stable)
+                </span>
               </div>
             </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-mono font-light">
+              <a
+                href="#"
+                className={`font-mono font-light transition-colors ${
+                  theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                }`}
+              >
                 User Guide
               </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
+              <a
+                href="#"
+                className={`font-mono font-light transition-colors ${
+                  theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                }`}
+              >
                 API Reference
               </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
+              <a
+                href="#"
+                className={`font-mono font-light transition-colors ${
+                  theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                }`}
+              >
                 Examples
               </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900">
+              <a
+                href="#"
+                className={`font-mono font-light transition-colors ${
+                  theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                }`}
+              >
                 Changelog
               </a>
               <div className="relative group">
-                <button className="text-gray-700 hover:text-gray-900 flex items-center">
+                <button
+                  className={`flex items-center transition-colors ${
+                    theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                  }`}
+                >
                   More
                   <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -70,7 +149,15 @@ export function Header() {
             <div className="flex items-center space-x-3">
               <div className="relative hidden md:block">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input type="search" placeholder="Search" className="pl-10 pr-4 py-2 w-64 text-sm" />
+                <Input
+                  type="search"
+                  placeholder="Search"
+                  className={`pl-10 pr-4 py-2 w-64 text-sm transition-all ${
+                    theme === "dark"
+                      ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                  }`}
+                />
                 <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
                   Ctrl K
                 </kbd>
@@ -146,25 +233,28 @@ export function Header() {
       <style jsx>{`
         .theme-toggle-pill {
           position: relative;
-          width: 80px;
-          height: 36px;
-          background: #f5f5f5;
-          border: 2px solid #e0e0e0;
-          border-radius: 20px;
+          width: 88px;
+          height: 40px;
+          background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+          border: 2px solid transparent;
+          border-radius: 24px;
           cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           user-select: none;
           overflow: hidden;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
+
         .theme-toggle-pill:hover {
-          border-color: #e31837;
-          box-shadow: 0 0 0 3px rgba(227, 24, 55, 0.1);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
+
         .theme-toggle-pill:focus {
           outline: none;
-          border-color: #e31837;
-          box-shadow: 0 0 0 3px rgba(227, 24, 55, 0.2);
+          box-shadow: 0 0 0 3px rgba(227, 24, 55, 0.3), 0 4px 12px rgba(0, 0, 0, 0.15);
         }
+
         .theme-toggle-track {
           position: relative;
           width: 100%;
@@ -172,28 +262,32 @@ export function Header() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 4px;
+          padding: 0 6px;
         }
+
         .theme-toggle-thumb {
           position: absolute;
-          top: 2px;
-          left: 2px;
-          width: 28px;
-          height: 28px;
-          background: #e31837;
+          top: 3px;
+          left: 3px;
+          width: 32px;
+          height: 32px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
           z-index: 2;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
         }
+
         .theme-toggle-thumb .theme-icon {
           color: white;
-          font-size: 0.75rem;
-          transition: all 0.3s ease;
+          font-size: 0.9rem;
+          transition: all 0.4s ease;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
         }
+
         .theme-toggle-labels {
           position: absolute;
           top: 0;
@@ -203,52 +297,109 @@ export function Header() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 8px;
+          padding: 0 12px;
           pointer-events: none;
         }
+
         .theme-label {
-          font-size: 0.65rem;
-          font-weight: 600;
+          font-size: 0.7rem;
+          font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
-          transition: all 0.3s ease;
-          opacity: 0.7;
+          letter-spacing: 0.8px;
+          transition: all 0.4s ease;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
+
         .light-label {
-          color: #333333;
-          margin-left: 32px;
+          color: #4a5568;
+          margin-left: 36px;
+          opacity: 1;
         }
+
         .dark-label {
-          color: #666666;
-          margin-right: 32px;
+          color: #718096;
+          margin-right: 36px;
+          opacity: 0.6;
         }
+
         /* Dark theme active state */
         .theme-toggle-pill[aria-checked='true'] {
-          background: #2d2d2d;
-          border-color: #0066cc;
+          background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+          border-color: transparent;
         }
+
         .theme-toggle-pill[aria-checked='true'] .theme-toggle-thumb {
-          transform: translateX(44px);
-          background: #0066cc;
+          transform: translateX(48px);
+          background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
         }
+
         .theme-toggle-pill[aria-checked='true'] .theme-icon {
-          transform: rotate(180deg);
+          transform: rotate(180deg) scale(1.1);
         }
+
         .theme-toggle-pill[aria-checked='true'] .light-label {
           opacity: 0.4;
-          color: #a4a4a4;
+          color: #718096;
         }
+
         .theme-toggle-pill[aria-checked='true'] .dark-label {
           opacity: 1;
-          color: #ffffff;
+          color: #e2e8f0;
         }
-        /* Hover effects */
+
+        /* Enhanced hover effects */
         .theme-toggle-pill:hover .theme-toggle-thumb {
-          transform: scale(1.1);
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+          transform: scale(1.05);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+
         .theme-toggle-pill[aria-checked='true']:hover .theme-toggle-thumb {
-          transform: translateX(44px) scale(1.1);
+          transform: translateX(48px) scale(1.05);
+        }
+
+        /* Active state */
+        .theme-toggle-pill:active .theme-toggle-thumb {
+          transform: scale(0.95);
+        }
+
+        .theme-toggle-pill[aria-checked='true']:active .theme-toggle-thumb {
+          transform: translateX(48px) scale(0.95);
+        }
+
+        /* Glow effect during transition */
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 5px rgba(227, 24, 55, 0.3); }
+          50% { box-shadow: 0 0 20px rgba(227, 24, 55, 0.6); }
+        }
+
+        .theme-toggle-pill.switching {
+          animation: glow 0.6s ease-in-out;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 576px) {
+          .theme-toggle-pill {
+            width: 76px;
+            height: 36px;
+          }
+          
+          .theme-toggle-thumb {
+            width: 28px;
+            height: 28px;
+          }
+          
+          .theme-toggle-pill[aria-checked='true'] .theme-toggle-thumb {
+            transform: translateX(40px);
+          }
+          
+          .light-label {
+            margin-left: 32px;
+          }
+          
+          .dark-label {
+            margin-right: 32px;
+          }
         }
       `}</style>
     </>
