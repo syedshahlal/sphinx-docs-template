@@ -1,7 +1,7 @@
 GRA Core Platform Documentation
 ===============================
 
-Welcome to the comprehensive documentation for the GRA Core Platform - a modern, scalable platform built for enterprise-grade applications.
+Welcome to the comprehensive documentation for the **GRA Core Platform** - Bank of America's modern, scalable platform built for enterprise-grade applications.
 
 .. grid:: 1 2 2 3
     :gutter: 3
@@ -55,15 +55,15 @@ Platform Features
 .. grid:: 1 2 2 2
     :gutter: 2
 
-    .. grid-item-card:: 🏗️ Modern Architecture
+    .. grid-item-card:: 🏗️ Enterprise Architecture
         :class-card: sd-border-1
 
-        Built with modern technologies and best practices for scalability and maintainability.
+        Built with enterprise-grade technologies and best practices for scalability and maintainability.
 
-    .. grid-item-card:: 🔒 Enterprise Security
+    .. grid-item-card:: 🔒 Bank-Grade Security
         :class-card: sd-border-1
 
-        Bank-grade security features with comprehensive authentication and authorization.
+        Industry-leading security features with comprehensive authentication and authorization.
 
     .. grid-item-card:: 📊 Analytics & Monitoring
         :class-card: sd-border-1
@@ -156,6 +156,6 @@ Need Help?
 
 * 🤖 **AI Assistant**: Use the chatbot in the bottom-right corner for instant help
 * 📖 **Documentation**: Browse our comprehensive guides and API reference
-* 💬 **Community**: Join our `community forum <https://community.gra-platform.org>`_
-* 🐛 **Issues**: Report bugs on `GitHub <https://github.com/gra-community/gra-core/issues>`_
-* 📧 **Support**: Contact our support team at support@gra-platform.org
+* 💬 **Community**: Join our `community forum <https://community.bankofamerica.com/gra>`_
+* 🐛 **Issues**: Report bugs on `GitHub <https://github.com/bankofamerica/gra-core/issues>`_
+* 📧 **Support**: Contact our support team at gra-support@bankofamerica.com

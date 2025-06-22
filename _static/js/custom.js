@@ -90,7 +90,7 @@ function createHelpModal() {
                 <i class="fas fa-envelope text-warning"></i>
                 <div>
                   <h6>Contact Support</h6>
-                  <p>Email us at <a href="mailto:support@gra-platform.org">support@gra-platform.org</a></p>
+                  <p>Email us at <a href="mailto:gra-support@bankofamerica.com">gra-support@bankofamerica.com</a></p>
                 </div>
               </div>
             </div>

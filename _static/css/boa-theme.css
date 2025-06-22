@@ -1,4 +1,8 @@
-/* Bank of America Inspired Theme */
+/* Bank of America Theme - Main Styles */
+@import url("components.css");
+@import url("navigation.css");
+@import url("sidebar.css");
+@import url("content.css");
 
 :root {
   /* Bank of America Brand Colors */
@@ -1173,4 +1177,9 @@ body {
   color: white;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(227, 24, 55, 0.2);
+}
+
+/* Main layout */
+.container-fluid {
+  padding: 0;
 }

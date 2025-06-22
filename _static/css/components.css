@@ -1,0 +1,193 @@
+/* Component Styles */
+
+/* Help Modal */
+.help-options {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.help-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.help-option:hover {
+  border-color: var(--primary-color);
+  background: rgba(227, 24, 55, 0.02);
+}
+
+.help-option i {
+  font-size: 1.5rem;
+  margin-top: 0.25rem;
+}
+
+.help-option h6 {
+  margin: 0 0 var(--spacing-xs);
+  color: var(--text-color);
+}
+
+.help-option p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.help-option kbd {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 0.75rem;
+}
+
+/* Enhanced focus states */
+.nav-link:focus-visible,
+.btn:focus-visible,
+.form-control:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Better button styling */
+.btn-outline-secondary {
+  border-color: var(--border-color);
+  color: var(--text-muted);
+  background: var(--surface-color);
+  transition: all 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(227, 24, 55, 0.2);
+}
+
+/* Enhanced animations and interactions */
+.nav-link,
+.btn,
+.dropdown-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link::before,
+.btn::before,
+.dropdown-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.nav-link:hover::before,
+.btn:hover::before,
+.dropdown-item:hover::before {
+  left: 100%;
+}
+
+/* Loading states */
+.nav-link.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.nav-link.loading::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: var(--spacing-xs);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Copy button styles */
+.copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+pre:hover .copy-button {
+  opacity: 1;
+}
+
+.copy-button:hover {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.copy-button.copied {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .nav-link {
+    border: 2px solid currentColor;
+  }
+
+  .nav-link:hover {
+    background: var(--text-color);
+    color: var(--background-color) !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .boa-navbar,
+  .sidebar,
+  .chatbot-widget {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Additional Font Awesome icon styling */
+.fa-circle {
+  font-size: 0.4rem;
+  opacity: 0.6;
+}

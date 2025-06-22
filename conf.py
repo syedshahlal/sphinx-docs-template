@@ -9,8 +9,8 @@ sys.path.insert(0, os.path.abspath('_extensions'))
 
 # -- Project information -----------------------------------------------------
 project = 'GRA Core Platform'
-copyright = f'{datetime.now().year}, GRA Community'
-author = 'GRA Community'
+copyright = f'{datetime.now().year}, Bank of America'
+author = 'Bank of America Technology Team'
 
 # Version info
 version = '5.7'  # Short version
@@ -61,16 +61,16 @@ myst_enable_extensions = [
 ]
 
 # -- HTML output options ----------------------------------------------------
-html_theme = 'gra_boa_theme'
+html_theme = 'boa_theme'
 html_theme_path = ['_themes']
 
 html_title = f"{project} Documentation"
-html_logo = "_static/images/gra-logo.png"
+html_logo = "_static/images/boa-logo.svg"
 html_favicon = "_static/images/favicon.ico"
 
 # Bank of America inspired theme options
 html_theme_options = {
-    "repository_url": "https://github.com/gra-community/gra-core",
+    "repository_url": "https://github.com/bankofamerica/gra-core",
     "repository_branch": "main",
     "use_repository_button": True,
     "use_edit_page_button": True,
@@ -95,7 +95,7 @@ html_theme_options = {
     
     # Version switcher
     "switcher": {
-        "json_url": "https://gra-core-docs.readthedocs.io/en/latest/_static/switcher.json",
+        "json_url": "https://gra-core-docs.bankofamerica.com/en/latest/_static/switcher.json",
         "version_match": version,
     },
     
@@ -108,10 +108,11 @@ html_theme_options = {
     # Custom BoA styling
     "boa_theme": True,
     "show_version_warning": True,
+    "chatbot_enabled": True,
 }
 
 html_context = {
-    "github_user": "gra-community",
+    "github_user": "bankofamerica",
     "github_repo": "gra-core",
     "github_version": "main",
     "doc_path": "docs",
@@ -123,12 +124,15 @@ html_css_files = [
     'css/boa-theme.css',
     'css/custom.css',
     'css/chatbot.css',
+    'css/components.css',
 ]
 
 html_js_files = [
     'js/theme-switcher.js',
     'js/version-compare.js',
     'js/chatbot.js',
+    'js/navigation.js',
+    'js/search.js',
     'js/custom.js',
 ]
 
@@ -161,4 +165,4 @@ chatbot_config = {
 
 # Version comparison settings
 version_compare_enabled = True
-version_compare_base_url = "https://gra-core-docs.readthedocs.io"
+version_compare_base_url = "https://gra-core-docs.bankofamerica.com"

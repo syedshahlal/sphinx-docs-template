@@ -1,0 +1,18 @@
+<footer class="article-footer">
+  <div class="row">
+    <div class="col-md-6">
+      {% if prev %}
+      <a href="{{ prev.link|e }}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>{{ prev.title }}
+      </a>
+      {% endif %}
+    </div>
+    <div class="col-md-6 text-end">
+      {% if next %}
+      <a href="{{ next.link|e }}" class="btn btn-outline-primary">
+        {{ next.title }}<i class="fas fa-arrow-right ms-2"></i>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</footer>
