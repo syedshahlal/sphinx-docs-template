@@ -32,14 +32,19 @@
     </div>
   </div>
 
-  <!-- Theme Switcher -->
+  <!-- Theme Switcher Pill Toggle -->
   <div class="navbar-item">
-    <button class="btn btn-sm btn-outline-secondary theme-switch-button" 
-            id="theme-switcher" 
-            title="Toggle light/dark theme"
-            aria-label="Toggle theme">
-      <i class="fas fa-sun" aria-hidden="true"></i>
-    </button>
+    <div class="theme-toggle-pill" id="theme-toggle-pill" role="switch" aria-checked="false" aria-label="Toggle dark/light theme" tabindex="0">
+      <div class="theme-toggle-track">
+        <div class="theme-toggle-thumb">
+          <i class="theme-icon fas fa-sun" aria-hidden="true"></i>
+        </div>
+        <div class="theme-toggle-labels">
+          <span class="theme-label light-label">Light</span>
+          <span class="theme-label dark-label">Dark</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- GitHub Link -->
