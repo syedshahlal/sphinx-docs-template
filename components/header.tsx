@@ -55,7 +55,7 @@ export function Header() {
     <>
       <header
         className={`border-b sticky top-0 z-50 transition-all duration-300 border-border ${
-          theme === "dark" ? "bg-[#0066cc] backdrop-blur-sm" : "bg-white backdrop-blur-sm"
+          theme === "dark" ? "bg-[#012169] backdrop-blur-sm" : "bg-white backdrop-blur-sm"
         } shadow-sm`}
       >
         <div className="max-w-6xl mx-auto px-4">
