@@ -27,26 +27,26 @@
   --radius: 0.5rem;
 }
 
-/* Dark theme */
+/* Dark theme - Enhanced UI Colors */
 [data-theme="dark"] {
-  --background: 1 33 105;
+  --background: 15 23 42;
   --foreground: 248 250 252;
-  --card: 30 58 138;
+  --card: 30 41 59;
   --card-foreground: 248 250 252;
-  --popover: 30 58 138;
+  --popover: 30 41 59;
   --popover-foreground: 248 250 252;
   --primary: 59 130 246;
   --primary-foreground: 255 255 255;
-  --secondary: 30 58 138;
-  --secondary-foreground: 248 250 252;
-  --muted: 30 58 138;
+  --secondary: 51 65 85;
+  --secondary-foreground: 203 213 225;
+  --muted: 51 65 85;
   --muted-foreground: 148 163 184;
-  --accent: 30 58 138;
-  --accent-foreground: 248 250 252;
+  --accent: 79 70 229;
+  --accent-foreground: 255 255 255;
   --destructive: 239 68 68;
   --destructive-foreground: 255 255 255;
-  --border: 51 65 85;
-  --input: 51 65 85;
+  --border: 71 85 105;
+  --input: 71 85 105;
   --ring: 59 130 246;
 }
 
@@ -188,4 +188,68 @@ body {
 
 .border-border {
   border-color: rgb(var(--border));
+}
+
+/* Enhanced Dark Theme Components */
+[data-theme="dark"] .bg-background {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+[data-theme="dark"] .bg-card {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid rgb(71 85 105 / 0.3);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -1px rgb(0 0 0 / 0.2);
+}
+
+[data-theme="dark"] .bg-muted {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+}
+
+/* Enhanced button styles for dark theme */
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Enhanced input styles for dark theme */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 1px solid rgb(71 85 105 / 0.5);
+  color: rgb(248 250 252);
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus {
+  border-color: rgb(59 130 246);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+}
+
+/* Enhanced text colors for dark theme */
+[data-theme="dark"] .text-primary {
+  color: rgb(96 165 250);
+}
+
+[data-theme="dark"] .text-secondary {
+  color: rgb(203 213 225);
+}
+
+[data-theme="dark"] .text-accent {
+  color: rgb(167 139 250);
+}
+
+/* Enhanced border colors for dark theme */
+[data-theme="dark"] .border-primary {
+  border-color: rgb(59 130 246 / 0.5);
+}
+
+[data-theme="dark"] .border-secondary {
+  border-color: rgb(71 85 105 / 0.5);
 }

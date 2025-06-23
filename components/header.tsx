@@ -55,8 +55,10 @@ export function Header() {
     <>
       <header
         className={`border-b sticky top-0 z-50 transition-all duration-300 border-border ${
-          theme === "dark" ? "bg-[#012169] backdrop-blur-sm text-white" : "bg-white backdrop-blur-sm text-gray-900"
-        } shadow-sm`}
+          theme === "dark"
+            ? "bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 backdrop-blur-sm text-white shadow-lg shadow-blue-900/20"
+            : "bg-white backdrop-blur-sm text-gray-900 shadow-sm"
+        }`}
       >
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -70,8 +72,10 @@ export function Header() {
                   GRA Core Platform
                 </span>
                 <span
-                  className={`px-2 py-1 rounded text-xs ${
-                    theme === "dark" ? "bg-blue-800 text-blue-200" : "bg-gray-100 text-gray-600"
+                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                    theme === "dark"
+                      ? "bg-gradient-to-r from-blue-800 to-indigo-800 text-blue-200 border border-blue-700/50"
+                      : "bg-gray-100 text-gray-600"
                   }`}
                 >
                   v1.0.0 (stable)
@@ -140,7 +144,7 @@ export function Header() {
                   placeholder="Search"
                   className={`pl-10 pr-4 py-2 w-64 text-sm transition-all ${
                     theme === "dark"
-                      ? "bg-blue-900/50 border-blue-700 text-white placeholder-gray-300 focus:bg-blue-900/70"
+                      ? "bg-slate-800/50 border-slate-600 text-white placeholder-slate-300 focus:bg-slate-800/70 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                   }`}
                 />
@@ -196,7 +200,13 @@ export function Header() {
 
           {/* Mobile Navigation */}
           {isMenuOpen && (
-            <div className={`md:hidden border-t py-4 ${theme === "dark" ? "border-blue-700" : "border-gray-200"}`}>
+            <div
+              className={`md:hidden border-t py-4 ${
+                theme === "dark"
+                  ? "border-slate-700 bg-gradient-to-b from-slate-800/50 to-slate-900/50"
+                  : "border-gray-200"
+              }`}
+            >
               <nav className="flex flex-col space-y-3">
                 <a
                   href="#"
@@ -249,164 +259,168 @@ export function Header() {
 
       {/* --- Enhanced pill-toggle styles matching the reference design --- */}
       <style jsx>{`
-  .theme-toggle-pill {
-    position: relative;
-    width: 80px;
-    height: 40px;
-    background: ${
-      theme === "dark"
-        ? "linear-gradient(135deg, #374151 0%, #1f2937 100%)"
-        : "linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)"
-    };
-    border: 2px solid ${theme === "dark" ? "#4b5563" : "#d1d5db"};
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    user-select: none;
-    overflow: hidden;
-    box-shadow: ${
-      theme === "dark"
-        ? "0 4px 14px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)"
-        : "0 4px 14px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)"
-    };
-  }
+        .theme-toggle-pill {
+          position: relative;
+          width: 80px;
+          height: 40px;
+          background: ${
+            theme === "dark"
+              ? "linear-gradient(135deg, #374151 0%, #1f2937 100%)"
+              : "linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)"
+          };
+          border: 2px solid ${theme === "dark" ? "#4b5563" : "#d1d5db"};
+          border-radius: 25px;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          user-select: none;
+          overflow: hidden;
+          box-shadow: ${
+            theme === "dark"
+              ? "0 4px 14px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)"
+              : "0 4px 14px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8)"
+          };
+        }
 
-  .theme-toggle-pill:hover {
-    transform: translateY(-1px);
-    box-shadow: ${
-      theme === "dark"
-        ? "0 6px 20px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15)"
-        : "0 6px 20px 0 rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)"
-    };
-  }
+        .theme-toggle-pill:hover {
+          transform: translateY(-1px);
+          box-shadow: ${
+            theme === "dark"
+              ? "0 6px 20px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15)"
+              : "0 6px 20px 0 rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9)"
+          };
+        }
 
-  .theme-toggle-pill:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-  }
+        .theme-toggle-pill:focus {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
 
-  .theme-toggle-track {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    border-radius: 23px;
-    overflow: hidden;
-  }
+        .theme-toggle-track {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          border-radius: 23px;
+          overflow: hidden;
+        }
 
-  .theme-toggle-thumb {
-    position: absolute;
-    top: 3px;
-    left: ${theme === "dark" ? "41px" : "3px"};
-    width: 34px;
-    height: 34px;
-    background: ${
-      theme === "dark"
-        ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
-        : "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)"
-    };
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 2;
-    box-shadow: ${
-      theme === "dark"
-        ? "0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2)"
-        : "0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)"
-    };
-    border: 1px solid ${theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"};
-  }
+        .theme-toggle-thumb {
+          position: absolute;
+          top: 3px;
+          left: ${theme === "dark" ? "41px" : "3px"};
+          width: 34px;
+          height: 34px;
+          background: ${
+            theme === "dark"
+              ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
+              : "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)"
+          };
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 2;
+          box-shadow: ${
+            theme === "dark"
+              ? "0 2px 8px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2)"
+              : "0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)"
+          };
+          border: 1px solid ${theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.05)"};
+        }
 
-  .theme-toggle-thumb .theme-icon {
-    font-size: 16px;
-    color: ${theme === "dark" ? "#fbbf24" : "#f59e0b"};
-    transition: all 0.3s ease;
-    filter: ${
-      theme === "dark" ? "drop-shadow(0 0 4px rgba(251, 191, 36, 0.5))" : "drop-shadow(0 0 2px rgba(245, 158, 11, 0.3))"
-    };
-  }
+        .theme-toggle-thumb .theme-icon {
+          font-size: 16px;
+          color: ${theme === "dark" ? "#fbbf24" : "#f59e0b"};
+          transition: all 0.3s ease;
+          filter: ${
+            theme === "dark"
+              ? "drop-shadow(0 0 4px rgba(251, 191, 36, 0.5))"
+              : "drop-shadow(0 0 2px rgba(245, 158, 11, 0.3))"
+          };
+        }
 
-  .theme-toggle-labels {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 12px;
-    pointer-events: none;
-    z-index: 1;
-  }
+        .theme-toggle-labels {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 12px;
+          pointer-events: none;
+          z-index: 1;
+        }
 
-  .theme-label {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
-    opacity: ${theme === "dark" ? "0.6" : "0.7"};
-    color: ${theme === "dark" ? "#9ca3af" : "#6b7280"};
-  }
+        .theme-label {
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          transition: all 0.3s ease;
+          opacity: ${theme === "dark" ? "0.6" : "0.7"};
+          color: ${theme === "dark" ? "#9ca3af" : "#6b7280"};
+        }
 
-  .light-label {
-    opacity: ${theme === "dark" ? "0.4" : "0.8"};
-    color: ${theme === "dark" ? "#6b7280" : "#374151"};
-  }
+        .light-label {
+          opacity: ${theme === "dark" ? "0.4" : "0.8"};
+          color: ${theme === "dark" ? "#6b7280" : "#374151"};
+        }
 
-  .dark-label {
-    opacity: ${theme === "dark" ? "0.8" : "0.4"};
-    color: ${theme === "dark" ? "#d1d5db" : "#6b7280"};
-  }
+        .dark-label {
+          opacity: ${theme === "dark" ? "0.8" : "0.4"};
+          color: ${theme === "dark" ? "#d1d5db" : "#6b7280"};
+        }
 
-  /* Hover effects */
-  .theme-toggle-pill:hover .theme-toggle-thumb {
-    transform: scale(1.05);
-    box-shadow: ${
-      theme === "dark"
-        ? "0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3)"
-        : "0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)"
-    };
-  }
+        /* Hover effects */
+        .theme-toggle-pill:hover .theme-toggle-thumb {
+          transform: scale(1.05);
+          box-shadow: ${
+            theme === "dark"
+              ? "0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3)"
+              : "0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15)"
+          };
+        }
 
-  .theme-toggle-pill:hover .theme-icon {
-    transform: ${theme === "dark" ? "rotate(15deg)" : "rotate(-15deg)"};
-    filter: ${
-      theme === "dark" ? "drop-shadow(0 0 8px rgba(251, 191, 36, 0.7))" : "drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))"
-    };
-  }
+        .theme-toggle-pill:hover .theme-icon {
+          transform: ${theme === "dark" ? "rotate(15deg)" : "rotate(-15deg)"};
+          filter: ${
+            theme === "dark"
+              ? "drop-shadow(0 0 8px rgba(251, 191, 36, 0.7))"
+              : "drop-shadow(0 0 6px rgba(245, 158, 11, 0.5))"
+          };
+        }
 
-  /* Active state */
-  .theme-toggle-pill:active .theme-toggle-thumb {
-    transform: scale(0.95);
-  }
+        /* Active state */
+        .theme-toggle-pill:active .theme-toggle-thumb {
+          transform: scale(0.95);
+        }
 
-  /* Mobile responsive */
-  @media (max-width: 576px) {
-    .theme-toggle-pill {
-      width: 70px;
-      height: 36px;
-    }
-    
-    .theme-toggle-thumb {
-      width: 30px;
-      height: 30px;
-      left: ${theme === "dark" ? "37px" : "3px"};
-    }
-    
-    .theme-icon {
-      font-size: 14px;
-    }
-    
-    .theme-label {
-      font-size: 9px;
-    }
-  }
-`}</style>
+        /* Mobile responsive */
+        @media (max-width: 576px) {
+          .theme-toggle-pill {
+            width: 70px;
+            height: 36px;
+          }
+
+          .theme-toggle-thumb {
+            width: 30px;
+            height: 30px;
+            left: ${theme === "dark" ? "37px" : "3px"};
+          }
+
+          .theme-icon {
+            font-size: 14px;
+          }
+
+          .theme-label {
+            font-size: 9px;
+          }
+        }
+      `}</style>
     </>
   )
 }
