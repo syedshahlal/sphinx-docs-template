@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Search, Menu, X, Github, Twitter, ChevronDown, Bell, Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import Link from "next/link"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -96,38 +97,58 @@ export function Header() {
   const navigationItems = [
     {
       label: "User Guide",
-      href: "#",
+      href: "/user-guide",
       hasDropdown: true,
       dropdownItems: [
-        { label: "Getting Started", href: "#", icon: "🚀", description: "Quick setup and installation" },
-        { label: "Configuration", href: "#", icon: "⚙️", description: "Customize your setup" },
-        { label: "Best Practices", href: "#", icon: "⭐", description: "Tips and recommendations" },
-        { label: "Troubleshooting", href: "#", icon: "🔧", description: "Common issues and solutions" },
+        {
+          label: "Getting Started",
+          href: "/user-guide/getting-started",
+          icon: "🚀",
+          description: "Quick setup and installation",
+        },
+        { label: "Configuration", href: "/user-guide/configuration", icon: "⚙️", description: "Customize your setup" },
+        {
+          label: "Best Practices",
+          href: "/user-guide/best-practices",
+          icon: "⭐",
+          description: "Tips and recommendations",
+        },
+        {
+          label: "Troubleshooting",
+          href: "/user-guide/troubleshooting",
+          icon: "🔧",
+          description: "Common issues and solutions",
+        },
       ],
     },
     {
       label: "API Reference",
-      href: "#",
+      href: "/api-reference",
       hasDropdown: true,
       dropdownItems: [
-        { label: "Core API", href: "#", icon: "🔌", description: "Essential API endpoints" },
-        { label: "Authentication", href: "#", icon: "🔐", description: "Auth and security" },
-        { label: "Data Models", href: "#", icon: "📊", description: "Schema and types" },
-        { label: "SDKs", href: "#", icon: "📦", description: "Client libraries" },
+        { label: "Core API", href: "/api-reference/core", icon: "🔌", description: "Essential API endpoints" },
+        {
+          label: "Authentication",
+          href: "/api-reference/authentication",
+          icon: "🔐",
+          description: "Auth and security",
+        },
+        { label: "Data Models", href: "/api-reference/data-models", icon: "📊", description: "Schema and types" },
+        { label: "SDKs", href: "/api-reference/sdks", icon: "📦", description: "Client libraries" },
       ],
     },
     {
       label: "Examples",
-      href: "#",
+      href: "/examples",
       hasDropdown: true,
       dropdownItems: [
-        { label: "Quick Start", href: "#", icon: "⚡", description: "Get running in 5 minutes" },
-        { label: "Tutorials", href: "#", icon: "📚", description: "Step-by-step guides" },
-        { label: "Code Samples", href: "#", icon: "💻", description: "Ready-to-use snippets" },
-        { label: "Templates", href: "#", icon: "🎨", description: "Project starters" },
+        { label: "Quick Start", href: "/examples/quick-start", icon: "⚡", description: "Get running in 5 minutes" },
+        { label: "Tutorials", href: "/examples/tutorials", icon: "📚", description: "Step-by-step guides" },
+        { label: "Code Samples", href: "/examples/code-samples", icon: "💻", description: "Ready-to-use snippets" },
+        { label: "Templates", href: "/examples/templates", icon: "🎨", description: "Project starters" },
       ],
     },
-    { label: "Changelog", href: "#", hasDropdown: false },
+    { label: "Changelog", href: "/changelog", hasDropdown: false },
   ]
 
   return (
@@ -294,7 +315,8 @@ export function Header() {
             <nav className="hidden lg:flex items-center space-x-8">
               {navigationItems.map((item) => (
                 <div key={item.label} className="relative group">
-                  <button
+                  <Link
+                    href={item.href}
                     className={`flex items-center space-x-1 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
                       theme === "dark"
                         ? "text-gray-200 hover:text-white hover:bg-slate-800/50"
@@ -311,7 +333,7 @@ export function Header() {
                         }`}
                       />
                     )}
-                  </button>
+                  </Link>
 
                   {/* Dropdown Menu */}
                   {item.hasDropdown && activeDropdown === item.label && (
@@ -326,7 +348,7 @@ export function Header() {
                     >
                       <div className="p-2">
                         {item.dropdownItems?.map((dropdownItem) => (
-                          <a
+                          <Link
                             key={dropdownItem.label}
                             href={dropdownItem.href}
                             className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-200 ${
@@ -342,7 +364,7 @@ export function Header() {
                                 {dropdownItem.description}
                               </div>
                             </div>
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -467,7 +489,7 @@ export function Header() {
               <nav className="flex flex-col space-y-1 px-2">
                 {navigationItems.map((item) => (
                   <div key={item.label}>
-                    <a
+                    <Link
                       href={item.href}
                       className={`flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
                         theme === "dark"
@@ -477,7 +499,7 @@ export function Header() {
                     >
                       <span className="font-medium">{item.label}</span>
                       {item.hasDropdown && <ChevronDown className="w-4 h-4" />}
-                    </a>
+                    </Link>
                   </div>
                 ))}
               </nav>
