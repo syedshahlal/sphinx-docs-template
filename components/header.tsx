@@ -115,16 +115,13 @@ export function Header() {
             {/* Enhanced Logo Section */}
             <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 min-w-0 flex-shrink-0">
               <div className="relative group">
-                <div
-                  className={`absolute inset-0 rounded-xl blur-sm transition-all duration-300 ${
-                    theme === "dark"
-                      ? "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-75"
-                      : "bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-0 group-hover:opacity-50"
-                  }`}
-                />
-                <div className="relative w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-                  <span className="text-white font-bold text-sm sm:text-base md:text-lg">G</span>
-                  <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse" />
+                <div className="relative w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300 border border-white/20">
+                  <div className="relative flex items-center justify-center">
+                    <span className="text-white font-black text-sm sm:text-base md:text-lg tracking-tight">GRA</span>
+                    <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse shadow-sm" />
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent" />
                 </div>
               </div>
 
