@@ -19,12 +19,12 @@ type Feature = {
 const features: Feature[] = [
   {
     icon: BookOpen,
-    title: "GCP Introduction",
-    description: "Get started with Google Cloud Platform fundamentals and core concepts.",
+    title: "GRA Core Platform Introduction",
+    description: "Get started with GRA Core Platform fundamentals and core concepts.",
     color: "text-blue-600 dark:text-blue-400",
     gradient: "from-blue-500/20 to-cyan-500/20",
     details: ["Core Services", "Getting Started", "Best Practices", "Architecture Overview"],
-    href: "/docs/gcp-introduction",
+    href: "/docs/gra-core-introduction",
   },
   {
     icon: Users,
@@ -46,12 +46,12 @@ const features: Feature[] = [
   },
   {
     icon: Layers,
-    title: "GCP Features in Depth",
-    description: "Deep dive into advanced GCP features and enterprise-level capabilities.",
+    title: "GRA Core Platform Features",
+    description: "Deep dive into advanced GRA Core Platform features and enterprise-level capabilities.",
     color: "text-orange-600 dark:text-orange-400",
     gradient: "from-orange-500/20 to-red-500/20",
     details: ["Advanced Compute", "AI/ML Services", "Data Analytics", "Security Features"],
-    href: "/docs/gcp-features-depth",
+    href: "/docs/gra-core-features",
   },
   {
     icon: GitBranch,
@@ -64,12 +64,12 @@ const features: Feature[] = [
   },
   {
     icon: Server,
-    title: "GCP Infra",
-    description: "Infrastructure as Code, networking, and deployment strategies on GCP.",
+    title: "GRA Core Infrastructure",
+    description: "Infrastructure as Code, networking, and deployment strategies on GRA Core Platform.",
     color: "text-indigo-600 dark:text-indigo-400",
     gradient: "from-indigo-500/20 to-blue-500/20",
     details: ["Terraform", "Networking", "Load Balancing", "Monitoring"],
-    href: "/docs/gcp-infrastructure",
+    href: "/docs/gra-core-infrastructure",
   },
 ]
 
@@ -87,7 +87,8 @@ export function FeatureCards() {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Comprehensive documentation and guides to Global Risk Analytics Core Platform
+            Comprehensive documentation and guides to help you master GRA Core Platform with our enterprise-grade tools
+            and workflows.
           </p>
         </div>
 
