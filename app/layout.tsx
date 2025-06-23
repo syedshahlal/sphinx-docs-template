@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="w-full">
       <head>
         <link
           rel="stylesheet"
@@ -28,14 +28,14 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.className} min-h-screen transition-colors duration-300`}
+        className={`${inter.className} min-h-screen w-full m-0 p-0 transition-colors duration-300`}
         style={{
           backgroundColor: "rgb(var(--background))",
           color: "rgb(var(--foreground))",
         }}
       >
         <div
-          className="min-h-screen transition-colors duration-300"
+          className="min-h-screen w-full m-0 p-0 transition-colors duration-300"
           style={{
             backgroundColor: "rgb(var(--background))",
             color: "rgb(var(--foreground))",
