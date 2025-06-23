@@ -14,7 +14,6 @@ type Feature = {
   gradient: string
   details: string[]
   href: string
-  version: string
 }
 
 const features: Feature[] = [
@@ -26,7 +25,6 @@ const features: Feature[] = [
     gradient: "from-blue-500/20 to-cyan-500/20",
     details: ["Core Services", "Getting Started", "Best Practices", "Architecture Overview"],
     href: "/docs/gcp-introduction",
-    version: "v1.0",
   },
   {
     icon: Users,
@@ -36,7 +34,6 @@ const features: Feature[] = [
     gradient: "from-green-500/20 to-emerald-500/20",
     details: ["Account Setup", "Permissions", "First Project", "Team Management"],
     href: "/docs/user-onboarding",
-    version: "v2.0",
   },
   {
     icon: Code,
@@ -46,7 +43,6 @@ const features: Feature[] = [
     gradient: "from-purple-500/20 to-pink-500/20",
     details: ["REST APIs", "Authentication", "SDKs", "Rate Limits"],
     href: "/docs/api-reference",
-    version: "v3.1",
   },
   {
     icon: Layers,
@@ -56,7 +52,6 @@ const features: Feature[] = [
     gradient: "from-orange-500/20 to-red-500/20",
     details: ["Advanced Compute", "AI/ML Services", "Data Analytics", "Security Features"],
     href: "/docs/gcp-features-depth",
-    version: "v1.8",
   },
   {
     icon: GitBranch,
@@ -66,7 +61,6 @@ const features: Feature[] = [
     gradient: "from-teal-500/20 to-cyan-500/20",
     details: ["CI/CD Pipelines", "Data Processing", "Web Applications", "Microservices"],
     href: "/docs/sample-workflow",
-    version: "v2.3",
   },
   {
     icon: Server,
@@ -76,7 +70,6 @@ const features: Feature[] = [
     gradient: "from-indigo-500/20 to-blue-500/20",
     details: ["Terraform", "Networking", "Load Balancing", "Monitoring"],
     href: "/docs/gcp-infrastructure",
-    version: "v1.5",
   },
 ]
 
@@ -100,7 +93,7 @@ export function FeatureCards() {
 
         {/* Feature Cards Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {features.map(({ icon: Icon, title, description, color, gradient, details, href, version }, index) => (
+          {features.map(({ icon: Icon, title, description, color, gradient, details, href }, index) => (
             <a
               key={title}
               href={href}
@@ -145,10 +138,6 @@ export function FeatureCards() {
                       </div>
                       <div className="flex flex-col">
                         <span className="font-bold">{title}</span>
-                        {/* Version Badge */}
-                        <span className="mt-1 px-2 py-0.5 rounded-full text-xs border border-border w-fit bg-gray-100 text-slate-900">
-                          {version}
-                        </span>
                       </div>
                     </div>
                     <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
