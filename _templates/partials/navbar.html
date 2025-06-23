@@ -1,0 +1,62 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top bd-navbar boa-navbar" id="navbar-main">
+  <div class="bd-navbar-elements">
+    <!-- Logo and Brand -->
+    <div class="navbar-header-items">
+      <div class="navbar-item">
+        <a class="navbar-brand logo" href="{{ pathto(master_doc) }}">
+          <div class="logo-container">
+            <!-- Bank of America Logo -->
+            <div class="boa-logo">
+              <svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+                <!-- Bank of America Flag Design -->
+                <rect width="120" height="40" fill="#e31837"/>
+                <rect x="0" y="0" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="8" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="16" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="24" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="32" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="0" width="40" height="20" fill="#012169"/>
+                <!-- Stars pattern -->
+                <circle cx="8" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="16" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="24" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="32" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="12" cy="8" r="1" fill="#ffffff"/>
+                <circle cx="20" cy="8" r="1" fill="#ffffff"/>
+                <circle cx="28" cy="8" r="1" fill="#ffffff"/>
+                <circle cx="8" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="16" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="24" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="32" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="12" cy="16" r="1" fill="#ffffff"/>
+                <circle cx="20" cy="16" r="1" fill="#ffffff"/>
+                <circle cx="28" cy="16" r="1" fill="#ffffff"/>
+                <!-- Bank of America Text -->
+                <text x="50" y="15" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff">BANK OF</text>
+                <text x="50" y="25" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff">AMERICA</text>
+                <text x="50" y="35" font-family="Arial, sans-serif" font-size="6" fill="#ffffff">DOCUMENTATION</text>
+              </svg>
+            </div>
+            <div class="brand-text">
+              <span class="brand-name">{{ project }}</span>
+              <span class="brand-tagline">Documentation Portal</span>
+            </div>
+          </div>
+        </a>
+      </div>
+      <!-- Mobile menu button -->
+      <button class="navbar-toggler d-lg-none" type="button" id="mobile-nav-toggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- Center Navigation -->
+    {% include 'partials/navbar-center.html' %}
+
+    <!-- Right Side Items -->
+    {% include 'partials/navbar-end.html' %}
+
+    <!-- Mobile Navigation Menu -->
+    {% include 'partials/navbar-mobile.html' %}
+  </div>
+</nav>

@@ -1,0 +1,72 @@
+<div class="navbar-center-items d-none d-lg-flex">
+  <ul class="navbar-nav">
+    <li class="nav-item">
+      <a class="nav-link" href="{{ pathto('user-guide/index') }}" 
+         {% if 'user-guide' in pagename %}aria-current="page"{% endif %}>
+        <i class="fas fa-book me-2"></i>
+        User Guide
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ pathto('api/index') }}"
+         {% if 'api' in pagename %}aria-current="page"{% endif %}>
+        <i class="fas fa-code me-2"></i>
+        API Reference
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ pathto('examples/index') }}"
+         {% if 'examples' in pagename %}aria-current="page"{% endif %}>
+        <i class="fas fa-lightbulb me-2"></i>
+        Examples
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ pathto('tutorials/index') }}"
+         {% if 'tutorials' in pagename %}aria-current="page"{% endif %}>
+        <i class="fas fa-chalkboard-teacher me-2"></i>
+        Tutorials
+      </a>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" role="button" 
+         data-bs-toggle="dropdown" aria-expanded="false" id="more-dropdown">
+        <i class="fas fa-ellipsis-h me-2"></i>
+        More
+      </a>
+      <ul class="dropdown-menu" aria-labelledby="more-dropdown">
+        <li>
+          <a class="dropdown-item" href="{{ pathto('changelog') }}">
+            <i class="fas fa-list-alt me-2"></i>
+            Changelog
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{{ pathto('contributing/index') }}">
+            <i class="fas fa-hands-helping me-2"></i>
+            Contributing
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{{ pathto('community') }}">
+            <i class="fas fa-users me-2"></i>
+            Community
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item" href="{{ pathto('support') }}">
+            <i class="fas fa-life-ring me-2"></i>
+            Support
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item" href="{{ pathto('roadmap') }}">
+            <i class="fas fa-road me-2"></i>
+            Roadmap
+          </a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
