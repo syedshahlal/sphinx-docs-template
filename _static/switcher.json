@@ -1,0 +1,27 @@
+[
+  {
+    "version": "v5.7",
+    "url": "https://gra-core-docs.bankofamerica.com/en/v5.7/",
+    "preferred": true
+  },
+  {
+    "version": "v5.6",
+    "url": "https://gra-core-docs.bankofamerica.com/en/v5.6/",
+    "preferred": false
+  },
+  {
+    "version": "v5.5",
+    "url": "https://gra-core-docs.bankofamerica.com/en/v5.5/",
+    "preferred": false
+  },
+  {
+    "version": "v5.4",
+    "url": "https://gra-core-docs.bankofamerica.com/en/v5.4/",
+    "preferred": false
+  },
+  {
+    "version": "dev",
+    "url": "https://gra-core-docs.bankofamerica.com/en/dev/",
+    "preferred": false
+  }
+]

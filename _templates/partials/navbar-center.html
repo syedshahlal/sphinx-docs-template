@@ -1,72 +1,51 @@
-<div class="navbar-center-items d-none d-lg-flex">
-  <ul class="navbar-nav">
+<div class="navbar-center d-none d-lg-flex">
+  <ul class="navbar-nav me-auto">
     <li class="nav-item">
-      <a class="nav-link" href="{{ pathto('user-guide/index') }}" 
-         {% if 'user-guide' in pagename %}aria-current="page"{% endif %}>
-        <i class="fas fa-book me-2"></i>
-        User Guide
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{ pathto('api/index') }}"
-         {% if 'api' in pagename %}aria-current="page"{% endif %}>
-        <i class="fas fa-code me-2"></i>
-        API Reference
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{ pathto('examples/index') }}"
-         {% if 'examples' in pagename %}aria-current="page"{% endif %}>
-        <i class="fas fa-lightbulb me-2"></i>
-        Examples
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{{ pathto('tutorials/index') }}"
-         {% if 'tutorials' in pagename %}aria-current="page"{% endif %}>
-        <i class="fas fa-chalkboard-teacher me-2"></i>
-        Tutorials
+      <a class="nav-link" href="{{ pathto('index') }}">
+        <i class="fas fa-home me-1"></i>Home
       </a>
     </li>
     <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" role="button" 
-         data-bs-toggle="dropdown" aria-expanded="false" id="more-dropdown">
-        <i class="fas fa-ellipsis-h me-2"></i>
-        More
+      <a class="nav-link dropdown-toggle" href="#" id="userGuideDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-book me-1"></i>User Guide
       </a>
-      <ul class="dropdown-menu" aria-labelledby="more-dropdown">
-        <li>
-          <a class="dropdown-item" href="{{ pathto('changelog') }}">
-            <i class="fas fa-list-alt me-2"></i>
-            Changelog
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item" href="{{ pathto('contributing/index') }}">
-            <i class="fas fa-hands-helping me-2"></i>
-            Contributing
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item" href="{{ pathto('community') }}">
-            <i class="fas fa-users me-2"></i>
-            Community
-          </a>
-        </li>
-        <li><hr class="dropdown-divider"></li>
-        <li>
-          <a class="dropdown-item" href="{{ pathto('support') }}">
-            <i class="fas fa-life-ring me-2"></i>
-            Support
-          </a>
-        </li>
-        <li>
-          <a class="dropdown-item" href="{{ pathto('roadmap') }}">
-            <i class="fas fa-road me-2"></i>
-            Roadmap
-          </a>
-        </li>
+      <ul class="dropdown-menu" aria-labelledby="userGuideDropdown">
+        <li><a class="dropdown-item" href="{{ pathto('user-guide/installation') }}">
+          <i class="fas fa-download me-2"></i>Installation
+        </a></li>
+        <li><a class="dropdown-item" href="{{ pathto('user-guide/configuration') }}">
+          <i class="fas fa-cog me-2"></i>Configuration
+        </a></li>
+        <li><a class="dropdown-item" href="{{ pathto('user-guide/quickstart') }}">
+          <i class="fas fa-rocket me-2"></i>Quick Start
+        </a></li>
       </ul>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="apiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-code me-1"></i>API
+      </a>
+      <ul class="dropdown-menu" aria-labelledby="apiDropdown">
+        <li><a class="dropdown-item" href="{{ pathto('api/authentication') }}">
+          <i class="fas fa-shield-alt me-2"></i>Authentication
+        </a></li>
+        <li><a class="dropdown-item" href="{{ pathto('api/endpoints') }}">
+          <i class="fas fa-plug me-2"></i>Endpoints
+        </a></li>
+        <li><a class="dropdown-item" href="{{ pathto('api/examples') }}">
+          <i class="fas fa-code-branch me-2"></i>Examples
+        </a></li>
+      </ul>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ pathto('tutorials/index') }}">
+        <i class="fas fa-graduation-cap me-1"></i>Tutorials
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ pathto('examples/index') }}">
+        <i class="fas fa-lightbulb me-1"></i>Examples
+      </a>
     </li>
   </ul>
 </div>

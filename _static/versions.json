@@ -1,0 +1,51 @@
+{
+  "current": "v5.7",
+  "latest": "v5.7",
+  "versions": [
+    {
+      "version": "v5.7",
+      "title": "v5.7 (latest)",
+      "url": "/v5.7/",
+      "is_development": false,
+      "date": "2024-01-15T00:00:00Z",
+      "status": "latest",
+      "description": "Latest release with enhanced GCP integration and performance improvements"
+    },
+    {
+      "version": "v5.6",
+      "title": "v5.6 (stable)",
+      "url": "/v5.6/",
+      "is_development": false,
+      "date": "2023-11-20T00:00:00Z",
+      "status": "stable",
+      "description": "Stable release with core functionality for production environments"
+    },
+    {
+      "version": "v5.5",
+      "title": "v5.5 (LTS)",
+      "url": "/v5.5/",
+      "is_development": false,
+      "date": "2023-08-15T00:00:00Z",
+      "status": "lts",
+      "description": "Long Term Support release with extended support until 2026"
+    },
+    {
+      "version": "v5.4",
+      "title": "v5.4 (legacy)",
+      "url": "/v5.4/",
+      "is_development": false,
+      "date": "2023-05-10T00:00:00Z",
+      "status": "legacy",
+      "description": "Legacy release with critical security updates only"
+    },
+    {
+      "version": "dev",
+      "title": "Development",
+      "url": "/dev/",
+      "is_development": true,
+      "date": "2024-01-20T00:00:00Z",
+      "status": "development",
+      "description": "Development version with experimental features"
+    }
+  ]
+}

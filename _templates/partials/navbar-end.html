@@ -1,71 +1,126 @@
-<div class="navbar-end-items">
+<div class="navbar-end d-flex align-items-center">
   <!-- Version Switcher -->
-  <div class="navbar-item">
-    <div class="version-switcher-container">
-      <select class="version-switcher" id="version-switcher" aria-label="Select documentation version">
-        <option value="v5.7" selected>v5.7 (latest)</option>
-        <option value="v5.6">v5.6</option>
-        <option value="v5.5">v5.5</option>
-        <option value="v5.4">v5.4</option>
-      </select>
-      <button class="btn btn-sm btn-outline-secondary version-compare" 
-              id="version-compare" 
-              title="Compare versions"
-              aria-label="Compare documentation versions">
-        <i class="fas fa-code-compare"></i>
+  <div class="nav-item dropdown me-3">
+    <button class="btn btn-outline-secondary btn-sm dropdown-toggle d-flex align-items-center" 
+            type="button" 
+            id="versionDropdown" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false">
+      <i class="fas fa-code-branch me-2"></i>
+      <span id="current-version">v5.7</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end version-dropdown" aria-labelledby="versionDropdown">
+      <li class="dropdown-header">
+        <i class="fas fa-tags me-2"></i>Available Versions
+      </li>
+      <li><hr class="dropdown-divider"></li>
+      <li>
+        <a class="dropdown-item version-item active" href="/v5.7/" data-version="v5.7">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>
+              <i class="fas fa-star me-2 text-warning"></i>v5.7
+            </span>
+            <span class="badge bg-success">Latest</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item version-item" href="/v5.6/" data-version="v5.6">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>
+              <i class="fas fa-circle me-2 text-primary"></i>v5.6
+            </span>
+            <span class="badge bg-secondary">Stable</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item version-item" href="/v5.5/" data-version="v5.5">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>
+              <i class="fas fa-circle me-2 text-info"></i>v5.5
+            </span>
+            <span class="badge bg-info">LTS</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item version-item" href="/v5.4/" data-version="v5.4">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>
+              <i class="fas fa-circle me-2 text-muted"></i>v5.4
+            </span>
+            <span class="badge bg-light text-dark">Legacy</span>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item version-item" href="/dev/" data-version="dev">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>
+              <i class="fas fa-flask me-2 text-warning"></i>Development
+            </span>
+            <span class="badge bg-warning text-dark">Beta</span>
+          </div>
+        </a>
+      </li>
+      <li><hr class="dropdown-divider"></li>
+      <li>
+        <button class="dropdown-item" id="version-compare-btn">
+          <i class="fas fa-exchange-alt me-2"></i>Compare Versions
+        </button>
+      </li>
+      <li>
+        <a class="dropdown-item" href="/changelog.html">
+          <i class="fas fa-list-alt me-2"></i>View Changelog
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Search -->
+  <div class="nav-item me-3">
+    <div class="search-container">
+      <input type="search" 
+             class="form-control form-control-sm search-input" 
+             placeholder="Search docs..." 
+             aria-label="Search documentation">
+      <i class="fas fa-search search-icon"></i>
+    </div>
+  </div>
+
+  <!-- Theme Toggle -->
+  <div class="nav-item me-3">
+    <div class="theme-toggle-container">
+      <div class="theme-toggle-labels">
+        <span class="theme-label light-label">
+          <i class="fas fa-sun"></i>
+          Light
+        </span>
+        <span class="theme-label dark-label">
+          <i class="fas fa-moon"></i>
+          Dark
+        </span>
+      </div>
+      <button
+        className="theme-toggle"
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+        data-theme={theme}
+      >
+        <div className="theme-toggle-track">
+          <div className="theme-toggle-thumb">
+            <i className={`theme-icon fas ${theme === "dark" ? "fa-moon" : "fa-sun"}`} />
+          </div>
+        </div>
       </button>
     </div>
   </div>
 
-  <!-- Search -->
-  <div class="navbar-item">
-    <div class="search-container">
-      <input type="search" 
-             class="form-control search-input" 
-             placeholder="Search docs..." 
-             aria-label="Search documentation"
-             autocomplete="off">
-      <i class="fas fa-search search-icon" aria-hidden="true"></i>
-      <kbd class="search-kbd" aria-hidden="true">
-        <i class="fas fa-keyboard me-1"></i>Ctrl K
-      </kbd>
-    </div>
-  </div>
-
-  <!-- Theme Switcher Pill Toggle -->
-  <div class="navbar-item">
-    <div class="theme-toggle-pill" id="theme-toggle-pill" role="switch" aria-checked="false" aria-label="Toggle dark/light theme" tabindex="0">
-      <div class="theme-toggle-track">
-        <div class="theme-toggle-thumb">
-          <i class="theme-icon fas fa-sun" aria-hidden="true"></i>
-        </div>
-        <div class="theme-toggle-labels">
-          <span class="theme-label light-label">Light</span>
-          <span class="theme-label dark-label">Dark</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GitHub Link -->
-  <div class="navbar-item">
-    <a href="{{ theme_repository_url }}" 
-       class="btn btn-sm btn-outline-secondary" 
-       title="View source on GitHub"
-       aria-label="View source on GitHub"
-       target="_blank"
-       rel="noopener noreferrer">
-      <i class="fab fa-github" aria-hidden="true"></i>
-    </a>
-  </div>
-
-  <!-- Help/Support -->
-  <div class="navbar-item">
-    <button class="btn btn-sm btn-outline-secondary" 
-            id="help-button"
-            title="Get help"
-            aria-label="Get help">
-      <i class="fas fa-question-circle" aria-hidden="true"></i>
+  <!-- Help Button -->
+  <div class="nav-item">
+    <button class="btn btn-outline-secondary btn-sm" id="help-button" title="Get Help">
+      <i class="fas fa-question-circle"></i>
     </button>
   </div>
 </div>
