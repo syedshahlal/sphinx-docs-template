@@ -131,7 +131,7 @@ export function Header() {
                   <h1
                     className={`font-bold text-sm sm:text-base md:text-lg lg:text-xl truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                   >
-                    <span className="hidden sm:inline">Bank of America Platform</span>
+                    <span className="hidden sm:inline">GRA Core Platform Docs</span>
                     <span className="sm:hidden">BoA Platform</span>
                   </h1>
                   <div className="flex items-center space-x-1 sm:space-x-2">
