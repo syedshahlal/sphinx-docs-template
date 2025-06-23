@@ -115,11 +115,12 @@ export function Header() {
             {/* Enhanced Logo Section */}
             <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 min-w-0 flex-shrink-0">
               <div className="relative group">
-                <div className="relative w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300 border border-white/20">
-                  <div className="relative flex items-center justify-center">
-                    <span className="text-white font-black text-sm sm:text-base md:text-lg tracking-tight">GRA</span>
-                    <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-3 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full" />
-                  </div>
+                <div className="relative w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300 border border-gray-200/50 p-1">
+                  <img
+                    src="/images/bank-of-america-logo.png"
+                    alt="Bank of America Logo"
+                    className="w-full h-full object-contain"
+                  />
                   <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-emerald-400 rounded-full animate-pulse shadow-sm" />
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/10 to-transparent" />
                 </div>
@@ -130,8 +131,8 @@ export function Header() {
                   <h1
                     className={`font-bold text-sm sm:text-base md:text-lg lg:text-xl truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                   >
-                    <span className="hidden sm:inline">GRA Core Platform</span>
-                    <span className="sm:hidden">GRA Core</span>
+                    <span className="hidden sm:inline">Bank of America Platform</span>
+                    <span className="sm:hidden">BoA Platform</span>
                   </h1>
                   <div className="flex items-center space-x-1 sm:space-x-2">
                     <span
