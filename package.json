@@ -23,6 +23,7 @@
     "docs:validate": "make docs-validate"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.454.0",
@@ -36,8 +37,10 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.17",
     "live-server": "^1.2.2",
     "postcss": "^8.5",
+    "tailwindcss": "^3.4.4",
     "typescript": "^5"
   }
 }
