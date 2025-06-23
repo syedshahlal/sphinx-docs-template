@@ -94,8 +94,7 @@ export function FeatureCards() {
             </span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Comprehensive documentation and guides to help you master Google Cloud Platform with our enterprise-grade
-            tools and workflows.
+            Comprehensive documentation and guides to Global Risk Analytics Core Platform
           </p>
         </div>
 
