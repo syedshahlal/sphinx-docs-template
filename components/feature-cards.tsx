@@ -81,3 +81,6 @@ const FeatureCards = () => {
 }
 
 export default FeatureCards
+
+// Provide a named export alongside the default export
+export { FeatureCards }
