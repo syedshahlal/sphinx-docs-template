@@ -147,7 +147,7 @@ export function FeatureCards() {
                       <div className="flex flex-col">
                         <span className="font-bold">{title}</span>
                         {/* Version Badge */}
-                        <span className="mt-1 px-2 py-0.5 rounded-full text-xs text-secondary-foreground border border-border w-fit bg-gray-100">
+                        <span className="mt-1 px-2 py-0.5 rounded-full text-xs border border-border w-fit bg-gray-100 text-slate-900">
                           {version}
                         </span>
                       </div>
