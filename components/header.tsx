@@ -53,7 +53,11 @@ export function Header() {
 
   return (
     <>
-      <header className="border-b sticky top-0 z-50 transition-all duration-300 bg-background border-border">
+      <header
+        className={`border-b sticky top-0 z-50 transition-all duration-300 border-border ${
+          theme === "dark" ? "bg-[#0066cc] backdrop-blur-sm" : "bg-white backdrop-blur-sm"
+        } shadow-sm`}
+      >
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Title */}
