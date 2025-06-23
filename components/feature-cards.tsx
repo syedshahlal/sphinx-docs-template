@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Zap, Smartphone, Palette, Code, Database, ImageIcon, ArrowRight, ExternalLink } from "lucide-react"
+import { BookOpen, Users, Code, Layers, GitBranch, Server, ArrowRight, ExternalLink } from "lucide-react"
 
 type Feature = {
   icon: React.ElementType
@@ -17,52 +17,52 @@ type Feature = {
 
 const features: Feature[] = [
   {
-    icon: Zap,
-    title: "Built with Modern Stack",
-    description: "Use Next.js, React, and TypeScript functionality in your platform.",
+    icon: BookOpen,
+    title: "GCP Introduction",
+    description: "Get started with Google Cloud Platform fundamentals and core concepts.",
     color: "text-blue-600 dark:text-blue-400",
     gradient: "from-blue-500/20 to-cyan-500/20",
-    details: ["Next.js 14", "React 18", "TypeScript", "Tailwind CSS"],
+    details: ["Core Services", "Getting Started", "Best Practices", "Architecture Overview"],
   },
   {
-    icon: Smartphone,
-    title: "Responsive Design",
-    description: "Platform sections will adapt and scale at different screen sizes.",
+    icon: Users,
+    title: "User Onboarding",
+    description: "Complete guide to onboard users and set up their GCP environment.",
     color: "text-green-600 dark:text-green-400",
     gradient: "from-green-500/20 to-emerald-500/20",
-    details: ["Mobile First", "Tablet Optimized", "Desktop Ready", "4K Support"],
-  },
-  {
-    icon: Palette,
-    title: "Light / Dark Theme",
-    description: "Users can toggle between light and dark themes interactively.",
-    color: "text-purple-600 dark:text-purple-400",
-    gradient: "from-purple-500/20 to-pink-500/20",
-    details: ["Auto Detection", "Manual Toggle", "System Sync", "Custom Themes"],
+    details: ["Account Setup", "IAM Configuration", "Project Creation", "Access Management"],
   },
   {
     icon: Code,
-    title: "Customizable UI",
-    description: "Customize colors and branding with CSS variables, and build custom UIs.",
+    title: "API Reference",
+    description: "Comprehensive API documentation with examples and authentication guides.",
+    color: "text-purple-600 dark:text-purple-400",
+    gradient: "from-purple-500/20 to-pink-500/20",
+    details: ["REST APIs", "Authentication", "Code Examples", "SDKs & Libraries"],
+  },
+  {
+    icon: Layers,
+    title: "GCP Features in Depth",
+    description: "Deep dive into advanced GCP features and service capabilities.",
     color: "text-orange-600 dark:text-orange-400",
     gradient: "from-orange-500/20 to-red-500/20",
-    details: ["CSS Variables", "Component Library", "Design Tokens", "Brand Kit"],
+    details: ["Compute Engine", "Cloud Storage", "BigQuery", "Kubernetes Engine"],
   },
   {
-    icon: Database,
-    title: "Data & Analytics",
-    description: "Full support for data visualization, analytics dashboards, and real-time processing.",
+    icon: GitBranch,
+    title: "Sample Workflow",
+    description: "Step-by-step workflows and practical examples for common use cases.",
     color: "text-teal-600 dark:text-teal-400",
     gradient: "from-teal-500/20 to-blue-500/20",
-    details: ["Real-time Data", "Custom Charts", "Export Tools", "API Integration"],
+    details: ["CI/CD Pipelines", "Data Processing", "ML Workflows", "Deployment Patterns"],
   },
   {
-    icon: ImageIcon,
-    title: "Example Gallery",
-    description: "See our showcase of projects that use this platform.",
+    icon: Server,
+    title: "GCP Infra",
+    description: "Infrastructure setup, networking, security, and operational best practices.",
     color: "text-pink-600 dark:text-pink-400",
     gradient: "from-pink-500/20 to-rose-500/20",
-    details: ["Live Demos", "Source Code", "Tutorials", "Best Practices"],
+    details: ["VPC Networks", "Load Balancing", "Security", "Monitoring & Logging"],
   },
 ]
 
@@ -76,11 +76,11 @@ export function FeatureCards() {
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
             <span className="bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-              Powerful Features
+              GCP Documentation
             </span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to build modern, scalable applications with confidence
+            Everything you need to master Google Cloud Platform with comprehensive guides and examples
           </p>
         </div>
 
@@ -162,7 +162,7 @@ export function FeatureCards() {
         <div className="text-center mt-16">
           <button className="group px-8 py-4 bg-gradient-to-r from-primary to-blue-600 text-primary-foreground rounded-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-primary/25">
             <span className="flex items-center gap-2">
-              Explore All Features
+              Explore GCP Documentation
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </span>
           </button>
