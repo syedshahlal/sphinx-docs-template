@@ -237,7 +237,7 @@ export function Header() {
                   <Input
                     type="search"
                     placeholder="Search docs..."
-                    className={`pl-10 pr-16 py-2 w-72 text-sm transition-all duration-300 ${
+                    className={`pl-10 pr-16 py-2 w-60 text-sm transition-all duration-300 ${
                       theme === "dark"
                         ? "bg-slate-800/50 border-slate-600/50 text-white placeholder-slate-400 focus:bg-slate-800/70 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
                         : "bg-white/50 border-gray-300/50 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
