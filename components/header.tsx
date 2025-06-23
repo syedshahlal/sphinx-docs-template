@@ -325,7 +325,7 @@ export function Header() {
                     onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.label)}
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
-                    <span>{item.label}</span>
+                    {item.label}
                     {item.hasDropdown && (
                       <ChevronDown
                         className={`w-4 h-4 transition-transform duration-200 ${
