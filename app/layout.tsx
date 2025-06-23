@@ -27,8 +27,22 @@ export default function RootLayout({
           referrerPolicy="no-referrer"
         />
       </head>
-      <body className={`${inter.className} min-h-screen bg-background text-foreground transition-colors duration-300`}>
-        <div className="min-h-screen bg-background">{children}</div>
+      <body
+        className={`${inter.className} min-h-screen transition-colors duration-300`}
+        style={{
+          backgroundColor: "rgb(var(--background))",
+          color: "rgb(var(--foreground))",
+        }}
+      >
+        <div
+          className="min-h-screen transition-colors duration-300"
+          style={{
+            backgroundColor: "rgb(var(--background))",
+            color: "rgb(var(--foreground))",
+          }}
+        >
+          {children}
+        </div>
       </body>
     </html>
   )

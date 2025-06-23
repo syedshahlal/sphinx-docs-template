@@ -55,7 +55,7 @@ export function Header() {
     <>
       <header
         className={`border-b sticky top-0 z-50 transition-all duration-300 border-border ${
-          theme === "dark" ? "bg-[#012169] backdrop-blur-sm" : "bg-white backdrop-blur-sm"
+          theme === "dark" ? "bg-[#012169] backdrop-blur-sm text-white" : "bg-white backdrop-blur-sm text-gray-900"
         } shadow-sm`}
       >
         <div className="max-w-6xl mx-auto px-4">
@@ -66,8 +66,16 @@ export function Header() {
                 <span className="text-white font-bold text-sm">GRA</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="font-semibold text-foreground">GRA Core Platform</span>
-                <span className="px-2 py-1 rounded text-xs bg-muted text-muted-foreground">v1.0.0 (stable)</span>
+                <span className={`font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                  GRA Core Platform
+                </span>
+                <span
+                  className={`px-2 py-1 rounded text-xs ${
+                    theme === "dark" ? "bg-blue-800 text-blue-200" : "bg-gray-100 text-gray-600"
+                  }`}
+                >
+                  v1.0.0 (stable)
+                </span>
               </div>
             </div>
 
@@ -75,32 +83,40 @@ export function Header() {
             <nav className="hidden md:flex items-center space-x-6">
               <a
                 href="#"
-                className="font-mono font-light transition-colors text-muted-foreground hover:text-foreground"
+                className={`font-mono font-light transition-colors ${
+                  theme === "dark" ? "text-gray-200 hover:text-white" : "text-gray-600 hover:text-gray-900"
+                }`}
               >
                 User Guide
               </a>
               <a
                 href="#"
-                className="font-mono font-light transition-colors text-muted-foreground hover:text-foreground"
+                className={`font-mono font-light transition-colors ${
+                  theme === "dark" ? "text-gray-200 hover:text-white" : "text-gray-600 hover:text-gray-900"
+                }`}
               >
                 API Reference
               </a>
               <a
                 href="#"
-                className="font-mono font-light transition-colors text-muted-foreground hover:text-foreground"
+                className={`font-mono font-light transition-colors ${
+                  theme === "dark" ? "text-gray-200 hover:text-white" : "text-gray-600 hover:text-gray-900"
+                }`}
               >
                 Examples
               </a>
               <a
                 href="#"
-                className="font-mono font-light transition-colors text-muted-foreground hover:text-foreground"
+                className={`font-mono font-light transition-colors ${
+                  theme === "dark" ? "text-gray-200 hover:text-white" : "text-gray-600 hover:text-gray-900"
+                }`}
               >
                 Changelog
               </a>
               <div className="relative group">
                 <button
                   className={`flex items-center transition-colors ${
-                    theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                    theme === "dark" ? "text-gray-200 hover:text-white" : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
                   More
@@ -114,17 +130,25 @@ export function Header() {
             {/* Search and Icons */}
             <div className="flex items-center space-x-3">
               <div className="relative hidden md:block">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search
+                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-400"
+                  }`}
+                />
                 <Input
                   type="search"
                   placeholder="Search"
                   className={`pl-10 pr-4 py-2 w-64 text-sm transition-all ${
                     theme === "dark"
-                      ? "bg-gray-800 border-gray-600 text-white placeholder-gray-400"
+                      ? "bg-blue-900/50 border-blue-700 text-white placeholder-gray-300 focus:bg-blue-900/70"
                       : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                   }`}
                 />
-                <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                <kbd
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-xs px-1.5 py-0.5 rounded ${
+                    theme === "dark" ? "text-gray-300 bg-blue-800" : "text-gray-400 bg-gray-100"
+                  }`}
+                >
                   Ctrl K
                 </kbd>
               </div>
@@ -172,22 +196,50 @@ export function Header() {
 
           {/* Mobile Navigation */}
           {isMenuOpen && (
-            <div className="md:hidden border-t border-gray-200 py-4">
+            <div className={`md:hidden border-t py-4 ${theme === "dark" ? "border-blue-700" : "border-gray-200"}`}>
               <nav className="flex flex-col space-y-3">
-                <a href="#" className="text-gray-700 hover:text-gray-900 px-2 py-1">
+                <a
+                  href="#"
+                  className={`px-2 py-1 transition-colors ${
+                    theme === "dark" ? "text-gray-200 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                  }`}
+                >
                   User Guide
                 </a>
-                <a href="#" className="text-gray-700 hover:text-gray-900 px-2 py-1">
+                <a
+                  href="#"
+                  className={`px-2 py-1 transition-colors ${
+                    theme === "dark" ? "text-gray-200 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                  }`}
+                >
                   API Reference
                 </a>
-                <a href="#" className="text-gray-700 hover:text-gray-900 px-2 py-1">
+                <a
+                  href="#"
+                  className={`px-2 py-1 transition-colors ${
+                    theme === "dark" ? "text-gray-200 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                  }`}
+                >
                   Examples
                 </a>
-                <a href="#" className="text-gray-700 hover:text-gray-900 px-2 py-1">
+                <a
+                  href="#"
+                  className={`px-2 py-1 transition-colors ${
+                    theme === "dark" ? "text-gray-200 hover:text-white" : "text-gray-700 hover:text-gray-900"
+                  }`}
+                >
                   Changelog
                 </a>
                 <div className="px-2 py-2">
-                  <Input type="search" placeholder="Search" className="w-full" />
+                  <Input
+                    type="search"
+                    placeholder="Search"
+                    className={`w-full ${
+                      theme === "dark"
+                        ? "bg-blue-900/50 border-blue-700 text-white placeholder-gray-300"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
+                  />
                 </div>
               </nav>
             </div>
