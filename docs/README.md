@@ -1,45 +1,39 @@
-# GCP Documentation
+# GRA Core Platform Documentation
 
-Welcome to the Google Cloud Platform documentation repository.
+Welcome to the GRA Core Platform documentation repository built with Sphinx.
 
 ## Available Versions
 
 | Version | Status | Support Level | Documentation |
 |---------|--------|---------------|---------------|
-| [GCP 5.7](subfolder_gcp5.7/) | ✅ Current | Full Support | Complete |
-| [GCP 5.6](subfolder_gcp5.6/) | ⚠️ Deprecated | Security Only | Limited |
-| [GCP 5.5](subfolder_gcp5.5/) | ❌ End of Life | None | Archive |
-| [GCP 5.4](subfolder_gcp5.4/) | ❌ End of Life | None | Archive |
-| [GCP 5.3](subfolder_gcp5.3/) | ❌ End of Life | None | Archive |
-| [GCP 5.2](subfolder_gcp5.2/) | ❌ End of Life | None | Archive |
-| [GCP 5.1](subfolder_gcp5.1/) | ❌ End of Life | None | Archive |
+| [v5.7](v5.7/) | ✅ Current | Full Support | Complete |
+| [v5.6](v5.6/) | ⚠️ Deprecated | Security Only | Limited |
+| [v5.5](v5.5/) | ❌ End of Life | None | Archive |
+| [v5.4](v5.4/) | ❌ End of Life | None | Archive |
+| [v5.3](v5.3/) | ❌ End of Life | None | Archive |
+| [v5.2](v5.2/) | ❌ End of Life | None | Archive |
+| [v5.1](v5.1/) | ❌ End of Life | None | Archive |
 
 ## Quick Start
 
-For the latest documentation, visit [GCP 5.7](subfolder_gcp5.7/).
+For the latest documentation, visit [v5.7](v5.7/).
+
+## Building Documentation
+
+\`\`\`bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Build current version
+make html
+
+# Build all versions
+python scripts/documentation_builder.py --all
+
+# Serve locally
+python scripts/serve.py
+\`\`\`
 
 ## Structure
 
-\`\`\`
-docs/
-├── subfolder_gcp5.7/          # Current version
-│   ├── gcp_introduction/      # Introduction section
-│   │   ├── intro.md          # Overview and what's new
-│   │   ├── file.md           # Getting started guide
-│   │   ├── file2.md          # Advanced configuration
-│   │   └── index.md          # Complete index
-│   ├── sub_subfolder2/       # Additional sections
-│   ├── sub_subfolder3/
-│   ├── sub_subfolder4/
-│   └── sub_subfolder5/
-├── subfolder_gcp5.6/          # Previous versions
-├── subfolder_gcp5.5/
-├── subfolder_gcp5.4/
-├── subfolder_gcp5.3/
-├── subfolder_gcp5.2/
-└── subfolder_gcp5.1/
-\`\`\`
-
----
-
-*Always use the latest supported version for new projects.*
+This documentation follows Sphinx conventions with versioned content organized by feature areas matching the homepage tiles.
