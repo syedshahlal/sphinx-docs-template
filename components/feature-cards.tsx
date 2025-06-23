@@ -90,7 +90,7 @@ export function FeatureCards() {
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent">
-              Explore GRA Core Platform
+              GRA Core Platform Documentation
             </span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
