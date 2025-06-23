@@ -27,7 +27,7 @@ export function HeroSection() {
       </div>
 
       {/* Floating Particles */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 bg-blue-200">
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
