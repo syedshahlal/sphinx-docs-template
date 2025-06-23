@@ -154,7 +154,9 @@ export function Header() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <h1 className={`font-semibold text-lg ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                  <h1
+                    className={`font-semibold text-lg whitespace-nowrap ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                  >
                     GRA Core Platform Docs
                   </h1>
 
