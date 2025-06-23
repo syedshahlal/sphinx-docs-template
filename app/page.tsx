@@ -6,7 +6,7 @@ import { UserGuideSection } from "@/components/user-guide-section"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen w-full bg-white">
       <Banner />
       <Header />
       <main className="max-w-6xl mx-auto px-4 py-8">
