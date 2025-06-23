@@ -100,7 +100,7 @@ export function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
             ? theme === "dark"
               ? "bg-slate-900/95 backdrop-blur-xl border-b border-slate-700/50 shadow-2xl shadow-blue-500/10"
@@ -110,10 +110,10 @@ export function Header() {
               : "bg-white/80 backdrop-blur-sm border-b border-gray-100"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <div className="w-full max-w-none mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12">
+          <div className="flex items-center justify-between h-12 sm:h-14 md:h-16 lg:h-18 xl:h-20">
             {/* Enhanced Logo Section */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 min-w-0 flex-shrink-0">
               <div className="relative group">
                 <div
                   className={`absolute inset-0 rounded-xl blur-sm transition-all duration-300 ${
@@ -122,33 +122,37 @@ export function Header() {
                       : "bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-0 group-hover:opacity-50"
                   }`}
                 />
-                <div className="relative w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-                  <span className="text-white font-bold text-lg">G</span>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+                <div className="relative w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
+                  <span className="text-white font-bold text-sm sm:text-base md:text-lg">G</span>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse" />
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <div>
-                  <h1 className={`font-bold text-xl ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                    GRA Core Platform
+              <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                <div className="min-w-0">
+                  <h1
+                    className={`font-bold text-sm sm:text-base md:text-lg lg:text-xl truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                  >
+                    <span className="hidden sm:inline">GRA Core Platform</span>
+                    <span className="sm:hidden">GRA Core</span>
                   </h1>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium transition-all ${
+                      className={`px-1.5 py-0.5 sm:px-2 rounded-full text-xs font-medium transition-all ${
                         theme === "dark"
                           ? "bg-gradient-to-r from-blue-800 to-indigo-800 text-blue-200 border border-blue-700/50"
                           : "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200"
                       }`}
                     >
-                      v5.7.0 (stable)
+                      <span className="hidden sm:inline">v5.7.0 (stable)</span>
+                      <span className="sm:hidden">v5.7.0</span>
                     </span>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      className={`px-1.5 py-0.5 sm:px-2 rounded-full text-xs font-medium ${
                         theme === "dark" ? "bg-green-900/50 text-green-300" : "bg-green-100 text-green-700"
                       }`}
                     >
-                      <span className="inline-block w-1.5 h-1.5 bg-green-400 rounded-full mr-1 animate-pulse" />
+                      <span className="inline-block w-1 h-1 sm:w-1.5 sm:h-1.5 bg-green-400 rounded-full mr-1 animate-pulse" />
                       Live
                     </span>
                   </div>
@@ -157,11 +161,11 @@ export function Header() {
             </div>
 
             {/* Enhanced Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-1 flex-1 justify-center max-w-2xl mx-4">
               {navigationItems.map((item) => (
                 <div key={item.label} className="relative group">
                   <button
-                    className={`flex items-center space-x-1 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                    className={`flex items-center space-x-1 px-2 xl:px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm xl:text-base ${
                       theme === "dark"
                         ? "text-gray-200 hover:text-white hover:bg-slate-800/50"
                         : "text-gray-700 hover:text-gray-900 hover:bg-gray-100/50"
@@ -169,10 +173,10 @@ export function Header() {
                     onMouseEnter={() => item.hasDropdown && setActiveDropdown(item.label)}
                     onMouseLeave={() => setActiveDropdown(null)}
                   >
-                    <span>{item.label}</span>
+                    <span className="whitespace-nowrap">{item.label}</span>
                     {item.hasDropdown && (
                       <ChevronDown
-                        className={`w-4 h-4 transition-transform duration-200 ${
+                        className={`w-3 h-3 xl:w-4 xl:h-4 transition-transform duration-200 ${
                           activeDropdown === item.label ? "rotate-180" : ""
                         }`}
                       />
@@ -218,7 +222,7 @@ export function Header() {
             </nav>
 
             {/* Enhanced Right Section */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 flex-shrink-0">
               {/* Enhanced Search */}
               <div className="relative hidden md:block group">
                 <div
@@ -230,22 +234,22 @@ export function Header() {
                 />
                 <div className="relative">
                   <Search
-                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
+                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 md:h-4 md:w-4 ${
                       theme === "dark" ? "text-gray-400" : "text-gray-500"
                     }`}
                   />
                   <Input
                     type="search"
                     placeholder="Search docs..."
-                    className={`pl-10 pr-16 py-2 w-60 text-sm transition-all duration-300 ${
+                    className={`pl-8 md:pl-10 pr-12 md:pr-16 py-1.5 md:py-2 w-40 md:w-48 lg:w-60 text-xs md:text-sm transition-all duration-300 ${
                       theme === "dark"
                         ? "bg-slate-800/50 border-slate-600/50 text-white placeholder-slate-400 focus:bg-slate-800/70 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
                         : "bg-white/50 border-gray-300/50 text-gray-900 placeholder-gray-500 focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
                     }`}
                   />
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                  <div className="absolute right-2 md:right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
                     <kbd
-                      className={`px-2 py-1 text-xs rounded ${
+                      className={`px-1 md:px-2 py-0.5 md:py-1 text-xs rounded ${
                         theme === "dark"
                           ? "text-gray-400 bg-slate-700/50 border border-slate-600/50"
                           : "text-gray-500 bg-gray-100/50 border border-gray-300/50"
@@ -258,20 +262,20 @@ export function Header() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-center space-x-2">
-                {/* Notifications */}
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                {/* Notifications - Hidden on small screens */}
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`relative ${theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}`}
+                  className={`relative hidden sm:flex ${theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}`}
                 >
-                  <Bell className="h-4 w-4" />
-                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+                  <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="absolute -top-1 -right-1 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full" />
                 </Button>
 
-                {/* Enhanced Theme Toggle */}
+                {/* Enhanced Theme Toggle - Responsive sizing */}
                 <div
-                  className="theme-toggle-pill"
+                  className="theme-toggle-pill scale-75 sm:scale-90 md:scale-100"
                   onClick={toggleTheme}
                   role="switch"
                   aria-checked={theme === "dark"}
@@ -295,30 +299,30 @@ export function Header() {
                   </div>
                 </div>
 
-                {/* Social Links */}
+                {/* Social Links - Responsive visibility */}
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}
+                  className={`hidden sm:flex ${theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}`}
                 >
-                  <Github className="h-4 w-4" />
+                  <Github className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
 
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}
+                  className={`hidden md:flex ${theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}`}
                 >
-                  <Twitter className="h-4 w-4" />
+                  <Twitter className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
 
-                {/* User Menu */}
+                {/* User Menu - Hidden on small screens */}
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`${theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}`}
+                  className={`hidden sm:flex ${theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}`}
                 >
-                  <User className="h-4 w-4" />
+                  <User className="h-3 w-3 sm:h-4 sm:w-4" />
                 </Button>
               </div>
 
@@ -326,10 +330,10 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="sm"
-                className={`lg:hidden ${theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}`}
+                className={`lg:hidden p-1 sm:p-2 ${theme === "dark" ? "hover:bg-slate-800/50" : "hover:bg-gray-100/50"}`}
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
               >
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isMenuOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
               </Button>
             </div>
           </div>
