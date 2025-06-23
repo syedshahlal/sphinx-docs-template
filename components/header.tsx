@@ -26,56 +26,34 @@ export function Header() {
     document.documentElement.setAttribute("data-theme", newTheme)
     document.body.setAttribute("data-theme", newTheme)
 
-    // Update CSS custom properties for immediate effect
-    const root = document.documentElement
-    if (newTheme === "dark") {
-      root.style.setProperty("--background-color", "#1a1a1a")
-      root.style.setProperty("--text-color", "#ffffff")
-      root.style.setProperty("--surface-color", "#2d2d2d")
-      root.style.setProperty("--border-color", "#404040")
-      root.style.setProperty("--primary-color", "#ff4757")
-    } else {
-      root.style.setProperty("--background-color", "#ffffff")
-      root.style.setProperty("--text-color", "#333333")
-      root.style.setProperty("--surface-color", "#fafafa")
-      root.style.setProperty("--border-color", "#e0e0e0")
-      root.style.setProperty("--primary-color", "#e31837")
-    }
+    // Force immediate visual update
+    document.documentElement.style.colorScheme = newTheme
   }
 
   useEffect(() => {
     // Apply theme on mount and when theme changes
     document.documentElement.setAttribute("data-theme", theme)
     document.body.setAttribute("data-theme", theme)
+    document.documentElement.style.colorScheme = theme
 
-    // Apply CSS variables
-    const root = document.documentElement
-    if (theme === "dark") {
-      root.style.setProperty("--background-color", "#1a1a1a")
-      root.style.setProperty("--text-color", "#ffffff")
-      root.style.setProperty("--surface-color", "#2d2d2d")
-      root.style.setProperty("--border-color", "#404040")
-      root.style.setProperty("--primary-color", "#ff4757")
-      document.body.style.backgroundColor = "#1a1a1a"
-      document.body.style.color = "#ffffff"
-    } else {
-      root.style.setProperty("--background-color", "#ffffff")
-      root.style.setProperty("--text-color", "#333333")
-      root.style.setProperty("--surface-color", "#fafafa")
-      root.style.setProperty("--border-color", "#e0e0e0")
-      root.style.setProperty("--primary-color", "#e31837")
-      document.body.style.backgroundColor = "#ffffff"
-      document.body.style.color = "#333333"
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem("gra-docs-theme")) {
+        const systemTheme = e.matches ? "dark" : "light"
+        setTheme(systemTheme)
+        document.documentElement.setAttribute("data-theme", systemTheme)
+        document.body.setAttribute("data-theme", systemTheme)
+      }
     }
+
+    mediaQuery.addEventListener("change", handleChange)
+    return () => mediaQuery.removeEventListener("change", handleChange)
   }, [theme])
 
   return (
     <>
-      <header
-        className={`border-b sticky top-0 z-50 transition-all duration-300 ${
-          theme === "dark" ? "border-gray-700 bg-gray-900" : "border-gray-200 bg-white"
-        }`}
-      >
+      <header className="border-b sticky top-0 z-50 transition-all duration-300 bg-background border-border">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Title */}
@@ -84,16 +62,8 @@ export function Header() {
                 <span className="text-white font-bold text-sm">GRA</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className={`font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                  GRA Core Platform
-                </span>
-                <span
-                  className={`px-2 py-1 rounded text-xs ${
-                    theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  v1.0.0 (stable)
-                </span>
+                <span className="font-semibold text-foreground">GRA Core Platform</span>
+                <span className="px-2 py-1 rounded text-xs bg-muted text-muted-foreground">v1.0.0 (stable)</span>
               </div>
             </div>
 
@@ -101,33 +71,25 @@ export function Header() {
             <nav className="hidden md:flex items-center space-x-6">
               <a
                 href="#"
-                className={`font-mono font-light transition-colors ${
-                  theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-                }`}
+                className="font-mono font-light transition-colors text-muted-foreground hover:text-foreground"
               >
                 User Guide
               </a>
               <a
                 href="#"
-                className={`font-mono font-light transition-colors ${
-                  theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-                }`}
+                className="font-mono font-light transition-colors text-muted-foreground hover:text-foreground"
               >
                 API Reference
               </a>
               <a
                 href="#"
-                className={`font-mono font-light transition-colors ${
-                  theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-                }`}
+                className="font-mono font-light transition-colors text-muted-foreground hover:text-foreground"
               >
                 Examples
               </a>
               <a
                 href="#"
-                className={`font-mono font-light transition-colors ${
-                  theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-700 hover:text-gray-900"
-                }`}
+                className="font-mono font-light transition-colors text-muted-foreground hover:text-foreground"
               >
                 Changelog
               </a>
