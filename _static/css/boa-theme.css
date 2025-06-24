@@ -4,7 +4,15 @@
 @import url("sidebar.css");
 @import url("content.css");
 
+/* Bank of America Theme Styles */
 :root {
+  --boa-red: #e31837;
+  --boa-blue: #012169;
+  --boa-dark-blue: #001a5c;
+  --boa-light-gray: #f5f5f5;
+  --boa-dark-gray: #333333;
+  --boa-white: #ffffff;
+
   /* Bank of America Brand Colors */
   --boa-red: #e31837;
   --boa-blue: #012169;
@@ -65,6 +73,26 @@ body {
   color: var(--text-color);
   background-color: var(--background-color);
   line-height: 1.6;
+}
+
+/* Header styling */
+.navbar-brand {
+  color: var(--boa-blue) !important;
+  font-weight: bold;
+}
+
+.navbar {
+  background-color: var(--boa-white);
+  border-bottom: 3px solid var(--boa-red);
+}
+
+.navbar-nav .nav-link {
+  color: var(--boa-blue) !important;
+  font-weight: 500;
+}
+
+.navbar-nav .nav-link:hover {
+  color: var(--boa-red) !important;
 }
 
 /* Navigation Bar */
@@ -600,6 +628,22 @@ body {
   background: rgba(227, 24, 55, 0.08) !important;
 }
 
+/* Sidebar styling */
+.bd-sidebar {
+  background-color: var(--boa-light-gray);
+  border-right: 1px solid #dee2e6;
+}
+
+.bd-sidebar .nav-link {
+  color: var(--boa-dark-gray);
+}
+
+.bd-sidebar .nav-link:hover,
+.bd-sidebar .nav-link.active {
+  color: var(--boa-red);
+  background-color: rgba(227, 24, 55, 0.1);
+}
+
 /* Sidebar */
 .sidebar {
   background: var(--surface-color) !important;
@@ -939,6 +983,61 @@ body {
   border-radius: 3px;
   padding: 2px 4px;
   font-size: 0.75rem;
+}
+
+/* Content area */
+.bd-main {
+  background-color: var(--boa-white);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--boa-red);
+  border-color: var(--boa-red);
+}
+
+.btn-primary:hover {
+  background-color: var(--boa-dark-blue);
+  border-color: var(--boa-dark-blue);
+}
+
+.btn-outline-primary {
+  color: var(--boa-red);
+  border-color: var(--boa-red);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--boa-red);
+  border-color: var(--boa-red);
+}
+
+/* Links */
+a {
+  color: var(--boa-red);
+}
+
+a:hover {
+  color: var(--boa-dark-blue);
+}
+
+/* Code blocks */
+.highlight {
+  background-color: var(--boa-light-gray);
+  border-left: 4px solid var(--boa-red);
+  padding: 1rem;
+}
+
+/* Admonitions */
+.admonition {
+  border-left: 4px solid var(--boa-blue);
+}
+
+.admonition.note {
+  border-left-color: var(--boa-blue);
+}
+
+.admonition.warning {
+  border-left-color: var(--boa-red);
 }
 
 /* Responsive Design */
@@ -1423,5 +1522,59 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Footer */
+.boa-footer {
+  background-color: var(--boa-dark-blue);
+  color: var(--boa-white);
+  padding: 2rem 0;
+  margin-top: 3rem;
+}
+
+.boa-footer p {
+  margin: 0;
+  color: var(--boa-white);
+}
+
+/* Version switcher */
+.version-switcher {
+  background-color: var(--boa-blue);
+  color: var(--boa-white);
+}
+
+.version-switcher:hover {
+  background-color: var(--boa-red);
+}
+
+/* Search */
+.search-button {
+  color: var(--boa-blue);
+}
+
+.search-button:hover {
+  color: var(--boa-red);
+}
+
+/* Table of contents */
+.bd-toc .nav-link {
+  color: var(--boa-dark-gray);
+  font-size: 0.875rem;
+}
+
+.bd-toc .nav-link:hover,
+.bd-toc .nav-link.active {
+  color: var(--boa-red);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .boa-footer .text-right {
+    text-align: left !important;
   }
 }
