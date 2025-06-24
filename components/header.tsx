@@ -26,3 +26,4 @@ const Header: React.FC<HeaderProps> = ({ navItems }) => {
 }
 
 export default Header
+export { Header }
