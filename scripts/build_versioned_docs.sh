@@ -55,6 +55,26 @@ fi
 # Create build directory
 mkdir -p "$BUILD_DIR"
 
+# Check dependencies
+check_dependencies() {
+    echo "🔍 Checking dependencies..."
+    
+    # Check if sphinx-build is available
+    if ! command -v sphinx-build &> /dev/null; then
+        echo "❌ sphinx-build not found. Please install Sphinx:"
+        echo "   pip install sphinx"
+        exit 1
+    fi
+    
+    # Check if required Python packages are installed
+    python3 -c "import sphinx_copybutton, sphinx_design, myst_parser" 2>/dev/null || {
+        echo "❌ Missing required packages. Installing..."
+        pip install sphinx-copybutton sphinx-design myst-parser pydata-sphinx-theme
+    }
+    
+    echo "✅ Dependencies check passed"
+}
+
 # Function to build a specific version
 build_version() {
     local version=$1
@@ -75,14 +95,25 @@ build_version() {
         source_dir="$version_dir"
     fi
     
+    # Validate source directory has required files
+    if [ ! -f "$source_dir/conf.py" ]; then
+        echo "❌ conf.py not found in $source_dir"
+        return 1
+    fi
+    
+    if [ ! -f "$source_dir/index.rst" ]; then
+        echo "❌ index.rst not found in $source_dir"
+        return 1
+    fi
+    
     # Create output directory
     mkdir -p "$output_dir"
     
-    # Build documentation
+    # Build documentation with better error handling
     echo "📖 Building from $source_dir to $output_dir..."
     
-    # Run sphinx-build
-    if sphinx-build -b html -d "$BUILD_DIR/doctrees/$version" "$source_dir" "$output_dir"; then
+    # Run sphinx-build with verbose output for debugging
+    if sphinx-build -b html -d "$BUILD_DIR/doctrees/$version" -v "$source_dir" "$output_dir" 2>&1 | tee "$BUILD_DIR/build_$version.log"; then
         echo "✅ Successfully built $version"
         
         # Create version info file
@@ -90,13 +121,15 @@ build_version() {
 {
     "version": "$version",
     "build_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-    "build_dir": "$output_dir"
+    "build_dir": "$output_dir",
+    "source_dir": "$source_dir"
 }
 EOF
         
         return 0
     else
         echo "❌ Failed to build $version"
+        echo "📋 Check build log: $BUILD_DIR/build_$version.log"
         return 1
     fi
 }
@@ -291,6 +324,9 @@ EOF
 
 # Main execution
 echo "🚀 Building GRA Core Platform Documentation..."
+
+# Check dependencies first
+check_dependencies
 
 # Ensure we're in the right directory
 if [ ! -f "$DOCS_DIR/conf.py" ]; then

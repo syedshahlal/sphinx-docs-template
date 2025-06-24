@@ -37,6 +37,7 @@ from datetime import datetime
 # Add the source code path for autodoc
 sys.path.insert(0, os.path.abspath('../src'))
 sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../_extensions'))
 
 # -- Project information -----------------------------------------------------
 project = 'GRA Core Platform'
@@ -63,12 +64,16 @@ extensions = [
     'myst_parser',
 ]
 
-templates_path = ['_templates']
+templates_path = ['_templates', '../_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # -- Options for HTML output -------------------------------------------------
-html_theme = 'pydata_sphinx_theme'
+html_theme = 'boa_theme'
+html_theme_path = ['../_themes']
+
 html_title = f"{project} Documentation"
+html_logo = "../_static/images/boa-logo.svg"
+html_favicon = "../_static/images/favicon.ico"
 
 html_theme_options = {
     "repository_url": "https://github.com/bankofamerica/gra-core",
@@ -79,9 +84,34 @@ html_theme_options = {
     "path_to_docs": "docs",
     "show_navbar_depth": 2,
     "show_toc_level": 3,
+    "collapse_navigation": False,
+    "navigation_depth": 4,
+    "footer_items": ["copyright", "sphinx-version", "last-updated"],
+    "boa_theme": True,
+    "show_version_warning": True,
+    "chatbot_enabled": False,
 }
 
-html_static_path = ['_static']
+html_context = {
+    "github_user": "bankofamerica",
+    "github_repo": "gra-core",
+    "github_version": "main",
+    "doc_path": "docs",
+    "default_mode": "light",
+}
+
+html_static_path = ['_static', '../_static']
+html_css_files = [
+    'css/boa-theme.css',
+    'css/custom.css',
+    'css/components.css',
+]
+
+html_js_files = [
+    'js/theme-switcher.js',
+    'js/navigation.js',
+    'js/custom.js',
+]
 
 # -- Extension configuration -------------------------------------------------
 autodoc_default_options = {
@@ -95,6 +125,13 @@ autodoc_default_options = {
 autosummary_generate = True
 napoleon_google_docstring = True
 napoleon_numpy_docstring = True
+
+# Copy button configuration
+copybutton_prompt_text = r">>> |\.\.\. |\$ |In \[\d*\]: | {2,5}\.\.\.: | {5,8}: "
+copybutton_prompt_is_regexp = True
+
+# Todo configuration
+todo_include_todos = True
 EOF
 fi
 
@@ -295,6 +332,31 @@ class UtilityFunctions:
         """
         with open(file_path, 'r') as f:
             return json.load(f)
+EOF
+fi
+
+# Create theme directories and copy theme files
+echo "🎨 Setting up boa_theme..."
+mkdir -p _themes/boa_theme
+mkdir -p _static/{css,js,images}
+
+# Copy theme files if they don't exist
+if [ ! -f "_themes/boa_theme/theme.conf" ]; then
+    cat > _themes/boa_theme/theme.conf << 'EOF'
+[theme]
+inherit = pydata_sphinx_theme
+stylesheet = boa-theme.css
+
+[options]
+repository_url = https://github.com/bankofamerica/gra-core
+use_edit_page_button = True
+show_toc_level = 2
+navbar_align = left
+navbar_center = navbar-nav
+navbar_end = navbar-icon-links,theme-switcher
+footer_items = copyright,sphinx-version
+announcement =
+chatbot_enabled = False
 EOF
 fi
 
