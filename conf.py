@@ -6,6 +6,7 @@ from datetime import datetime
 # -- Path setup --------------------------------------------------------------
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('_extensions'))
+sys.path.insert(0, os.path.abspath('src'))
 
 # -- Project information -----------------------------------------------------
 project = 'GRA Core Platform'
@@ -33,8 +34,18 @@ extensions = [
     'chatbot_extension',  # Custom extension for LLM chatbot
 ]
 
-templates_path = ['_templates']
+templates_path = ['_templates', 'src/gcp_docs/homepage/templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'README.md']
+
+# -- Source file configuration ----------------------------------------------
+# Set the master document to our new homepage structure
+master_doc = 'src/gcp_docs/homepage/index'
+
+# Include paths for modular components
+source_suffix = {
+    '.rst': None,
+    '.md': 'myst_parser',
+}
 
 # -- Multiversion configuration ---------------------------------------------
 smv_tag_whitelist = r'^v\d+\.\d+.*$'
@@ -110,23 +121,26 @@ html_theme_options = {
     "show_version_warning": True,
     "chatbot_enabled": True,
     
+    # Modular Component System
+    "enable_modular_components": True,
+    "component_base_path": "src/gcp_docs/homepage/components",
+    "theme_base_path": "src/gcp_docs/homepage/themes",
+    
     # UI Components Integration
     "enable_banner": True,
-    "enable_header_search": True,
-    "enable_version_dropdown": True,
-    "enable_theme_toggle": True,
-    "enable_mobile_nav": True,
-    "enable_chatbot": True,
+    "enable_hero": True,
     "enable_feature_cards": True,
-    "enable_user_guide_section": True,
-    "enable_see_also_section": True,
-    "enable_help_section": True,
+    "enable_quick_links": True,
+    "enable_whats_new": True,
+    "enable_support": True,
+    "enable_chatbot": True,
     
     # Interactive Features
-    "enable_search_shortcuts": True,
-    "enable_keyboard_navigation": True,
     "enable_animations": True,
     "enable_hover_effects": True,
+    "enable_scroll_animations": True,
+    "enable_parallax": True,
+    "enable_keyboard_navigation": True,
     
     # Responsive Design
     "enable_responsive_design": True,
@@ -140,45 +154,31 @@ html_theme_options = {
     "enable_screen_reader": True,
 }
 
-# Add after the existing html_theme_options
-html_theme_options.update({
-    # Web App Layout Configuration
-    "enable_web_app_layout": True,
-    "web_app_components": {
-        "banner": True,
-        "hero_section": True,
-        "feature_cards": True,
-        "quick_links": True,
-        "whats_new": True,
-        "support_section": True,
-        "chatbot_widget": True
-    },
-    
-    # Custom CSS for web app styling
-    "custom_css": [
-        "css/web-app.css",
-        "css/components.css",
-        "css/animations.css"
-    ],
-    
-    # Enable Tailwind CSS classes
-    "enable_tailwind": True,
-    
-    # Responsive breakpoints
-    "breakpoints": {
-        "sm": "640px",
-        "md": "768px", 
-        "lg": "1024px",
-        "xl": "1280px"
-    }
-})
-
 html_context = {
     "github_user": "bankofamerica",
     "github_repo": "gra-core",
     "github_version": "main",
     "doc_path": "docs",
     "default_mode": "light",
+    
+    # Component paths
+    "component_paths": {
+        "banner": "src/gcp_docs/homepage/components/banner.rst",
+        "hero": "src/gcp_docs/homepage/components/hero.rst",
+        "feature_cards": "src/gcp_docs/homepage/components/feature-cards.rst",
+        "quick_links": "src/gcp_docs/homepage/components/quick-links.rst",
+        "whats_new": "src/gcp_docs/homepage/components/whats-new.rst",
+        "support": "src/gcp_docs/homepage/components/support.rst",
+        "chatbot": "src/gcp_docs/homepage/components/chatbot.rst",
+    },
+    
+    # Theme paths
+    "theme_paths": {
+        "styles": "src/gcp_docs/homepage/themes/styles.css",
+        "animations": "src/gcp_docs/homepage/themes/animations.css",
+        "chatbot_js": "src/gcp_docs/homepage/themes/js/chatbot.js",
+        "interactions_js": "src/gcp_docs/homepage/themes/js/interactions.js",
+    },
     
     # UI Component Context
     "current_version": version,
@@ -194,108 +194,52 @@ html_context = {
     # Feature Cards Configuration
     "feature_cards": [
         {
-            "title": "GRA Core Platform Introduction",
+            "title": "Platform Overview",
             "description": "Get started with GRA Core Platform fundamentals and core concepts.",
             "icon": "🚀",
             "color": "blue",
-            "link": "getting-started/index.html",
-            "topics": ["Core Services", "Getting Started", "Best Practices", "Architecture Overview"]
+            "link": "../../docs/v5.7/platform-overview/index.html",
+            "topics": ["Architecture Overview", "Core Services", "Best Practices"]
         },
         {
-            "title": "User Guide",
-            "description": "Complete guide to using GRA Core Platform with step-by-step instructions.",
-            "icon": "👥",
-            "color": "green",
-            "link": "user-guide/index.html",
-            "topics": ["Installation", "Configuration", "User Management", "Troubleshooting"]
-        },
-        {
-            "title": "API Reference",
-            "description": "Comprehensive API documentation with examples and authentication guides.",
-            "icon": "🔧",
-            "color": "purple",
-            "link": "api-reference/index.html",
-            "topics": ["REST APIs", "Authentication", "SDKs", "Rate Limits"]
-        },
-        {
-            "title": "Examples & Tutorials",
-            "description": "Real-world examples and step-by-step tutorials for common use cases.",
-            "icon": "💡",
-            "color": "orange",
-            "link": "examples/index.html",
-            "topics": ["Quick Start", "Advanced Examples", "Best Practices", "Code Samples"]
-        },
-        {
-            "title": "Development Guide",
-            "description": "Development workflows, contribution guidelines, and advanced topics.",
-            "icon": "🛠️",
-            "color": "teal",
-            "link": "development/index.html",
-            "topics": ["Development Setup", "Contributing", "Testing", "Deployment"]
-        },
-        {
-            "title": "Platform Architecture",
-            "description": "Deep dive into GRA Core Platform architecture and infrastructure.",
-            "icon": "🏗️",
-            "color": "indigo",
-            "link": "architecture/index.html",
-            "topics": ["System Design", "Components", "Scalability", "Security"]
-        }
-    ],
-    
-    # Navigation Items
-    "nav_items": [
-        {"label": "User Guide", "href": "user-guide/index.html", "icon": "👥"},
-        {"label": "API Reference", "href": "api-reference/index.html", "icon": "🔧"},
-        {"label": "Examples", "href": "examples/index.html", "icon": "💡"},
-        {"label": "Changelog", "href": "changelog.html", "icon": "📋"},
-    ],
-    
-    # Help Section Configuration
-    "help_items": [
-        {
-            "title": "AI Assistant",
-            "description": "Use the chatbot in the bottom-right corner for instant help",
-            "icon": "🤖",
-            "action": "openChatbot()",
-            "button_text": "Open Chatbot"
-        },
-        {
-            "title": "Documentation",
-            "description": "Browse our comprehensive guides and API reference",
+            "title": "Getting Started",
+            "description": "Quick setup guide and installation instructions to get you running.",
             "icon": "📖",
-            "link": "user-guide/index.html",
-            "button_text": "Browse Docs"
+            "color": "green",
+            "link": "../../docs/v5.7/getting-started/index.html",
+            "topics": ["Installation Guide", "Quick Start", "Configuration"]
         },
         {
-            "title": "Community",
-            "description": "Join our community forum for discussions and support",
-            "icon": "💬",
-            "link": "https://community.bankofamerica.com/gra",
-            "button_text": "Join Community",
-            "external": True
+            "title": "Data Processing",
+            "description": "Advanced data processing capabilities and pipeline management.",
+            "icon": "⚡",
+            "color": "purple",
+            "link": "../../docs/v5.7/data-processing/index.html",
+            "topics": ["Data Pipelines", "Stream Processing", "Batch Operations"]
         },
         {
-            "title": "Issues",
-            "description": "Report bugs and request features on GitHub",
-            "icon": "🐛",
-            "link": "https://github.com/bankofamerica/gra-core/issues",
-            "button_text": "Report Issue",
-            "external": True
+            "title": "API Integration",
+            "description": "Comprehensive API documentation with examples and authentication.",
+            "icon": "🔌",
+            "color": "orange",
+            "link": "../../docs/v5.7/api-integration/index.html",
+            "topics": ["REST APIs", "Authentication", "SDKs & Libraries"]
         },
         {
-            "title": "Support",
-            "description": "Contact our support team for assistance",
-            "icon": "📧",
-            "link": "mailto:gra-support@bankofamerica.com",
-            "button_text": "Contact Support"
+            "title": "Security & Compliance",
+            "description": "Enterprise security features and compliance guidelines.",
+            "icon": "🔒",
+            "color": "teal",
+            "link": "../../docs/v5.7/security-compliance/index.html",
+            "topics": ["Security Policies", "Compliance Standards", "Audit Trails"]
         },
         {
-            "title": "Training",
-            "description": "Access training materials and certification programs",
-            "icon": "📚",
-            "link": "examples/index.html",
-            "button_text": "View Training"
+            "title": "Monitoring & Analytics",
+            "description": "Real-time monitoring, analytics, and performance insights.",
+            "icon": "📊",
+            "color": "indigo",
+            "link": "../../docs/v5.7/monitoring-analytics/index.html",
+            "topics": ["Real-time Metrics", "Custom Dashboards", "Alerting System"]
         }
     ],
     
@@ -308,58 +252,34 @@ html_context = {
         "placeholder": "Ask me anything about GRA Core Platform...",
         "position": "bottom-right"
     },
-    
-    # Theme Configuration
-    "theme_config": {
-        "default_theme": "light",
-        "enable_auto_theme": True,
-        "theme_storage_key": "gra-docs-theme"
-    },
-    
-    # Search Configuration
-    "search_config": {
-        "enabled": True,
-        "placeholder": "Search docs...",
-        "shortcut": "⌘K",
-        "min_chars": 2
-    }
 }
 
-html_static_path = ['_static']
+# Static files configuration
+html_static_path = [
+    '_static',
+    'src/gcp_docs/homepage/themes',
+    'src/gcp_docs/shared/assets'
+]
+
+# CSS files in order of loading
 html_css_files = [
     'css/boa-theme.css',
+    'styles.css',  # From src/gcp_docs/homepage/themes/
+    'animations.css',  # From src/gcp_docs/homepage/themes/
     'css/custom.css',
-    'css/chatbot.css',
     'css/components.css',
-    'css/navigation.css',
-    'css/sidebar.css',
-    'css/content.css',
+    'css/responsive.css',
 ]
 
-# Add custom CSS file for web app styling
-html_css_files.extend([
-    'css/web-app.css',
-    'css/animations.css',
-    'css/responsive.css'
-])
-
+# JavaScript files in order of loading
 html_js_files = [
     'js/theme-switcher.js',
-    'js/version-compare.js',
-    'js/chatbot.js',
     'js/navigation.js',
     'js/search.js',
+    'js/chatbot.js',  # From src/gcp_docs/homepage/themes/js/
+    'js/interactions.js',  # From src/gcp_docs/homepage/themes/js/
     'js/custom.js',
-    'js/ui-components.js',
-    'js/interactions.js',
 ]
-
-# Add custom JavaScript for interactivity
-html_js_files.extend([
-    'js/web-app.js',
-    'js/chatbot-functionality.js',
-    'js/smooth-scroll.js'
-])
 
 # -- Extension configuration -------------------------------------------------
 intersphinx_mapping = {
@@ -392,66 +312,42 @@ chatbot_config = {
 version_compare_enabled = True
 version_compare_base_url = "https://gra-core-docs.bankofamerica.com"
 
-# UI Components Configuration
-ui_components = {
-    "banner": {
-        "enabled": True,
-        "type": "announcement",
-        "dismissible": True,
-        "content": "GRA Core Platform v5.7.0 is now available with enhanced security features and improved performance.",
-        "link": "changelog.html",
-        "link_text": "View Release Notes"
-    },
-    "header": {
-        "enabled": True,
-        "logo": "GRA",
-        "title": "GRA Core Platform Docs",
-        "search": True,
-        "version_dropdown": True,
-        "theme_toggle": True,
-        "mobile_menu": True
-    },
-    "navigation": {
-        "enabled": True,
-        "items": html_context["nav_items"],
-        "mobile_responsive": True
-    },
-    "feature_cards": {
-        "enabled": True,
-        "cards": html_context["feature_cards"],
-        "grid_columns": 3,
-        "hover_effects": True
-    },
-    "chatbot": {
-        "enabled": True,
-        "config": html_context["chatbot_config"]
-    },
-    "help_section": {
-        "enabled": True,
-        "items": html_context["help_items"],
-        "grid_columns": 3
-    }
-}
-
-# Custom CSS and JS injection
+# Custom setup function
 def setup(app):
     """Setup function for custom Sphinx configuration"""
     
-    # Add custom CSS classes
-    app.add_css_file('css/ui-components.css')
-    app.add_js_file('js/ui-components.js')
+    # Add custom CSS and JS files
+    app.add_css_file('styles.css')
+    app.add_css_file('animations.css')
+    app.add_js_file('js/chatbot.js')
+    app.add_js_file('js/interactions.js')
     
-    # Add custom directives if needed
-    # app.add_directive('feature-card', FeatureCardDirective)
-    
-    # Add custom roles if needed
-    # app.add_role('version', version_role)
+    # Add build hooks
+    app.connect('build-finished', on_build_finished)
+    app.connect('config-inited', on_config_inited)
     
     return {
         'version': '0.1',
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }
+
+# Build hooks
+def on_build_finished(app, exc):
+    """Custom build finished hook"""
+    if exc is None:
+        print("✅ GRA Core Platform documentation build completed successfully!")
+        print("🎨 Modular components loaded and integrated")
+        print("🚀 Web app layout ready for deployment")
+    else:
+        print(f"❌ Build failed with error: {exc}")
+
+def on_config_inited(app, config):
+    """Custom config initialization hook"""
+    print("🔧 Initializing GRA Core Platform documentation...")
+    print("📦 Loading modular components from src/gcp_docs/homepage/...")
+    print("🎨 Applying Bank of America theme and styling...")
+    print("⚡ Enabling interactive features and animations...")
 
 # HTML output customization
 html_show_sourcelink = False
@@ -472,13 +368,13 @@ locale_dirs = ['locale/']
 gettext_compact = False
 
 # Source file suffixes
-source_suffix = {
-    '.rst': None,
-    '.md': 'myst_parser',
-}
+# source_suffix = {
+#     '.rst': None,
+#     '.md': 'myst_parser',
+# }
 
 # Master document
-master_doc = 'index'
+# master_doc = 'index'
 
 # Exclude patterns for build
 exclude_patterns.extend([
@@ -505,25 +401,25 @@ html_theme_options.update({
 })
 
 # Add custom build hooks
-def on_build_finished(app, exc):
-    """Custom build finished hook"""
-    if exc is None:
-        print("✅ Documentation build completed successfully!")
-        print("🚀 All UI components have been integrated!")
-    else:
-        print(f"❌ Build failed with error: {exc}")
+# def on_build_finished(app, exc):
+#     """Custom build finished hook"""
+#     if exc is None:
+#         print("✅ Documentation build completed successfully!")
+#         print("🚀 All UI components have been integrated!")
+#     else:
+#         print(f"❌ Build failed with error: {exc}")
 
-def on_config_inited(app, config):
-    """Custom config initialization hook"""
-    print("🔧 Initializing GRA Core Platform documentation...")
-    print("📦 Loading UI components...")
-    print("🎨 Applying Bank of America theme...")
+# def on_config_inited(app, config):
+#     """Custom config initialization hook"""
+#     print("🔧 Initializing GRA Core Platform documentation...")
+#     print("📦 Loading UI components...")
+#     print("🎨 Applying Bank of America theme...")
 
 # Connect the hooks
-def setup_hooks(app):
-    app.connect('build-finished', on_build_finished)
-    app.connect('config-inited', on_config_inited)
+# def setup_hooks(app):
+#     app.connect('build-finished', on_build_finished)
+#     app.connect('config-inited', on_config_inited)
 
 # Final setup call
-if __name__ == '__main__':
-    setup_hooks(None)
+# if __name__ == '__main__':
+#     setup_hooks(None)
