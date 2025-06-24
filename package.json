@@ -6,11 +6,15 @@
     "documentation",
     "sphinx",
     "versioning",
-    "gra-core"
+    "gra-core",
+    "nextjs",
+    "react"
   ],
   "license": "MIT",
   "author": "Bank of America Technology Team",
   "scripts": {
+    "build": "next build",
+    "dev": "next dev",
     "docs:build": "make html",
     "docs:build-all": "make docs-build-all",
     "docs:clean": "make clean",
@@ -20,7 +24,12 @@
     "docs:new-version": "make docs-new-version",
     "docs:serve": "make livehtml",
     "docs:status": "make status",
-    "docs:validate": "make docs-validate"
+    "docs:validate": "make docs-validate",
+    "integrated:build": "./scripts/build_integrated.sh",
+    "integrated:dev": "./scripts/dev_integrated.sh",
+    "integrated:serve": "./scripts/serve_integrated.sh",
+    "lint": "next lint",
+    "start": "next start"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.3",
@@ -38,6 +47,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.17",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0",
     "live-server": "^1.2.2",
     "postcss": "^8.5",
     "tailwindcss": "^3.4.4",

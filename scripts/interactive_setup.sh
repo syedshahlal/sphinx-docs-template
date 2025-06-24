@@ -126,10 +126,46 @@ handle_menu_choice() {
             ;;
         2)
             echo -e "${BLUE}${INFO} Running React + Sphinx integration setup...${NC}"
+            echo ""
+            echo -e "${YELLOW}This will set up both Next.js and Sphinx development environments.${NC}"
+            echo ""
+            
             if [ -f "scripts/complete_setup.sh" ]; then
                 ./scripts/complete_setup.sh
+                
+                echo ""
+                echo -e "${GREEN}🎉 Setup complete! Choose your development mode:${NC}"
+                echo -e "${BLUE}  1. 🚀 Start integrated development (Next.js + Sphinx)${NC}"
+                echo -e "${BLUE}  2. ⚛️  Start Next.js only (npm run dev)${NC}"
+                echo -e "${BLUE}  3. 📚 Start Sphinx only (documentation)${NC}"
+                echo -e "${BLUE}  4. 🏗️  Build everything${NC}"
+                echo ""
+                
+                read -p "Choose development mode (1-4): " dev_choice
+                
+                case $dev_choice in
+                    1)
+                        echo -e "${GREEN}Starting integrated development mode...${NC}"
+                        ./scripts/dev_integrated.sh
+                        ;;
+                    2)
+                        echo -e "${GREEN}Starting Next.js development server...${NC}"
+                        npm run dev
+                        ;;
+                    3)
+                        echo -e "${GREEN}Starting Sphinx documentation server...${NC}"
+                        ./scripts/serve_docs.sh
+                        ;;
+                    4)
+                        echo -e "${GREEN}Building all components...${NC}"
+                        ./scripts/build_integrated.sh
+                        ;;
+                    *)
+                        echo -e "${YELLOW}Invalid choice. Run ./scripts/dev_integrated.sh manually.${NC}"
+                        ;;
+                esac
             else
-                print_error "React integration script not found"
+                print_error "Setup script not found"
             fi
             ;;
         3)
