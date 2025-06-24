@@ -61,8 +61,8 @@ myst_enable_extensions = [
 ]
 
 # -- HTML output options ----------------------------------------------------
-html_theme = 'boa_theme'
-html_theme_path = ['_themes']
+html_theme = 'pydata_sphinx_theme'
+# html_theme_path = ['_themes']
 
 html_title = f"{project} Documentation"
 html_logo = "_static/images/boa-logo.svg"
