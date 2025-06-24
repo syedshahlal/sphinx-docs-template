@@ -120,12 +120,472 @@ check_script() {
     fi
 }
 
+# Enhanced function to check Python installation
+check_python_installation() {
+    local python_cmd=""
+    local python_version=""
+    
+    print_info "Checking for Python installation..."
+    
+    # Check for different Python commands
+    if command -v python3 >/dev/null 2>&1; then
+        python_cmd="python3"
+        python_version=$(python3 --version 2>&1)
+    elif command -v python >/dev/null 2>&1; then
+        python_cmd="python"
+        python_version=$(python --version 2>&1)
+        # Check if it's Python 3
+        if ! python -c "import sys; sys.exit(0 if sys.version_info >= (3, 8) else 1)" 2>/dev/null; then
+            print_warning "Found Python 2. Python 3.8+ is required."
+            python_cmd=""
+        fi
+    elif command -v py >/dev/null 2>&1; then
+        python_cmd="py"
+        python_version=$(py --version 2>&1)
+    fi
+    
+    if [ -n "$python_cmd" ]; then
+        print_success "Found Python: $python_version"
+        echo "export PYTHON_CMD=$python_cmd" > .python_config
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to provide Python installation instructions
+show_python_installation_guide() {
+    print_header "Python Installation Required"
+    
+    print_error "Python 3.8+ was not found on your system."
+    echo ""
+    print_info "GRA Core Documentation requires Python 3.8 or higher with pip."
+    echo ""
+    
+    # Detect operating system and provide specific instructions
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        print_info "📱 macOS Installation Options:"
+        echo ""
+        echo "Option 1 - Using Homebrew (Recommended):"
+        echo "  brew install python3"
+        echo ""
+        echo "Option 2 - Download from python.org:"
+        echo "  Visit: https://www.python.org/downloads/macos/"
+        echo ""
+        echo "Option 3 - Using pyenv:"
+        echo "  brew install pyenv"
+        echo "  pyenv install 3.11.0"
+        echo "  pyenv global 3.11.0"
+        
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Linux
+        print_info "🐧 Linux Installation Options:"
+        echo ""
+        
+        # Check for specific distributions
+        if command -v apt-get >/dev/null 2>&1; then
+            echo "Ubuntu/Debian:"
+            echo "  sudo apt update"
+            echo "  sudo apt install python3 python3-pip python3-venv"
+        elif command -v yum >/dev/null 2>&1; then
+            echo "CentOS/RHEL/Fedora:"
+            echo "  sudo yum install python3 python3-pip"
+            echo "  # or for newer versions:"
+            echo "  sudo dnf install python3 python3-pip"
+        elif command -v pacman >/dev/null 2>&1; then
+            echo "Arch Linux:"
+            echo "  sudo pacman -S python python-pip"
+        else
+            echo "Generic Linux:"
+            echo "  Use your distribution's package manager to install python3"
+        fi
+        
+        echo ""
+        echo "Alternative - Download from python.org:"
+        echo "  Visit: https://www.python.org/downloads/source/"
+        
+    elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+        # Windows
+        print_info "🪟 Windows Installation Options:"
+        echo ""
+        echo "Option 1 - Download from python.org (Recommended):"
+        echo "  Visit: https://www.python.org/downloads/windows/"
+        echo "  Download Python 3.11+ installer"
+        echo "  ⚠️  Make sure to check 'Add Python to PATH' during installation"
+        echo ""
+        echo "Option 2 - Using Windows Store:"
+        echo "  Search for 'Python 3.11' in Microsoft Store"
+        echo ""
+        echo "Option 3 - Using Chocolatey:"
+        echo "  choco install python3"
+        echo ""
+        echo "Option 4 - Using Scoop:"
+        echo "  scoop install python"
+        
+    else
+        print_info "🖥️  General Installation:"
+        echo ""
+        echo "Visit: https://www.python.org/downloads/"
+        echo "Download and install Python 3.8 or higher"
+    fi
+    
+    echo ""
+    print_info "📋 After Installation:"
+    echo "1. Close and reopen your terminal"
+    echo "2. Verify installation: python3 --version"
+    echo "3. Verify pip: python3 -m pip --version"
+    echo "4. Run this setup script again"
+    echo ""
+}
+
+# Function to offer alternative setup without Python
+offer_alternative_setup() {
+    print_header "Alternative Setup Options"
+    
+    print_info "Since Python is not available, here are your options:"
+    echo ""
+    
+    echo "1. 📦 Install Python first (Recommended)"
+    echo "   - Follow the installation guide above"
+    echo "   - Then run this setup again"
+    echo ""
+    
+    echo "2. 🌐 Static Documentation Setup"
+    echo "   - Set up basic HTML/CSS/JS structure"
+    echo "   - No Sphinx documentation generation"
+    echo "   - Manual content management"
+    echo ""
+    
+    echo "3. 📋 Generate Installation Script"
+    echo "   - Create a script with all the commands"
+    echo "   - Run after installing Python"
+    echo ""
+    
+    if ask_yes_no "Would you like to see the Python installation guide?" "y"; then
+        show_python_installation_guide
+    fi
+    
+    echo ""
+    if ask_yes_no "Would you like to set up static documentation (without Sphinx)?" "n"; then
+        setup_static_documentation
+        return 0
+    fi
+    
+    if ask_yes_no "Would you like to generate an installation script for later?" "y"; then
+        generate_installation_script
+        return 0
+    fi
+    
+    print_info "Setup cancelled. Please install Python and run this script again."
+    return 1
+}
+
+# Function to set up static documentation
+setup_static_documentation() {
+    print_header "Static Documentation Setup"
+    
+    print_info "Setting up basic HTML/CSS/JS structure..."
+    
+    # Create basic directory structure
+    mkdir -p {static_docs/{css,js,images},templates,content}
+    
+    # Create basic HTML template
+    cat > static_docs/index.html << 'EOF'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRA Core Platform Documentation</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>GRA Core Platform</h1>
+            <nav>
+                <a href="#overview">Overview</a>
+                <a href="#getting-started">Getting Started</a>
+                <a href="#api">API Reference</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main">
+        <section class="hero">
+            <div class="container">
+                <h2>Welcome to GRA Core Platform</h2>
+                <p>Your comprehensive guide to building enterprise applications</p>
+            </div>
+        </section>
+        
+        <section class="features">
+            <div class="container">
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Platform Overview</h3>
+                        <p>Learn about the core platform capabilities</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Getting Started</h3>
+                        <p>Quick start guide and tutorials</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>API Reference</h3>
+                        <p>Complete API documentation</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Bank of America. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>
+EOF
+
+    # Create basic CSS
+    cat > static_docs/css/styles.css << 'EOF'
+/* GRA Core Platform Static Documentation Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.header {
+    background: #0066cc;
+    color: white;
+    padding: 1rem 0;
+}
+
+.header h1 {
+    display: inline-block;
+    margin-right: 2rem;
+}
+
+.header nav a {
+    color: white;
+    text-decoration: none;
+    margin-right: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.header nav a:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.hero {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #0066cc;
+}
+
+.features {
+    padding: 4rem 0;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.feature-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.footer {
+    background: #343a40;
+    color: white;
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: 4rem;
+}
+
+@media (max-width: 768px) {
+    .header h1 {
+        display: block;
+        margin-bottom: 1rem;
+    }
+    
+    .hero h2 {
+        font-size: 2rem;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+}
+EOF
+
+    # Create basic JavaScript
+    cat > static_docs/js/main.js << 'EOF'
+// GRA Core Platform Static Documentation JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('GRA Core Documentation loaded');
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Add interactive features
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+        card.addEventListener('click', function() {
+            alert('Feature documentation coming soon!');
+        });
+    });
+});
+EOF
+
+    # Create README for static setup
+    cat > static_docs/README.md << 'EOF'
+# GRA Core Platform - Static Documentation
+
+This is a basic static HTML documentation setup created because Python/Sphinx was not available.
+
+## Structure
+- `index.html` - Main documentation page
+- `css/styles.css` - Styling
+- `js/main.js` - Interactive features
+- `images/` - Image assets
+
+## Usage
+1. Open `index.html` in a web browser
+2. Or serve with any web server:
+   \`\`\`bash
+   # Python (if available later)
+   python3 -m http.server 8000
+   
+   # Node.js
+   npx serve .
+   
+   # PHP
+   php -S localhost:8000
+   \`\`\`
+
+## Next Steps
+1. Install Python 3.8+
+2. Run the full setup script for Sphinx documentation
+3. Migrate content from this static version
+EOF
+
+    print_success "Static documentation setup complete!"
+    print_info "Created in: static_docs/"
+    print_info "Open static_docs/index.html in your browser to view"
+    
+    if ask_yes_no "Would you like to open the documentation now?" "y"; then
+        if command -v xdg-open >/dev/null 2>&1; then
+            xdg-open "static_docs/index.html"
+        elif command -v open >/dev/null 2>&1; then
+            open "static_docs/index.html"
+        else
+            print_info "Please open static_docs/index.html in your web browser"
+        fi
+    fi
+}
+
+# Function to generate installation script
+generate_installation_script() {
+    print_header "Generating Installation Script"
+    
+    cat > install_after_python.sh << 'EOF'
+#!/bin/bash
+
+# GRA Core Documentation - Install After Python Setup
+# Run this script after installing Python 3.8+
+
+echo "🚀 GRA Core Documentation - Post-Python Installation"
+echo "=================================================="
+
+# Check Python again
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "❌ Python 3 still not found. Please install Python first."
+    exit 1
+fi
+
+echo "✅ Python found: $(python3 --version)"
+
+# Run the complete setup
+if [ -f "scripts/complete_setup.sh" ]; then
+    echo "🔄 Running complete setup..."
+    chmod +x scripts/complete_setup.sh
+    ./scripts/complete_setup.sh
+else
+    echo "❌ complete_setup.sh not found!"
+    echo "Please make sure you're in the project root directory."
+    exit 1
+fi
+EOF
+
+    chmod +x install_after_python.sh
+    
+    print_success "Installation script created: install_after_python.sh"
+    print_info "After installing Python, run: ./install_after_python.sh"
+}
+
 # Main function
 main() {
     print_header "GRA Core Documentation - Interactive Setup"
     
     echo -e "${CYAN}Welcome to the GRA Core Documentation Interactive Setup!${NC}"
     echo ""
+    
+    # Enhanced Python checking
+    if ! check_python_installation; then
+        offer_alternative_setup
+        return $?
+    fi
+    
+    # Continue with original setup if Python is found
     echo "This script will guide you through setting up the documentation system."
     echo "You can choose which components to install and configure."
     echo ""
