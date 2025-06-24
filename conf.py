@@ -140,6 +140,39 @@ html_theme_options = {
     "enable_screen_reader": True,
 }
 
+# Add after the existing html_theme_options
+html_theme_options.update({
+    # Web App Layout Configuration
+    "enable_web_app_layout": True,
+    "web_app_components": {
+        "banner": True,
+        "hero_section": True,
+        "feature_cards": True,
+        "quick_links": True,
+        "whats_new": True,
+        "support_section": True,
+        "chatbot_widget": True
+    },
+    
+    # Custom CSS for web app styling
+    "custom_css": [
+        "css/web-app.css",
+        "css/components.css",
+        "css/animations.css"
+    ],
+    
+    # Enable Tailwind CSS classes
+    "enable_tailwind": True,
+    
+    # Responsive breakpoints
+    "breakpoints": {
+        "sm": "640px",
+        "md": "768px", 
+        "lg": "1024px",
+        "xl": "1280px"
+    }
+})
+
 html_context = {
     "github_user": "bankofamerica",
     "github_repo": "gra-core",
@@ -303,6 +336,13 @@ html_css_files = [
     'css/content.css',
 ]
 
+# Add custom CSS file for web app styling
+html_css_files.extend([
+    'css/web-app.css',
+    'css/animations.css',
+    'css/responsive.css'
+])
+
 html_js_files = [
     'js/theme-switcher.js',
     'js/version-compare.js',
@@ -313,6 +353,13 @@ html_js_files = [
     'js/ui-components.js',
     'js/interactions.js',
 ]
+
+# Add custom JavaScript for interactivity
+html_js_files.extend([
+    'js/web-app.js',
+    'js/chatbot-functionality.js',
+    'js/smooth-scroll.js'
+])
 
 # -- Extension configuration -------------------------------------------------
 intersphinx_mapping = {
