@@ -6,10 +6,10 @@ interface NavItem {
 }
 
 interface HeaderProps {
-  navItems: NavItem[]
+  navItems?: NavItem[]
 }
 
-const Header: React.FC<HeaderProps> = ({ navItems }) => {
+const Header: React.FC<HeaderProps> = ({ navItems = [] }) => {
   return (
     <header>
       <nav>
