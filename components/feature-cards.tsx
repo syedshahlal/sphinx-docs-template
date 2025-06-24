@@ -24,16 +24,16 @@ const features: Feature[] = [
     color: "text-blue-600 dark:text-blue-400",
     gradient: "from-blue-500/20 to-cyan-500/20",
     details: ["Core Services", "Getting Started", "Best Practices", "Architecture Overview"],
-    href: "/docs/gra-core-introduction",
+    href: "/docs/_build/html/v5.7/getting-started/index.html",
   },
   {
     icon: Users,
-    title: "User Onboarding",
-    description: "Complete guide to onboard new users and set up their GCP environment.",
+    title: "User Guide",
+    description: "Complete guide to using GRA Core Platform with step-by-step instructions.",
     color: "text-green-600 dark:text-green-400",
     gradient: "from-green-500/20 to-emerald-500/20",
-    details: ["Account Setup", "Permissions", "First Project", "Team Management"],
-    href: "/docs/user-onboarding",
+    details: ["Installation", "Configuration", "User Management", "Troubleshooting"],
+    href: "/docs/_build/html/v5.7/user-guide/index.html",
   },
   {
     icon: Code,
@@ -42,34 +42,34 @@ const features: Feature[] = [
     color: "text-purple-600 dark:text-purple-400",
     gradient: "from-purple-500/20 to-pink-500/20",
     details: ["REST APIs", "Authentication", "SDKs", "Rate Limits"],
-    href: "/docs/api-reference",
+    href: "/docs/_build/html/v5.7/api-reference/index.html",
   },
   {
     icon: Layers,
-    title: "GRA Core Platform Features",
-    description: "Deep dive into advanced GRA Core Platform features and enterprise-level capabilities.",
+    title: "Examples & Tutorials",
+    description: "Real-world examples and step-by-step tutorials for common use cases.",
     color: "text-orange-600 dark:text-orange-400",
     gradient: "from-orange-500/20 to-red-500/20",
-    details: ["Advanced Compute", "AI/ML Services", "Data Analytics", "Security Features"],
-    href: "/docs/gra-core-features",
+    details: ["Quick Start", "Advanced Examples", "Best Practices", "Code Samples"],
+    href: "/docs/_build/html/v5.7/examples/index.html",
   },
   {
     icon: GitBranch,
-    title: "Sample Workflow",
-    description: "Real-world workflows and implementation patterns for common use cases.",
+    title: "Development Guide",
+    description: "Development workflows, contribution guidelines, and advanced topics.",
     color: "text-teal-600 dark:text-teal-400",
     gradient: "from-teal-500/20 to-cyan-500/20",
-    details: ["CI/CD Pipelines", "Data Processing", "Web Applications", "Microservices"],
-    href: "/docs/sample-workflow",
+    details: ["Development Setup", "Contributing", "Testing", "Deployment"],
+    href: "/docs/_build/html/v5.7/development/index.html",
   },
   {
     icon: Server,
-    title: "GRA Core Infrastructure",
-    description: "Infrastructure as Code, networking, and deployment strategies on GRA Core Platform.",
+    title: "Platform Architecture",
+    description: "Deep dive into GRA Core Platform architecture and infrastructure.",
     color: "text-indigo-600 dark:text-indigo-400",
     gradient: "from-indigo-500/20 to-blue-500/20",
-    details: ["Terraform", "Networking", "Load Balancing", "Monitoring"],
-    href: "/docs/gra-core-infrastructure",
+    details: ["System Design", "Components", "Scalability", "Security"],
+    href: "/docs/_build/html/v5.7/architecture/index.html",
   },
 ]
 
@@ -98,6 +98,8 @@ export function FeatureCards() {
             <a
               key={title}
               href={href}
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label={title}
               className="group block focus:outline-none focus:ring-2 focus:ring-primary rounded-xl"
             >
@@ -158,7 +160,7 @@ export function FeatureCards() {
                     } overflow-hidden`}
                   >
                     <div className="border-t border-border pt-4">
-                      <h4 className="text-sm font-semibold text-foreground mb-3">Key Features:</h4>
+                      <h4 className="text-sm font-semibold text-foreground mb-3">Key Topics:</h4>
                       <div className="grid grid-cols-1 gap-2">
                         {details.map((detail, i) => (
                           <div key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -178,7 +180,7 @@ export function FeatureCards() {
                   >
                     <div className="flex items-center justify-between">
                       <span className="inline-flex items-center gap-2 text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
-                        Explore Documentation <ExternalLink className="w-3 h-3" />
+                        View Documentation <ExternalLink className="w-3 h-3" />
                       </span>
                       <div className="flex items-center gap-1">
                         <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
@@ -212,7 +214,9 @@ export function FeatureCards() {
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-full border border-primary/20">
             <span className="text-sm font-medium text-foreground">Need help getting started?</span>
             <a
-              href="/docs/quick-start"
+              href="/docs/_build/html/v5.7/getting-started/quickstart.html"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
             >
               Quick Start Guide <ArrowRight className="w-3 h-3" />

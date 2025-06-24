@@ -142,26 +142,67 @@ if [ ! -f "docs/index.rst" ]; then
 GRA Core Platform Documentation
 ===============================
 
-Welcome to the GRA Core Platform Documentation.
+Welcome to the GRA Core Platform Documentation - Bank of America's enterprise-grade platform for building scalable, secure applications.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Getting Started:
 
    getting-started/index
-   user-guide/index
-   api-reference/index
-   examples/index
-   changelog/index
 
-API Reference
-=============
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide:
+
+   user-guide/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference:
+
+   api-reference/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Examples & Tutorials:
+
+   examples/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Development:
+
+   development/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Architecture:
+
+   architecture/index
 
 .. toctree::
    :maxdepth: 2
    :caption: API Documentation:
 
    api/modules
+
+Platform Overview
+-----------------
+
+The GRA Core Platform provides:
+
+* **Enterprise Security**: Bank-grade security and compliance
+* **Scalable Architecture**: Auto-scaling cloud-native infrastructure  
+* **Developer Experience**: Modern tools and streamlined workflows
+* **Integration Ready**: Seamless integration with Bank of America systems
+
+Quick Links
+-----------
+
+* :doc:`getting-started/quickstart` - Get started in 5 minutes
+* :doc:`user-guide/installation` - Detailed installation guide
+* :doc:`api-reference/authentication` - API authentication
+* :doc:`examples/web-application` - Build your first app
 
 Indices and tables
 ==================
@@ -172,29 +213,16 @@ Indices and tables
 EOF
 fi
 
-# Create directory structure
-mkdir -p docs/{getting-started,user-guide,api-reference,examples,changelog,api}
-mkdir -p docs/{_static,_templates}
-
-# Create basic index files for each section
-sections=("getting-started" "user-guide" "api-reference" "examples" "changelog")
+# Create directory structure with all the sections
+echo "📁 Creating documentation sections..."
+sections=("getting-started" "user-guide" "api-reference" "examples" "development" "architecture" "api")
 
 for section in "${sections[@]}"; do
-    if [ ! -f "docs/$section/index.rst" ]; then
-        echo "📝 Creating docs/$section/index.rst..."
-        section_title=$(echo "$section" | sed 's/-/ /g' | sed 's/\b\w/\U&/g')
-        cat > "docs/$section/index.rst" << EOF
-$section_title
-$(printf '=%.0s' $(seq 1 ${#section_title}))
-
-Welcome to the $section_title section.
-
-.. toctree::
-   :maxdepth: 2
-
-EOF
-    fi
+    mkdir -p "docs/$section"
 done
+
+# Create additional directories
+mkdir -p docs/{_static,_templates}
 
 # Create sample Python modules for auto-documentation
 if [ ! -f "src/gra_core/__init__.py" ]; then
@@ -369,10 +397,12 @@ echo "   ├── getting-started/"
 echo "   ├── user-guide/"
 echo "   ├── api-reference/"
 echo "   ├── examples/"
-echo "   ├── changelog/"
+echo "   ├── development/"
+echo "   ├── architecture/"
 echo "   └── api/"
 echo "   src/gra_core/ (sample Python modules)"
 echo ""
 echo "🔧 Next steps:"
 echo "   1. Run: ./scripts/generate_autodocs.sh"
 echo "   2. Run: ./scripts/build_versioned_docs.sh"
+echo "   3. Run: ./scripts/serve_docs.sh -o"
