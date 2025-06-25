@@ -106,7 +106,7 @@ echo -e "${GREEN}🔧 Updating main configuration...${NC}"
 # Update conf.py in root to include new version
 if [ -f "conf.py" ]; then
     # Add new version to available versions in html_context
-    python3 << EOF
+    python << EOF
 import re
 
 # Read conf.py

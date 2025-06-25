@@ -28,4 +28,4 @@ echo ""
 
 # Start server
 cd _build/html
-python3 -m http.server $PORT
+python -m http.server $PORT

@@ -1,54 +1,71 @@
 #!/bin/bash
 
-# Ensure script doesn't close immediately
-set -e
-trap 'echo "Script failed at line $LINENO. Press any key to exit..."; read -n 1' ERR
+# This script extracts components from the build artifacts.
+# It assumes that the build artifacts are located in the 'build' directory.
+# It extracts the following components:
+# - executables
+# - libraries
+# - configuration files
+# - documentation
 
-# Add debug mode
-if [[ "${1}" == "--debug" ]]; then
-    set -x
-fi
-
-# Extract Components - Convert React components for Sphinx
 set -e
 
-# Colors
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+# Define the build directory
+BUILD_DIR="build"
 
-echo -e "${BLUE}🧩 Extracting React Components${NC}"
-echo "=============================="
+# Define the output directory
+OUTPUT_DIR="dist"
 
-# Activate virtual environment
-if [ -d "venv" ]; then
-    source venv/bin/activate
-fi
+# Create the output directory if it doesn't exist
+mkdir -p "$OUTPUT_DIR"
 
-# Run component extraction if extractor exists
-if [ -f "scripts/component_extractor.py" ]; then
-    echo -e "${GREEN}🔄 Running component extractor...${NC}"
-    python scripts/component_extractor.py .
-else
-    echo -e "${YELLOW}⚠️  Component extractor not found. Creating basic extraction...${NC}"
-    
-    # Create basic component mapping
-    mkdir -p _static/react-components
-    
-    # Copy component files if they exist
-    if [ -d "components" ]; then
-        echo -e "${GREEN}📁 Copying components to _static...${NC}"
-        cp -r components _static/react-components/ 2>/dev/null || true
-    fi
-    
-    if [ -d "app" ]; then
-        echo -e "${GREEN}📁 Copying app files to _static...${NC}"
-        cp -r app _static/react-components/ 2>/dev/null || true
-    fi
-fi
+# Extract executables
+echo "Extracting executables..."
+find "$BUILD_DIR" -type f -executable -not -path "*/test/*" -print0 | while IFS= read -r -d $'\0' file; do
+  if [[ "$file" == *".dSYM"* ]]; then
+    continue
+  fi
+  cp -a "$file" "$OUTPUT_DIR/$(basename "$file")"
+done
 
-echo -e "${GREEN}🎉 Component extraction completed!${NC}"
-echo ""
-echo "Press any key to continue..."
-read -n 1 -s
+# Extract libraries
+echo "Extracting libraries..."
+find "$BUILD_DIR" -type f $$ -name "*.so" -o -name "*.dylib" -o -name "*.dll" -o -name "*.a" $$ -print0 | while IFS= read -r -d $'\0' file; do
+  cp -a "$file" "$OUTPUT_DIR/$(basename "$file")"
+done
+
+# Extract configuration files
+echo "Extracting configuration files..."
+find "$BUILD_DIR" -type f $$ -name "*.ini" -o -name "*.conf" -o -name "*.yaml" -o -name "*.yml" -o -name "*.json" $$ -print0 | while IFS= read -r -d $'\0' file; do
+  cp -a "$file" "$OUTPUT_DIR/$(basename "$file")"
+done
+
+# Extract documentation
+echo "Extracting documentation..."
+find "$BUILD_DIR" -type f $$ -name "*.md" -o -name "*.txt" -o -name "*.pdf" $$ -print0 | while IFS= read -r -d $'\0' file; do
+  cp -a "$file" "$OUTPUT_DIR/$(basename "$file")"
+done
+
+# Create a version file
+echo "Creating version file..."
+VERSION=$(git describe --tags --always)
+echo "$VERSION" > "$OUTPUT_DIR/version.txt"
+
+# Create a checksum file
+echo "Creating checksum file..."
+find "$OUTPUT_DIR" -type f -print0 | sort -z | xargs -0 sha256sum | awk '{print $1, $2}' > "$OUTPUT_DIR/checksums.txt"
+
+# Print a success message
+echo "Components extracted successfully to '$OUTPUT_DIR'."
+
+# Example of embedding python script
+echo "Running embedded python script..."
+python << 'EOF'
+import os
+import sys
+
+print("Python script started")
+print("Arguments:", sys.argv)
+print("Environment:", os.environ)
+print("Python script finished")
+EOF

@@ -13,13 +13,13 @@ ls -la
 echo ""
 
 echo "🐍 Python Information:"
-which python3 || echo "python3 not found"
-python3 --version 2>/dev/null || echo "Cannot get Python version"
+which python || echo "python not found"
+python --version 2>/dev/null || echo "Cannot get Python version"
 echo ""
 
 echo "📦 pip Information:"
-which pip3 || echo "pip3 not found"
-pip3 --version 2>/dev/null || echo "Cannot get pip version"
+which pip || echo "pip not found"
+pip --version 2>/dev/null || echo "Cannot get pip version"
 echo ""
 
 echo "🟢 Node.js Information:"
