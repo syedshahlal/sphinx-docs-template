@@ -13,7 +13,7 @@
   "license": "MIT",
   "author": "Bank of America Technology Team",
   "scripts": {
-    "build": "next build",
+    "build": "./scripts/build_sphinx_react.sh",
     "dev": "next dev",
     "docs:build": "make html",
     "docs:build-all": "make docs-build-all",
@@ -29,7 +29,7 @@
     "integrated:dev": "./scripts/dev_integrated.sh",
     "integrated:serve": "./scripts/serve_integrated.sh",
     "lint": "next lint",
-    "start": "next start"
+    "start": "./scripts/serve_sphinx_react.sh"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.3",

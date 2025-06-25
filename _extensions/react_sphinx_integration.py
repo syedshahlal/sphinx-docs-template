@@ -4,13 +4,10 @@ Embeds React components directly into Sphinx documentation
 """
 import os
 import json
-import subprocess
 from pathlib import Path
-from typing import Dict, List, Any, Optional
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 from sphinx.application import Sphinx
-from sphinx.util import logging
 from sphinx.util.docutils import SphinxDirective
 
 logger = logging.getLogger(__name__)
@@ -21,78 +18,28 @@ class ReactComponentDirective(SphinxDirective):
     
     Usage:
     .. react-component:: ComponentName
-       :props: {"title": "Hello", "variant": "primary"}
-       :height: 400px
+       :props: {"title": "Hello"}
        :interactive: true
     """
     
     has_content = True
-    required_arguments = 1  # Component name
+    required_arguments = 1
     optional_arguments = 0
     option_spec = {
         'props': directives.unchanged,
         'height': directives.unchanged,
-        'width': directives.unchanged,
         'interactive': directives.flag,
         'preview': directives.flag,
-        'source': directives.flag,
     }
     
     def run(self):
         component_name = self.arguments[0]
         props = self.options.get('props', '{}')
-        height = self.options.get('height', '300px')
-        width = self.options.get('width', '100%')
+        height = self.options.get('height', '400px')
         interactive = 'interactive' in self.options
-        show_preview = 'preview' in self.options
-        show_source = 'source' in self.options
         
-        # Generate unique ID for this component instance
         component_id = f"react-{component_name.lower()}-{hash(str(self.options))}"
         
-        # Create container for the React component
-        container = nodes.container()
-        container['classes'].extend(['react-component-container', f'component-{component_name.lower()}'])
-        
-        # Add component title
-        if show_preview or show_source:
-            title = nodes.paragraph()
-            title += nodes.strong(text=f"{component_name} Component")
-            container += title
-        
-        # Create the React component embed
-        if interactive or show_preview:
-            react_html = self._generate_react_embed(
-                component_name, props, component_id, height, width, interactive
-            )
-            
-            raw_node = nodes.raw('', react_html, format='html')
-            container += raw_node
-        
-        # Add source code if requested
-        if show_source:
-            source_code = self._get_component_source(component_name)
-            if source_code:
-                source_container = nodes.container()
-                source_container['classes'].append('component-source')
-                
-                source_title = nodes.paragraph()
-                source_title += nodes.strong(text="Source Code:")
-                source_container += source_title
-                
-                code_block = nodes.literal_block(source_code, source_code)
-                code_block['language'] = 'typescript'
-                source_container += code_block
-                
-                container += source_container
-        
-        return [container]
-    
-    def _generate_react_embed(self, component_name: str, props: str, component_id: str, 
-                            height: str, width: str, interactive: bool) -> str:
-        """Generate HTML to embed React component"""
-        
-        # Parse props safely
         try:
             props_obj = json.loads(props) if props.strip() else {}
         except json.JSONDecodeError:
@@ -101,14 +48,12 @@ class ReactComponentDirective(SphinxDirective):
         props_json = json.dumps(props_obj)
         
         html = f'''
-        <div class="react-component-embed" id="{component_id}" 
-             style="width: {width}; height: {height}; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div class="react-component-embed" id="{component_id}" style="width: 100%; height: {height}; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
             <div class="react-component-header" style="background: #f8fafc; padding: 0.5rem 1rem; border-bottom: 1px solid #e2e8f0; font-size: 0.875rem; color: #64748b;">
                 <span>⚛️ {component_name}</span>
                 {f'<span style="float: right;">🎮 Interactive</span>' if interactive else ''}
             </div>
-            <div class="react-component-content" id="{component_id}-content" 
-                 style="height: calc(100% - 40px); padding: 1rem; background: white;">
+            <div class="react-component-content" id="{component_id}-content" style="height: calc(100% - 40px); padding: 1rem; background: white;">
                 <div class="react-loading" style="display: flex; align-items: center; justify-content: center; height: 100%; color: #64748b;">
                     Loading {component_name}...
                 </div>
@@ -116,7 +61,6 @@ class ReactComponentDirective(SphinxDirective):
         </div>
         
         <script type="text/javascript">
-            // Queue component for rendering
             if (typeof window.reactComponentQueue === 'undefined') {{
                 window.reactComponentQueue = [];
             }}
@@ -129,27 +73,12 @@ class ReactComponentDirective(SphinxDirective):
         </script>
         '''
         
-        return html
-    
-    def _get_component_source(self, component_name: str) -> Optional[str]:
-        """Get source code for a component"""
-        # Look for component file in common locations
-        possible_paths = [
-            f"components/{component_name}.tsx",
-            f"components/{component_name.lower()}.tsx",
-            f"components/ui/{component_name.lower()}.tsx",
-            f"app/components/{component_name}.tsx",
-        ]
+        container = nodes.container()
+        container['classes'].append('react-component-container')
+        raw_node = nodes.raw('', html, format='html')
+        container += raw_node
         
-        for path in possible_paths:
-            if os.path.exists(path):
-                try:
-                    with open(path, 'r', encoding='utf-8') as f:
-                        return f.read()
-                except Exception as e:
-                    logger.warning(f"Could not read component source {path}: {e}")
-        
-        return None
+        return [container]
 
 class ReactPageDirective(SphinxDirective):
     """
@@ -253,8 +182,6 @@ def build_react_bundle(app: Sphinx, output_dir: Path):
 def discover_components() -> List[Dict]:
     """Discover all React components in the project"""
     components = []
-    
-    # Scan component directories
     component_dirs = ['components', 'app/components', 'components/ui']
     
     for dir_path in component_dirs:

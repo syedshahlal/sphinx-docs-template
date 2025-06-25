@@ -6,7 +6,6 @@ from datetime import datetime
 # -- Path setup --------------------------------------------------------------
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('_extensions'))
-sys.path.insert(0, os.path.abspath('src'))
 
 # -- Project information -----------------------------------------------------
 project = 'GRA Core Platform'
@@ -21,26 +20,17 @@ release = '5.7.0'  # Full version
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.todo',
-    'sphinx.ext.ifconfig',
     'sphinx_copybutton',
-    'sphinx_design',
     'myst_parser',
-    'sphinx_multiversion',
-    'sphinx_search.extension',
-    'chatbot_extension',  # Custom extension for LLM chatbot
     'react_sphinx_integration',  # Our React integration extension
 ]
 
-templates_path = ['_templates', 'src/gcp_docs/homepage/templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'README.md', 'node_modules']
+templates_path = ['_templates']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'node_modules']
 
 # -- Source file configuration ----------------------------------------------
 # Set the master document to our new homepage structure
-master_doc = 'src/gcp_docs/homepage/index'
+master_doc = 'index'
 
 # Include paths for modular components
 source_suffix = {
@@ -86,86 +76,6 @@ html_favicon = "_static/images/favicon.ico"
 
 # Bank of America inspired theme options
 html_theme_options = {
-    "repository_url": "https://github.com/bankofamerica/gra-core",
-    "repository_branch": "main",
-    "use_repository_button": True,
-    "use_edit_page_button": True,
-    "use_download_button": True,
-    "use_fullscreen_button": True,
-    "path_to_docs": "docs",
-    
-    # Navigation
-    "navbar_align": "left",
-    "navbar_center": ["navbar-nav"],
-    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
-    "navbar_persistent": ["search-button"],
-    
-    # Sidebar
-    "show_navbar_depth": 2,
-    "show_toc_level": 3,
-    "collapse_navigation": False,
-    "navigation_depth": 4,
-    
-    # Footer
-    "footer_items": ["copyright", "sphinx-version", "last-updated"],
-    
-    # Version switcher
-    "switcher": {
-        "json_url": "https://gra-core-docs.bankofamerica.com/en/latest/_static/switcher.json",
-        "version_match": version,
-    },
-    
-    # Bank of America colors
-    "primary_sidebar_end": ["version-switcher.html", "edit-this-page.html"],
-    "article_header_start": ["breadcrumbs.html"],
-    "article_header_end": ["edit-this-page.html"],
-    "article_footer_items": ["prev-next.html"],
-    
-    # Custom BoA styling
-    "boa_theme": True,
-    "show_version_warning": True,
-    "chatbot_enabled": True,
-    
-    # Modular Component System
-    "enable_modular_components": True,
-    "component_base_path": "src/gcp_docs/homepage/components",
-    "theme_base_path": "src/gcp_docs/homepage/themes",
-    
-    # UI Components Integration
-    "enable_banner": True,
-    "enable_hero": True,
-    "enable_feature_cards": True,
-    "enable_quick_links": True,
-    "enable_whats_new": True,
-    "enable_support": True,
-    "enable_chatbot": True,
-    
-    # Interactive Features
-    "enable_animations": True,
-    "enable_hover_effects": True,
-    "enable_scroll_animations": True,
-    "enable_parallax": True,
-    "enable_keyboard_navigation": True,
-    
-    # Responsive Design
-    "enable_responsive_design": True,
-    "mobile_breakpoint": "768px",
-    "tablet_breakpoint": "1024px",
-    
-    # Accessibility
-    "enable_high_contrast": True,
-    "enable_reduced_motion": True,
-    "enable_focus_indicators": True,
-    "enable_screen_reader": True,
-    
-    # React theme options
-    'logo_only': False,
-    'display_version': True,
-    'prev_next_buttons_location': 'bottom',
-    'style_external_links': False,
-    'vcs_pageview_mode': '',
-    'style_nav_header_background': '#2980B9',
-    # Toc options
     'collapse_navigation': True,
     'sticky_navigation': True,
     'navigation_depth': 4,
@@ -397,60 +307,3 @@ html_sidebars = {
 language = 'en'
 locale_dirs = ['locale/']
 gettext_compact = False
-
-# Source file suffixes
-# source_suffix = {
-#     '.rst': None,
-#     '.md': 'myst_parser',
-# }
-
-# Master document
-# master_doc = 'index'
-
-# Exclude patterns for build
-exclude_patterns.extend([
-    '_build',
-    'Thumbs.db',
-    '.DS_Store',
-    'node_modules',
-    '.git',
-    '.github',
-    'scripts',
-    '*.tmp',
-    '*.bak',
-])
-
-# HTML theme options for responsive design
-# html_theme_options.update({
-#     "use_edit_page_button": True,
-#     "use_repository_button": True,
-#     "use_issues_button": True,
-#     "use_download_button": True,
-#     "navigation_with_keys": True,
-#     "show_toc_level": 2,
-#     "announcement": "🎉 GRA Core Platform v5.7.0 is now available! <a href='changelog.html'>See what's new</a>",
-# })
-
-# Add custom build hooks
-# def on_build_finished(app, exc):
-#     """Custom build finished hook"""
-#     if exc is None:
-#         print("✅ Documentation build completed successfully!")
-#         print("🚀 All UI components have been integrated!")
-#     else:
-#         print(f"❌ Build failed with error: {exc}")
-
-# def on_config_inited(app, config):
-#     """Custom config initialization hook"""
-#     print("🔧 Initializing GRA Core Platform documentation...")
-#     print("📦 Loading UI components...")
-#     print("🎨 Applying Bank of America theme...")
-
-# Connect the hooks
-# def setup_hooks(app):
-#     app.connect('build-finished', on_build_finished)
-#     app.connect('config-inited', on_config_inited)
-
-# Final setup call
-# if __name__ == '__main__':
-#     setup_hooks(None)

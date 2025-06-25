@@ -72,7 +72,7 @@ setup_node_env() {
     echo -e "${GREEN}📦 Setting up Node.js environment...${NC}"
     
     # Install dependencies if needed
-    if [ ! -d "node_modules" ] || [ ! -f "node_modules/.package-lock.json" ]; then
+    if [ ! -d "node_modules" ]; then
         npm install
         echo -e "${GREEN}📦 Installed Node.js dependencies${NC}"
     else
