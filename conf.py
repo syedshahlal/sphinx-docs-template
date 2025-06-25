@@ -154,6 +154,26 @@ html_theme_options = {
     "enable_screen_reader": True,
 }
 
+# HTML theme options for converted React components
+html_theme_options.update({
+    # Use converted templates
+    "use_converted_components": True,
+    "component_templates_path": "_templates",
+    
+    # Enable React-style features
+    "enable_hero_section": True,
+    "enable_feature_cards": True,
+    "enable_interactive_elements": True,
+    
+    # Navigation
+    "navbar_align": "left",
+    "navbar_end": ["search-button", "theme-switcher"],
+    
+    # Sidebar
+    "show_navbar_depth": 2,
+    "collapse_navigation": False,
+})
+
 html_context = {
     "github_user": "bankofamerica",
     "github_repo": "gra-core",
@@ -254,6 +274,38 @@ html_context = {
     },
 }
 
+# Update HTML context for converted components
+html_context.update({
+    # Component integration
+    "use_react_components": True,
+    "component_version": version,
+    
+    # Feature cards data
+    "feature_cards": [
+        {
+            "title": "Platform Overview",
+            "description": "Get started with GRA Core Platform fundamentals and core concepts.",
+            "icon": "🚀",
+            "link": "platform-overview/index.html",
+            "color": "blue"
+        },
+        {
+            "title": "Getting Started", 
+            "description": "Complete guide to using GRA Core Platform with step-by-step instructions.",
+            "icon": "📖",
+            "link": "getting-started/index.html",
+            "color": "green"
+        },
+        {
+            "title": "API Reference",
+            "description": "Comprehensive API documentation with examples and authentication guides.", 
+            "icon": "🔌",
+            "link": "api-reference/index.html",
+            "color": "purple"
+        }
+    ]
+})
+
 # Static files configuration
 html_static_path = [
     '_static',
@@ -271,6 +323,13 @@ html_css_files = [
     'css/responsive.css',
 ]
 
+# CSS files in order (updated for converted components)
+html_css_files = [
+    'css/globals.css',      # Converted from app/globals.css
+    'css/components.css',   # Converted component styles
+    'css/custom.css',
+]
+
 # JavaScript files in order of loading
 html_js_files = [
     'js/theme-switcher.js',
@@ -278,6 +337,12 @@ html_js_files = [
     'js/search.js',
     'js/chatbot.js',  # From src/gcp_docs/homepage/themes/js/
     'js/interactions.js',  # From src/gcp_docs/homepage/themes/js/
+    'js/custom.js',
+]
+
+# JavaScript files (updated for converted components)
+html_js_files = [
+    'js/components.js',     # Converted component functionality
     'js/custom.js',
 ]
 
