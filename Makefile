@@ -1,4 +1,4 @@
-# Enhanced Makefile for versioned documentation
+# Enhanced Makefile for versioned documentation with React dashboard
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
@@ -10,11 +10,15 @@ MULTIVERSION  = sphinx-multiversion
 DOCSDIR       = documentation
 CURRENT_VERSION = $(shell cat $(DOCSDIR)/current_version.txt 2>/dev/null || echo "v1.0.0")
 
+# React dashboard build
+REACT_DIR    = .
+REACT_BUILD  = _static/react-dashboard
+
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile clean html livehtml multiversion docs-init docs-new-version docs-list docs-switch docs-validate docs-build-all
+.PHONY: help Makefile clean html livehtml multiversion docs-init docs-new-version docs-list docs-switch docs-validate docs-build-all react react-dev serve dev
 
 # Initialize documentation structure
 docs-init:
@@ -47,7 +51,7 @@ docs-validate:
 	@python scripts/version_manager.py validate
 
 # Build current version HTML
-html:
+html: react
 	@echo "🔨 Building current version ($(CURRENT_VERSION)) HTML documentation..."
 	@python scripts/documentation_builder.py --version $(CURRENT_VERSION)
 	@echo "✅ Build finished. The HTML pages are in $(BUILDDIR)/html/$(CURRENT_VERSION)."
@@ -76,9 +80,9 @@ multiversion:
 
 # Clean build directory
 clean:
-	@echo "🧹 Cleaning build directory..."
-	rm -rf "$(BUILDDIR)"
-	@echo "✅ Clean finished."
+	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo "Cleaning React build..."
+	@rm -rf $(REACT_BUILD)
 
 # Install dependencies
 install:
@@ -158,6 +162,29 @@ quickstart:
 	@echo ""
 	@echo "4. Build all versions for production:"
 	@echo "   make production"
+
+# Build React dashboard
+react:
+	@echo "Building React dashboard..."
+	@cd $(REACT_DIR) && npm run build:sphinx
+
+# Start React development server
+react-dev:
+	@echo "Starting React development server..."
+	@cd $(REACT_DIR) && npm run dev
+
+# Serve documentation
+serve: html
+	@echo "Starting documentation server at http://localhost:8000"
+	@cd $(BUILDDIR)/html && python -m http.server 8000
+
+# Development mode
+dev:
+	@echo "Starting development mode..."
+	@echo "React dev server: http://localhost:3000"
+	@echo "Sphinx auto-build: http://localhost:8000"
+	@make react-dev &
+	@sphinx-autobuild "$(SOURCEDIR)" "$(BUILDDIR)/html" --host 0.0.0.0 --port 8000
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
