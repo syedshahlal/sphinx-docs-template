@@ -31,6 +31,10 @@ const nextConfig = {
     appDir: true,
   },
 
+  images: {
+    domains: [],
+  },
+
   // Custom webpack config for development
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
