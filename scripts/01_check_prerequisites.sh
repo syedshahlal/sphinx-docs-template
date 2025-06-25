@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Ensure script doesn't close immediately
+set -e
+trap 'echo "Script failed at line $LINENO. Press any key to exit..."; read -n 1' ERR
+
+# Add debug mode
+if [[ "${1}" == "--debug" ]]; then
+    set -x
+fi
+
 # Check Prerequisites - Verify system requirements
 set -e
 
@@ -47,3 +56,6 @@ else
 fi
 
 echo -e "${GREEN}🎉 Prerequisites check completed!${NC}"
+echo ""
+echo "Press any key to continue..."
+read -n 1 -s

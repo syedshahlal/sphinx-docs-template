@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Ensure script doesn't close immediately
+set -e
+trap 'echo "Script failed at line $LINENO. Press any key to exit..."; read -n 1' ERR
+
+# Add debug mode
+if [[ "${1}" == "--debug" ]]; then
+    set -x
+fi
+
 # Setup Environment - Create venv and install dependencies
 set -e
 
@@ -84,3 +93,6 @@ echo -e "${GREEN}📁 Creating project structure...${NC}"
 mkdir -p {_static/{css,js},_templates,_extensions,docs,components,app}
 
 echo -e "${GREEN}🎉 Environment setup completed!${NC}"
+echo ""
+echo "Press any key to continue..."
+read -n 1 -s
