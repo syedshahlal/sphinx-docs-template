@@ -13,8 +13,8 @@
   "license": "MIT",
   "author": "Bank of America Technology Team",
   "scripts": {
-    "build": "./scripts/build_sphinx_react.sh",
-    "dev": "next dev",
+    "build": "next build",
+    "dev": "next dev --port 3000 --hostname 0.0.0.0",
     "docs:build": "make html",
     "docs:build-all": "make docs-build-all",
     "docs:clean": "make clean",
@@ -25,11 +25,12 @@
     "docs:serve": "make livehtml",
     "docs:status": "make status",
     "docs:validate": "make docs-validate",
-    "integrated:build": "./scripts/build_integrated.sh",
-    "integrated:dev": "./scripts/dev_integrated.sh",
-    "integrated:serve": "./scripts/serve_integrated.sh",
     "lint": "next lint",
-    "start": "./scripts/serve_sphinx_react.sh"
+    "setup": "./scripts/setup_all.sh",
+    "sphinx:build": "./scripts/04_build_docs.sh",
+    "sphinx:dev": "./scripts/06_dev_mode.sh",
+    "sphinx:serve": "./scripts/05_serve_docs.sh",
+    "start": "next start --port 3000 --hostname 0.0.0.0"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.3",
