@@ -25,12 +25,12 @@ extensions = [
     'react_sphinx_integration',  # Our React integration extension
 ]
 
-templates_path = ['_templates']
+templates_path = ['_templates', 'src/gcp_docs/templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'node_modules']
 
 # -- Source file configuration ----------------------------------------------
-# Set the master document to our new homepage structure
-master_doc = 'index'
+# Set the master document to our new structure
+master_doc = 'src/gcp_docs/docs/gcp_5.6/index'
 
 # Include paths for modular components
 source_suffix = {
@@ -190,9 +190,8 @@ html_context = {
 # Static files configuration
 html_static_path = [
     '_static',
-    'src/gcp_docs/homepage/themes',
-    'src/gcp_docs/shared/assets',
-    'react'
+    'src/gcp_docs/static',
+    'src/gcp_docs/docs/gcp_5.6/_static'
 ]
 
 # CSS files in order of loading

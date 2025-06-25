@@ -28,6 +28,20 @@ if [ -d "_build" ]; then
     rm -rf _build
 fi
 
+# Check if we have a current version symlink
+if [ -L "docs/current" ]; then
+    CURRENT_VERSION_DIR=$(readlink docs/current)
+    echo -e "${GREEN}📚 Building current version: $CURRENT_VERSION_DIR${NC}"
+    
+    # Update conf.py to point to current version
+    if [ -f "conf.py" ]; then
+        sed -i.bak "s|master_doc = 'src/gcp_docs/docs/gcp_[^']*'|master_doc = '${CURRENT_VERSION_DIR}/index'|" conf.py
+        rm -f conf.py.bak
+    fi
+else
+    echo -e "${YELLOW}⚠️  No current version set. Using default structure.${NC}"
+fi
+
 # Check if conf.py exists
 if [ ! -f "conf.py" ]; then
     echo -e "${YELLOW}⚠️  conf.py not found. Creating basic configuration...${NC}"
