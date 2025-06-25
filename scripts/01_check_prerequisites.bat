@@ -3,6 +3,7 @@ setlocal enabledelayedexpansion
 
 echo 🔍 Checking Prerequisites
 echo ==========================
+echo.
 
 REM Check Python
 python --version >nul 2>&1
@@ -11,8 +12,9 @@ if %errorlevel% equ 0 (
     echo ✅ Python found: !PYTHON_VERSION!
 ) else (
     echo ❌ Python not found. Please install Python 3.8+
-    pause
-    exit /b 1
+    echo.
+    echo Download from: https://www.python.org/downloads/
+    goto :error
 )
 
 REM Check pip
@@ -21,8 +23,7 @@ if %errorlevel% equ 0 (
     echo ✅ pip found
 ) else (
     echo ❌ pip not found. Please install pip
-    pause
-    exit /b 1
+    goto :error
 )
 
 REM Check Node.js
@@ -32,6 +33,7 @@ if %errorlevel% equ 0 (
     echo ✅ Node.js found: !NODE_VERSION!
 ) else (
     echo ⚠️  Node.js not found. Some features may be limited.
+    echo    Download from: https://nodejs.org/
 )
 
 REM Check npm
@@ -44,6 +46,16 @@ if %errorlevel% equ 0 (
 )
 
 echo.
-echo 🎉 Prerequisites check completed!
+echo 🎉 Prerequisites check completed successfully!
+echo.
+echo Press any key to continue...
+pause >nul
+exit /b 0
+
+:error
+echo.
+echo ❌ Prerequisites check failed!
+echo Please install the missing requirements and try again.
 echo.
 pause
+exit /b 1
