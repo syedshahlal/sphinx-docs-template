@@ -1,5 +1,5 @@
 {
-  "name": "sphinx-react-dashboard",
+  "name": "gra-core-docs",
   "version": "1.0.0",
   "private": true,
   "description": "GRA Core Platform Documentation",
@@ -16,7 +16,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc && vite build",
-    "build:sphinx": "vite build --outDir _static/react-dashboard",
+    "build:sphinx": "tsc && vite build --outDir _static/react-dashboard",
     "dev": "vite",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
@@ -40,7 +40,6 @@
     "react-dom": "^19",
     "sass": "latest",
     "sass-embedded": "latest",
-    "shadcn": "latest",
     "stylus": "latest",
     "sugarss": "latest",
     "tailwind-merge": "^2.5.5",
@@ -53,16 +52,16 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@typescript-eslint/eslint-plugin": "^6.14.0",
-    "@typescript-eslint/parser": "^6.14.0",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "@vitejs/plugin-react": "^4.1.1",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.55.0",
+    "eslint": "^8.53.0",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.5",
+    "eslint-plugin-react-refresh": "^0.4.4",
     "postcss": "^8.5",
-    "tailwindcss": "^3.3.6",
+    "tailwindcss": "^3.3.5",
     "typescript": "^5",
-    "vite": "^5.0.8"
+    "vite": "^5.0.0"
   }
 }

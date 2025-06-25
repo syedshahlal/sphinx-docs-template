@@ -1,74 +1,46 @@
-"use client"
-
-import { useState, useEffect } from "react"
 import { Layout } from "./components/layout/Layout"
-import { useComponentMount } from "./hooks/useComponentMount"
-import { useTheme } from "./hooks/useTheme"
-import type { SphinxContent } from "./types"
-import "./styles/globals.css"
-
-// Mock content - in real implementation, this would come from Sphinx
-const mockContent: SphinxContent = {
-  title: "Getting Started",
-  content: `
-    <div class="sphinx-content">
-      <h2 id="introduction">Introduction</h2>
-      <p>Welcome to our documentation platform. This guide will help you get started quickly.</p>
-      
-      <div data-component="FeatureCards" data-props='{"title": "Platform Features", "subtitle": "Everything you need to build amazing applications"}' class="react-mount"></div>
-      
-      <h2 id="installation">Installation</h2>
-      <p>Follow these steps to install the platform:</p>
-      
-      <div data-component="Chart" data-props='{"data": [{"label": "Jan", "value": 65}, {"label": "Feb", "value": 78}, {"label": "Mar", "value": 90}], "type": "bar", "title": "Monthly Usage"}' class="react-mount"></div>
-      
-      <h2 id="user-guide">User Guide</h2>
-      <p>Learn how to use all the features:</p>
-      
-      <div data-component="UserGuideSection" class="react-mount"></div>
-      
-      <h2 id="next-steps">Next Steps</h2>
-      <p>Now that you're set up, here's what you can do next:</p>
-      <ul>
-        <li>Explore the API documentation</li>
-        <li>Check out our examples</li>
-        <li>Join our community</li>
-      </ul>
-    </div>
-  `,
-  toc: [
-    { id: "introduction", title: "Introduction", level: 2 },
-    { id: "installation", title: "Installation", level: 2 },
-    { id: "user-guide", title: "User Guide", level: 2 },
-    { id: "next-steps", title: "Next Steps", level: 2 },
-  ],
-  metadata: {
-    description: "Get started with our platform in just a few minutes.",
-    author: "Documentation Team",
-    lastModified: "2024-01-15",
-  },
-}
+import { FeatureCards } from "./components/examples/FeatureCards"
+import { Chart } from "./components/examples/Chart"
+import { UserGuideSection } from "./components/examples/UserGuideSection"
 
 function App() {
-  const [currentPath, setCurrentPath] = useState("/getting-started")
-  const [content, setContent] = useState<SphinxContent>(mockContent)
-  const { theme } = useTheme()
+  return (
+    <Layout>
+      <div className="space-y-12">
+        {/* Hero Section */}
+        <div className="text-center py-12">
+          <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">GRA Core Platform</h1>
+          <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
+            Enterprise-grade platform for building scalable, secure applications with modern developer experience.
+          </p>
+        </div>
 
-  // Initialize component mounting
-  useComponentMount()
+        {/* Feature Cards */}
+        <FeatureCards />
 
-  const handleNavigate = (path: string) => {
-    setCurrentPath(path)
-    // In real implementation, fetch content based on path
-    console.log("Navigating to:", path)
-  }
+        {/* Metrics Chart */}
+        <Chart title="Platform Usage Metrics" />
 
-  useEffect(() => {
-    // Apply theme class to body
-    document.body.className = theme.mode === "dark" ? "dark" : ""
-  }, [theme.mode])
+        {/* User Guide */}
+        <UserGuideSection />
 
-  return <Layout content={content} currentPath={currentPath} onNavigate={handleNavigate} />
+        {/* Example of dynamic mounting area */}
+        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
+          <h3 className="text-lg font-semibold mb-2">Dynamic Component Area</h3>
+          <p className="text-muted-foreground mb-4">
+            Components with <code>data-component</code> attributes will be mounted here automatically.
+          </p>
+
+          {/* This div will have React components mounted dynamically */}
+          <div
+            data-component="FeatureCards"
+            data-props='{"title": "Dynamic Features", "subtitle": "Loaded via data attributes"}'
+            className="react-mount"
+          />
+        </div>
+      </div>
+    </Layout>
+  )
 }
 
 export default App

@@ -1,56 +1,33 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 import App from "./App"
+import "./styles/globals.css"
 
-// Mount the app
+// Mount the main app
 const rootElement = document.getElementById("root")
 if (rootElement) {
-  const root = ReactDOM.createRoot(rootElement)
-  root.render(
+  ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
       <App />
     </React.StrictMode>,
   )
 }
 
-// Export for Sphinx integration
-declare global {
-  interface Window {
-    SphinxReactApp: {
-      mount: (element: HTMLElement) => void
-      unmount: (element: HTMLElement) => void
-      mountComponent: (element: HTMLElement, componentName: string, props?: any) => void
-    }
-  }
-}
+// Export components for Sphinx integration
+export { FeatureCards } from "./components/examples/FeatureCards"
+export { Chart } from "./components/examples/Chart"
+export { UserGuideSection } from "./components/examples/UserGuideSection"
+export { componentRegistry } from "./components/registry"
 
-window.SphinxReactApp = {
-  mount: (element: HTMLElement) => {
+// Global function for Sphinx to mount components
+;(window as any).mountReactComponent = (componentName: string, element: HTMLElement, props: any = {}) => {
+  const { componentRegistry } = require("./components/registry")
+  const Component = componentRegistry[componentName]
+
+  if (Component) {
     const root = ReactDOM.createRoot(element)
-    root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>,
-    )
-    ;(element as any).__reactRoot = root
-  },
-
-  unmount: (element: HTMLElement) => {
-    const root = (element as any).__reactRoot
-    if (root) {
-      root.unmount()
-      delete (element as any).__reactRoot
-    }
-  },
-
-  mountComponent: (element: HTMLElement, componentName: string, props = {}) => {
-    import("./components/registry").then(({ componentRegistry }) => {
-      const Component = componentRegistry[componentName]
-      if (Component) {
-        const root = ReactDOM.createRoot(element)
-        root.render(React.createElement(Component, props))
-        ;(element as any).__reactRoot = root
-      }
-    })
-  },
+    root.render(React.createElement(Component, props))
+  } else {
+    console.warn(`Component ${componentName} not found in registry`)
+  }
 }

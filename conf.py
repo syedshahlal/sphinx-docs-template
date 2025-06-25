@@ -9,24 +9,26 @@ sys.path.insert(0, os.path.abspath('_extensions'))
 
 # -- Project information -----------------------------------------------------
 project = 'GRA Core Platform'
-copyright = f'{datetime.now().year}, Bank of America'
+copyright = '2024, Bank of America'
 author = 'Bank of America Technology Team'
 
 # Version info
-version = '5.7'  # Short version
-release = '5.7.0'  # Full version
+version = '1.0'  # Short version
+release = '1.0.0'  # Full version
 
 # -- General configuration ---------------------------------------------------
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'sphinx.ext.napoleon',
     'sphinx_copybutton',
+    'sphinx_design',
     'myst_parser',
-    'react_sphinx_integration',  # Our React integration extension
+    'sphinx_integration',  # Our custom React integration
 ]
 
-templates_path = ['_templates', 'src/gcp_docs/templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'node_modules']
+templates_path = ['_templates']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'node_modules', 'src']
 
 # -- Source file configuration ----------------------------------------------
 # Set the master document to our new structure
@@ -59,11 +61,6 @@ myst_enable_extensions = [
     "deflist",
     "html_admonition",
     "html_image",
-    "linkify",
-    "replacements",
-    "smartquotes",
-    "substitution",
-    "tasklist",
 ]
 
 # -- HTML output options ----------------------------------------------------
@@ -76,11 +73,11 @@ html_favicon = "_static/images/favicon.ico"
 
 # Bank of America inspired theme options
 html_theme_options = {
-    'collapse_navigation': True,
-    'sticky_navigation': True,
     'navigation_depth': 4,
+    'collapse_navigation': False,
+    'sticky_navigation': True,
     'includehidden': True,
-    'titles_only': False
+    'titles_only': False,
 }
 
 html_context = {
@@ -175,16 +172,23 @@ html_context = {
     # Chatbot Configuration
     "chatbot_config": {
         "enabled": True,
-        "title": "GRA Assistant",
-        "icon": "🤖",
-        "welcome_message": "Hello! I'm the GRA Assistant. How can I help you with the documentation today?",
-        "placeholder": "Ask me anything about GRA Core Platform...",
-        "position": "bottom-right"
+        "model": "gpt-3.5-turbo",
+        "max_tokens": 500,
+        "temperature": 0.1,
+        "system_prompt": "You are a helpful assistant for the GRA Core Platform documentation. Only answer questions based on the provided documentation content. If you don't know something from the docs, say so.",
+        "index_path": "_build/chatbot_index",
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
     },
     
     # React integration context
     "react_components_enabled": True,
     "interactive_components": True,
+    
+    # Custom CSS for React integration
+    'css_files': [
+        '_static/react-integration.css',
+    ],
 }
 
 # Static files configuration

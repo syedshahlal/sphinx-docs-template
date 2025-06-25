@@ -1,42 +1,26 @@
-export interface DocSection {
-  id: string
+import type React from "react"
+export interface NavigationItem {
   title: string
-  path: string
-  children?: DocSection[]
+  href: string
+  children?: NavigationItem[]
   icon?: string
-  badge?: string
 }
 
-export interface ComponentMount {
-  id: string
-  component: string
-  props?: Record<string, any>
-  container: HTMLElement
+export interface ComponentProps {
+  [key: string]: any
+}
+
+export interface MountableComponent {
+  name: string
+  component: React.ComponentType<any>
 }
 
 export interface ThemeConfig {
-  mode: "light" | "dark"
-  primaryColor: string
-  accentColor: string
+  mode: "light" | "dark" | "system"
 }
 
-export interface SphinxContent {
-  title: string
-  content: string
-  toc: TocItem[]
-  metadata: Record<string, any>
-}
-
-export interface TocItem {
+export interface ContentSection {
   id: string
   title: string
   level: number
-  children?: TocItem[]
-}
-
-export interface SearchResult {
-  title: string
-  excerpt: string
-  url: string
-  section: string
 }

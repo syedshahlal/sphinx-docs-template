@@ -1,11 +1,20 @@
-GRA Core Platform Documentation v5.7
-=====================================
+GRA Core Platform Documentation
+===============================================
 
 Welcome to the GRA Core Platform Documentation with integrated React components!
 
-.. react-component:: Banner
-   :props: {"message": "🎉 GRA Core Platform v5.7.0 is now available!", "type": "info"}
-   :interactive: true
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   example_usage
+
+Interactive Dashboard
+---------------------
+
+.. react-dashboard::
+   :height: 600px
+   :theme: auto
 
 Platform Overview
 ------------------
@@ -13,8 +22,13 @@ Platform Overview
 The GRA Core Platform provides enterprise-grade solutions for data processing, API integration, and secure cloud operations.
 
 .. react-component:: FeatureCards
-   :interactive: true
-   :height: 600px
+   :height: 400px
+
+Quick Start
+-----------
+
+.. react-component:: UserGuideSection
+   :height: 500px
 
 Getting Started
 ---------------
@@ -35,15 +49,16 @@ Complete API documentation with interactive examples.
    :interactive: true
    :height: 500px
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Documentation:
+Usage Metrics
+-------------
 
-   getting-started/index
-   api-reference/index
+.. react-component:: Chart
+   :props: {"title": "Platform Usage", "type": "bar"}
+   :height: 350px
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
+* :ref:`modindex`
 * :ref:`search`

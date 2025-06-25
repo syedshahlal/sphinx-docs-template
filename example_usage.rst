@@ -1,7 +1,7 @@
-React Dashboard Integration Example
-===================================
+React Dashboard Integration Examples
+====================================
 
-This document demonstrates how to integrate the React dashboard and components into Sphinx documentation.
+This document demonstrates how to integrate React components into Sphinx documentation.
 
 Full Dashboard
 --------------
@@ -11,76 +11,84 @@ Embed the complete React dashboard:
 .. react-dashboard::
    :height: 800px
    :theme: auto
-   :class: my-dashboard
 
 Individual Components
 ---------------------
 
-Feature Cards Component
-~~~~~~~~~~~~~~~~~~~~~~~
+Feature Cards
+~~~~~~~~~~~~~
 
 .. react-component:: FeatureCards
-   :props: {"title": "Platform Features", "subtitle": "Everything you need to build amazing applications"}
-   :height: 600px
+   :props: {"title": "Platform Capabilities", "subtitle": "Core features of the GRA platform"}
+   :height: 400px
 
-Chart Component
-~~~~~~~~~~~~~~~
+Interactive Chart
+~~~~~~~~~~~~~~~~~
 
 .. react-component:: Chart
-   :props: {"data": [{"label": "Jan", "value": 65}, {"label": "Feb", "value": 78}, {"label": "Mar", "value": 90}], "type": "bar", "title": "Monthly Usage"}
-   :height: 400px
+   :props: {"title": "Usage Statistics", "type": "bar", "width": 500, "height": 300}
+   :height: 350px
 
 User Guide Section
 ~~~~~~~~~~~~~~~~~~
 
 .. react-component:: UserGuideSection
-   :props: {"title": "Getting Started Guide", "subtitle": "Learn the basics in just a few steps"}
-   :height: 500px
+   :props: {"title": "Quick Start Guide", "description": "Get started with the platform in minutes"}
+   :height: 600px
 
-Traditional Sphinx Content
---------------------------
-
-This is regular Sphinx content that works alongside React components.
-
-Code Example
-~~~~~~~~~~~~
-
-.. code-block:: python
-
-   def hello_world():
-       print("Hello from Sphinx!")
-
-Tables
-~~~~~~
-
-.. list-table:: Feature Comparison
-   :header-rows: 1
-
-   * - Feature
-     - Basic
-     - Pro
-   * - React Components
-     - ✓
-     - ✓
-   * - Dark Mode
-     - ✓
-     - ✓
-   * - Custom Themes
-     - ✗
-     - ✓
-
-Mixed Content Example
+Dynamic Content Areas
 ---------------------
 
-You can mix traditional Sphinx content with React components seamlessly:
+You can also use HTML with data attributes for dynamic mounting:
 
-1. **Installation**: Follow the setup guide
-2. **Configuration**: Set up your preferences
-3. **Interactive Demo**: Try the features below
+.. raw:: html
 
-.. react-component:: FeatureCards
-   :props: {"features": [{"icon": "Zap", "title": "Fast", "description": "Lightning fast performance"}, {"icon": "Shield", "title": "Secure", "description": "Enterprise security"}]}
+   <div data-component="FeatureCards" 
+        data-props='{"title": "Dynamic Features", "subtitle": "Loaded via data attributes"}'
+        class="react-mount"
+        style="min-height: 400px;">
+   </div>
 
-4. **Next Steps**: Continue with the advanced guide
+Custom Props Example
+--------------------
 
-This approach gives you the best of both worlds - the power of Sphinx for documentation structure and the interactivity of modern React components.
+.. react-component:: Chart
+   :props: {
+     "data": [
+       {"label": "Documentation Views", "value": 2500},
+       {"label": "API Calls", "value": 1800},
+       {"label": "Active Users", "value": 950},
+       {"label": "Support Tickets", "value": 45}
+     ],
+     "title": "Platform Metrics Dashboard",
+     "type": "bar",
+     "width": 600,
+     "height": 350
+   }
+   :height: 400px
+
+Best Practices
+--------------
+
+1. **Always specify height** for components to prevent layout shifts
+2. **Use valid JSON** for props - escape quotes properly
+3. **Test components** in both light and dark themes
+4. **Keep props simple** - complex objects should be handled in component defaults
+5. **Use semantic component names** that clearly indicate their purpose
+
+Troubleshooting
+---------------
+
+If components don't render:
+
+1. Check browser console for JavaScript errors
+2. Verify component names match the registry
+3. Ensure props are valid JSON
+4. Confirm React assets are built and copied to ``_static/``
+
+Use the browser developer tools to inspect the generated HTML and verify that:
+
+- ``data-component`` attributes are present
+- ``data-props`` contains valid JSON
+- React scripts are loaded
+- No console errors are present
