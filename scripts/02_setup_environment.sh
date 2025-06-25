@@ -30,7 +30,7 @@ else
 fi
 
 # Activate virtual environment
-source venv/bin/activate
+source venv/Scripts/activate
 echo -e "${GREEN}✅ Virtual environment activated${NC}"
 
 # Create requirements.txt if it doesn't exist
