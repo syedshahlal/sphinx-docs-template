@@ -1,0 +1,125 @@
+/* React Integration Styles for Sphinx Documentation */
+
+/* React component containers */
+.react-component-container {
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.react-component-embed {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.react-component-embed:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.react-page-container {
+  margin: 2rem 0;
+}
+
+.react-page-embed {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Component source code styling */
+.component-source {
+  margin-top: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.component-source pre {
+  margin: 0;
+  padding: 1rem;
+  background: #2d3748;
+  color: #e2e8f0;
+  overflow-x: auto;
+}
+
+/* Loading states */
+.react-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .react-component-embed,
+  .react-page-embed {
+    height: 300px !important;
+    margin: 1rem 0;
+  }
+
+  .react-component-container {
+    margin: 1rem 0;
+  }
+}
+
+/* Integration with Sphinx RTD theme */
+.rst-content .react-component-container {
+  margin-bottom: 24px;
+}
+
+.rst-content .react-component-embed {
+  border: 1px solid #e1e4e5;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .react-component-embed {
+    border-color: #404040;
+  }
+
+  .component-source {
+    background: #1a1a1a;
+    border-color: #404040;
+  }
+}
+
+/* Print styles */
+@media print {
+  .react-component-embed,
+  .react-page-embed {
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+
+  .react-component-header,
+  .react-page-header {
+    background: #f0f0f0 !important;
+    color: #000 !important;
+  }
+}
+
+/* Accessibility improvements */
+.react-component-embed:focus-within {
+  outline: 2px solid #4299e1;
+  outline-offset: 2px;
+}
+
+/* Animation for component loading */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.react-component-embed.loaded {
+  animation: fadeIn 0.3s ease-out;
+}

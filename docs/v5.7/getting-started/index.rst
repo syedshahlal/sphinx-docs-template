@@ -1,93 +1,75 @@
-Getting Started
-===============
+Getting Started with GRA Core Platform
+=======================================
 
-Welcome to the GRA Core Platform! This guide will help you get up and running quickly.
+This guide will help you get up and running with GRA Core Platform quickly.
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   installation
-   quickstart
-   configuration
-   first-application
+.. react-component:: Header
+   :props: {"title": "Getting Started Guide", "subtitle": "Your journey begins here"}
 
 Prerequisites
 -------------
 
-Before you begin, ensure you have:
+Before you begin, ensure you have the following installed:
 
-* **Operating System**: Linux (Ubuntu 20.04+), macOS (10.15+), or Windows 10+
-* **Memory**: Minimum 8GB RAM (16GB recommended)
-* **Storage**: At least 20GB free disk space
-* **Network**: Internet connection for downloading dependencies
-* **Access**: Valid Bank of America credentials
+.. react-component:: PrerequisitesList
+   :props: {"items": ["Node.js 18+", "Python 3.8+", "Docker", "Git"]}
+   :interactive: true
 
-Required Software
------------------
+Installation Steps
+------------------
 
-* **Docker**: Version 20.04 or later
-* **Docker Compose**: Version 1.29 or later
-* **Git**: Version 2.25 or later
-* **Node.js**: Version 16.x or later (for development tools)
-* **Python**: Version 3.8 or later (for scripts and utilities)
+Follow these steps to install GRA Core Platform:
 
-Installation Options
---------------------
+Step 1: Install Dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Choose your preferred installation method:
+.. react-component:: InstallationStep
+   :props: {"step": 1, "title": "Install Dependencies", "command": "npm install @gra/core-platform"}
+   :interactive: true
 
-1. **Docker Installation** (Recommended)
-   
-   * Quick setup with minimal dependencies
-   * Isolated environment
-   * Easy updates and rollbacks
+.. code-block:: bash
 
-2. **Native Installation**
-   
-   * Better performance
-   * Direct system integration
-   * More configuration options
+   npm install @gra/core-platform
 
-3. **Cloud Deployment**
-   
-   * Managed infrastructure
-   * Auto-scaling capabilities
-   * High availability
+Step 2: Configure Environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Quick Start Checklist
-----------------------
+.. react-component:: InstallationStep
+   :props: {"step": 2, "title": "Configure Environment", "description": "Set up your environment variables"}
+   :interactive: true
 
-.. admonition:: Quick Start Steps
-   :class: tip
+Create a `.env` file:
 
-   1. ✅ Verify prerequisites
-   2. ✅ Install Docker and dependencies
-   3. ✅ Clone the repository
-   4. ✅ Configure environment variables
-   5. ✅ Start the platform
-   6. ✅ Verify installation
-   7. ✅ Create your first application
+.. react-component:: CodeEditor
+   :props: {"language": "bash", "content": "GRA_API_KEY=your_api_key\nGRA_ENVIRONMENT=development"}
+   :interactive: true
+   :height: 200px
 
-Support Resources
------------------
+Step 3: Initialize Project
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you encounter issues during setup:
+.. react-component:: InstallationStep
+   :props: {"step": 3, "title": "Initialize Project", "command": "npx gra init"}
+   :interactive: true
 
-* Check the :doc:`../troubleshooting/index` guide
-* Review :doc:`configuration` for detailed settings
-* Visit our `Community Forum <https://community.bankofamerica.com/gra-core>`_
-* Contact `Technical Support <mailto:gra-support@bankofamerica.com>`_
+Quick Start Example
+-------------------
+
+Here's a simple example to get you started:
+
+.. react-component:: QuickStartExample
+   :interactive: true
+   :height: 400px
 
 Next Steps
 ----------
 
-After completing the installation:
+.. react-component:: NextSteps
+   :props: {"steps": ["Explore the API Reference", "Check out Examples", "Join the Community"]}
+   :interactive: true
 
-1. Follow the :doc:`quickstart` tutorial
-2. Explore :doc:`../development-tools/examples`
-3. Review :doc:`../api-reference/core` documentation
-4. Join our developer community
+Need Help?
+----------
 
-.. note::
-   This documentation is for GRA Core Platform v5.7. For other versions, see the version switcher in the top navigation.
+.. react-component:: HelpSection
+   :interactive: true

@@ -32,10 +32,11 @@ extensions = [
     'sphinx_multiversion',
     'sphinx_search.extension',
     'chatbot_extension',  # Custom extension for LLM chatbot
+    'react_sphinx_integration',  # Our React integration extension
 ]
 
 templates_path = ['_templates', 'src/gcp_docs/homepage/templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'README.md']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'README.md', 'node_modules']
 
 # -- Source file configuration ----------------------------------------------
 # Set the master document to our new homepage structure
@@ -58,6 +59,10 @@ smv_outputdir_format = '{ref.name}'
 smv_prefer_remote_refs = False
 smv_latest_version = 'v5.7'
 
+# -- React Integration Configuration -----------------------------------------
+react_components_path = 'components'
+react_build_bundle = True
+
 # -- MyST configuration ------------------------------------------------------
 myst_enable_extensions = [
     "colon_fence",
@@ -72,11 +77,11 @@ myst_enable_extensions = [
 ]
 
 # -- HTML output options ----------------------------------------------------
-html_theme = 'boa_theme'
+html_theme = 'sphinx_rtd_theme'
 html_theme_path = ['_themes']
 
 html_title = f"{project} Documentation"
-html_logo = "_static/images/boa-logo.svg"
+html_logo = "_static/images/gra-logo.svg"
 html_favicon = "_static/images/favicon.ico"
 
 # Bank of America inspired theme options
@@ -152,27 +157,21 @@ html_theme_options = {
     "enable_reduced_motion": True,
     "enable_focus_indicators": True,
     "enable_screen_reader": True,
+    
+    # React theme options
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': False,
+    'vcs_pageview_mode': '',
+    'style_nav_header_background': '#2980B9',
+    # Toc options
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
 }
-
-# HTML theme options for converted React components
-html_theme_options.update({
-    # Use converted templates
-    "use_converted_components": True,
-    "component_templates_path": "_templates",
-    
-    # Enable React-style features
-    "enable_hero_section": True,
-    "enable_feature_cards": True,
-    "enable_interactive_elements": True,
-    
-    # Navigation
-    "navbar_align": "left",
-    "navbar_end": ["search-button", "theme-switcher"],
-    
-    # Sidebar
-    "show_navbar_depth": 2,
-    "collapse_navigation": False,
-})
 
 html_context = {
     "github_user": "bankofamerica",
@@ -272,45 +271,18 @@ html_context = {
         "placeholder": "Ask me anything about GRA Core Platform...",
         "position": "bottom-right"
     },
-}
-
-# Update HTML context for converted components
-html_context.update({
-    # Component integration
-    "use_react_components": True,
-    "component_version": version,
     
-    # Feature cards data
-    "feature_cards": [
-        {
-            "title": "Platform Overview",
-            "description": "Get started with GRA Core Platform fundamentals and core concepts.",
-            "icon": "🚀",
-            "link": "platform-overview/index.html",
-            "color": "blue"
-        },
-        {
-            "title": "Getting Started", 
-            "description": "Complete guide to using GRA Core Platform with step-by-step instructions.",
-            "icon": "📖",
-            "link": "getting-started/index.html",
-            "color": "green"
-        },
-        {
-            "title": "API Reference",
-            "description": "Comprehensive API documentation with examples and authentication guides.", 
-            "icon": "🔌",
-            "link": "api-reference/index.html",
-            "color": "purple"
-        }
-    ]
-})
+    # React integration context
+    "react_components_enabled": True,
+    "interactive_components": True,
+}
 
 # Static files configuration
 html_static_path = [
     '_static',
     'src/gcp_docs/homepage/themes',
-    'src/gcp_docs/shared/assets'
+    'src/gcp_docs/shared/assets',
+    'react'
 ]
 
 # CSS files in order of loading
@@ -321,13 +293,9 @@ html_css_files = [
     'css/custom.css',
     'css/components.css',
     'css/responsive.css',
-]
-
-# CSS files in order (updated for converted components)
-html_css_files = [
-    'css/globals.css',      # Converted from app/globals.css
-    'css/components.css',   # Converted component styles
-    'css/custom.css',
+    'css/react-integration.css',
+    'react/styles.css',
+    'react/tailwind.css',
 ]
 
 # JavaScript files in order of loading
@@ -338,12 +306,8 @@ html_js_files = [
     'js/chatbot.js',  # From src/gcp_docs/homepage/themes/js/
     'js/interactions.js',  # From src/gcp_docs/homepage/themes/js/
     'js/custom.js',
-]
-
-# JavaScript files (updated for converted components)
-html_js_files = [
-    'js/components.js',     # Converted component functionality
-    'js/custom.js',
+    'js/react-integration.js',
+    'react/components.js',
 ]
 
 # -- Extension configuration -------------------------------------------------
@@ -386,6 +350,8 @@ def setup(app):
     app.add_css_file('animations.css')
     app.add_js_file('js/chatbot.js')
     app.add_js_file('js/interactions.js')
+    app.add_css_file('css/react-integration.css')
+    app.add_js_file('js/react-integration.js')
     
     # Add build hooks
     app.connect('build-finished', on_build_finished)
@@ -455,15 +421,15 @@ exclude_patterns.extend([
 ])
 
 # HTML theme options for responsive design
-html_theme_options.update({
-    "use_edit_page_button": True,
-    "use_repository_button": True,
-    "use_issues_button": True,
-    "use_download_button": True,
-    "navigation_with_keys": True,
-    "show_toc_level": 2,
-    "announcement": "🎉 GRA Core Platform v5.7.0 is now available! <a href='changelog.html'>See what's new</a>",
-})
+# html_theme_options.update({
+#     "use_edit_page_button": True,
+#     "use_repository_button": True,
+#     "use_issues_button": True,
+#     "use_download_button": True,
+#     "navigation_with_keys": True,
+#     "show_toc_level": 2,
+#     "announcement": "🎉 GRA Core Platform v5.7.0 is now available! <a href='changelog.html'>See what's new</a>",
+# })
 
 # Add custom build hooks
 # def on_build_finished(app, exc):
