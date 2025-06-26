@@ -1,8 +1,8 @@
 import { Header } from "../components/features/header"
 import { Banner } from "../components/features/banner"
 import { FeatureCards } from "../components/features/feature-cards"
-import { SeeAlsoSection } from "../components/features/see-also-section"
-import { UserGuideSection } from "../components/features/user-guide-section"
+/*import { SeeAlsoSection } from "../components/features/see-also-section"
+import { UserGuideSection } from "../components/features/user-guide-section"*/
 
 export function Home() {
   return (
@@ -11,8 +11,8 @@ export function Home() {
       <Header />
       <main className="max-w-6xl mx-auto px-4 py-8">
         <FeatureCards />
-        <SeeAlsoSection />
-        <UserGuideSection />
+       /* <SeeAlsoSection />
+        <UserGuideSection />*/
       </main>
     </div>
   )
