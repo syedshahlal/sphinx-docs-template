@@ -5,7 +5,7 @@ import { Search, Menu, X, Github, Twitter, ChevronDown, Bell, Sun, Moon } from "
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import Image from "next/image";
+import Image from "next/image"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -229,17 +229,17 @@ export function Header() {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
                 <Link href="/" className="relative group">
-                   <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-105">
-                  {/* logo */}
-                  <Image
-                    src="../public/images/bank-of-america-logo.png"
-                    alt="Bank of America"
-                    width={20}
-                    height={20}
-                    priority    /* optional: preload if this icon is above the fold */
-                    className="w-5 h-5 object-contain"
-                  />
-                </div>
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-105">
+                    {/* logo */}
+                    <Image
+                      src="/images/bank-of-america-logo.png"
+                      alt="Bank of America"
+                      width={20}
+                      height={20}
+                      priority /* optional: preload if this icon is above the fold */
+                      className="w-5 h-5 object-contain"
+                    />
+                  </div>
                 </Link>
                 <div className="flex items-center space-x-3">
                   <Link href="/" className="group">
