@@ -247,3 +247,6 @@ export function PreviewPanel() {
     </div>
   )
 }
+
+// --- exports --------------------------------------------------------------
+export { generateMarkdown, generateHtml }
