@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import type { ComponentStyle, MarkdownComponent } from "./types"
+import type { ComponentStyle, MarkdownComponent, HtmlBlockContent } from "./types"
 import {
   ChevronDown,
   Palette,
@@ -29,6 +29,7 @@ import {
   Underline,
   Strikethrough,
   PaletteIcon,
+  LayoutGrid,
 } from "lucide-react"
 
 // ─── Debounced Helpers ──────────────────────────────────────────────────────────
@@ -162,8 +163,8 @@ export function PropertiesPanel() {
     return (
       <div className="p-4 h-full flex flex-col items-center justify-center text-center bg-background dark:bg-neutral-900">
         <PaletteIcon className="w-12 h-12 text-muted-foreground mb-4" strokeWidth={1} />
-        <h3 className="text-lg font-semibold text-foreground">Properties</h3>
-        <p className="text-muted-foreground text-sm max-w-xs">
+        <h3 className="text-lg font-semibold text-foreground dark:text-neutral-100">Properties</h3>
+        <p className="text-muted-foreground text-sm max-w-xs dark:text-neutral-400">
           Select a component on the canvas to view and edit its properties here.
         </p>
       </div>
@@ -193,16 +194,20 @@ export function PropertiesPanel() {
           onChange={(v) => handleStyleChange("className", v)}
           placeholder="e.g., my-custom-style"
         />
-        <ColorInput
-          label="Text Color"
-          value={selectedComponent.style?.color}
-          onChange={(v) => handleStyleChange("color", v)}
-        />
-        <ColorInput
-          label="Background Color"
-          value={selectedComponent.style?.backgroundColor}
-          onChange={(v) => handleStyleChange("backgroundColor", v)}
-        />
+        {selectedComponent.type !== "htmlBlock" && ( // HTML Blocks manage their own colors via raw HTML
+          <>
+            <ColorInput
+              label="Text Color"
+              value={selectedComponent.style?.color}
+              onChange={(v) => handleStyleChange("color", v)}
+            />
+            <ColorInput
+              label="Background Color"
+              value={selectedComponent.style?.backgroundColor}
+              onChange={(v) => handleStyleChange("backgroundColor", v)}
+            />
+          </>
+        )}
         <StyleInput
           label="Font Size (e.g., 16px, 1.2em)"
           value={selectedComponent.style?.fontSize}
@@ -281,12 +286,14 @@ export function PropertiesPanel() {
           onChange={(v) => handleStyleChange("margin", v)}
           placeholder="0px"
         />
-        <StyleInput
-          label="Border (e.g., 1px solid #ccc)"
-          value={selectedComponent.style?.border}
-          onChange={(v) => handleStyleChange("border", v)}
-          placeholder="none"
-        />
+        {selectedComponent.type !== "htmlBlock" && (
+          <StyleInput
+            label="Border (e.g., 1px solid #ccc)"
+            value={selectedComponent.style?.border}
+            onChange={(v) => handleStyleChange("border", v)}
+            placeholder="none"
+          />
+        )}
         <StyleInput
           label="Border Radius (e.g., 8px, 50%)"
           value={selectedComponent.style?.borderRadius}
@@ -301,12 +308,14 @@ export function PropertiesPanel() {
     <AccordionItem value="effects-styles">
       <AccordionTrigger className="text-sm font-medium">Effects</AccordionTrigger>
       <AccordionContent className="space-y-3 pt-2">
-        <StyleInput
-          label="Box Shadow (e.g., 0 2px 4px #0001)"
-          value={selectedComponent.style?.boxShadow}
-          onChange={(v) => handleStyleChange("boxShadow", v)}
-          placeholder="none"
-        />
+        {selectedComponent.type !== "htmlBlock" && (
+          <StyleInput
+            label="Box Shadow (e.g., 0 2px 4px #0001)"
+            value={selectedComponent.style?.boxShadow}
+            onChange={(v) => handleStyleChange("boxShadow", v)}
+            placeholder="none"
+          />
+        )}
         <StyleInput
           label="Opacity (0-1)"
           value={selectedComponent.style?.opacity}
@@ -314,35 +323,37 @@ export function PropertiesPanel() {
           placeholder="1"
           type="number"
         />
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="hover-effects" className="border-b-0">
-            <AccordionTrigger className="text-xs font-normal py-2 text-muted-foreground hover:no-underline">
-              Hover Effects
-            </AccordionTrigger>
-            <AccordionContent className="space-y-2 pt-1">
-              <ColorInput
-                label="Hover BG Color"
-                value={selectedComponent.style?.hover?.backgroundColor}
-                onChange={(v) => handleNestedStyleChange("hover", "backgroundColor", v)}
-              />
-              <ColorInput
-                label="Hover Text Color"
-                value={selectedComponent.style?.hover?.color}
-                onChange={(v) => handleNestedStyleChange("hover", "color", v)}
-              />
-              <StyleInput
-                label="Hover Box Shadow"
-                value={selectedComponent.style?.hover?.boxShadow}
-                onChange={(v) => handleNestedStyleChange("hover", "boxShadow", v)}
-              />
-              <StyleInput
-                label="Hover Transform (e.g. scale(1.05))"
-                value={selectedComponent.style?.hover?.transform}
-                onChange={(v) => handleNestedStyleChange("hover", "transform", v)}
-              />
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+        {selectedComponent.type !== "htmlBlock" && (
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="hover-effects" className="border-b-0">
+              <AccordionTrigger className="text-xs font-normal py-2 text-muted-foreground hover:no-underline">
+                Hover Effects
+              </AccordionTrigger>
+              <AccordionContent className="space-y-2 pt-1">
+                <ColorInput
+                  label="Hover BG Color"
+                  value={selectedComponent.style?.hover?.backgroundColor}
+                  onChange={(v) => handleNestedStyleChange("hover", "backgroundColor", v)}
+                />
+                <ColorInput
+                  label="Hover Text Color"
+                  value={selectedComponent.style?.hover?.color}
+                  onChange={(v) => handleNestedStyleChange("hover", "color", v)}
+                />
+                <StyleInput
+                  label="Hover Box Shadow"
+                  value={selectedComponent.style?.hover?.boxShadow}
+                  onChange={(v) => handleNestedStyleChange("hover", "boxShadow", v)}
+                />
+                <StyleInput
+                  label="Hover Transform (e.g. scale(1.05))"
+                  value={selectedComponent.style?.hover?.transform}
+                  onChange={(v) => handleNestedStyleChange("hover", "transform", v)}
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        )}
       </AccordionContent>
     </AccordionItem>
   )
@@ -524,6 +535,32 @@ export function PropertiesPanel() {
             />
           </div>
         )
+      case "htmlBlock":
+        const htmlContent = selectedComponent.content as HtmlBlockContent
+        return (
+          <div className="space-y-3">
+            <Label htmlFor="htmlblock-name">Block Name</Label>
+            <Input
+              id="htmlblock-name"
+              value={htmlContent.name || "Custom HTML Block"}
+              readOnly // Name is derived from palette, not directly editable here
+              className="text-sm h-8 bg-muted"
+            />
+            <Label htmlFor="htmlblock-content">HTML Content</Label>
+            <DebouncedTextarea
+              id="htmlblock-content"
+              defaultValue={htmlContent.htmlContent}
+              onDebouncedChange={(v) => handleContentChange("htmlContent", v)}
+              rows={10}
+              className="font-mono text-xs"
+              placeholder="Enter your HTML snippet here..."
+            />
+            <p className="text-xs text-muted-foreground">
+              Note: Ensure your HTML uses Tailwind CSS classes available in this project. Complex scripts or styles
+              might not render correctly in the editor.
+            </p>
+          </div>
+        )
       // Add cases for list, orderedList, taskList, blockquote, table, mermaid, etc.
       // For lists, you'd manage an array of items. For tables, headers and rows.
       default:
@@ -532,7 +569,8 @@ export function PropertiesPanel() {
   }
 
   const getIconForType = (type: MarkdownComponent["type"]) => {
-    const icons: Record<MarkdownComponent["type"], React.ElementType> = {
+    const icons: Record<string, React.ElementType> = {
+      // Allow string for htmlBlock
       heading: Settings,
       paragraph: AlignLeft,
       image: ImageIconProp,
@@ -551,24 +589,29 @@ export function PropertiesPanel() {
       spacer: Settings,
       columns: Columns,
       table: Settings,
+      htmlBlock: LayoutGrid,
     }
     return icons[type] || Settings
   }
   const Icon = getIconForType(selectedComponent.type)
 
   return (
-    <div className="p-0 h-full flex flex-col bg-background dark:bg-neutral-900 border-l border-border">
-      <div className="p-4 border-b border-border">
+    <div className="p-0 h-full flex flex-col bg-background dark:bg-neutral-900 border-l border-border dark:border-neutral-700">
+      <div className="p-4 border-b border-border dark:border-neutral-700">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <Icon className="w-5 h-5 text-muted-foreground" />
-            <h3 className="text-md font-semibold capitalize">{selectedComponent.type}</h3>
+            <h3 className="text-md font-semibold capitalize text-foreground dark:text-neutral-100">
+              {selectedComponent.type === "htmlBlock"
+                ? (selectedComponent.content as HtmlBlockContent).name || "HTML Block"
+                : selectedComponent.type}
+            </h3>
           </div>
           <Button variant="ghost" size="icon_sm" onClick={() => selectComponent(null)} className="h-7 w-7">
             <ChevronDown className="w-4 h-4" />
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground truncate">ID: {selectedComponent.id}</p>
+        <p className="text-xs text-muted-foreground dark:text-neutral-400 truncate">ID: {selectedComponent.id}</p>
       </div>
 
       <ScrollArea className="flex-1">

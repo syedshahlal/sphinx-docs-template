@@ -15,6 +15,7 @@ import { lowlight } from "lowlight/lib/common" // Or import specific languages
 import { TiptapToolbar } from "./tiptap-toolbar"
 import { MermaidDiagram } from "@/lib/tiptap-extensions/mermaid-node" // Custom node
 import "@/styles/tiptap.css" // Styles for Tiptap editor
+import type { Editor } from "@tiptap/core"
 
 // Register specific languages for lowlight if not using common
 // import css from 'highlight.js/lib/languages/css'
