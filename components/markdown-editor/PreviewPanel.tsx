@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Copy, Download, Eye } from "lucide-react"
 import type { ComponentItem } from "./types"
 import { Highlight } from "prism-react-renderer"
+import { generateHtml, generateMarkdown } from "./PreviewPanel"
 
 const draculaTheme = {
   plain: { backgroundColor: "transparent", color: "#f8f8f2" },
@@ -52,119 +53,6 @@ interface PreviewPanelProps {
 }
 
 export default function PreviewPanel({ components, className }: PreviewPanelProps) {
-  const generateMarkdown = () => {
-    return components
-      .map((component) => {
-        switch (component.type) {
-          case "heading":
-            const level = "#".repeat(component.content.level || 1)
-            return `${level} ${component.content.text}\n\n`
-
-          case "paragraph":
-            return `${component.content.text}\n\n`
-
-          case "image":
-            const caption = component.content.caption ? `\n*${component.content.caption}*` : ""
-            return `![${component.content.alt}](${component.content.url})${caption}\n\n`
-
-          case "button":
-            return `[${component.content.text}](${component.content.link || "#"})\n\n`
-
-          case "card":
-            return `## ${component.content.title}\n\n${component.content.description}\n\n${component.content.imageUrl ? `![Card Image](${component.content.imageUrl})\n\n` : ""}`
-
-          case "list":
-            const listItems = component.content.items
-              .map((item) => (component.content.type === "ordered" ? `1. ${item}` : `- ${item}`))
-              .join("\n")
-            return `${listItems}\n\n`
-
-          case "table":
-            const headers = `| ${component.content.headers.join(" | ")} |`
-            const separator = `| ${component.content.headers.map(() => "---").join(" | ")} |`
-            const rows = component.content.rows.map((row) => `| ${row.join(" | ")} |`).join("\n")
-            return `${headers}\n${separator}\n${rows}\n\n`
-
-          case "code":
-            return `\`\`\`${component.content.language || ""}\n${component.content.code}\n\`\`\`\n\n`
-
-          case "quote":
-            return `> ${component.content.text}\n${component.content.author ? `> \n> — ${component.content.author}` : ""}\n\n`
-
-          case "link":
-            return `[${component.content.text}](${component.content.url})\n\n`
-
-          case "htmlBlock":
-            return `\`\`\`html\n${component.content.html}\n\`\`\`\n\n`
-
-          default:
-            return ""
-        }
-      })
-      .join("")
-  }
-
-  const generateHTML = () => {
-    return components
-      .map((component) => {
-        switch (component.type) {
-          case "heading":
-            const tag = `h${component.content.level || 1}`
-            return `<${tag}>${component.content.text}</${tag}>`
-
-          case "paragraph":
-            return `<p>${component.content.text}</p>`
-
-          case "image":
-            const caption = component.content.caption ? `<figcaption>${component.content.caption}</figcaption>` : ""
-            return `<figure><img src="${component.content.url}" alt="${component.content.alt}" />${caption}</figure>`
-
-          case "button":
-            return `<a href="${component.content.link || "#"}" class="btn btn-${component.content.variant || "default"}">${component.content.text}</a>`
-
-          case "card":
-            return `<div class="card">
-            ${component.content.imageUrl ? `<img src="${component.content.imageUrl}" alt="Card image" />` : ""}
-            <div class="card-content">
-              <h3>${component.content.title}</h3>
-              <p>${component.content.description}</p>
-            </div>
-          </div>`
-
-          case "list":
-            const listTag = component.content.type === "ordered" ? "ol" : "ul"
-            const listItems = component.content.items.map((item) => `<li>${item}</li>`).join("")
-            return `<${listTag}>${listItems}</${listTag}>`
-
-          case "table":
-            const headerRow = `<tr>${component.content.headers.map((h) => `<th>${h}</th>`).join("")}</tr>`
-            const bodyRows = component.content.rows
-              .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`)
-              .join("")
-            return `<table><thead>${headerRow}</thead><tbody>${bodyRows}</tbody></table>`
-
-          case "code":
-            return `<pre><code class="language-${component.content.language || ""}">${component.content.code}</code></pre>`
-
-          case "quote":
-            return `<blockquote>
-            <p>${component.content.text}</p>
-            ${component.content.author ? `<cite>— ${component.content.author}</cite>` : ""}
-          </blockquote>`
-
-          case "link":
-            return `<a href="${component.content.url}"${component.content.external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${component.content.text}</a>`
-
-          case "htmlBlock":
-            return component.content.html
-
-          default:
-            return ""
-        }
-      })
-      .join("\n")
-  }
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
   }
@@ -181,8 +69,8 @@ export default function PreviewPanel({ components, className }: PreviewPanelProp
     URL.revokeObjectURL(url)
   }
 
-  const markdown = generateMarkdown()
-  const html = generateHTML()
+  const markdown = generateMarkdown(components)
+  const html = generateHtml(components)
 
   return (
     <div className={`h-full bg-white ${className}`}>
