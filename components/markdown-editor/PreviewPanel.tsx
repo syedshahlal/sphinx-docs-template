@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Copy, Download, Eye } from "lucide-react"
 import type { MarkdownComponent } from "./types"
 import { Highlight } from "prism-react-renderer"
-import { generateHtml } from "./PreviewPanel"
 
 const draculaTheme = {
   plain: { backgroundColor: "transparent", color: "#f8f8f2" },
@@ -22,6 +21,54 @@ const draculaTheme = {
     { types: ["keyword"], style: { color: "#8be9fd" } },
   ],
 } as const
+
+/* ------------------------------------------------------------------ */
+/*  helpers reused by other modules                                   */
+/* ------------------------------------------------------------------ */
+
+/** Convert a Component list to Markdown */
+export function generateMarkdown(blocks: MarkdownComponent[]): string {
+  return blocks
+    .map((b) => {
+      switch (b.type) {
+        case "heading":
+          return `${"#".repeat(b.content.level || 1)} ${b.content.text}\n\n`
+        case "paragraph":
+          return `${b.content.text}\n\n`
+        case "image":
+          return `![${b.content.alt}](${b.content.src})\n\n`
+        case "code":
+          return `\`\`\`${b.content.language || ""}\n${b.content.code}\n\`\`\`\n\n`
+        case "htmlBlock":
+          return `<!-- html block -->\n${b.content.html}\n\n`
+        default:
+          return ""
+      }
+    })
+    .join("")
+}
+
+/** Convert a Component list to raw HTML */
+export function generateHtml(blocks: MarkdownComponent[]): string {
+  return blocks
+    .map((b) => {
+      switch (b.type) {
+        case "heading":
+          return `<h${b.content.level || 1}>${b.content.text}</h${b.content.level || 1}>`
+        case "paragraph":
+          return `<p>${b.content.text}</p>`
+        case "image":
+          return `<img src="${b.content.src}" alt="${b.content.alt}" />`
+        case "code":
+          return `<pre><code class="language-${b.content.language || ""}">${b.content.code}</code></pre>`
+        case "htmlBlock":
+          return b.content.html
+        default:
+          return ""
+      }
+    })
+    .join("")
+}
 
 function CodeHighlighter({
   code,
@@ -69,25 +116,7 @@ export default function PreviewPanel({ blocks, className }: PreviewPanelProps) {
     URL.revokeObjectURL(url)
   }
 
-  const markdown = blocks
-    .map((block) => {
-      switch (block.type) {
-        case "heading":
-          return `# ${block.content.text}\n\n`
-        case "paragraph":
-          return `${block.content.text}\n\n`
-        case "image":
-          return `![${block.content.alt}](${block.content.src})\n\n`
-        case "code":
-          return `\`\`\`${block.content.language}\n${block.content.code}\n\`\`\`\n\n`
-        case "htmlBlock":
-          return `${block.content.html}\n\n`
-        default:
-          return ""
-      }
-    })
-    .join("")
-
+  const markdown = React.useMemo(() => generateMarkdown(blocks), [blocks])
   const html = React.useMemo(() => generateHtml(blocks), [blocks])
 
   return (
@@ -218,3 +247,7 @@ export default function PreviewPanel({ blocks, className }: PreviewPanelProps) {
     </div>
   )
 }
+
+/* ------------------------------------------------------------------ */
+/*  re-export helpers for other modules                               */
+/* ------------------------------------------------------------------ */
