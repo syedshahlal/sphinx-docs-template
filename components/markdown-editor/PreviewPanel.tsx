@@ -1,358 +1,367 @@
 "use client"
 
-import type React from "react"
-import { useEffect, useRef } from "react"
-import { Highlight, type Language } from "prism-react-renderer"
-
-import { ScrollArea } from "@/components/ui/scroll-area"
+import React from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { cn } from "@/lib/utils"
-import type { MarkdownComponent, ComponentStyle, HtmlBlockContent } from "./types"
-import { useEditor } from "./EditorContext"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
+import { Copy, Download, Eye } from "lucide-react"
+import type { ComponentItem } from "./types"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
 
-/* ------------------------------------------------------------------ */
-/*  helpers reused by other modules                                   */
-/* ------------------------------------------------------------------ */
-
-/** Convert a ComponentStyle object to an inline-CSS string */
-const styleObjectToString = (style?: ComponentStyle): string => {
-  if (!style) return ""
-  return Object.entries(style)
-    .filter(([key, val]) => key !== "hover" && key !== "className" && val != null)
-    .map(([key, val]) => `${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val};`)
-    .join(" ")
+interface PreviewPanelProps {
+  components: ComponentItem[]
+  className?: string
 }
 
-/** Generate Markdown from the editor's component list (used for export/publish) */
-function generateMarkdown(components: MarkdownComponent[]): string {
-  return components
-    .sort((a, b) => a.order - b.order)
-    .map((c) => {
-      const { content } = c
-      switch (c.type) {
-        case "heading":
-          return `${"#".repeat(content.level || 1)} ${content.text || ""}\n`
-        case "paragraph":
-          return `${content.text || ""}\n`
-        case "image": {
-          let md = `![${content.alt || ""}](${content.src || ""})`
-          if (content.caption) md += `\n*${content.caption}*\n`
-          return md + "\n"
+export default function PreviewPanel({ components, className }: PreviewPanelProps) {
+  const generateMarkdown = () => {
+    return components
+      .map((component) => {
+        switch (component.type) {
+          case "heading":
+            const level = "#".repeat(component.content.level || 1)
+            return `${level} ${component.content.text}\n\n`
+
+          case "paragraph":
+            return `${component.content.text}\n\n`
+
+          case "image":
+            const caption = component.content.caption ? `\n*${component.content.caption}*` : ""
+            return `![${component.content.alt}](${component.content.url})${caption}\n\n`
+
+          case "button":
+            return `[${component.content.text}](${component.content.link || "#"})\n\n`
+
+          case "card":
+            return `## ${component.content.title}\n\n${component.content.description}\n\n${component.content.imageUrl ? `![Card Image](${component.content.imageUrl})\n\n` : ""}`
+
+          case "list":
+            const listItems = component.content.items
+              .map((item) => (component.content.type === "ordered" ? `1. ${item}` : `- ${item}`))
+              .join("\n")
+            return `${listItems}\n\n`
+
+          case "table":
+            const headers = `| ${component.content.headers.join(" | ")} |`
+            const separator = `| ${component.content.headers.map(() => "---").join(" | ")} |`
+            const rows = component.content.rows.map((row) => `| ${row.join(" | ")} |`).join("\n")
+            return `${headers}\n${separator}\n${rows}\n\n`
+
+          case "code":
+            return `\`\`\`${component.content.language || ""}\n${component.content.code}\n\`\`\`\n\n`
+
+          case "quote":
+            return `> ${component.content.text}\n${component.content.author ? `> \n> — ${component.content.author}` : ""}\n\n`
+
+          case "link":
+            return `[${component.content.text}](${component.content.url})\n\n`
+
+          case "htmlBlock":
+            return `\`\`\`html\n${component.content.html}\n\`\`\`\n\n`
+
+          default:
+            return ""
         }
-        case "code":
-          return `\`\`\`${content.language || ""}\n${content.code || ""}\n\`\`\`\n`
-        case "button":
-          return `[${content.text || "Button"}](${content.link || "#"})\n`
-        case "divider":
-          return "---\n"
-        case "list":
-          return (content.items || []).map((i: string) => `- ${i}`).join("\n") + "\n"
-        case "orderedList":
-          return (
-            (content.items || []).map((i: string, idx: number) => `${(content.start || 1) + idx}. ${i}`).join("\n") +
-            "\n"
-          )
-        case "taskList":
-          return (
-            (content.items || [])
-              .map((item: { text: string; checked: boolean }) => `- [${item.checked ? "x" : " "}] ${item.text}`)
-              .join("\n") + "\n"
-          )
-        case "blockquote":
-          return `> ${content.text || ""}\n`
-        case "alert":
-          return `> **${(content.type || "info").toUpperCase()}**: ${content.text || ""}\n`
-        case "card":
-          let cardMd = `## ${content.title || "Card Title"}\n`
-          if (content.description) cardMd += `${content.description}\n`
-          if (content.imageUrl) cardMd += `![Card Image](${content.imageUrl})\n`
-          return cardMd + "\n"
-        case "table":
-          let tableMd = ""
-          if (content.headers) {
-            tableMd += "| " + content.headers.join(" | ") + " |\n"
-            tableMd += "| " + content.headers.map(() => "---").join(" | ") + " |\n"
-          }
-          if (content.rows) {
-            content.rows.forEach((row: string[]) => {
-              tableMd += "| " + row.join(" | ") + " |\n"
-            })
-          }
-          return tableMd + "\n"
-        case "columns":
-          return `### Column 1\n${content.column1Text || ""}\n\n### Column 2\n${content.column2Text || ""}\n`
-        case "spacer":
-          return `\n<!-- Spacer: ${content.height || "40px"} -->\n\n`
-        case "mermaid":
-          return `\`\`\`mermaid\n${content.code || ""}\n\`\`\`\n`
-        case "htmlBlock":
-          const htmlContent = content as HtmlBlockContent
-          return `<!-- ${htmlContent.name || "HTML Block"} -->\n${htmlContent.htmlContent || ""}\n`
-        default:
-          return ""
-      }
-    })
-    .join("\n")
-}
+      })
+      .join("")
+  }
 
-/** Generate HTML from the editor's component list (used for live preview & export) */
-function generateHtml(components: MarkdownComponent[]): string {
-  return components
-    .sort((a, b) => a.order - b.order)
-    .map((c) => {
-      const { content } = c
-      const style = styleObjectToString(c.style)
-      const cls = cn(c.style?.className)
-      switch (c.type) {
-        case "heading":
-          return `<h${content.level || 1} class="${cls}" style="${style}">${content.text || ""}</h${
-            content.level || 1
-          }>`
-        case "paragraph":
-          return `<p class="${cls}" style="${style}">${content.text || ""}</p>`
-        case "image":
-          let imgHtml = `<img src="${content.src || ""}" alt="${content.alt || ""}" class="${cls}" style="${style}" />`
-          if (content.caption) {
-            imgHtml = `<figure class="${cls}" style="${style}">${imgHtml}<figcaption>${content.caption}</figcaption></figure>`
-          }
-          return imgHtml
-        case "code":
-          return `<pre class="${cls}" style="${style}"><code class="language-${
-            content.language || ""
-          }">${content.code || ""}</code></pre>`
-        case "button":
-          if (content.link) {
-            return `<a href="${content.link}" class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700 ${cls}" style="${style}">${content.text || "Button"}</a>`
-          }
-          return `<button class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700 ${cls}" style="${style}">${content.text || "Button"}</button>`
-        case "card":
-          let cardHtml = `<div class="overflow-hidden rounded-lg bg-white shadow ${cls}" style="${style}">`
-          if (content.imageUrl) {
-            cardHtml += `<img src="${content.imageUrl}" alt="" class="h-48 w-full object-cover" />`
-          }
-          cardHtml += `<div class="px-4 py-5 sm:p-6">`
-          cardHtml += `<h3 class="text-lg font-medium leading-6 text-gray-900">${content.title || "Card Title"}</h3>`
-          if (content.description) {
-            cardHtml += `<div class="mt-2 max-w-xl text-sm text-gray-500"><p>${content.description}</p></div>`
-          }
-          cardHtml += `</div></div>`
-          return cardHtml
-        case "divider":
-          return `<hr class="${cls}" style="${style}" />`
-        case "list":
-          return `<ul class="list-disc list-inside ${cls}" style="${style}">${(content.items || []).map((item: string) => `<li>${item}</li>`).join("")}</ul>`
-        case "orderedList":
-          return `<ol class="list-decimal list-inside ${cls}" style="${style}" start="${content.start || 1}">${(content.items || []).map((item: string) => `<li>${item}</li>`).join("")}</ol>`
-        case "taskList":
-          return `<ul class="list-none ${cls}" style="${style}">${(content.items || [])
-            .map(
-              (item: { text: string; checked: boolean }) =>
-                `<li class="flex items-center space-x-2"><input type="checkbox" ${item.checked ? "checked" : ""} class="rounded" /><span${item.checked ? ' class="line-through text-gray-500"' : ""}>${item.text}</span></li>`,
-            )
-            .join("")}</ul>`
-        case "blockquote":
-          return `<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600 ${cls}" style="${style}">${content.text || ""}</blockquote>`
-        case "alert":
-          const alertColors = {
-            info: "bg-blue-50 text-blue-800 border-blue-200",
-            warning: "bg-yellow-50 text-yellow-800 border-yellow-200",
-            error: "bg-red-50 text-red-800 border-red-200",
-            success: "bg-green-50 text-green-800 border-green-200",
-          }
-          const alertColor = alertColors[content.type as keyof typeof alertColors] || alertColors.info
-          return `<div class="rounded-md border p-4 ${alertColor} ${cls}" style="${style}"><strong>${(content.type || "info").toUpperCase()}:</strong> ${content.text || ""}</div>`
-        case "table":
-          let tableHtml = `<table class="min-w-full divide-y divide-gray-200 ${cls}" style="${style}"><thead class="bg-gray-50">`
-          if (content.headers) {
-            tableHtml +=
-              "<tr>" +
-              content.headers
-                .map(
-                  (header: string) =>
-                    `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`,
-                )
-                .join("") +
-              "</tr>"
-          }
-          tableHtml += '</thead><tbody class="bg-white divide-y divide-gray-200">'
-          if (content.rows) {
-            content.rows.forEach((row: string[]) => {
-              tableHtml +=
-                "<tr>" +
-                row
-                  .map((cell: string) => `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cell}</td>`)
-                  .join("") +
-                "</tr>"
-            })
-          }
-          tableHtml += "</tbody></table>"
-          return tableHtml
-        case "columns":
-          return `<div class="grid grid-cols-2 gap-6 ${cls}" style="${style}"><div class="p-4 border border-gray-200 rounded">${content.column1Text || ""}</div><div class="p-4 border border-gray-200 rounded">${content.column2Text || ""}</div></div>`
-        case "spacer":
-          return `<div class="${cls}" style="height: ${content.height || "40px"}; ${style}"></div>`
-        case "mermaid":
-          return `<div class="mermaid ${cls}" style="${style}">${content.code || ""}</div>`
-        case "htmlBlock":
-          const htmlContent = content as HtmlBlockContent
-          return `<div class="${cls}" style="${style}">${htmlContent.htmlContent || ""}</div>`
-        default:
-          return ""
-      }
-    })
-    .join("")
-}
+  const generateHTML = () => {
+    return components
+      .map((component) => {
+        switch (component.type) {
+          case "heading":
+            const tag = `h${component.content.level || 1}`
+            return `<${tag}>${component.content.text}</${tag}>`
 
-/* ------------------------------------------------------------------ */
-/*  Prism-React-Renderer inline theme (tiny Dracula subset)            */
-/* ------------------------------------------------------------------ */
-const draculaTheme = {
-  plain: { backgroundColor: "transparent", color: "#f8f8f2" },
-  styles: [
-    { types: ["comment"], style: { color: "#6272a4" } },
-    { types: ["punctuation"], style: { color: "#f8f8f2" } },
-    { types: ["property", "tag", "boolean", "number", "constant", "symbol"], style: { color: "#bd93f9" } },
-    { types: ["string", "inserted"], style: { color: "#50fa7b" } },
-    { types: ["operator"], style: { color: "#f8f8f2" } },
-    { types: ["deleted"], style: { color: "#ff5555" } },
-    { types: ["function"], style: { color: "#ffb86c" } },
-    { types: ["keyword"], style: { color: "#8be9fd" } },
-  ],
-} as const
+          case "paragraph":
+            return `<p>${component.content.text}</p>`
 
-/* ------------------------------------------------------------------ */
-/*  React component                                                    */
-/* ------------------------------------------------------------------ */
+          case "image":
+            const caption = component.content.caption ? `<figcaption>${component.content.caption}</figcaption>` : ""
+            return `<figure><img src="${component.content.url}" alt="${component.content.alt}" />${caption}</figure>`
 
-export function PreviewPanel() {
-  const { state } = useEditor()
-  const markdown = generateMarkdown(state.components)
-  const html = generateHtml(state.components)
-  const ref = useRef<HTMLDivElement>(null)
+          case "button":
+            return `<a href="${component.content.link || "#"}" class="btn btn-${component.content.variant || "default"}">${component.content.text}</a>`
 
-  // ──────────────────────────────────────────────────────────────
-  // Render Mermaid diagrams in the HTML preview (client-side only)
-  // ──────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!ref.current) return
+          case "card":
+            return `<div class="card">
+            ${component.content.imageUrl ? `<img src="${component.content.imageUrl}" alt="Card image" />` : ""}
+            <div class="card-content">
+              <h3>${component.content.title}</h3>
+              <p>${component.content.description}</p>
+            </div>
+          </div>`
 
-    // Skip loading Mermaid unless the preview contains a diagram
-    if (!html.includes("mermaid") && !html.includes('class="mermaid"')) {
-      return
-    }
+          case "list":
+            const listTag = component.content.type === "ordered" ? "ol" : "ul"
+            const listItems = component.content.items.map((item) => `<li>${item}</li>`).join("")
+            return `<${listTag}>${listItems}</${listTag}>`
 
-    let cancelled = false
-    ;(async () => {
-      try {
-        // dynamic import so SSR never touches mermaid
-        const mod = await import("mermaid")
-        if (cancelled) return
-        const mermaid = mod.default ?? mod
-        mermaid.initialize({ startOnLoad: false, theme: "default" })
+          case "table":
+            const headerRow = `<tr>${component.content.headers.map((h) => `<th>${h}</th>`).join("")}</tr>`
+            const bodyRows = component.content.rows
+              .map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`)
+              .join("")
+            return `<table><thead>${headerRow}</thead><tbody>${bodyRows}</tbody></table>`
 
-        // find all .mermaid elements
-        const nodes = ref.current?.querySelectorAll<HTMLElement>(".mermaid")
-        if (!nodes) return
+          case "code":
+            return `<pre><code class="language-${component.content.language || ""}">${component.content.code}</code></pre>`
 
-        nodes.forEach((el) => {
-          const graph = el.textContent
-          if (!graph) return
-          const id = `mermaid-${Math.random().toString(36).slice(2)}`
+          case "quote":
+            return `<blockquote>
+            <p>${component.content.text}</p>
+            ${component.content.author ? `<cite>— ${component.content.author}</cite>` : ""}
+          </blockquote>`
 
-          try {
-            mermaid.render(id, graph, (svg) => {
-              if (cancelled) return
-              const wrapper = document.createElement("div")
-              wrapper.innerHTML = svg
-              el.parentElement?.replaceChild(wrapper, el)
-            })
-          } catch (err) {
-            console.error("Mermaid render error →", err instanceof Error ? err.message : String(err))
-          }
-        })
-      } catch (err) {
-        console.error("Mermaid load failed →", err instanceof Error ? err.message : String(err))
-      }
-    })()
+          case "link":
+            return `<a href="${component.content.url}"${component.content.external ? ' target="_blank" rel="noopener noreferrer"' : ""}>${component.content.text}</a>`
 
-    return () => {
-      cancelled = true
-    }
-  }, [html])
+          case "htmlBlock":
+            return component.content.html
+
+          default:
+            return ""
+        }
+      })
+      .join("\n")
+  }
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+  }
+
+  const downloadFile = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const markdown = generateMarkdown()
+  const html = generateHTML()
 
   return (
-    <div className="h-full flex flex-col">
-      <Tabs defaultValue="preview" className="flex flex-col flex-1 overflow-hidden">
-        <TabsList className="mx-2 mt-2 shrink-0">
-          <TabsTrigger value="preview">Live Preview</TabsTrigger>
+    <div className={`h-full bg-white ${className}`}>
+      <div className="p-4 border-b">
+        <h2 className="text-lg font-semibold text-slate-800">Preview</h2>
+        <p className="text-sm text-slate-600">Live preview of your content</p>
+      </div>
+
+      <Tabs defaultValue="preview" className="h-full flex flex-col">
+        <TabsList className="grid w-full grid-cols-3 mx-4 mt-4">
+          <TabsTrigger value="preview" className="flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            Live Preview
+          </TabsTrigger>
           <TabsTrigger value="markdown">Markdown</TabsTrigger>
           <TabsTrigger value="html">HTML</TabsTrigger>
         </TabsList>
 
-        {/* ---------- Live preview --------- */}
-        <TabsContent value="preview" className="flex-1 overflow-hidden p-2">
-          <ScrollArea className="h-full prose dark:prose-invert max-w-none">
-            <div
-              ref={ref}
-              dangerouslySetInnerHTML={{ __html: html }}
-              className="prose prose-sm max-w-none dark:prose-invert"
-            />
+        <TabsContent value="preview" className="flex-1 m-0">
+          <ScrollArea className="h-full">
+            <div className="p-6 prose prose-slate max-w-none">
+              {components.length === 0 ? (
+                <div className="text-center text-slate-500 py-12">
+                  <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No components added yet</p>
+                  <p className="text-sm">Drag components from the palette to see them here</p>
+                </div>
+              ) : (
+                components.map((component, index) => (
+                  <div key={`${component.id}-${index}`} className="mb-6">
+                    {component.type === "heading" &&
+                      React.createElement(
+                        `h${component.content.level || 1}`,
+                        { className: "text-slate-900" },
+                        component.content.text,
+                      )}
+                    {component.type === "paragraph" && <p className="text-slate-700">{component.content.text}</p>}
+                    {component.type === "image" && (
+                      <figure>
+                        <img
+                          src={component.content.url || "/placeholder.svg"}
+                          alt={component.content.alt}
+                          className="rounded-lg shadow-sm"
+                        />
+                        {component.content.caption && (
+                          <figcaption className="text-sm text-slate-600 mt-2 text-center">
+                            {component.content.caption}
+                          </figcaption>
+                        )}
+                      </figure>
+                    )}
+                    {component.type === "button" && (
+                      <Button variant={component.content.variant as any} size={component.content.size as any} asChild>
+                        <a href={component.content.link || "#"}>{component.content.text}</a>
+                      </Button>
+                    )}
+                    {component.type === "card" && (
+                      <div className="border rounded-lg p-6 bg-white shadow-sm">
+                        {component.content.imageUrl && (
+                          <img
+                            src={component.content.imageUrl || "/placeholder.svg"}
+                            alt="Card image"
+                            className="w-full h-48 object-cover rounded-lg mb-4"
+                          />
+                        )}
+                        <h3 className="text-xl font-semibold mb-2">{component.content.title}</h3>
+                        <p className="text-slate-600">{component.content.description}</p>
+                      </div>
+                    )}
+                    {component.type === "list" &&
+                      (component.content.type === "ordered" ? (
+                        <ol className="list-decimal list-inside">
+                          {component.content.items.map((item, i) => (
+                            <li key={i}>{item}</li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <ul className="list-disc list-inside">
+                          {component.content.items.map((item, i) => (
+                            <li key={i}>{item}</li>
+                          ))}
+                        </ul>
+                      ))}
+                    {component.type === "table" && (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full border-collapse border border-slate-300">
+                          <thead>
+                            <tr className="bg-slate-50">
+                              {component.content.headers.map((header, i) => (
+                                <th key={i} className="border border-slate-300 px-4 py-2 text-left">
+                                  {header}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {component.content.rows.map((row, i) => (
+                              <tr key={i}>
+                                {row.map((cell, j) => (
+                                  <td key={j} className="border border-slate-300 px-4 py-2">
+                                    {cell}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                    {component.type === "code" && (
+                      <SyntaxHighlighter
+                        language={component.content.language || "text"}
+                        style={tomorrow}
+                        className="rounded-lg"
+                      >
+                        {component.content.code}
+                      </SyntaxHighlighter>
+                    )}
+                    {component.type === "quote" && (
+                      <blockquote className="border-l-4 border-slate-300 pl-4 italic">
+                        <p>"{component.content.text}"</p>
+                        {component.content.author && (
+                          <cite className="text-slate-600">— {component.content.author}</cite>
+                        )}
+                      </blockquote>
+                    )}
+                    {component.type === "link" && (
+                      <a
+                        href={component.content.url}
+                        target={component.content.external ? "_blank" : undefined}
+                        rel={component.content.external ? "noopener noreferrer" : undefined}
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        {component.content.text}
+                      </a>
+                    )}
+                    {component.type === "htmlBlock" && (
+                      <div className="html-block" dangerouslySetInnerHTML={{ __html: component.content.html }} />
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           </ScrollArea>
         </TabsContent>
 
-        {/* ---------- Markdown source --------- */}
-        <TabsContent value="markdown" className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full p-2 font-mono whitespace-pre-wrap text-sm">{markdown}</ScrollArea>
+        <TabsContent value="markdown" className="flex-1 m-0">
+          <div className="h-full flex flex-col">
+            <div className="p-4 border-b flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => copyToClipboard(markdown)}
+                className="flex items-center gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Copy
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => downloadFile(markdown, "content.md")}
+                className="flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </Button>
+            </div>
+            <ScrollArea className="flex-1">
+              <SyntaxHighlighter
+                language="markdown"
+                style={tomorrow}
+                className="h-full"
+                customStyle={{ margin: 0, background: "transparent" }}
+              >
+                {markdown || "# No content yet\n\nAdd components to see markdown output here."}
+              </SyntaxHighlighter>
+            </ScrollArea>
+          </div>
         </TabsContent>
 
-        {/* ---------- Raw HTML source --------- */}
-        <TabsContent value="html" className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full p-2 font-mono whitespace-pre-wrap text-sm">{html}</ScrollArea>
+        <TabsContent value="html" className="flex-1 m-0">
+          <div className="h-full flex flex-col">
+            <div className="p-4 border-b flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => copyToClipboard(html)}
+                className="flex items-center gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Copy
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => downloadFile(html, "content.html")}
+                className="flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </Button>
+            </div>
+            <ScrollArea className="flex-1">
+              <SyntaxHighlighter
+                language="html"
+                style={tomorrow}
+                className="h-full"
+                customStyle={{ margin: 0, background: "transparent" }}
+              >
+                {html || "<!-- No content yet -->\n<!-- Add components to see HTML output here -->"}
+              </SyntaxHighlighter>
+            </ScrollArea>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
   )
 }
-
-/* ------------------------------------------------------------------ */
-/*  Syntax-highlighted <code> render used by ReactMarkdown             */
-/* ------------------------------------------------------------------ */
-
-export function CodeBlock({
-  inline,
-  className,
-  children,
-  ...props
-}: React.ComponentProps<"code"> & { inline?: boolean }) {
-  const match = /language-(\w+)/.exec(className || "")
-  const language = (match?.[1] as Language) || "tsx"
-
-  if (inline) {
-    return (
-      <code className={className} {...props}>
-        {children}
-      </code>
-    )
-  }
-
-  return (
-    <Highlight code={String(children).replace(/\n$/, "")} language={language} theme={draculaTheme}>
-      {({ className: c, style, tokens, getLineProps, getTokenProps }) => (
-        <pre className={c} style={{ ...style, margin: 0 }} {...props}>
-          {tokens.map((line, i) => (
-            <div key={i} {...getLineProps({ line, key: i })}>
-              {line.map((token, key) => (
-                <span key={key} {...getTokenProps({ token, key })} />
-              ))}
-            </div>
-          ))}
-        </pre>
-      )}
-    </Highlight>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/*  re-export helpers so other modules keep working                    */
-/* ------------------------------------------------------------------ */
-export { generateMarkdown, generateHtml }
