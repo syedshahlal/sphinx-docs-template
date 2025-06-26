@@ -2,9 +2,11 @@
 
 import type React from "react"
 import { useState } from "react"
-import { ArrowRight, BookOpen, ExternalLink, Users, Code, Layers, GitBranch, Server } from "lucide-react"
+import { ArrowLeft, ArrowRight, BookOpen, Code, ExternalLink, GitBranch, Layers, Server, Users } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { UserGuideSection } from "@/components/user-guide-section"
 import { docsConfig } from "@/lib/docs-config"
 import { getDocStatus } from "@/lib/docs-utils"
 
@@ -17,15 +19,6 @@ type Feature = {
   details: string[]
   sectionId: string
   href: string
-}
-
-const iconMap = {
-  BookOpen,
-  Users,
-  Code,
-  Layers,
-  GitBranch,
-  Server,
 }
 
 // Generate features from documentation configuration
@@ -57,9 +50,15 @@ const features: Feature[] = docsConfig.sections.map((section, index) => {
 
 export function FeatureCards() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  const [showUserGuide, setShowUserGuide] = useState(false)
 
   const handleCardClick = async (sectionId: string, href: string, event: React.MouseEvent) => {
     event.preventDefault()
+
+    if (sectionId === "user-guide") {
+      setShowUserGuide(true)
+      return
+    }
 
     const status = getDocStatus(sectionId)
     if (!status.available) {
@@ -74,6 +73,22 @@ export function FeatureCards() {
       // For other sections, you can add more markdown pages
       window.location.href = `/${sectionId}`
     }
+  }
+
+  if (showUserGuide) {
+    return (
+      <div className="relative">
+        <Button
+          variant="ghost"
+          onClick={() => setShowUserGuide(false)}
+          className="absolute top-8 left-4 z-10 flex items-center gap-2 text-primary hover:text-primary/80"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to all sections
+        </Button>
+        <UserGuideSection />
+      </div>
+    )
   }
 
   return (
@@ -96,6 +111,7 @@ export function FeatureCards() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {features.map(({ icon: Icon, title, description, color, gradient, details, sectionId, href }, index) => {
             const status = getDocStatus(sectionId)
+            const isUserGuideCard = sectionId === "user-guide"
 
             return (
               <div
@@ -196,8 +212,8 @@ export function FeatureCards() {
                     >
                       <div className="flex items-center justify-between">
                         <span className="inline-flex items-center gap-2 text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
-                          {status.available ? "View Documentation" : status.message}
-                          {status.available && <ExternalLink className="w-3 h-3" />}
+                          {isUserGuideCard ? "View Guide" : status.available ? "View Documentation" : status.message}
+                          {status.available && !isUserGuideCard && <ExternalLink className="w-3 h-3" />}
                         </span>
                         <div className="flex items-center gap-1">
                           <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
