@@ -32,8 +32,6 @@ import {
   BarChart3,
   TrendingUp,
   Star,
-  Navigation,
-  Mail,
   Award,
   Zap,
   Target,
@@ -66,39 +64,39 @@ const enhancedTailGridsSnippets = {
   </button>`,
 
   // Enhanced Cards
-  featureCard: `<div class="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 border border-gray-100">
+  featureCard: `<div class="group relative overflow-hidden rounded-2xl bg-white p-8 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-purple-600"></div>
     <div class="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 mb-6">
       <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
     </div>
-    <h3 class="text-xl font-bold text-gray-900 mb-4">Lightning Fast</h3>
-    <p class="text-gray-600 leading-relaxed mb-6">Experience blazing fast performance with our optimized infrastructure and cutting-edge technology.</p>
-    <a href="#" class="inline-flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors">
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Lightning Fast</h3>
+    <p class="text-gray-600 dark:text-gray-300 leading-relaxed mb-6">Experience blazing fast performance with our optimized infrastructure and cutting-edge technology.</p>
+    <a href="#" class="inline-flex items-center text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
       Learn more
       <svg class="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
     </a>
   </div>`,
 
-  pricingCard: `<div class="relative overflow-hidden rounded-3xl bg-white p-8 shadow-2xl border-2 border-blue-100 hover:border-blue-200 transition-all duration-300">
+  pricingCard: `<div class="relative overflow-hidden rounded-3xl bg-white dark:bg-gray-800 p-8 shadow-2xl border-2 border-blue-100 dark:border-blue-800 hover:border-blue-200 dark:hover:border-blue-700 transition-all duration-300">
     <div class="absolute top-0 right-0 bg-gradient-to-l from-blue-600 to-purple-600 text-white px-4 py-2 rounded-bl-2xl text-sm font-semibold">Popular</div>
     <div class="text-center">
-      <h3 class="text-2xl font-bold text-gray-900 mb-2">Professional</h3>
+      <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Professional</h3>
       <div class="flex items-center justify-center mb-6">
-        <span class="text-5xl font-bold text-gray-900">$29</span>
-        <span class="text-gray-500 ml-2">/month</span>
+        <span class="text-5xl font-bold text-gray-900 dark:text-white">$29</span>
+        <span class="text-gray-500 dark:text-gray-400 ml-2">/month</span>
       </div>
       <ul class="space-y-4 mb-8 text-left">
         <li class="flex items-center">
           <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-          <span class="text-gray-700">Unlimited projects</span>
+          <span class="text-gray-700 dark:text-gray-300">Unlimited projects</span>
         </li>
         <li class="flex items-center">
           <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-          <span class="text-gray-700">Priority support</span>
+          <span class="text-gray-700 dark:text-gray-300">Priority support</span>
         </li>
         <li class="flex items-center">
           <svg class="w-5 h-5 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-          <span class="text-gray-700">Advanced analytics</span>
+          <span class="text-gray-700 dark:text-gray-300">Advanced analytics</span>
         </li>
       </ul>
       <button class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
@@ -149,161 +147,6 @@ const enhancedTailGridsSnippets = {
       <div class="text-3xl font-bold mb-1">89.2%</div>
       <div class="text-sm opacity-80">Conversion</div>
     </div>
-  </div>`,
-
-  // Enhanced Hero Sections
-  modernHero: `<div class="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-    <div class="absolute inset-0 bg-black/20"></div>
-    <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20"></div>
-    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-      <div class="text-center">
-        <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-8 leading-tight">
-          Build the <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Future</span> Today
-        </h1>
-        <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
-          Transform your ideas into reality with our cutting-edge platform. Join thousands of innovators who trust us to power their success.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-          <button class="group relative inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 text-lg font-semibold text-white shadow-2xl transition-all duration-300 hover:shadow-blue-500/25 hover:scale-110">
-            <span class="relative z-10">Start Free Trial</span>
-            <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 transition-opacity duration-300 group-hover:opacity-30"></div>
-          </button>
-          <button class="group inline-flex items-center justify-center rounded-xl border-2 border-white/30 px-8 py-4 text-lg font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/50 hover:bg-white/10">
-            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10V9a2 2 0 012-2h2a2 2 0 012 2v1M9 10v5a2 2 0 002 2h2a2 2 0 002-2v-5"></path></svg>
-            Watch Demo
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent"></div>
-  </div>`,
-
-  // Enhanced Navigation
-  modernNavbar: `<nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-200/50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center">
-          <div class="flex-shrink-0 flex items-center">
-            <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            </div>
-            <span class="ml-3 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Brand</span>
-          </div>
-        </div>
-        <div class="hidden md:block">
-          <div class="ml-10 flex items-baseline space-x-8">
-            <a href="#" class="text-gray-900 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors">Home</a>
-            <a href="#" class="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors">Products</a>
-            <a href="#" class="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors">Solutions</a>
-            <a href="#" class="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors">Pricing</a>
-            <a href="#" class="text-gray-500 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition-colors">Contact</a>
-          </div>
-        </div>
-        <div class="flex items-center space-x-4">
-          <button class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-lg text-sm font-medium transition-colors">Sign In</button>
-          <button class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
-            Get Started
-          </button>
-        </div>
-      </div>
-    </div>
-  </nav>`,
-
-  // Enhanced Tables
-  modernTable: `<div class="overflow-hidden rounded-2xl bg-white shadow-xl border border-gray-100">
-    <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
-      <h3 class="text-lg font-semibold text-gray-900">Recent Transactions</h3>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Transaction</th>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                </div>
-                <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">Payment received</div>
-                  <div class="text-sm text-gray-500">From John Doe</div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">+$2,500.00</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Mar 15, 2024</td>
-          </tr>
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 12H4"></path></svg>
-                </div>
-                <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">Subscription fee</div>
-                  <div class="text-sm text-gray-500">Monthly billing</div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-red-600">-$29.00</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span class="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Mar 14, 2024</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>`,
-
-  // Enhanced Forms
-  modernContactForm: `<div class="max-w-2xl mx-auto bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-    <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold text-gray-900 mb-4">Get in Touch</h2>
-      <p class="text-gray-600">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
-    </div>
-    <form class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label for="firstName" class="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
-          <input type="text" id="firstName" name="firstName" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" placeholder="John">
-        </div>
-        <div>
-          <label for="lastName" class="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
-          <input type="text" id="lastName" name="lastName" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" placeholder="Doe">
-        </div>
-      </div>
-      <div>
-        <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
-        <input type="email" id="email" name="email" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" placeholder="john@example.com">
-      </div>
-      <div>
-        <label for="subject" class="block text-sm font-semibold text-gray-700 mb-2">Subject</label>
-        <select id="subject" name="subject" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-          <option>General Inquiry</option>
-          <option>Support Request</option>
-          <option>Partnership</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div>
-        <label for="message" class="block text-sm font-semibold text-gray-700 mb-2">Message</label>
-        <textarea id="message" name="message" rows="6" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 resize-none" placeholder="Tell us about your project..."></textarea>
-      </div>
-      <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-        Send Message
-      </button>
-    </form>
   </div>`,
 }
 
@@ -558,66 +401,6 @@ export const componentCategories = [
       },
     ],
   },
-  {
-    name: "TG - Enhanced Heroes",
-    icon: Target,
-    color: "indigo",
-    components: [
-      {
-        type: "htmlBlock",
-        name: "Modern Hero",
-        icon: Target,
-        description: "Stunning gradient hero section",
-        htmlBlockKey: "modernHero",
-        tags: ["hero", "landing", "gradient"],
-      },
-    ],
-  },
-  {
-    name: "TG - Enhanced Navigation",
-    icon: Navigation,
-    color: "teal",
-    components: [
-      {
-        type: "htmlBlock",
-        name: "Modern Navbar",
-        icon: Navigation,
-        description: "Glassmorphism navigation bar",
-        htmlBlockKey: "modernNavbar",
-        tags: ["navigation", "modern", "glassmorphism"],
-      },
-    ],
-  },
-  {
-    name: "TG - Enhanced Tables",
-    icon: Table,
-    color: "orange",
-    components: [
-      {
-        type: "htmlBlock",
-        name: "Modern Table",
-        icon: Table,
-        description: "Beautiful data table with interactions",
-        htmlBlockKey: "modernTable",
-        tags: ["table", "data", "modern"],
-      },
-    ],
-  },
-  {
-    name: "TG - Enhanced Forms",
-    icon: Mail,
-    color: "pink",
-    components: [
-      {
-        type: "htmlBlock",
-        name: "Modern Contact Form",
-        icon: Mail,
-        description: "Beautiful contact form with validation",
-        htmlBlockKey: "modernContactForm",
-        tags: ["form", "contact", "modern"],
-      },
-    ],
-  },
 ]
 
 // Get default content for each component type
@@ -688,100 +471,6 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
           { text: "Get Started", variant: "primary", link: "#" },
           { text: "Learn More", variant: "secondary", link: "#" },
         ],
-      }
-    case "chart":
-      return {
-        type: "bar",
-        data: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-          datasets: [
-            {
-              label: "Sales",
-              data: [12, 19, 3, 5, 2, 3],
-              backgroundColor: "rgba(54, 162, 235, 0.8)",
-              borderColor: "rgba(54, 162, 235, 1)",
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: true, position: "top" },
-            title: { display: true, text: "Monthly Sales" },
-          },
-        },
-      }
-    case "infographic":
-      return {
-        type: "stats",
-        title: "Our Impact",
-        layout: "grid",
-        items: [
-          { id: "1", title: "Users", value: "10K+", icon: "users", color: "#3B82F6" },
-          { id: "2", title: "Projects", value: "500+", icon: "briefcase", color: "#10B981" },
-          { id: "3", title: "Countries", value: "25+", icon: "globe", color: "#F59E0B" },
-          { id: "4", title: "Success Rate", value: "99%", icon: "check", color: "#EF4444" },
-        ],
-        animations: {
-          enabled: true,
-          type: "fade",
-          duration: 800,
-          delay: 200,
-        },
-      }
-    case "gallery":
-      return {
-        images: [
-          { src: "/placeholder.svg?height=300&width=400", alt: "Gallery image 1", caption: "Image 1" },
-          { src: "/placeholder.svg?height=300&width=400", alt: "Gallery image 2", caption: "Image 2" },
-          { src: "/placeholder.svg?height=300&width=400", alt: "Gallery image 3", caption: "Image 3" },
-        ],
-        layout: "grid",
-        columns: 3,
-        gap: "1rem",
-        lightbox: true,
-      }
-    case "testimonial":
-      return {
-        quote:
-          "This product has completely transformed how we work. The interface is intuitive and the features are exactly what we needed.",
-        author: "John Doe",
-        position: "CEO, Company Inc.",
-        avatar: "/placeholder.svg?height=80&width=80",
-        rating: 5,
-        layout: "card",
-      }
-    case "pricing":
-      return {
-        plans: [
-          {
-            name: "Basic",
-            price: "$9",
-            period: "month",
-            features: ["Feature 1", "Feature 2", "Feature 3"],
-            popular: false,
-            buttonText: "Get Started",
-          },
-          {
-            name: "Pro",
-            price: "$29",
-            period: "month",
-            features: ["Everything in Basic", "Feature 4", "Feature 5", "Priority Support"],
-            popular: true,
-            buttonText: "Get Started",
-          },
-          {
-            name: "Enterprise",
-            price: "$99",
-            period: "month",
-            features: ["Everything in Pro", "Custom Integration", "Dedicated Support"],
-            popular: false,
-            buttonText: "Contact Sales",
-          },
-        ],
-        layout: "cards",
       }
     case "table":
       return {
@@ -898,24 +587,24 @@ function DraggableComponent({ component }: DraggableComponentProps) {
       {...listeners}
       {...attributes}
       className={cn(
-        "group flex items-start space-x-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-slate-300 hover:shadow-lg cursor-grab active:cursor-grabbing",
+        "group flex items-start space-x-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-lg cursor-grab active:cursor-grabbing",
         isDragging && "opacity-50 shadow-2xl scale-105 rotate-2",
       )}
     >
-      <div className="flex-shrink-0 p-2 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 group-hover:from-blue-100 group-hover:to-purple-100 transition-all duration-200">
-        <IconComponent className="h-5 w-5 text-slate-600 group-hover:text-blue-600 transition-colors duration-200" />
+      <div className="flex-shrink-0 p-2 rounded-lg bg-muted group-hover:bg-primary/10 transition-all duration-200">
+        <IconComponent className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-slate-900 group-hover:text-blue-900 transition-colors duration-200">
+        <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors duration-200">
           {component.name}
         </p>
-        <p className="text-xs text-slate-500 mt-1 line-clamp-2 group-hover:text-slate-600 transition-colors duration-200">
+        <p className="text-xs text-muted-foreground mt-1 line-clamp-2 group-hover:text-foreground/80 transition-colors duration-200">
           {component.description}
         </p>
         {component.tags && component.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             {component.tags.slice(0, 2).map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-xs px-2 py-0.5 bg-slate-100 text-slate-600">
+              <Badge key={tag} variant="secondary" className="text-xs px-2 py-0.5">
                 {tag}
               </Badge>
             ))}
@@ -969,26 +658,26 @@ export function ComponentPalette() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-slate-50 to-white">
-      <div className="p-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+    <div className="h-full flex flex-col bg-card">
+      <div className="p-4 border-b border-border bg-card">
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600">
-            <Palette className="h-5 w-5 text-white" />
+          <div className="p-2 rounded-lg bg-primary">
+            <Palette className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Components</h2>
-            <p className="text-sm text-slate-600">Drag to canvas to add</p>
+            <h2 className="text-lg font-bold text-foreground">Components</h2>
+            <p className="text-sm text-muted-foreground">Drag to canvas to add</p>
           </div>
         </div>
 
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search components..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-10 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+            className="pl-10 h-10"
           />
         </div>
 
@@ -1000,9 +689,7 @@ export function ComponentPalette() {
               variant={selectedTags.includes(tag) ? "default" : "secondary"}
               className={cn(
                 "text-xs cursor-pointer transition-all duration-200 hover:scale-105",
-                selectedTags.includes(tag)
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200",
+                selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "hover:bg-secondary",
               )}
               onClick={() => toggleTag(tag)}
             >
@@ -1013,7 +700,7 @@ export function ComponentPalette() {
       </div>
 
       <Tabs defaultValue="components" className="flex-1 flex flex-col">
-        <TabsList className="mx-4 mt-4 grid w-auto grid-cols-2 bg-slate-100">
+        <TabsList className="mx-4 mt-4 grid w-auto grid-cols-2">
           <TabsTrigger value="components" className="text-sm">
             Components
           </TabsTrigger>
@@ -1031,33 +718,40 @@ export function ComponentPalette() {
 
                 return (
                   <Collapsible key={category.name} open={isExpanded} onOpenChange={() => toggleCategory(category.name)}>
-                    <CollapsibleTrigger className="flex w-full items-center justify-between rounded-xl p-4 text-left hover:bg-slate-100/70 transition-all duration-200 bg-white border border-slate-200 shadow-sm">
+                    <CollapsibleTrigger className="flex w-full items-center justify-between rounded-xl p-4 text-left hover:bg-muted/70 transition-all duration-200 bg-card border border-border shadow-sm">
                       <div className="flex items-center space-x-3">
                         <div
                           className={cn(
                             "p-2 rounded-lg transition-all duration-200",
-                            category.color === "blue" && "bg-blue-100 text-blue-600",
-                            category.color === "purple" && "bg-purple-100 text-purple-600",
-                            category.color === "green" && "bg-green-100 text-green-600",
-                            category.color === "orange" && "bg-orange-100 text-orange-600",
-                            category.color === "indigo" && "bg-indigo-100 text-indigo-600",
-                            category.color === "teal" && "bg-teal-100 text-teal-600",
-                            category.color === "pink" && "bg-pink-100 text-pink-600",
+                            category.color === "blue" &&
+                              "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+                            category.color === "purple" &&
+                              "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+                            category.color === "green" &&
+                              "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+                            category.color === "orange" &&
+                              "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
+                            category.color === "indigo" &&
+                              "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400",
+                            category.color === "teal" &&
+                              "bg-teal-100 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400",
+                            category.color === "pink" &&
+                              "bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400",
                           )}
                         >
                           <IconComponent className="h-4 w-4" />
                         </div>
                         <div>
-                          <span className="text-sm font-semibold text-slate-900">{category.name}</span>
-                          <Badge variant="secondary" className="ml-2 text-xs bg-slate-100 text-slate-600">
+                          <span className="text-sm font-semibold text-foreground">{category.name}</span>
+                          <Badge variant="secondary" className="ml-2 text-xs">
                             {category.components.length}
                           </Badge>
                         </div>
                       </div>
                       {isExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-slate-400 transition-transform duration-200" />
+                        <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
                       ) : (
-                        <ChevronRight className="h-4 w-4 text-slate-400 transition-transform duration-200" />
+                        <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
                       )}
                     </CollapsibleTrigger>
 
@@ -1072,11 +766,11 @@ export function ComponentPalette() {
 
               {filteredCategories.length === 0 && (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
-                    <Search className="h-8 w-8 text-slate-400" />
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                    <Search className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">No components found</h3>
-                  <p className="text-slate-500 max-w-sm mx-auto">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No components found</h3>
+                  <p className="text-muted-foreground max-w-sm mx-auto">
                     Try adjusting your search terms or removing some tag filters to see more components.
                   </p>
                 </div>
@@ -1089,11 +783,11 @@ export function ComponentPalette() {
           <ScrollArea className="flex-1">
             <div className="p-4">
               <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                  <Layout className="h-8 w-8 text-blue-600" />
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <Layout className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">Templates Coming Soon</h3>
-                <p className="text-slate-500 max-w-sm mx-auto">
+                <h3 className="text-lg font-semibold text-foreground mb-2">Templates Coming Soon</h3>
+                <p className="text-muted-foreground max-w-sm mx-auto">
                   Pre-built page templates and component combinations will be available here soon.
                 </p>
               </div>

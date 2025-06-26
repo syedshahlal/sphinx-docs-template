@@ -1,4 +1,5 @@
 "use client"
+
 import { useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
@@ -31,6 +32,7 @@ import {
   Clock,
   Search,
   Filter,
+  Folder,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -94,9 +96,7 @@ export function FileManager() {
   const [isNewFileDialogOpen, setIsNewFileDialogOpen] = useState(false)
   const [newFileName, setNewFileName] = useState("")
 
-  const filteredFiles = files.filter(file =>
-    file.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredFiles = files.filter((file) => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   const handleCreateFile = () => {
     if (newFileName.trim()) {
@@ -116,36 +116,28 @@ export function FileManager() {
   }
 
   const handleDeleteFile = (fileId: string) => {
-    setFiles(files.filter(file => file.id !== fileId))
+    setFiles(files.filter((file) => file.id !== fileId))
     if (selectedFile === fileId) {
       setSelectedFile(null)
     }
   }
 
   const handleToggleStar = (fileId: string) => {
-    setFiles(files.map(file =>
-      file.id === fileId ? { ...file, starred: !file.starred } : file
-    ))
-  }
-
-  const handleRenameFile = (fileId: string, newName: string) => {
-    setFiles(files.map(file =>
-      file.id === fileId ? { ...file, name: newName } : file
-    ))
+    setFiles(files.map((file) => (file.id === fileId ? { ...file, starred: !file.starred } : file)))
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-card">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
+      <div className="p-4 border-b border-border bg-card">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600">
-              <FileText className="h-5 w-5 text-white" />
+            <div className="p-2 rounded-lg bg-primary">
+              <FileText className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Files</h2>
-              <p className="text-sm text-gray-600">Manage your documents</p>
+              <h2 className="text-lg font-bold text-foreground">Files</h2>
+              <p className="text-sm text-muted-foreground">Manage your documents</p>
             </div>
           </div>
           <Badge variant="secondary">{files.length} files</Badge>
@@ -153,7 +145,7 @@ export function FileManager() {
 
         {/* Search */}
         <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search files..."
@@ -175,9 +167,7 @@ export function FileManager() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Create New File</DialogTitle>
-                <DialogDescription>
-                  Enter a name for your new document.
-                </DialogDescription>
+                <DialogDescription>Enter a name for your new document.</DialogDescription>
               </DialogHeader>
               <div className="py-4">
                 <Input
@@ -237,16 +227,14 @@ export function FileManager() {
         <div className="p-4">
           {filteredFiles.length === 0 ? (
             <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                <FileText className="h-8 w-8 text-gray-400" />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                <FileText className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {searchQuery ? "No files found" : "No files yet"}
               </h3>
-              <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-                {searchQuery
-                  ? "Try adjusting your search terms."
-                  : "Create your first document to get started."}
+              <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                {searchQuery ? "Try adjusting your search terms." : "Create your first document to get started."}
               </p>
               {!searchQuery && (
                 <Button onClick={() => setIsNewFileDialogOpen(true)}>
@@ -263,41 +251,35 @@ export function FileManager() {
                   className={cn(
                     "group flex items-center justify-between p-3 rounded-lg border transition-all duration-200 cursor-pointer hover:shadow-md",
                     selectedFile === file.id
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300 bg-white"
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-border/80 bg-card",
                   )}
                   onClick={() => setSelectedFile(file.id)}
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className={cn(
-                      "p-2 rounded-lg",
-                      file.type === "folder"
-                        ? "bg-yellow-100 text-yellow-600"
-                        : "bg-blue-100 text-blue-600"
-                    )}>
-                      <FileText className="w-4 h-4" />
+                    <div
+                      className={cn(
+                        "p-2 rounded-lg",
+                        file.type === "folder"
+                          ? "bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400"
+                          : "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+                      )}
+                    >
+                      {file.type === "folder" ? <Folder className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="font-medium text-gray-900 truncate">
-                          {file.name}
-                        </h4>
-                        {file.starred && (
-                          <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                        )}
+                        <h4 className="font-medium text-foreground truncate">{file.name}</h4>
+                        {file.starred && <Star className="w-4 h-4 text-yellow-500 fill-current" />}
                       </div>
-                      <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {file.modified}
                         </span>
-                        {file.size && (
-                          <span>{file.size}</span>
-                        )}
-                        {file.components !== undefined && (
-                          <span>{file.components} components</span>
-                        )}
+                        {file.size && <span>{file.size}</span>}
+                        {file.components !== undefined && <span>{file.components} components</span>}
                       </div>
                     </div>
                   </div>
@@ -312,18 +294,45 @@ export function FileManager() {
                       }}
                       className="h-8 w-8 p-0"
                     >
-                      <Star className={cn(
-                        "w-4 h-4",
-                        file.starred ? "text-yellow-500 fill-current" : "text-gray-400"
-                      )} />
+                      <Star
+                        className={cn(
+                          "w-4 h-4",
+                          file.starred ? "text-yellow-500 fill-current" : "text-muted-foreground",
+                        )}
+                      />
                     </Button>
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <MoreHorizontal className="w-4 h-4" />\
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <FileText className="w-4 h-4 mr-2" />
+                          Open
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteFile(file.id)}>
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-border text-xs text-muted-foreground">{filteredFiles.length} items</div>
+    </div>
+  )
+}

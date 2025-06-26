@@ -6,15 +6,15 @@ import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { useEditor } from "./EditorContext"
 import { ComponentRenderer } from "./ComponentRenderer"
-import { InlineInserter } from "./InlineInserter" // New component
 import { Trash2, GripVertical, PlusCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { MarkdownComponent } from "./types"
+import { Button } from "@/components/ui/button"
 
 interface SortableItemProps {
   component: MarkdownComponent
   isLast: boolean
-  updateComponentContent: (id: string, contentUpdates: any) => void // Added prop
+  updateComponentContent: (id: string, contentUpdates: any) => void
 }
 
 function SortableComponentItem({ component, isLast, updateComponentContent }: SortableItemProps) {
@@ -23,7 +23,7 @@ function SortableComponentItem({ component, isLast, updateComponentContent }: So
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || "transform 250ms ease", // Ensure transition is always applied
+    transition: transition || "transform 250ms ease",
   }
 
   const isSelected = state.selectedComponent === component.id
@@ -33,24 +33,17 @@ function SortableComponentItem({ component, isLast, updateComponentContent }: So
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        "group relative outline-none", // Remove border here, apply to inner content for focus
-        isDragging ? "opacity-50" : "",
-      )}
+      className={cn("group relative outline-none", isDragging ? "opacity-50" : "")}
       onMouseEnter={() => setShowInserter(true)}
       onMouseLeave={() => setShowInserter(false)}
       onClick={(e) => {
-        // If the click target is contentEditable, don't immediately re-select.
-        // Let the contentEditable element handle its focus.
-        // However, if it's not already selected, select it.
         if (!(e.target instanceof HTMLElement && e.target.isContentEditable) || !isSelected) {
-          e.stopPropagation() // Prevent canvas click if component is clicked
+          e.stopPropagation()
           selectComponent(component.id)
         }
       }}
-      tabIndex={0} // Make it focusable
+      tabIndex={0}
       onFocus={() => {
-        // Only select if not already selected to avoid issues with contentEditable focus
         if (!isSelected) {
           selectComponent(component.id)
         }
@@ -61,7 +54,7 @@ function SortableComponentItem({ component, isLast, updateComponentContent }: So
         className={cn(
           "transition-all duration-150 ease-in-out rounded-md border-2",
           isSelected ? "border-primary shadow-md" : "border-transparent hover:border-muted-foreground/30",
-          "p-1", // Padding for the outline to be visible around content
+          "p-1",
         )}
       >
         {/* Drag Handle */}
@@ -72,7 +65,7 @@ function SortableComponentItem({ component, isLast, updateComponentContent }: So
             "absolute -left-7 top-1/2 -translate-y-1/2 p-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab text-muted-foreground hover:text-foreground",
             isSelected && "opacity-100",
           )}
-          onClick={(e) => e.stopPropagation()} // Prevent selection when dragging
+          onClick={(e) => e.stopPropagation()}
         >
           <GripVertical className="w-5 h-5" />
         </div>
@@ -94,8 +87,6 @@ function SortableComponentItem({ component, isLast, updateComponentContent }: So
 
         {/* Actual Component Content */}
         <div className="min-h-[40px]">
-          {" "}
-          {/* Ensure some min height for empty components */}
           <ComponentRenderer
             component={component}
             isSelected={isSelected}
@@ -105,17 +96,30 @@ function SortableComponentItem({ component, isLast, updateComponentContent }: So
       </div>
 
       {/* Inline Inserter - appears below this component */}
-      <InlineInserter targetIndex={component.order + 1} isVisible={showInserter || isSelected} />
+      {(showInserter || isSelected) && (
+        <div className="flex justify-center py-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+            onClick={(e) => {
+              e.stopPropagation()
+              // Add component after this one
+            }}
+          >
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Add component
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
 
 export function EditorCanvas() {
-  const { state, selectComponent, updateComponentContent } = useEditor() // Added updateComponentContent
+  const { state, selectComponent, updateComponentContent, addComponent } = useEditor()
 
   const handleCanvasClick = (e: React.MouseEvent) => {
-    // Deselect if clicking on the canvas background
-    // And if the click target is not contentEditable
     if (e.target === e.currentTarget && !(e.target instanceof HTMLElement && e.target.isContentEditable)) {
       selectComponent(null)
     }
@@ -124,7 +128,7 @@ export function EditorCanvas() {
   if (state.components.length === 0) {
     return (
       <div
-        className="flex-1 flex flex-col items-center justify-center p-8 min-h-[300px] text-center"
+        className="flex-1 flex flex-col items-center justify-center p-8 min-h-[300px] text-center bg-background"
         onClick={handleCanvasClick}
       >
         <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
@@ -132,15 +136,25 @@ export function EditorCanvas() {
         </div>
         <h3 className="text-xl font-semibold mb-2 text-foreground">Empty Canvas</h3>
         <p className="text-muted-foreground mb-4 max-w-xs">
-          Drag components from the left panel or click the '+' button below to start building your document.
+          Drag components from the left panel to start building your document.
         </p>
-        <InlineInserter targetIndex={0} isVisible={true} alwaysVisible={true} />
+        <Button
+          onClick={() => {
+            addComponent({
+              type: "paragraph",
+              content: { text: "Start writing your content here..." },
+            })
+          }}
+        >
+          <PlusCircle className="w-4 h-4 mr-2" />
+          Add your first component
+        </Button>
       </div>
     )
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-1 relative" onClick={handleCanvasClick}>
+    <div className="p-4 md:p-8 space-y-1 relative bg-background" onClick={handleCanvasClick}>
       {state.components
         .sort((a, b) => a.order - b.order)
         .map((component, index) => (
@@ -148,12 +162,27 @@ export function EditorCanvas() {
             key={component.id}
             component={component}
             isLast={index === state.components.length - 1}
-            updateComponentContent={updateComponentContent} // Pass down
+            updateComponentContent={updateComponentContent}
           />
         ))}
-      {/* Fallback inserter at the very end if no components or last one isn't hovered */}
+      {/* Fallback inserter at the very end */}
       {state.components.length > 0 && (
-        <InlineInserter targetIndex={state.components.length} isVisible={true} alwaysVisible={false} />
+        <div className="flex justify-center py-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
+            onClick={() => {
+              addComponent({
+                type: "paragraph",
+                content: { text: "New paragraph..." },
+              })
+            }}
+          >
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Add component
+          </Button>
+        </div>
       )}
     </div>
   )
