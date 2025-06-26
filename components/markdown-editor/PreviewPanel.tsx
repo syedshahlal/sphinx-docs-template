@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import Highlight, { defaultProps, type Language } from "prism-react-renderer"
+import { Highlight, defaultProps, type Language } from "prism-react-renderer"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
