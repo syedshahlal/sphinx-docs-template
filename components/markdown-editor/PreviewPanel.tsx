@@ -6,8 +6,45 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Copy, Download, Eye } from "lucide-react"
 import type { ComponentItem } from "./types"
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { tomorrow } from "react-syntax-highlighter/dist/esm/styles/prism"
+import { Highlight } from "prism-react-renderer"
+
+const draculaTheme = {
+  plain: { backgroundColor: "transparent", color: "#f8f8f2" },
+  styles: [
+    { types: ["comment"], style: { color: "#6272a4" } },
+    { types: ["punctuation"], style: { color: "#f8f8f2" } },
+    { types: ["property", "tag", "boolean", "number", "constant", "symbol"], style: { color: "#bd93f9" } },
+    { types: ["string", "inserted"], style: { color: "#50fa7b" } },
+    { types: ["operator"], style: { color: "#f8f8f2" } },
+    { types: ["deleted"], style: { color: "#ff5555" } },
+    { types: ["function"], style: { color: "#ffb86c" } },
+    { types: ["keyword"], style: { color: "#8be9fd" } },
+  ],
+} as const
+
+function CodeHighlighter({
+  code,
+  language,
+}: {
+  code: string
+  language: string
+}) {
+  return (
+    <Highlight code={code} language={language as any} theme={draculaTheme}>
+      {({ className, style, tokens, getLineProps, getTokenProps }) => (
+        <pre className={className} style={{ ...style, margin: 0, padding: "1rem", borderRadius: 8 }}>
+          {tokens.map((line, i) => (
+            <div key={i} {...getLineProps({ line, key: i })}>
+              {line.map((token, key) => (
+                <span key={key} {...getTokenProps({ token, key })} />
+              ))}
+            </div>
+          ))}
+        </pre>
+      )}
+    </Highlight>
+  )
+}
 
 interface PreviewPanelProps {
   components: ComponentItem[]
@@ -256,13 +293,7 @@ export default function PreviewPanel({ components, className }: PreviewPanelProp
                       </div>
                     )}
                     {component.type === "code" && (
-                      <SyntaxHighlighter
-                        language={component.content.language || "text"}
-                        style={tomorrow}
-                        className="rounded-lg"
-                      >
-                        {component.content.code}
-                      </SyntaxHighlighter>
+                      <CodeHighlighter code={component.content.code} language={component.content.language || "text"} />
                     )}
                     {component.type === "quote" && (
                       <blockquote className="border-l-4 border-slate-300 pl-4 italic">
@@ -315,14 +346,10 @@ export default function PreviewPanel({ components, className }: PreviewPanelProp
               </Button>
             </div>
             <ScrollArea className="flex-1">
-              <SyntaxHighlighter
+              <CodeHighlighter
+                code={markdown || "# No content yet\n\nAdd components to see markdown output here."}
                 language="markdown"
-                style={tomorrow}
-                className="h-full"
-                customStyle={{ margin: 0, background: "transparent" }}
-              >
-                {markdown || "# No content yet\n\nAdd components to see markdown output here."}
-              </SyntaxHighlighter>
+              />
             </ScrollArea>
           </div>
         </TabsContent>
@@ -350,14 +377,10 @@ export default function PreviewPanel({ components, className }: PreviewPanelProp
               </Button>
             </div>
             <ScrollArea className="flex-1">
-              <SyntaxHighlighter
+              <CodeHighlighter
+                code={html || "<!-- No content yet -->\n<!-- Add components to see HTML output here -->"}
                 language="html"
-                style={tomorrow}
-                className="h-full"
-                customStyle={{ margin: 0, background: "transparent" }}
-              >
-                {html || "<!-- No content yet -->\n<!-- Add components to see HTML output here -->"}
-              </SyntaxHighlighter>
+              />
             </ScrollArea>
           </div>
         </TabsContent>
