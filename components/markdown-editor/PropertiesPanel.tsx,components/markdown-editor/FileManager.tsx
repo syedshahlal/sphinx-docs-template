@@ -1,38 +1,57 @@
 "use client"
 
-\`\`\`typescript
+import type React from "react"
+
+\`\`\`tsx
+// components/markdown-editor/PropertiesPanel.tsx
+import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface PropertiesPanelProps {
   title: string
+  content: string
+  category: string
   onTitleChange: (newTitle: string) => void
-  onSave: () => void
+  onContentChange: (newContent: string) => void
+  onCategoryChange: (newCategory: string) => void
+  categories: string[]
 }
 
-const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ title, onTitleChange, onSave }) => {
+const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
+  title,
+  content,
+  category,
+  onTitleChange,
+  onContentChange,
+  onCategoryChange,
+  categories,
+}) => {
   return (
-    <div className="p-4 border rounded-md shadow-sm bg-white">
-      <h2 className="text-lg font-semibold mb-4">Properties</h2>
-      <div className="mb-4">
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-          Title
-        </label>
-        <Input
-          type="text"
-          id="title"
-          value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        />
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="title">Title</Label>
+        <Input type="text" id="title" value={title} onChange={(e) => onTitleChange(e.target.value)} />
       </div>
       <div>
-        <Button
-          onClick={onSave}
-          className="bg-indigo-600 text-white rounded-md py-2 px-4 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
-        >
-          Save
-        </Button>
+        <Label htmlFor="content">Content</Label>
+        <Textarea id="content" value={content} onChange={(e) => onContentChange(e.target.value)} />
+      </div>
+      <div>
+        <Label htmlFor="category">Category</Label>
+        <Select onValueChange={onCategoryChange} defaultValue={category}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((cat) => (
+              <SelectItem key={cat} value={cat}>
+                {cat}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   )
@@ -41,37 +60,20 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({ title, onTitleChange,
 export default PropertiesPanel
 \`\`\`
 
-\`\`\`typescript
+\`\`\`tsx
 // components/markdown-editor/FileManager.tsx
-import type React from "react"
-import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
 interface FileManagerProps {
-  onFileSelect: (file: File) => void
+  onSave: () => void
+  onLoad: () => void
 }
 
-const FileManager: React.FC<FileManagerProps> = ({ onFileSelect }) => {
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    if (files && files.length > 0) {
-      onFileSelect(files[0])
-    }
-  }
-
+const FileManager: React.FC<FileManagerProps> = ({ onSave, onLoad }) => {
   return (
-    <div className="p-4 border rounded-md shadow-sm bg-white">
-      <h2 className="text-lg font-semibold mb-4">File Manager</h2>
-      <div>
-        <label htmlFor="file" className="block text-sm font-medium text-gray-700">
-          Select File
-        </label>
-        <Input
-          type="file"
-          id="file"
-          onChange={handleFileChange}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        />
-      </div>
+    <div className="space-x-2">
+      <Button onClick={onSave}>Save</Button>
+      <Button onClick={onLoad}>Load</Button>
     </div>
   )
 }
