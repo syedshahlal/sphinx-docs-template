@@ -5,10 +5,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Settings, Palette, Layout, Type, ChevronDown, ChevronRight, Eye, Sliders } from "lucide-react"
+import { Settings, Palette, Layout, Type, ChevronDown, ChevronRight, Eye, Sliders, Save, Check } from "lucide-react"
+import { cn } from "@/lib/utils"
 import type { MarkdownComponent, ComponentStyle } from "./types"
 
 interface PropertiesPanelProps {
@@ -19,6 +21,7 @@ interface PropertiesPanelProps {
 
 export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdateStyle }: PropertiesPanelProps) {
   const [expandedSections, setExpandedSections] = useState<string[]>(["content", "style"])
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle")
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]))
@@ -36,6 +39,14 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
     onUpdateStyle({ [field]: value })
   }
 
+  const handleSave = async () => {
+    setSaveStatus("saving")
+    // Simulate save operation
+    await new Promise((resolve) => setTimeout(resolve, 500))
+    setSaveStatus("saved")
+    setTimeout(() => setSaveStatus("idle"), 2000)
+  }
+
   const renderContentEditor = () => {
     if (!selectedComponent) return null
 
@@ -44,21 +55,26 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="heading-text">Text</Label>
+              <Label htmlFor="heading-text" className="text-foreground">
+                Text
+              </Label>
               <Input
                 id="heading-text"
                 value={selectedComponent.content.text || ""}
                 onChange={(e) => updateContent("text", e.target.value)}
                 placeholder="Heading text"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="heading-level">Level</Label>
+              <Label htmlFor="heading-level" className="text-foreground">
+                Level
+              </Label>
               <Select
                 value={selectedComponent.content.level?.toString() || "2"}
                 onValueChange={(value) => updateContent("level", Number.parseInt(value))}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-background border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -76,13 +92,16 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
       case "paragraph":
         return (
           <div>
-            <Label htmlFor="paragraph-text">Text</Label>
+            <Label htmlFor="paragraph-text" className="text-foreground">
+              Text
+            </Label>
             <Textarea
               id="paragraph-text"
               value={selectedComponent.content.text || ""}
               onChange={(e) => updateContent("text", e.target.value)}
               placeholder="Paragraph text"
               rows={4}
+              className="bg-background border-border text-foreground"
             />
           </div>
         )
@@ -91,49 +110,64 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="image-src">Image URL</Label>
+              <Label htmlFor="image-src" className="text-foreground">
+                Image URL
+              </Label>
               <Input
                 id="image-src"
                 value={selectedComponent.content.src || ""}
                 onChange={(e) => updateContent("src", e.target.value)}
                 placeholder="https://example.com/image.jpg"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="image-alt">Alt Text</Label>
+              <Label htmlFor="image-alt" className="text-foreground">
+                Alt Text
+              </Label>
               <Input
                 id="image-alt"
                 value={selectedComponent.content.alt || ""}
                 onChange={(e) => updateContent("alt", e.target.value)}
                 placeholder="Describe the image"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="image-caption">Caption</Label>
+              <Label htmlFor="image-caption" className="text-foreground">
+                Caption
+              </Label>
               <Input
                 id="image-caption"
                 value={selectedComponent.content.caption || ""}
                 onChange={(e) => updateContent("caption", e.target.value)}
                 placeholder="Image caption"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <Label htmlFor="image-width">Width</Label>
+                <Label htmlFor="image-width" className="text-foreground">
+                  Width
+                </Label>
                 <Input
                   id="image-width"
                   value={selectedComponent.content.width || ""}
                   onChange={(e) => updateContent("width", e.target.value)}
                   placeholder="100%, 400px"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
               <div>
-                <Label htmlFor="image-height">Height</Label>
+                <Label htmlFor="image-height" className="text-foreground">
+                  Height
+                </Label>
                 <Input
                   id="image-height"
                   value={selectedComponent.content.height || ""}
                   onChange={(e) => updateContent("height", e.target.value)}
                   placeholder="auto, 300px"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
             </div>
@@ -144,31 +178,39 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="button-text">Text</Label>
+              <Label htmlFor="button-text" className="text-foreground">
+                Text
+              </Label>
               <Input
                 id="button-text"
                 value={selectedComponent.content.text || ""}
                 onChange={(e) => updateContent("text", e.target.value)}
                 placeholder="Button text"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="button-link">Link (optional)</Label>
+              <Label htmlFor="button-link" className="text-foreground">
+                Link (optional)
+              </Label>
               <Input
                 id="button-link"
                 value={selectedComponent.content.link || ""}
                 onChange={(e) => updateContent("link", e.target.value)}
                 placeholder="https://example.com"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <Label htmlFor="button-variant">Variant</Label>
+                <Label htmlFor="button-variant" className="text-foreground">
+                  Variant
+                </Label>
                 <Select
                   value={selectedComponent.content.variant || "default"}
                   onValueChange={(value) => updateContent("variant", value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -182,12 +224,14 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
                 </Select>
               </div>
               <div>
-                <Label htmlFor="button-size">Size</Label>
+                <Label htmlFor="button-size" className="text-foreground">
+                  Size
+                </Label>
                 <Select
                   value={selectedComponent.content.size || "default"}
                   onValueChange={(value) => updateContent("size", value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background border-border">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -205,40 +249,51 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="card-title">Title</Label>
+              <Label htmlFor="card-title" className="text-foreground">
+                Title
+              </Label>
               <Input
                 id="card-title"
                 value={selectedComponent.content.title || ""}
                 onChange={(e) => updateContent("title", e.target.value)}
                 placeholder="Card title"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="card-description">Description</Label>
+              <Label htmlFor="card-description" className="text-foreground">
+                Description
+              </Label>
               <Textarea
                 id="card-description"
                 value={selectedComponent.content.description || ""}
                 onChange={(e) => updateContent("description", e.target.value)}
                 placeholder="Card description"
                 rows={3}
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="card-image">Image URL (optional)</Label>
+              <Label htmlFor="card-image" className="text-foreground">
+                Image URL (optional)
+              </Label>
               <Input
                 id="card-image"
                 value={selectedComponent.content.imageUrl || ""}
                 onChange={(e) => updateContent("imageUrl", e.target.value)}
                 placeholder="https://example.com/image.jpg"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="card-layout">Layout</Label>
+              <Label htmlFor="card-layout" className="text-foreground">
+                Layout
+              </Label>
               <Select
                 value={selectedComponent.content.layout || "default"}
                 onValueChange={(value) => updateContent("layout", value)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-background border-border">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -255,7 +310,7 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
 
       default:
         return (
-          <div className="text-center py-8 text-gray-500">
+          <div className="text-center py-8 text-muted-foreground">
             <Settings className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p>No specific properties available for this component type.</p>
           </div>
@@ -272,35 +327,40 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
       <div className="space-y-6">
         {/* Typography */}
         <Collapsible open={expandedSections.includes("typography")} onOpenChange={() => toggleSection("typography")}>
-          <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-50 rounded-md">
+          <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-muted rounded-md">
             <div className="flex items-center gap-2">
               <Type className="w-4 h-4" />
-              <span className="font-medium">Typography</span>
+              <span className="font-medium text-foreground">Typography</span>
             </div>
             {expandedSections.includes("typography") ? (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
             )}
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-3 mt-2">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <Label htmlFor="font-size">Font Size</Label>
+                <Label htmlFor="font-size" className="text-foreground">
+                  Font Size
+                </Label>
                 <Input
                   id="font-size"
                   value={style.fontSize || ""}
                   onChange={(e) => updateStyle("fontSize", e.target.value)}
                   placeholder="16px, 1rem"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
               <div>
-                <Label htmlFor="font-weight">Font Weight</Label>
+                <Label htmlFor="font-weight" className="text-foreground">
+                  Font Weight
+                </Label>
                 <Select
                   value={style.fontWeight?.toString() || ""}
                   onValueChange={(value) => updateStyle("fontWeight", value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="bg-background border-border">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
@@ -314,18 +374,23 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
               </div>
             </div>
             <div>
-              <Label htmlFor="text-color">Text Color</Label>
+              <Label htmlFor="text-color" className="text-foreground">
+                Text Color
+              </Label>
               <Input
                 id="text-color"
                 type="color"
                 value={style.color || "#000000"}
                 onChange={(e) => updateStyle("color", e.target.value)}
+                className="bg-background border-border"
               />
             </div>
             <div>
-              <Label htmlFor="text-align">Text Align</Label>
+              <Label htmlFor="text-align" className="text-foreground">
+                Text Align
+              </Label>
               <Select value={style.textAlign || ""} onValueChange={(value) => updateStyle("textAlign", value)}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-background border-border">
                   <SelectValue placeholder="Select" />
                 </SelectTrigger>
                 <SelectContent>
@@ -341,55 +406,67 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
 
         {/* Layout */}
         <Collapsible open={expandedSections.includes("layout")} onOpenChange={() => toggleSection("layout")}>
-          <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-50 rounded-md">
+          <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-muted rounded-md">
             <div className="flex items-center gap-2">
               <Layout className="w-4 h-4" />
-              <span className="font-medium">Layout</span>
+              <span className="font-medium text-foreground">Layout</span>
             </div>
             {expandedSections.includes("layout") ? (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
             )}
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-3 mt-2">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <Label htmlFor="width">Width</Label>
+                <Label htmlFor="width" className="text-foreground">
+                  Width
+                </Label>
                 <Input
                   id="width"
                   value={style.width || ""}
                   onChange={(e) => updateStyle("width", e.target.value)}
                   placeholder="100%, 400px"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
               <div>
-                <Label htmlFor="height">Height</Label>
+                <Label htmlFor="height" className="text-foreground">
+                  Height
+                </Label>
                 <Input
                   id="height"
                   value={style.height || ""}
                   onChange={(e) => updateStyle("height", e.target.value)}
                   placeholder="auto, 300px"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <Label htmlFor="padding">Padding</Label>
+                <Label htmlFor="padding" className="text-foreground">
+                  Padding
+                </Label>
                 <Input
                   id="padding"
                   value={style.padding || ""}
                   onChange={(e) => updateStyle("padding", e.target.value)}
                   placeholder="16px, 1rem"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
               <div>
-                <Label htmlFor="margin">Margin</Label>
+                <Label htmlFor="margin" className="text-foreground">
+                  Margin
+                </Label>
                 <Input
                   id="margin"
                   value={style.margin || ""}
                   onChange={(e) => updateStyle("margin", e.target.value)}
                   placeholder="16px, 1rem"
+                  className="bg-background border-border text-foreground"
                 />
               </div>
             </div>
@@ -398,56 +475,70 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
 
         {/* Appearance */}
         <Collapsible open={expandedSections.includes("appearance")} onOpenChange={() => toggleSection("appearance")}>
-          <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-50 rounded-md">
+          <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-muted rounded-md">
             <div className="flex items-center gap-2">
               <Palette className="w-4 h-4" />
-              <span className="font-medium">Appearance</span>
+              <span className="font-medium text-foreground">Appearance</span>
             </div>
             {expandedSections.includes("appearance") ? (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
             )}
           </CollapsibleTrigger>
           <CollapsibleContent className="space-y-3 mt-2">
             <div>
-              <Label htmlFor="bg-color">Background Color</Label>
+              <Label htmlFor="bg-color" className="text-foreground">
+                Background Color
+              </Label>
               <Input
                 id="bg-color"
                 type="color"
                 value={style.backgroundColor || "#ffffff"}
                 onChange={(e) => updateStyle("backgroundColor", e.target.value)}
+                className="bg-background border-border"
               />
             </div>
             <div>
-              <Label htmlFor="border">Border</Label>
+              <Label htmlFor="border" className="text-foreground">
+                Border
+              </Label>
               <Input
                 id="border"
                 value={style.border || ""}
                 onChange={(e) => updateStyle("border", e.target.value)}
                 placeholder="1px solid #ccc"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="border-radius">Border Radius</Label>
+              <Label htmlFor="border-radius" className="text-foreground">
+                Border Radius
+              </Label>
               <Input
                 id="border-radius"
                 value={style.borderRadius || ""}
                 onChange={(e) => updateStyle("borderRadius", e.target.value)}
                 placeholder="8px, 0.5rem"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="box-shadow">Box Shadow</Label>
+              <Label htmlFor="box-shadow" className="text-foreground">
+                Box Shadow
+              </Label>
               <Input
                 id="box-shadow"
                 value={style.boxShadow || ""}
                 onChange={(e) => updateStyle("boxShadow", e.target.value)}
                 placeholder="0 4px 6px rgba(0,0,0,0.1)"
+                className="bg-background border-border text-foreground"
               />
             </div>
             <div>
-              <Label htmlFor="opacity">Opacity</Label>
+              <Label htmlFor="opacity" className="text-foreground">
+                Opacity
+              </Label>
               <Input
                 id="opacity"
                 type="range"
@@ -456,8 +547,9 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
                 step="0.1"
                 value={style.opacity || 1}
                 onChange={(e) => updateStyle("opacity", Number.parseFloat(e.target.value))}
+                className="bg-background border-border"
               />
-              <div className="text-xs text-gray-500 mt-1">{((style.opacity || 1) * 100).toFixed(0)}%</div>
+              <div className="text-xs text-muted-foreground mt-1">{((style.opacity || 1) * 100).toFixed(0)}%</div>
             </div>
           </CollapsibleContent>
         </Collapsible>
@@ -467,26 +559,26 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
 
   if (!selectedComponent) {
     return (
-      <div className="h-full flex flex-col">
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
+      <div className="h-full flex flex-col bg-card">
+        <div className="p-4 border-b border-border bg-muted/50">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
-              <Settings className="h-5 w-5 text-white" />
+            <div className="p-2 rounded-lg bg-primary">
+              <Settings className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Properties</h2>
-              <p className="text-sm text-gray-600">Component settings</p>
+              <h2 className="text-lg font-bold text-foreground">Properties</h2>
+              <p className="text-sm text-muted-foreground">Component settings</p>
             </div>
           </div>
         </div>
 
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-              <Eye className="h-8 w-8 text-gray-400" />
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+              <Eye className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Component Selected</h3>
-            <p className="text-gray-500 max-w-sm mx-auto">
+            <h3 className="text-lg font-semibold text-foreground mb-2">No Component Selected</h3>
+            <p className="text-muted-foreground max-w-sm mx-auto">
               Select a component from the canvas to view and edit its properties.
             </p>
           </div>
@@ -496,34 +588,62 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
+    <div className="h-full flex flex-col bg-card">
+      <div className="p-4 border-b border-border bg-muted/50">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
-              <Settings className="h-5 w-5 text-white" />
+            <div className="p-2 rounded-lg bg-primary">
+              <Settings className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Properties</h2>
-              <p className="text-sm text-gray-600">Component settings</p>
+              <h2 className="text-lg font-bold text-foreground">Properties</h2>
+              <p className="text-sm text-muted-foreground">Component settings</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="capitalize">
-            {selectedComponent.type}
-          </Badge>
-          {selectedComponent.locked && (
-            <Badge variant="secondary" className="text-xs">
-              Locked
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="capitalize">
+              {selectedComponent.type}
             </Badge>
-          )}
-          {selectedComponent.hidden && (
-            <Badge variant="secondary" className="text-xs">
-              Hidden
-            </Badge>
-          )}
+            {selectedComponent.locked && (
+              <Badge variant="secondary" className="text-xs">
+                Locked
+              </Badge>
+            )}
+            {selectedComponent.hidden && (
+              <Badge variant="secondary" className="text-xs">
+                Hidden
+              </Badge>
+            )}
+          </div>
+          <Button
+            onClick={handleSave}
+            disabled={saveStatus === "saving"}
+            size="sm"
+            className={cn(
+              "transition-all duration-200",
+              saveStatus === "saved" && "bg-green-600 hover:bg-green-700 text-white",
+            )}
+          >
+            {saveStatus === "saving" ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                Saving...
+              </>
+            ) : saveStatus === "saved" ? (
+              <>
+                <Check className="w-4 h-4 mr-2" />
+                Saved
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Save
+              </>
+            )}
+          </Button>
         </div>
       </div>
 

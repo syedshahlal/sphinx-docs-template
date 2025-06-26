@@ -1,158 +1,250 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { useToast } from "@/components/ui/use-toast"
-import { FileText, Github, Download, LayoutGrid, Rows, EyeIcon } from "lucide-react"
-import { useEditor } from "./EditorContext"
 import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  Save,
+  FileText,
+  Download,
+  Undo,
+  Redo,
+  Settings,
+  Share,
+  Plus,
+  FolderOpen,
+  ChevronDown,
+  Smartphone,
+  Tablet,
+  Monitor,
+  Grid,
+  Layers,
+  FileCode,
+  Globe,
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useEditor } from "./EditorContext"
 
 interface EditorToolbarProps {
   onToggleFileManager?: () => void
 }
 
 export function EditorToolbar({ onToggleFileManager }: EditorToolbarProps) {
-  const { state, setFileDetails, setLayoutMode } = useEditor()
-  const { toast } = useToast()
-  const [isPublishing, setIsPublishing] = useState(false)
-  const [publishPopoverOpen, setPublishPopoverOpen] = useState(false)
+  const { state, dispatch } = useEditor()
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle")
 
   const handleSave = async () => {
-    setIsPublishing(true)
+    setSaveStatus("saving")
+    // Simulate save operation
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    setSaveStatus("saved")
+    setTimeout(() => setSaveStatus("idle"), 2000)
+  }
 
-    try {
-      // Simulate save operation
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+  const handleExport = (format: "markdown" | "html" | "json") => {
+    // Export logic would go here
+    console.log(`Exporting as ${format}`)
+  }
 
-      toast({
-        title: "Document Saved",
-        description: "Your document has been saved successfully.",
-      })
-    } catch (error: any) {
-      console.error("Failed to save:", error)
-      toast({
-        title: "Save Failed",
-        description: error.message || "Could not save document.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsPublishing(false)
+  const handleUndo = () => {
+    dispatch({ type: "UNDO" })
+  }
+
+  const handleRedo = () => {
+    dispatch({ type: "REDO" })
+  }
+
+  const handleNewFile = () => {
+    dispatch({
+      type: "LOAD_COMPONENTS",
+      payload: { components: [], fileName: "", filePath: "", fileVersion: "" },
+    })
+  }
+
+  const handlePreviewModeChange = (mode: "edit" | "preview" | "mobile" | "tablet") => {
+    dispatch({ type: "SET_PREVIEW_MODE", payload: { mode } })
+  }
+
+  const getPreviewIcon = (mode: string) => {
+    switch (mode) {
+      case "mobile":
+        return Smartphone
+      case "tablet":
+        return Tablet
+      default:
+        return Monitor
     }
   }
 
-  const handleDownload = (format: "md" | "html") => {
-    // Generate content based on format
-    const content = format === "md" ? "# Sample Markdown" : "<h1>Sample HTML</h1>"
-    const filename = `${state.fileName || "document"}.${format}`
-    const blob = new Blob([content], { type: format === "md" ? "text/markdown" : "text/html" })
-    const link = document.createElement("a")
-    link.href = URL.createObjectURL(blob)
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(link.href)
-    toast({ title: "Download Started", description: `${filename} is downloading.` })
-  }
-
   return (
-    <div className="p-2 border-b border-border bg-card flex items-center justify-between space-x-2 h-14">
-      <div className="flex items-center space-x-2">
-        {onToggleFileManager && (
-          <Button variant="ghost" size="icon" onClick={onToggleFileManager} title="Toggle File Manager">
-            <FileText className="w-5 h-5" />
-          </Button>
-        )}
-        <div className="w-px h-6 bg-border mx-1"></div>
-        <Input
-          type="text"
-          placeholder="File Name (e.g., feature-overview.md)"
-          value={state.fileName || ""}
-          onChange={(e) => setFileDetails({ fileName: e.target.value })}
-          className="h-9 text-sm w-48"
-        />
-      </div>
-
-      <div className="flex items-center space-x-1">
-        <Button
-          variant={state.layoutMode === "freeform" ? "secondary" : "ghost"}
-          size="sm"
-          onClick={() => setLayoutMode("freeform")}
-          title="Freeform Layout"
-        >
-          <LayoutGrid className="w-4 h-4" />
-        </Button>
-        <Button
-          variant={state.layoutMode === "grid" ? "secondary" : "ghost"}
-          size="sm"
-          onClick={() => setLayoutMode("grid")}
-          title="Grid Layout"
-        >
-          <Rows className="w-4 h-4" />
-        </Button>
-        <Button
-          variant={state.layoutMode === "flex" ? "secondary" : "ghost"}
-          size="sm"
-          onClick={() => setLayoutMode("flex")}
-          title="Flex Layout"
-        >
-          <EyeIcon className="w-4 h-4" />
-        </Button>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Button variant="outline" size="sm" onClick={() => handleDownload("md")} title="Download Markdown">
-          <Download className="w-4 h-4 mr-1.5" /> MD
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => handleDownload("html")} title="Download HTML">
-          <Download className="w-4 h-4 mr-1.5" /> HTML
+    <div className="flex items-center justify-between p-4 border-b border-border bg-card">
+      {/* Left Section - File Operations */}
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" onClick={handleNewFile} className="flex items-center gap-2">
+          <Plus className="w-4 h-4" />
+          New
         </Button>
 
-        <Popover open={publishPopoverOpen} onOpenChange={setPublishPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button size="sm" disabled={isPublishing}>
-              <Github className="w-4 h-4 mr-1.5" />
-              {isPublishing ? "Publishing..." : "Publish"}
+        <Button variant="ghost" size="sm" onClick={onToggleFileManager} className="flex items-center gap-2">
+          <FolderOpen className="w-4 h-4" />
+          Files
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSave}
+          disabled={saveStatus === "saving"}
+          className={cn(
+            "flex items-center gap-2 transition-all duration-200",
+            saveStatus === "saved" && "text-green-600",
+            state.isDirty && "text-orange-600",
+          )}
+        >
+          {saveStatus === "saving" ? (
+            <>
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4" />
+              {saveStatus === "saved" ? "Saved" : state.isDirty ? "Save*" : "Save"}
+            </>
+          )}
+        </Button>
+
+        <Separator orientation="vertical" className="h-6" />
+
+        {/* Export Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Export
+              <ChevronDown className="w-3 h-3" />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-4" align="end">
-            <div className="space-y-4">
-              <h4 className="font-medium leading-none">Publish to GitHub</h4>
-              <p className="text-sm text-muted-foreground">
-                This will commit changes to a new branch and open a Pull Request.
-              </p>
-              <div>
-                <Label htmlFor="file-path" className="text-xs">
-                  File Path in Repo
-                </Label>
-                <Input
-                  id="file-path"
-                  placeholder="e.g., docs/section/filename.md"
-                  value={state.filePath || ""}
-                  onChange={(e) => setFileDetails({ filePath: e.target.value })}
-                  className="h-9 text-sm"
-                />
-              </div>
-              <div>
-                <Label htmlFor="file-version" className="text-xs">
-                  Document Version
-                </Label>
-                <Input
-                  id="file-version"
-                  placeholder="e.g., 1.0.0"
-                  value={state.fileVersion || ""}
-                  onChange={(e) => setFileDetails({ fileVersion: e.target.value })}
-                  className="h-9 text-sm"
-                />
-              </div>
-              <Button onClick={handleSave} className="w-full" disabled={isPublishing}>
-                {isPublishing ? "Processing..." : "Confirm & Publish"}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem onClick={() => handleExport("markdown")}>
+              <FileText className="w-4 h-4 mr-2" />
+              Export as Markdown
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport("html")}>
+              <Globe className="w-4 h-4 mr-2" />
+              Export as HTML
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport("json")}>
+              <FileCode className="w-4 h-4 mr-2" />
+              Export as JSON
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Share className="w-4 h-4 mr-2" />
+              Share Link
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Center Section - Document Info */}
+      <div className="flex items-center gap-4">
+        <div className="text-center">
+          <div className="text-sm font-medium text-foreground">{state.fileName || "Untitled Document"}</div>
+          <div className="text-xs text-muted-foreground">
+            {state.components.length} component{state.components.length !== 1 ? "s" : ""}
+          </div>
+        </div>
+
+        {state.isDirty && (
+          <Badge variant="outline" className="text-orange-600 border-orange-600">
+            Unsaved
+          </Badge>
+        )}
+      </div>
+
+      {/* Right Section - Editor Controls */}
+      <div className="flex items-center gap-2">
+        {/* Undo/Redo */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleUndo}
+          disabled={state.history.past.length === 0}
+          className="flex items-center gap-2"
+        >
+          <Undo className="w-4 h-4" />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleRedo}
+          disabled={state.history.future.length === 0}
+          className="flex items-center gap-2"
+        >
+          <Redo className="w-4 h-4" />
+        </Button>
+
+        <Separator orientation="vertical" className="h-6" />
+
+        {/* Preview Mode Controls */}
+        <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+          {(["edit", "tablet", "mobile"] as const).map((mode) => {
+            const Icon = mode === "edit" ? Monitor : getPreviewIcon(mode)
+            return (
+              <Button
+                key={mode}
+                variant={state.previewMode === mode ? "default" : "ghost"}
+                size="sm"
+                onClick={() => handlePreviewModeChange(mode)}
+                className="h-8 px-3"
+              >
+                <Icon className="w-4 h-4" />
               </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
+            )
+          })}
+        </div>
+
+        <Separator orientation="vertical" className="h-6" />
+
+        {/* Layout Mode */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <Grid className="w-4 h-4" />
+              Layout
+              <ChevronDown className="w-3 h-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => dispatch({ type: "SET_LAYOUT_MODE", payload: { mode: "freeform" } })}>
+              <Layers className="w-4 h-4 mr-2" />
+              Freeform
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => dispatch({ type: "SET_LAYOUT_MODE", payload: { mode: "grid" } })}>
+              <Grid className="w-4 h-4 mr-2" />
+              Grid
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => dispatch({ type: "SET_LAYOUT_MODE", payload: { mode: "flex" } })}>
+              <Layers className="w-4 h-4 mr-2" />
+              Flex
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* Settings */}
+        <Button variant="ghost" size="sm" className="flex items-center gap-2">
+          <Settings className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   )

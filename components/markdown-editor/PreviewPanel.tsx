@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { MarkdownComponent } from "./types"
+import { ComponentRenderer } from "./ComponentRenderer"
 
 interface PreviewPanelProps {
   components: MarkdownComponent[]
@@ -230,20 +231,20 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
   const html = generateHTML()
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-card">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
+      <div className="p-4 border-b border-border bg-muted/50">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-blue-600">
-              <Eye className="h-5 w-5 text-white" />
+            <div className="p-2 rounded-lg bg-primary">
+              <Eye className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Preview</h2>
-              <p className="text-sm text-gray-600">Live preview of your content</p>
+              <h2 className="text-lg font-bold text-foreground">Preview</h2>
+              <p className="text-sm text-muted-foreground">Live preview of your content</p>
             </div>
           </div>
-          <Badge variant="secondary" className="bg-green-100 text-green-800">
+          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
             {components.length} component{components.length !== 1 ? "s" : ""}
           </Badge>
         </div>
@@ -319,7 +320,7 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
       {/* Content */}
       <div className="flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3 bg-gray-100">
+          <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3">
             <TabsTrigger value="preview" className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
               Preview
@@ -337,42 +338,29 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
           <TabsContent value="preview" className="flex-1 mt-4">
             <ScrollArea className="h-full">
               <div className={cn("p-4", getPreviewDimensions())}>
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="bg-background rounded-lg shadow-sm border border-border p-6">
                   {components.length === 0 ? (
                     <div className="text-center py-12">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                        <Eye className="h-8 w-8 text-gray-400" />
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                        <Eye className="h-8 w-8 text-muted-foreground" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No content to preview</h3>
-                      <p className="text-gray-500">Add some components to see the preview here.</p>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">No content to preview</h3>
+                      <p className="text-muted-foreground">Add some components to see the preview here.</p>
                     </div>
                   ) : (
-                    <div
-                      className="prose prose-lg max-w-none"
-                      dangerouslySetInnerHTML={{
-                        __html: components
-                          .sort((a, b) => a.order - b.order)
-                          .map((component) => {
-                            // Render a simplified version for preview
-                            switch (component.type) {
-                              case "heading":
-                                const level = component.content.level || 2
-                                return `<h${level}>${component.content.text || "Heading"}</h${level}>`
-                              case "paragraph":
-                                return `<p>${component.content.text || "Paragraph text"}</p>`
-                              case "image":
-                                return `<img src="${component.content.src || "/placeholder.svg"}" alt="${component.content.alt || "Image"}" class="rounded-lg" />`
-                              case "htmlBlock":
-                                return component.content.htmlContent || ""
-                              default:
-                                return `<div class="p-4 bg-gray-100 rounded-lg text-center text-gray-600">
-                                  <strong>${component.type}</strong> component
-                                </div>`
-                            }
-                          })
-                          .join(""),
-                      }}
-                    />
+                    <div className="space-y-6">
+                      {components
+                        .sort((a, b) => a.order - b.order)
+                        .map((component) => (
+                          <div key={component.id} className="w-full">
+                            <ComponentRenderer
+                              component={component}
+                              isSelected={false}
+                              updateComponentContent={() => {}}
+                            />
+                          </div>
+                        ))}
+                    </div>
                   )}
                 </div>
               </div>
@@ -382,7 +370,7 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
           <TabsContent value="markdown" className="flex-1 mt-4">
             <ScrollArea className="h-full">
               <div className="p-4">
-                <div className="bg-gray-900 rounded-lg p-4">
+                <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-4">
                   <pre className="text-green-400 text-sm font-mono whitespace-pre-wrap overflow-x-auto">
                     {markdown || "# No content\n\nAdd some components to generate markdown."}
                   </pre>
@@ -394,7 +382,7 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
           <TabsContent value="html" className="flex-1 mt-4">
             <ScrollArea className="h-full">
               <div className="p-4">
-                <div className="bg-gray-900 rounded-lg p-4">
+                <div className="bg-gray-900 dark:bg-gray-950 rounded-lg p-4">
                   <pre className="text-blue-400 text-sm font-mono whitespace-pre-wrap overflow-x-auto">{html}</pre>
                 </div>
               </div>
@@ -404,8 +392,8 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
       </div>
 
       {/* Footer Stats */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
-        <div className="flex items-center justify-between text-sm text-gray-600">
+      <div className="p-4 border-t border-border bg-muted/50">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-4">
             <span>Components: {components.length}</span>
             <Separator orientation="vertical" className="h-4" />

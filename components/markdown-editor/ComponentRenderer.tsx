@@ -257,7 +257,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onKeyDown={handleKeyDown}
             onBlur={handleSaveEdit}
             className={cn(
-              "w-full bg-white border-2 border-blue-500 rounded-md px-2 py-1 resize-none focus:outline-none",
+              "w-full bg-background border-2 border-primary rounded-md px-2 py-1 resize-none focus:outline-none text-foreground",
               className,
             )}
             autoFocus
@@ -274,7 +274,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onKeyDown={handleKeyDown}
             onBlur={handleSaveEdit}
             className={cn(
-              "w-full bg-white border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none",
+              "w-full bg-background border-2 border-primary rounded-md px-2 py-1 focus:outline-none text-foreground",
               className,
             )}
             autoFocus
@@ -286,8 +286,8 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
     return (
       <span
         className={cn(
-          "cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors min-h-[1.5rem] inline-block",
-          !value && "text-gray-400 italic",
+          "cursor-pointer hover:bg-primary/10 rounded-md px-1 py-0.5 transition-colors min-h-[1.5rem] inline-block",
+          !value && "text-muted-foreground italic",
           className,
         )}
         onClick={(e) => handleStartEdit(field, value, e)}
@@ -298,9 +298,9 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
   }
 
   const baseClasses = cn(
-    "relative group transition-all duration-200",
-    isSelected && "ring-2 ring-blue-500 ring-offset-2 ring-offset-white",
-    isHovered && !editingField && "ring-1 ring-slate-300 ring-offset-1",
+    "relative group transition-all duration-200 mb-6",
+    isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+    isHovered && !editingField && "ring-1 ring-border ring-offset-1",
     getHoverClasses(component.style),
     component.style?.className,
   )
@@ -318,7 +318,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <HeadingTag className="font-bold">
+            <HeadingTag className="font-bold text-foreground">
               {renderEditableText("text", component.content.text, "Heading")}
             </HeadingTag>
           </div>
@@ -333,7 +333,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <p className="leading-relaxed">
+            <p className="leading-relaxed text-foreground">
               {renderEditableText("text", component.content.text, "Click to edit paragraph", true)}
             </p>
           </div>
@@ -367,7 +367,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                 imageContent.caption,
                 "Add caption",
                 false,
-                "text-sm text-gray-600 text-center",
+                "text-sm text-muted-foreground text-center",
               )}
             </div>
           </div>
@@ -401,7 +401,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <Card className="transition-all duration-300 hover:shadow-lg border-0 shadow-md">
+            <Card className="transition-all duration-300 hover:shadow-lg border-border shadow-md">
               {cardContent.imageUrl && (
                 <div className="overflow-hidden rounded-t-lg">
                   <img
@@ -412,10 +412,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                 </div>
               )}
               <CardHeader>
-                <CardTitle className="text-xl font-bold text-gray-900">
+                <CardTitle className="text-xl font-bold text-foreground">
                   {renderEditableText("title", cardContent.title, "Card Title")}
                 </CardTitle>
-                <CardDescription className="text-gray-600 leading-relaxed">
+                <CardDescription className="text-muted-foreground leading-relaxed">
                   {renderEditableText("description", cardContent.description, "Card description", true)}
                 </CardDescription>
               </CardHeader>
@@ -465,14 +465,14 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
               {gridContent.items?.map((item, index) => (
                 <div
                   key={item.id || index}
-                  className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+                  className="bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
                 >
                   {item.type === "card" && (
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">
+                      <h3 className="font-semibold text-foreground mb-2">
                         {renderEditableText(`items.${index}.content.title`, item.content.title, "Grid Item Title")}
                       </h3>
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-muted-foreground text-sm">
                         {renderEditableText(
                           `items.${index}.content.description`,
                           item.content.description,
@@ -483,13 +483,13 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                     </div>
                   )}
                   {item.type === "text" && (
-                    <p className="text-gray-700">
+                    <p className="text-foreground">
                       {renderEditableText(`items.${index}.content.text`, item.content.text, "Grid text content", true)}
                     </p>
                   )}
                 </div>
               )) || (
-                <div className="col-span-full text-center py-8 text-gray-500">
+                <div className="col-span-full text-center py-8 text-muted-foreground">
                   <p>No grid items yet. Add items to populate this grid.</p>
                 </div>
               )}
@@ -593,7 +593,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <div className="overflow-hidden rounded-lg bg-white shadow border border-gray-200">
+            <div className="overflow-hidden rounded-lg bg-card shadow border border-border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -606,7 +606,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                 </TableHeader>
                 <TableBody>
                   {tableContent.rows?.map((row, rowIndex) => (
-                    <TableRow key={rowIndex} className="hover:bg-gray-50">
+                    <TableRow key={rowIndex} className="hover:bg-muted/50">
                       {row.map((cell, cellIndex) => (
                         <TableCell key={cellIndex}>
                           {renderEditableText(
@@ -634,10 +634,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
           >
             <ul className="list-disc list-inside space-y-2">
               {component.content.items?.map((item: string, index: number) => (
-                <li key={index} className="text-gray-700">
+                <li key={index} className="text-foreground">
                   {renderEditableText(`items.${index}`, item, `List item ${index + 1}`)}
                 </li>
-              )) || <li className="text-gray-400 italic">Click to add list items</li>}
+              )) || <li className="text-muted-foreground italic">Click to add list items</li>}
             </ul>
           </div>
         )
@@ -652,10 +652,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
           >
             <ol className="list-decimal list-inside space-y-2" start={component.content.start || 1}>
               {component.content.items?.map((item: string, index: number) => (
-                <li key={index} className="text-gray-700">
+                <li key={index} className="text-foreground">
                   {renderEditableText(`items.${index}`, item, `List item ${index + 1}`)}
                 </li>
-              )) || <li className="text-gray-400 italic">Click to add list items</li>}
+              )) || <li className="text-muted-foreground italic">Click to add list items</li>}
             </ol>
           </div>
         )
@@ -681,11 +681,11 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                     }}
                     className="rounded"
                   />
-                  <span className={item.checked ? "line-through text-gray-500" : "text-gray-700"}>
+                  <span className={item.checked ? "line-through text-muted-foreground" : "text-foreground"}>
                     {renderEditableText(`items.${index}.text`, item.text, `Task ${index + 1}`)}
                   </span>
                 </div>
-              )) || <div className="text-gray-400 italic">Click to add tasks</div>}
+              )) || <div className="text-muted-foreground italic">Click to add tasks</div>}
             </div>
           </div>
         )
@@ -698,10 +698,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600">
+            <blockquote className="border-l-4 border-border pl-4 italic text-muted-foreground">
               {renderEditableText("text", component.content.text, "Quote text", true)}
               {component.content.author && (
-                <footer className="text-sm text-gray-500 mt-2">
+                <footer className="text-sm text-muted-foreground mt-2">
                   — {renderEditableText("author", component.content.author, "Author name")}
                 </footer>
               )}
@@ -743,14 +743,14 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <div className="bg-gray-100 rounded-lg p-4 overflow-x-auto">
+            <div className="bg-muted rounded-lg p-4 overflow-x-auto">
               <pre className="text-sm">
-                <code>
+                <code className="text-foreground">
                   {renderEditableText("code", component.content.code, "// Your code here", true, "font-mono")}
                 </code>
               </pre>
               {component.content.language && (
-                <div className="text-xs text-gray-500 mt-2">Language: {component.content.language}</div>
+                <div className="text-xs text-muted-foreground mt-2">Language: {component.content.language}</div>
               )}
             </div>
           </div>
@@ -764,7 +764,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <hr className="border-gray-300 my-4" />
+            <hr className="border-border my-4" />
           </div>
         )
 
@@ -776,7 +776,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <div className="border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-400 text-sm h-full">
+            <div className="border border-dashed border-border rounded flex items-center justify-center text-muted-foreground text-sm h-full">
               Spacer ({component.content.height || "40px"})
             </div>
           </div>
@@ -791,10 +791,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseLeave={() => setIsHovered(false)}
           >
             <div className="grid grid-cols-2 gap-6">
-              <div className="p-4 border border-gray-200 rounded">
+              <div className="p-4 border border-border rounded">
                 {renderEditableText("column1Text", component.content.column1Text, "Column 1 content", true)}
               </div>
-              <div className="p-4 border border-gray-200 rounded">
+              <div className="p-4 border border-border rounded">
                 {renderEditableText("column2Text", component.content.column2Text, "Column 2 content", true)}
               </div>
             </div>
@@ -809,9 +809,9 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <div className="bg-gray-100 p-4 rounded-md border">
-              <div className="text-center text-gray-600 mb-2">Mermaid Diagram</div>
-              <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+            <div className="bg-muted p-4 rounded-md border border-border">
+              <div className="text-center text-muted-foreground mb-2">Mermaid Diagram</div>
+              <pre className="text-sm text-foreground whitespace-pre-wrap">
                 {renderEditableText(
                   "code",
                   component.content.code,
@@ -836,12 +836,12 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
               dangerouslySetInnerHTML={{
                 __html:
                   component.content.htmlContent ||
-                  "<div class='p-8 border-2 border-dashed border-gray-300 rounded-xl text-center bg-gray-50'><h3 class='text-lg font-semibold text-gray-700 mb-2'>Custom HTML Block</h3><p class='text-gray-500'>Click to edit HTML content</p></div>",
+                  "<div class='p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-center bg-gray-50 dark:bg-gray-800'><h3 class='text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2'>Custom HTML Block</h3><p class='text-gray-500 dark:text-gray-400'>Click to edit HTML content</p></div>",
               }}
               className={cn("transition-all duration-200", component.content.responsive && "w-full")}
             />
             {component.content.name && (
-              <div className="text-xs text-gray-500 mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="text-xs text-muted-foreground mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
                 {component.content.name}
               </div>
             )}
@@ -858,7 +858,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseLeave={() => setIsHovered(false)}
           >
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">
+              <h3 className="text-2xl font-bold text-foreground">
                 {renderEditableText("title", infographicContent.title, "Infographic Title")}
               </h3>
             </div>
@@ -873,10 +873,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                     >
                       <IconComponent className="w-8 h-8 text-white" />
                     </div>
-                    <div className="text-3xl font-bold text-gray-900 mb-2">
+                    <div className="text-3xl font-bold text-foreground mb-2">
                       {renderEditableText(`items.${index}.value`, item.value?.toString() || "", "0")}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       {renderEditableText(`items.${index}.title`, item.title, "Stat title")}
                     </div>
                   </div>
@@ -909,7 +909,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                   )}
                 </div>
               )) || (
-                <div className="col-span-full text-center py-8 text-gray-500">
+                <div className="col-span-full text-center py-8 text-muted-foreground">
                   <p>No images in gallery yet.</p>
                 </div>
               )}
@@ -925,19 +925,19 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200">
+            <div className="bg-card rounded-lg p-6 shadow-lg border border-border">
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
                     className={cn(
                       "w-5 h-5",
-                      i < (component.content.rating || 5) ? "text-yellow-400 fill-current" : "text-gray-300",
+                      i < (component.content.rating || 5) ? "text-yellow-400 fill-current" : "text-muted-foreground",
                     )}
                   />
                 ))}
               </div>
-              <blockquote className="text-gray-700 mb-4 italic">
+              <blockquote className="text-foreground mb-4 italic">
                 "{renderEditableText("quote", component.content.quote, "Testimonial quote", true)}"
               </blockquote>
               <div className="flex items-center">
@@ -947,10 +947,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                   className="w-12 h-12 rounded-full mr-4"
                 />
                 <div>
-                  <div className="font-semibold text-gray-900">
+                  <div className="font-semibold text-foreground">
                     {renderEditableText("author", component.content.author, "Author Name")}
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     {renderEditableText("position", component.content.position, "Position, Company")}
                   </div>
                 </div>
@@ -972,30 +972,30 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                 <div
                   key={index}
                   className={cn(
-                    "bg-white rounded-lg p-6 shadow-lg border-2 transition-all duration-300 hover:scale-105",
-                    plan.popular ? "border-blue-500 relative" : "border-gray-200",
+                    "bg-card rounded-lg p-6 shadow-lg border-2 transition-all duration-300 hover:scale-105",
+                    plan.popular ? "border-primary relative" : "border-border",
                   )}
                 >
                   {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                       Popular
                     </div>
                   )}
                   <div className="text-center">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-foreground mb-2">
                       {renderEditableText(`plans.${index}.name`, plan.name, "Plan Name")}
                     </h3>
-                    <div className="text-4xl font-bold text-gray-900 mb-1">
+                    <div className="text-4xl font-bold text-foreground mb-1">
                       {renderEditableText(`plans.${index}.price`, plan.price, "$0")}
                     </div>
-                    <div className="text-gray-600 mb-6">
+                    <div className="text-muted-foreground mb-6">
                       /{renderEditableText(`plans.${index}.period`, plan.period, "month")}
                     </div>
                     <ul className="space-y-3 mb-6 text-left">
                       {plan.features?.map((feature: string, featureIndex: number) => (
                         <li key={featureIndex} className="flex items-center">
                           <Check className="w-5 h-5 text-green-500 mr-3" />
-                          <span className="text-gray-700">
+                          <span className="text-foreground">
                             {renderEditableText(`plans.${index}.features.${featureIndex}`, feature, "Feature")}
                           </span>
                         </li>
@@ -1007,7 +1007,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                   </div>
                 </div>
               )) || (
-                <div className="col-span-full text-center py-8 text-gray-500">
+                <div className="col-span-full text-center py-8 text-muted-foreground">
                   <p>No pricing plans yet.</p>
                 </div>
               )}
@@ -1018,12 +1018,12 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
       default:
         return (
           <div className={baseClasses} style={style}>
-            <div className="p-6 border-2 border-dashed border-gray-300 rounded-xl text-center bg-gray-50">
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            <div className="p-6 border-2 border-dashed border-border rounded-xl text-center bg-muted">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {component.type.charAt(0).toUpperCase() + component.type.slice(1)}
               </h3>
-              <p className="text-gray-500">Component type: {component.type}</p>
-              <p className="text-xs text-gray-400 mt-2">Click to edit this component</p>
+              <p className="text-muted-foreground">Component type: {component.type}</p>
+              <p className="text-xs text-muted-foreground mt-2">Click to edit this component</p>
             </div>
           </div>
         )
@@ -1036,7 +1036,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
       {(isHovered || isSelected) && !editingField && (
         <div className="absolute -top-2 -right-2 flex gap-1">
           <button
-            className="bg-blue-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-600 hover:scale-110 shadow-lg"
+            className="bg-primary text-primary-foreground p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-primary/80 hover:scale-110 shadow-lg"
             title="Edit component"
           >
             <Edit3 className="w-3 h-3" />
