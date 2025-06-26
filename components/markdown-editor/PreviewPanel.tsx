@@ -183,7 +183,7 @@ export function PreviewPanel() {
         <TabsContent value="preview" className="flex-1 overflow-hidden p-2">
           <ScrollArea className="h-full prose dark:prose-invert max-w-none">
             {/* Render HTML (mermaid placeholders are handled via effect) */}
-            <div ref={ref} dangerouslySetInnerHTML={{ __html: html }} />
+            <div className="text-white" className="text-white" className="" className="text-white" className="text-white" className="" ref={ref} dangerouslySetInnerHTML={{ __html: html }} />
           </ScrollArea>
         </TabsContent>
 
