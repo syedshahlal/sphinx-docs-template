@@ -20,16 +20,18 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown }) => {
     setRenderedMarkdown(markdown)
   }, [markdown])
 
-  // Function to handle image loading errors and retry with CORS
   const handleImageError = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    const img = event.target as HTMLImageElement
-    if (img) {
-      if (typeof window !== "undefined") {
-        const img = new Image()
-        img.crossOrigin = "anonymous"
-        img.src = img.src // Reload the image with CORS enabled
-      }
+    const broken = event.target as HTMLImageElement
+    if (!broken || typeof window === "undefined") return
+    const retry = new Image()
+    retry.crossOrigin = "anonymous"
+    retry.onload = () => {
+      broken.src = retry.src
     }
+    retry.onerror = () => {
+      /* give up silently */
+    }
+    retry.src = broken.src
   }
 
   return (
