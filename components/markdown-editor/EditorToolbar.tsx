@@ -11,11 +11,11 @@ import { generateMarkdown, generateHtml } from "./PreviewPanel" // Assuming thes
 import { publishToGitHub } from "@/lib/github" // Assuming your GitHub lib path
 import { useState } from "react"
 
-// GitHub Config (move to .env or config file in a real app)
-const GITHUB_OWNER = "your-github-username"
-const GITHUB_REPO = "your-repo-name"
-const DEFAULT_BRANCH = "main"
-const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN || ""
+// GitHub Config – read from NEXT_PUBLIC_-prefixed env vars so they’re set
+const GITHUB_OWNER = process.env.NEXT_PUBLIC_GITHUB_OWNER ?? ""
+const GITHUB_REPO = process.env.NEXT_PUBLIC_GITHUB_REPO ?? ""
+const DEFAULT_BRANCH = process.env.NEXT_PUBLIC_GITHUB_DEFAULT_BRANCH ?? "main"
+const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN ?? ""
 
 interface EditorToolbarProps {
   onToggleFileManager: () => void
@@ -29,6 +29,21 @@ export function EditorToolbar({ onToggleFileManager }: EditorToolbarProps) {
 
   const handleSave = async () => {
     setIsPublishing(true)
+
+    // --- NEW GUARD --------------------------------------------------
+    if (!GITHUB_OWNER || !GITHUB_REPO || !GITHUB_TOKEN) {
+      toast({
+        title: "GitHub not configured",
+        description:
+          "Set NEXT_PUBLIC_GITHUB_OWNER, NEXT_PUBLIC_GITHUB_REPO, " +
+          "and NEXT_PUBLIC_GITHUB_TOKEN in your environment variables.",
+        variant: "destructive",
+      })
+      setIsPublishing(false)
+      return
+    }
+    // ---------------------------------------------------------------
+
     try {
       const markdownContent = generateMarkdown(state.components) // Use the actual generation logic
 
