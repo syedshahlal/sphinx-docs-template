@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import markdown specific styles if they are global */
+/* @import './markdown.css'; */
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -51,9 +54,10 @@
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border; /* Ensure --border is defined or remove this */
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1; /* Common OpenType features */
   }
 }

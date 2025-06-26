@@ -1,13 +1,13 @@
-# Sphinx and core extensions
-sphinx>=5.0.0
+# Sphinx and common extensions
+sphinx>=4.0
+sphinx-rtd-theme
+sphinx-autobuild
+
+# Additional useful extensions
 sphinx-copybutton>=0.5.2
 sphinx-design>=0.5.0
 myst-parser>=2.0.0
 pydata-sphinx-theme>=0.14.0
-sphinx-autobuild>=2021.3.14
-sphinx-rtd-theme
-
-# Additional useful extensions
 sphinx-tabs>=3.4.1
 sphinx-togglebutton>=0.3.2
 sphinxext-opengraph>=0.8.2
@@ -21,3 +21,6 @@ flake8>=6.0.0
 # Documentation utilities
 docutils>=0.18.0
 jinja2>=3.1.0
+# Add other Python dependencies for Sphinx, like myst-parser if using Markdown in Sphinx directly
+# myst-parser
+# Example: if you have custom extensions with dependencies

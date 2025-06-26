@@ -19,7 +19,7 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo "GRA Core Platform Documentation"
 	@echo ""
-	@echo "Available targets:"
+	@echo "Available commands:"
 	@echo "  setup     - Initial setup of development environment"
 	@echo "  build     - Build documentation and React components"
 	@echo "  serve     - Build and serve documentation locally"
@@ -29,8 +29,16 @@ help:
 	@echo "  test      - Run tests"
 	@echo "  lint      - Run linting"
 	@echo "  help      - Show this help message"
+	@echo "  make install-frontend   - Install frontend dependencies"
+	@echo "  make install-sphinx     - Install Sphinx and Python dependencies"
+	@echo "  make build-frontend     - Build the Next.js frontend"
+	@echo "  make build-sphinx       - Build the Sphinx documentation"
+	@echo "  make serve-frontend     - Serve the Next.js frontend"
+	@echo "  make serve-sphinx       - Serve the Sphinx documentation"
+	@echo "  make dev                - Run frontend and Sphinx in dev mode (example)"
+	@echo "  make clean              - Clean build artifacts"
 
-.PHONY: help Makefile clean html livehtml multiversion docs-init docs-new-version docs-list docs-switch docs-validate docs-build-all react react-dev serve dev setup build watch deploy test lint dev-frontend dev-docs install update
+.PHONY: help Makefile clean html livehtml multiversion docs-init docs-new-version docs-list docs-switch docs-validate docs-build-all react react-dev serve dev setup build watch deploy test lint dev-frontend dev-docs install update install-frontend install-sphinx build-frontend build-sphinx serve-frontend serve-sphinx
 
 # Initialize documentation structure
 docs-init:
@@ -97,6 +105,8 @@ clean:
 	@rm -rf $(REACT_BUILD)
 	@echo "Cleaning build directories..."
 	./scripts/build-docs.sh --clean
+	rm -rf frontend/.next frontend/out
+	rm -rf docs/_build
 
 # Install dependencies
 install:
@@ -240,14 +250,35 @@ dev-docs:
 	cd docs/gcp-5.7/0.1 && sphinx-autobuild . _build/html --host 0.0.0.0 --port 8001
 
 # Development mode
-dev:
+dev: build-sphinx
 	@echo "Starting development mode..."
 	@echo "React dev server: http://localhost:3000"
 	@echo "Sphinx auto-build: http://localhost:8001"
 	@make react-dev &
 	@make dev-docs
+	@echo "Starting frontend dev server and Sphinx autobuild (manual setup needed for concurrency)"
+	# (cd frontend && npm run dev) & (sphinx-autobuild docs docs/_build/html --port 8001)
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+install-frontend:
+	cd frontend && npm install
+
+install-sphinx:
+	pip install -r docs/requirements.txt # Or your root requirements.txt
+
+build-frontend:
+	cd frontend && npm run build
+
+build-sphinx:
+	sphinx-build -b html docs docs/_build/html # Adjust paths as needed
+
+serve-frontend:
+	cd frontend && npm run dev # Or npm run start for production build
+
+serve-sphinx:
+	# Example: Python's http.server, or use sphinx-autobuild
+	python -m http.server --directory docs/_build/html 8001

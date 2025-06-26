@@ -1,0 +1,5 @@
+# Python dependencies for building Sphinx docs
+sphinx>=4.0
+sphinx-rtd-theme
+# myst-parser  # If you want to write .md files directly in Sphinx
+# Add other specific Sphinx extensions or Python libraries your docs depend on
