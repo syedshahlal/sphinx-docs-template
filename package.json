@@ -27,6 +27,11 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@dnd-kit/core": "latest",
+    "@dnd-kit/sortable": "latest",
+    "@dnd-kit/utilities": "latest",
+    "@radix-ui/react-label": "latest",
+    "@radix-ui/react-select": "latest",
     "@radix-ui/react-slot": "^1.0.3",
     "@tailwindcss/typography": "latest",
     "class-variance-authority": "^0.7.1",
