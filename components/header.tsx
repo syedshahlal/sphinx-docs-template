@@ -206,17 +206,23 @@ export function Header() {
             {/* Logo Section */}
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
-                <div className="relative">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                <Link href="/" className="relative group">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-105">
                     <span className="text-white font-bold text-sm">GRA</span>
                   </div>
-                </div>
+                </Link>
                 <div className="flex items-center space-x-3">
-                  <h1
-                    className={`font-semibold text-lg whitespace-nowrap ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-                  >
-                    GRA Core Platform Docs
-                  </h1>
+                  <Link href="/" className="group">
+                    <h1
+                      className={`font-semibold text-lg whitespace-nowrap transition-colors duration-200 ${
+                        theme === "dark"
+                          ? "text-white group-hover:text-blue-300"
+                          : "text-gray-900 group-hover:text-blue-600"
+                      }`}
+                    >
+                      GRA Core Platform Docs
+                    </h1>
+                  </Link>
 
                   {/* Version Dropdown */}
                   <div className="relative">
