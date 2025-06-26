@@ -234,7 +234,7 @@ Ready to explore GCP's capabilities? Here are your next steps:
 </style>
 \`\`\`
 
-```typescriptreact file="frontend/src/components/features/FeatureCards.tsx"
+\`\`\`typescriptreact file="frontend/src/components/features/FeatureCards.tsx"
 [v0-no-op-code-block-prefix]import type React from "react"
 import { ArrowRight } from 'lucide-react'
 

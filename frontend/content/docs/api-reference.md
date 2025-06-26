@@ -149,7 +149,7 @@ console.log(data);
 
 Now let's update the page component to use this markdown content with enhanced UI/UX:
 
-```typescriptreact file="app/api-reference/page.tsx"
+\`\`\`typescriptreact file="app/api-reference/page.tsx"
 [v0-no-op-code-block-prefix]import { Header } from "@/components/header"
 import { Banner } from "@/components/banner"
 

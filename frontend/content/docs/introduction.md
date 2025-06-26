@@ -26,7 +26,7 @@ To get started with the GRA Core Platform, follow these steps:
 2.  **Installation**: Follow the [installation guide](/docs/installation) (you'll need to create this page).
 3.  **First Project**: Create your [first project](/docs/first-project) (create this page too).
 
-```python
+\`\`\`python
 # Example Python code block
 def greet(name):
   print(f"Hello, {name} from GRA Core Platform!")

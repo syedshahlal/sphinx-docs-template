@@ -97,7 +97,7 @@ This is a more advanced setup but offers greater flexibility for rich content.
   {/* These are illustrative; your actual Sphinx structure might be more complex or versioned. */}
   {/* Many of these might already exist from your initial project setup. */}
 
-```plaintext file="docs/conf.py"
+\`\`\`plaintext file="docs/conf.py"
 # Sphinx configuration file
 import os
 import sys

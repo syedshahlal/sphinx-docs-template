@@ -66,7 +66,7 @@ Join our growing community of developers and users:
 *This documentation is maintained by the GRA Core Team at Bank of America. For questions or feedback, please contact us through the official support channels.*
 \`\`\`
 
-```plaintext file="docs/gcp-5.7/0.1/requirements.txt"
+\`\`\`plaintext file="docs/gcp-5.7/0.1/requirements.txt"
 # Sphinx and extensions
 sphinx>=7.1.0
 sphinx-rtd-theme>=1.3.0

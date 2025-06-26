@@ -42,7 +42,7 @@ make build-sphinx
 \`\`\`
 
   {/* Root requirements.txt for Sphinx (or it might be in docs/requirements.txt) */}
-```plaintext file="requirements.txt"
+\`\`\`plaintext file="requirements.txt"
 # Sphinx and common extensions
 sphinx>=4.0
 sphinx-rtd-theme
