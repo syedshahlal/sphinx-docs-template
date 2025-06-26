@@ -118,15 +118,47 @@ export function PreviewPanel() {
   const html = generateHtml(state.components)
   const ref = useRef<HTMLDivElement>(null)
 
-  // handle mermaid diagrams in HTML preview on client-side
+  // ──────────────────────────────────────────────────────────────
+  // Render Mermaid diagrams in the HTML preview (client-side only)
+  // ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!ref.current) return
+    let cancelled = false
     ;(async () => {
-      // dynamic import to avoid SSR issues
-      const mermaid = (await import("mermaid")).default
-      mermaid.initialize({ startOnLoad: false, theme: "default" })
-      mermaid.run({ nodes: [ref.current] })
-    })().catch(() => {})
+      try {
+        // dynamic import so SSR never touches mermaid
+        const mod = await import("mermaid")
+        if (cancelled) return
+        const mermaid = mod.default ?? mod
+        mermaid.initialize({ startOnLoad: false, theme: "default" })
+
+        // find all <pre class="mermaid"> or \`\`\`mermaid code blocks
+        const nodes = ref.current.querySelectorAll<HTMLElement>("pre code.language-mermaid, pre.mermaid, .mermaid")
+
+        nodes.forEach((el) => {
+          const graph = el.textContent
+          if (!graph) return
+          const id = `mermaid-${Math.random().toString(36).slice(2)}`
+
+          try {
+            mermaid.render(id, graph, (svg) => {
+              if (cancelled) return
+              const wrapper = document.createElement("div")
+              wrapper.innerHTML = svg
+              el.parentElement?.replaceChild(wrapper, el)
+            })
+          } catch (err) {
+            console.error("Mermaid render error →", err instanceof Error ? err.message : String(err))
+          }
+        })
+      } catch (err) {
+        console.error("Mermaid load failed →", err instanceof Error ? err.message : String(err))
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
   }, [html])
 
   /* helper to retry failed images */
