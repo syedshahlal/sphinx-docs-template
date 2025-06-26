@@ -20,7 +20,7 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"] // <-- updated: point alias to project root, not ./src
+      "@/*": ["./*"]
     }
   },
   "include": ["**/*"],
