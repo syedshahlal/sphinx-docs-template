@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "GRA Core Platform Documentation",
   description: "A comprehensive, modern platform built for the GRA community.",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -26,6 +26,8 @@ export default function RootLayout({
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
+        <link rel="stylesheet" href="https://esm.sh/@blocknote/core/style.css" />
+        <link rel="stylesheet" href="/styles/blocknote-custom.css" />
       </head>
       <body
         className={`${inter.className} min-h-screen w-full m-0 p-0 transition-colors duration-300`}
