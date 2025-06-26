@@ -168,14 +168,14 @@ export function UserGuideSection() {
                   href="#"
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors group"
                 >
-                  <span className="text-sm">GitHub Discussions</span>
+                  <span className="text-sm">GCP Documentation Team</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </a>
                 <a
                   href="#"
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors group"
                 >
-                  <span className="text-sm">Stack Overflow</span>
+                  <span className="text-sm">Feedback? Reach Out to us!!!</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </a>
               </div>
@@ -191,7 +191,7 @@ export function UserGuideSection() {
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                   <div>
-                    <div className="font-medium">v2.1.0 Released</div>
+                    <div className="font-medium">GCP5.7 - Release Notes</div>
                     <div className="text-muted-foreground">New theme system and improved performance</div>
                   </div>
                 </div>
