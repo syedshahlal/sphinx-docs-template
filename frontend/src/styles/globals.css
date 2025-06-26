@@ -2,11 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import markdown specific styles if they are global */
-/* @import './markdown.css'; */
+/* Import markdown specific styles */
+@import "./markdown.css";
 
 @layer base {
   :root {
+    /* Color System */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
@@ -27,9 +28,18 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+
+    /* Component-specific variables */
+    --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --card-shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --card-border-radius: 0.75rem;
+    --grid-gap: 1.5rem;
+    --transition-duration: 200ms;
+    --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
+    /* Dark theme colors */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
     --card: 222.2 84% 4.9%;
@@ -49,15 +59,214 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 94.1%;
+
+    /* Dark theme component variables */
+    --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+    --card-shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
   }
 }
 
 @layer base {
   * {
-    @apply border-border; /* Ensure --border is defined or remove this */
+    @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1; /* Common OpenType features */
+    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color var(--transition-duration) var(--transition-timing), color var(--transition-duration)
+      var(--transition-timing);
+  }
+
+  /* Ensure all elements inherit theme transitions */
+  * {
+    transition: background-color var(--transition-duration) var(--transition-timing), color var(--transition-duration)
+      var(--transition-timing), border-color var(--transition-duration) var(--transition-timing);
+  }
+}
+
+@layer components {
+  /* Universal Card Component Styles */
+  .card-base {
+    @apply bg-card text-card-foreground border border-border;
+    border-radius: var(--card-border-radius);
+    box-shadow: var(--card-shadow);
+    transition: all var(--transition-duration) var(--transition-timing);
+  }
+
+  .card-base:hover {
+    box-shadow: var(--card-shadow-hover);
+    @apply border-border/80;
+  }
+
+  /* Feature Card Styles */
+  .feature-card {
+    @apply card-base p-6 group relative overflow-hidden;
+  }
+
+  .feature-card:hover {
+    @apply bg-secondary/50;
+  }
+
+  .feature-card-icon {
+    @apply flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary mb-4;
+  }
+
+  .feature-card-title {
+    @apply text-xl font-semibold mb-3 group-hover:text-foreground transition-colors;
+  }
+
+  .feature-card-description {
+    @apply text-muted-foreground group-hover:text-foreground/80 transition-colors leading-relaxed;
+  }
+
+  .feature-card-cta {
+    @apply inline-flex items-center text-primary hover:text-primary/80 font-medium mt-4 transition-colors;
+  }
+
+  /* Grid Layouts */
+  .grid-responsive {
+    display: grid;
+    gap: var(--grid-gap);
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .grid-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+  }
+
+  .grid-3 {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  .grid-4 {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+  }
+
+  /* Button Styles */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md font-medium transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-md font-medium transition-colors;
+  }
+
+  .btn-outline {
+    @apply border border-border bg-transparent hover:bg-accent hover:text-accent-foreground px-4 py-2 rounded-md font-medium transition-colors;
+  }
+
+  /* Content Sections */
+  .content-section {
+    @apply py-12 px-4 sm:px-6 lg:px-8;
+  }
+
+  .content-container {
+    @apply max-w-7xl mx-auto;
+  }
+
+  .content-header {
+    @apply text-center mb-12;
+  }
+
+  .content-title {
+    @apply text-3xl font-bold tracking-tight sm:text-4xl mb-4;
+  }
+
+  .content-subtitle {
+    @apply text-xl text-muted-foreground max-w-3xl mx-auto;
+  }
+
+  /* Interactive Elements */
+  .interactive-hover {
+    @apply transition-all duration-200 hover:scale-105 hover:shadow-lg;
+  }
+
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+
+  /* Status Badges */
+  .badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 px-2 py-1 rounded-md text-xs font-medium;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300 px-2 py-1 rounded-md text-xs font-medium;
+  }
+
+  .badge-error {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300 px-2 py-1 rounded-md text-xs font-medium;
+  }
+
+  .badge-info {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 px-2 py-1 rounded-md text-xs font-medium;
+  }
+
+  /* Navigation Elements */
+  .nav-link {
+    @apply text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md text-sm font-medium;
+  }
+
+  .nav-link-active {
+    @apply text-foreground bg-accent;
+  }
+
+  /* Form Elements */
+  .form-input {
+    @apply bg-background border border-input px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent;
+  }
+
+  .form-label {
+    @apply text-sm font-medium text-foreground mb-2 block;
+  }
+
+  /* Loading States */
+  .loading-skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  .loading-spinner {
+    @apply animate-spin rounded-full border-2 border-muted border-t-primary;
+  }
+}
+
+@layer utilities {
+  /* Theme-aware utilities */
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .border-gradient {
+    border-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent))) 1;
+  }
+
+  /* Responsive text sizes */
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+
+  .text-responsive-md {
+    @apply text-base sm:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+
+  /* Spacing utilities */
+  .section-padding {
+    @apply py-12 sm:py-16 lg:py-20;
+  }
+
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8;
   }
 }

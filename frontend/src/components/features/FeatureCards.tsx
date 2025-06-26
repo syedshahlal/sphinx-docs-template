@@ -1,5 +1,5 @@
 import type React from "react"
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight } from "lucide-react"
 
 interface FeatureCardProps {
   title: string
@@ -12,17 +12,23 @@ interface FeatureCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, features, ctaText, ctaLink, icon }) => {
   return (
-    <div className="group relative overflow-hidden rounded-xl bg-secondary p-8 hover:bg-secondary/50 transition-colors duration-300">
+    <div className="feature-card">
+      {/* Hover accent line */}
       <div className="absolute bottom-0 left-0 h-1 w-full origin-left scale-x-0 bg-primary group-hover:scale-x-100 transition-transform duration-300 ease-in-out" />
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-accent">{icon}</div>
-      <h3 className="font-semibold text-lg mb-2 group-hover:text-foreground transition-colors">{title}</h3>
-      <div className="CardContent">
-        <p className="leading-relaxed text-muted-foreground mb-0 group-hover:text-foreground transition-colors">
-          {description}
-        </p>
+
+      {/* Icon */}
+      <div className="feature-card-icon">{icon}</div>
+
+      {/* Title */}
+      <h3 className="feature-card-title">{title}</h3>
+
+      {/* Description */}
+      <div className="mb-4">
+        <p className="feature-card-description mb-0">{description}</p>
       </div>
 
-      <div className="Feature Details">
+      {/* Features List */}
+      <div className="mb-6">
         <div className="space-y-2">
           {features.map((feature, index) => (
             <div key={index} className="flex items-center space-x-2">
@@ -35,8 +41,9 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, features,
         </div>
       </div>
 
-      <div className={`mt-4 transition-all duration-500`}>
-        <a href={ctaLink} className="inline-flex items-center font-medium">
+      {/* CTA */}
+      <div className="mt-auto">
+        <a href={ctaLink} className="feature-card-cta">
           {ctaText}
           <ArrowRight className="ml-2 h-4 w-4" />
         </a>
