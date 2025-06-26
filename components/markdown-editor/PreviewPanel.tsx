@@ -1,418 +1,390 @@
 "use client"
 
-import type React from "react"
-import { useEffect, useRef } from "react"
-import { Highlight, type Language } from "prism-react-renderer"
-
+import { useState, useMemo } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Copy, Download } from "lucide-react"
-import { cn } from "@/lib/utils"
-import type { MarkdownComponent, ComponentStyle, HtmlBlockContent } from "./types"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useEditor } from "./EditorContext"
+import { ComponentRenderer } from "./ComponentRenderer"
+import { Eye, Code, FileText, Monitor, Tablet, Smartphone, Zap } from "lucide-react"
+import type { MarkdownComponent, ComponentStyle } from "./types"
 
-/* ------------------------------------------------------------------ */
-/*  helpers reused by other modules                                   */
-/* ------------------------------------------------------------------ */
-
-/** Convert a ComponentStyle object to an inline-CSS string */
-const styleObjectToString = (style?: ComponentStyle): string => {
-  if (!style) return ""
-  return Object.entries(style)
-    .filter(([key, val]) => key !== "hover" && key !== "className" && val != null)
-    .map(([key, val]) => `${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${val};`)
-    .join(" ")
-}
-
-/** Generate Markdown from the editor's component list (used for export/publish) */
+// Generate clean markdown from components
 export function generateMarkdown(components: MarkdownComponent[]): string {
-  return components
-    .sort((a, b) => a.order - b.order)
-    .map((c) => {
-      const { content } = c
-      switch (c.type) {
+  const sortedComponents = components.sort((a, b) => a.order - b.order)
+
+  return sortedComponents
+    .map((component) => {
+      switch (component.type) {
         case "heading":
-          return `${"#".repeat(content.level || 1)} ${content.text || ""}\n`
+          return `${"#".repeat(component.content.level || 2)} ${component.content.text || "Heading"}\n`
+
         case "paragraph":
-          return `${content.text || ""}\n`
-        case "image": {
-          let md = `![${content.alt || ""}](${content.src || ""})`
-          if (content.caption) md += `\n*${content.caption}*\n`
-          return md + "\n"
-        }
+          return `${component.content.text || "Paragraph text"}\n`
+
+        case "image":
+          const caption = component.content.caption ? `\n*${component.content.caption}*` : ""
+          return `![${component.content.alt || "Image"}](${component.content.src || "/placeholder.svg"})${caption}\n`
+
         case "code":
-          return `\`\`\`${content.language || ""}\n${content.code || ""}\n\`\`\`\n`
-        case "button":
-          return `[${content.text || "Button"}](${content.link || "#"})\n`
-        case "divider":
-          return "---\n"
+          return `\`\`\`${component.content.language || ""}\n${component.content.code || ""}\n\`\`\`\n`
+
+        case "blockquote":
+          return `> ${component.content.text || "Quote"}\n`
+
         case "list":
-          return (content.items || []).map((i: string) => `- ${i}`).join("\n") + "\n"
+          return (component.content.items || []).map((item: string) => `- ${item}`).join("\n") + "\n"
+
         case "orderedList":
+          const start = component.content.start || 1
           return (
-            (content.items || []).map((i: string, idx: number) => `${(content.start || 1) + idx}. ${i}`).join("\n") +
-            "\n"
+            (component.content.items || [])
+              .map((item: string, index: number) => `${start + index}. ${item}`)
+              .join("\n") + "\n"
           )
+
         case "taskList":
           return (
-            (content.items || [])
+            (component.content.items || [])
               .map((item: { text: string; checked: boolean }) => `- [${item.checked ? "x" : " "}] ${item.text}`)
               .join("\n") + "\n"
           )
-        case "blockquote":
-          return `> ${content.text || ""}\n`
-        case "alert":
-          return `> **${(content.type || "info").toUpperCase()}**: ${content.text || ""}\n`
-        case "card":
-          let cardMd = `## ${content.title || "Card Title"}\n`
-          if (content.description) cardMd += `${content.description}\n`
-          if (content.imageUrl) cardMd += `![Card Image](${content.imageUrl})\n`
-          return cardMd + "\n"
+
         case "table":
-          let tableMd = ""
-          if (content.headers) {
-            tableMd += "| " + content.headers.join(" | ") + " |\n"
-            tableMd += "| " + content.headers.map(() => "---").join(" | ") + " |\n"
-          }
-          if (content.rows) {
-            content.rows.forEach((row: string[]) => {
-              tableMd += "| " + row.join(" | ") + " |\n"
-            })
-          }
-          return tableMd + "\n"
-        case "columns":
-          return `### Column 1\n${content.column1Text || ""}\n\n### Column 2\n${content.column2Text || ""}\n`
+          if (!component.content.headers || !component.content.rows) return ""
+          const headers = `| ${component.content.headers.join(" | ")} |`
+          const separator = `| ${component.content.headers.map(() => "---").join(" | ")} |`
+          const rows = component.content.rows.map((row: string[]) => `| ${row.join(" | ")} |`).join("\n")
+          return `${headers}\n${separator}\n${rows}\n`
+
+        case "alert":
+          return `> **${component.content.type?.toUpperCase() || "INFO"}**: ${component.content.text || "Alert message"}\n`
+
+        case "divider":
+          return "---\n"
+
         case "spacer":
-          return `\n<!-- Spacer: ${content.height || "40px"} -->\n\n`
+          return "\n"
+
         case "mermaid":
-          return `\`\`\`mermaid\n${content.code || ""}\n\`\`\`\n`
+          return `\`\`\`mermaid\n${component.content.code || ""}\n\`\`\`\n`
+
         case "htmlBlock":
-          const htmlContent = content as HtmlBlockContent
-          return `<!-- ${htmlContent.name || "HTML Block"} -->\n${htmlContent.htmlContent || ""}\n`
+          return `\`\`\`html\n${component.content.htmlContent || ""}\n\`\`\`\n`
+
         default:
-          return ""
+          return `<!-- ${component.type} component -->\n`
       }
     })
     .join("\n")
 }
 
-/** Generate HTML from the editor's component list (used for live preview & export) */
+// Generate clean HTML from components
 export function generateHtml(components: MarkdownComponent[]): string {
-  return components
-    .sort((a, b) => a.order - b.order)
-    .map((c) => {
-      const { content } = c
-      const style = styleObjectToString(c.style)
-      const cls = cn(c.style?.className)
-      switch (c.type) {
+  const sortedComponents = components.sort((a, b) => a.order - b.order)
+
+  const htmlContent = sortedComponents
+    .map((component) => {
+      const styleAttr = component.style ? ` style="${generateInlineStyles(component.style)}"` : ""
+      const classAttr = component.style?.className ? ` class="${component.style.className}"` : ""
+
+      switch (component.type) {
         case "heading":
-          return `<h${content.level || 1} class="${cls}" style="${style}">${content.text || ""}</h${
-            content.level || 1
-          }>`
+          const level = component.content.level || 2
+          return `<h${level}${classAttr}${styleAttr}>${component.content.text || "Heading"}</h${level}>`
+
         case "paragraph":
-          return `<p class="${cls}" style="${style}">${content.text || ""}</p>`
+          return `<p${classAttr}${styleAttr}>${component.content.text || "Paragraph text"}</p>`
+
         case "image":
-          let imgHtml = `<img src="${content.src || ""}" alt="${content.alt || ""}" class="${cls}" style="${style}" />`
-          if (content.caption) {
-            imgHtml = `<figure class="${cls}" style="${style}">${imgHtml}<figcaption>${content.caption}</figcaption></figure>`
-          }
-          return imgHtml
+          const caption = component.content.caption ? `<figcaption>${component.content.caption}</figcaption>` : ""
+          return `<figure${classAttr}${styleAttr}>
+          <img src="${component.content.src || "/placeholder.svg"}" alt="${component.content.alt || "Image"}" />
+          ${caption}
+        </figure>`
+
         case "code":
-          return `<pre class="${cls}" style="${style}"><code class="language-${
-            content.language || ""
-          }">${content.code || ""}</code></pre>`
-        case "button":
-          if (content.link) {
-            return `<a href="${content.link}" class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700 ${cls}" style="${style}">${content.text || "Button"}</a>`
-          }
-          return `<button class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700 ${cls}" style="${style}">${content.text || "Button"}</button>`
-        case "card":
-          let cardHtml = `<div class="overflow-hidden rounded-lg bg-white shadow ${cls}" style="${style}">`
-          if (content.imageUrl) {
-            cardHtml += `<img src="${content.imageUrl}" alt="" class="h-48 w-full object-cover" />`
-          }
-          cardHtml += `<div class="px-4 py-5 sm:p-6">`
-          cardHtml += `<h3 class="text-lg font-medium leading-6 text-gray-900">${content.title || "Card Title"}</h3>`
-          if (content.description) {
-            cardHtml += `<div class="mt-2 max-w-xl text-sm text-gray-500"><p>${content.description}</p></div>`
-          }
-          cardHtml += `</div></div>`
-          return cardHtml
-        case "divider":
-          return `<hr class="${cls}" style="${style}" />`
-        case "list":
-          return `<ul class="list-disc list-inside ${cls}" style="${style}">${(content.items || []).map((item: string) => `<li>${item}</li>`).join("")}</ul>`
-        case "orderedList":
-          return `<ol class="list-decimal list-inside ${cls}" style="${style}" start="${content.start || 1}">${(content.items || []).map((item: string) => `<li>${item}</li>`).join("")}</ol>`
-        case "taskList":
-          return `<ul class="list-none ${cls}" style="${style}">${(content.items || [])
-            .map(
-              (item: { text: string; checked: boolean }) =>
-                `<li class="flex items-center space-x-2"><input type="checkbox" ${item.checked ? "checked" : ""} class="rounded" /><span${item.checked ? ' class="line-through text-gray-500"' : ""}>${item.text}</span></li>`,
-            )
-            .join("")}</ul>`
+          return `<pre${classAttr}${styleAttr}><code class="language-${component.content.language || "text"}">${component.content.code || ""}</code></pre>`
+
         case "blockquote":
-          return `<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600 ${cls}" style="${style}">${content.text || ""}</blockquote>`
-        case "alert":
-          const alertColors = {
-            info: "bg-blue-50 text-blue-800 border-blue-200",
-            warning: "bg-yellow-50 text-yellow-800 border-yellow-200",
-            error: "bg-red-50 text-red-800 border-red-200",
-            success: "bg-green-50 text-green-800 border-green-200",
-          }
-          const alertColor = alertColors[content.type as keyof typeof alertColors] || alertColors.info
-          return `<div class="rounded-md border p-4 ${alertColor} ${cls}" style="${style}"><strong>${(content.type || "info").toUpperCase()}:</strong> ${content.text || ""}</div>`
+          return `<blockquote${classAttr}${styleAttr}>${component.content.text || "Quote"}</blockquote>`
+
+        case "list":
+          const listItems = (component.content.items || []).map((item: string) => `<li>${item}</li>`).join("")
+          return `<ul${classAttr}${styleAttr}>${listItems}</ul>`
+
+        case "orderedList":
+          const orderedItems = (component.content.items || []).map((item: string) => `<li>${item}</li>`).join("")
+          const startAttr =
+            component.content.start && component.content.start !== 1 ? ` start="${component.content.start}"` : ""
+          return `<ol${startAttr}${classAttr}${styleAttr}>${orderedItems}</ol>`
+
         case "table":
-          let tableHtml = `<table class="min-w-full divide-y divide-gray-200 ${cls}" style="${style}"><thead class="bg-gray-50">`
-          if (content.headers) {
-            tableHtml +=
-              "<tr>" +
-              content.headers
-                .map(
-                  (header: string) =>
-                    `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`,
-                )
-                .join("") +
-              "</tr>"
-          }
-          tableHtml += '</thead><tbody class="bg-white divide-y divide-gray-200">'
-          if (content.rows) {
-            content.rows.forEach((row: string[]) => {
-              tableHtml +=
-                "<tr>" +
-                row
-                  .map((cell: string) => `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cell}</td>`)
-                  .join("") +
-                "</tr>"
-            })
-          }
-          tableHtml += "</tbody></table>"
-          return tableHtml
-        case "columns":
-          return `<div class="grid grid-cols-2 gap-6 ${cls}" style="${style}"><div class="p-4 border border-gray-200 rounded">${content.column1Text || ""}</div><div class="p-4 border border-gray-200 rounded">${content.column2Text || ""}</div></div>`
+          if (!component.content.headers || !component.content.rows) return ""
+          const headerCells = component.content.headers.map((header: string) => `<th>${header}</th>`).join("")
+          const bodyRows = component.content.rows
+            .map((row: string[]) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`)
+            .join("")
+          return `<table${classAttr}${styleAttr}>
+          <thead><tr>${headerCells}</tr></thead>
+          <tbody>${bodyRows}</tbody>
+        </table>`
+
+        case "divider":
+          return `<hr${classAttr}${styleAttr} />`
+
         case "spacer":
-          return `<div class="${cls}" style="height: ${content.height || "40px"}; ${style}"></div>`
-        case "mermaid":
-          return `<div class="mermaid ${cls}" style="${style}">${content.code || ""}</div>`
+          const height = component.content.height || "40px"
+          return `<div${classAttr} style="height: ${height}${styleAttr ? `;${styleAttr.slice(8, -1)}` : ""}"></div>`
+
         case "htmlBlock":
-          const htmlContent = content as HtmlBlockContent
-          return `<div class="${cls}" style="${style}">${htmlContent.htmlContent || ""}</div>`
+          return component.content.htmlContent || ""
+
         default:
-          return ""
+          return `<!-- ${component.type} component -->`
       }
     })
-    .join("")
+    .join("\n")
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generated Content</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white">
+  <div class="max-w-4xl mx-auto p-8">
+    ${htmlContent}
+  </div>
+</body>
+</html>`
 }
 
-/* ------------------------------------------------------------------ */
-/*  Prism-React-Renderer inline theme (tiny Dracula subset)            */
-/* ------------------------------------------------------------------ */
-const draculaTheme = {
-  plain: { backgroundColor: "transparent", color: "#f8f8f2" },
-  styles: [
-    { types: ["comment"], style: { color: "#6272a4" } },
-    { types: ["punctuation"], style: { color: "#f8f8f2" } },
-    { types: ["property", "tag", "boolean", "number", "constant", "symbol"], style: { color: "#bd93f9" } },
-    { types: ["string", "inserted"], style: { color: "#50fa7b" } },
-    { types: ["operator"], style: { color: "#f8f8f2" } },
-    { types: ["deleted"], style: { color: "#ff5555" } },
-    { types: ["function"], style: { color: "#ffb86c" } },
-    { types: ["keyword"], style: { color: "#8be9fd" } },
-  ],
-} as const
+// Generate inline styles from ComponentStyle
+function generateInlineStyles(style: ComponentStyle): string {
+  const styles: string[] = []
 
-/* ------------------------------------------------------------------ */
-/*  React component                                                    */
-/* ------------------------------------------------------------------ */
+  if (style.color) styles.push(`color: ${style.color}`)
+  if (style.backgroundColor) styles.push(`background-color: ${style.backgroundColor}`)
+  if (style.fontSize) styles.push(`font-size: ${style.fontSize}`)
+  if (style.fontWeight) styles.push(`font-weight: ${style.fontWeight}`)
+  if (style.fontStyle) styles.push(`font-style: ${style.fontStyle}`)
+  if (style.textDecoration) styles.push(`text-decoration: ${style.textDecoration}`)
+  if (style.textAlign) styles.push(`text-align: ${style.textAlign}`)
+  if (style.width) styles.push(`width: ${style.width}`)
+  if (style.height) styles.push(`height: ${style.height}`)
+  if (style.padding) styles.push(`padding: ${style.padding}`)
+  if (style.margin) styles.push(`margin: ${style.margin}`)
+  if (style.border) styles.push(`border: ${style.border}`)
+  if (style.borderRadius) styles.push(`border-radius: ${style.borderRadius}`)
+  if (style.boxShadow) styles.push(`box-shadow: ${style.boxShadow}`)
+  if (style.opacity !== undefined) styles.push(`opacity: ${style.opacity}`)
+  if (style.transform) styles.push(`transform: ${style.transform}`)
+  if (style.transition) styles.push(`transition: ${style.transition}`)
+  if (style.backgroundImage) styles.push(`background-image: ${style.backgroundImage}`)
+  if (style.backgroundSize) styles.push(`background-size: ${style.backgroundSize}`)
+  if (style.backgroundPosition) styles.push(`background-position: ${style.backgroundPosition}`)
+  if (style.backgroundRepeat) styles.push(`background-repeat: ${style.backgroundRepeat}`)
+  if (style.gradient) styles.push(`background: ${style.gradient}`)
+
+  return styles.join("; ")
+}
+
+// Copy to clipboard utility
+async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch (err) {
+    // Fallback for older browsers
+    const textArea = document.createElement("textarea")
+    textArea.value = text
+    document.body.appendChild(textArea)
+    textArea.focus()
+    textArea.select()
+    try {
+      document.execCommand("copy")
+      document.body.removeChild(textArea)
+      return true
+    } catch (err) {
+      document.body.removeChild(textArea)
+      return false
+    }
+  }
+}
+
+// Download file utility
+function downloadFile(content: string, filename: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
 
 export function PreviewPanel() {
-  const { state } = useEditor()
-  const markdown = generateMarkdown(state.components)
-  const html = generateHtml(state.components)
-  const ref = useRef<HTMLDivElement>(null)
+  const { state, updateComponentContent } = useEditor()
+  const [previewMode, setPreviewMode] = useState<"desktop" | "tablet" | "mobile">("desktop")
+  const [copyStatus, setCopyStatus] = useState<{ [key: string]: boolean }>({})
+  const [activeTab, setActiveTab] = useState("preview")
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
+  // Generate content
+  const markdownContent = useMemo(() => generateMarkdown(state.components), [state.components])
+  const htmlContent = useMemo(() => generateHtml(state.components), [state.components])
+
+  // Handle copy operations
+  const handleCopy = async (content: string, type: string) => {
+    const success = await copyToClipboard(content)
+    if (success) {
+      setCopyStatus({ ...copyStatus, [type]: true })
+      setTimeout(() => {
+        setCopyStatus({ ...copyStatus, [type]: false })
+      }, 2000)
+    }
   }
 
-  const downloadFile = (content: string, filename: string) => {
-    const blob = new Blob([content], { type: "text/plain" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = filename
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+  // Handle download operations
+  const handleDownload = (content: string, filename: string, mimeType: string) => {
+    downloadFile(content, filename, mimeType)
   }
 
-  // ──────────────────────────────────────────────────────────────
-  // Render Mermaid diagrams in the HTML preview (client-side only)
-  // ──────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!ref.current) return
-
-    // Skip loading Mermaid unless the preview contains a diagram
-    if (!html.includes("mermaid") && !html.includes('class="mermaid"')) {
-      return
+  // Get preview container classes based on mode
+  const getPreviewClasses = () => {
+    switch (previewMode) {
+      case "mobile":
+        return "max-w-sm mx-auto border-2 border-gray-300 rounded-3xl p-4 bg-white shadow-xl"
+      case "tablet":
+        return "max-w-2xl mx-auto border-2 border-gray-300 rounded-2xl p-6 bg-white shadow-lg"
+      default:
+        return "w-full"
     }
+  }
 
-    let cancelled = false
-    ;(async () => {
-      try {
-        // dynamic import so SSR never touches mermaid
-        const mod = await import("mermaid")
-        if (cancelled) return
-        const mermaid = mod.default ?? mod
-        mermaid.initialize({ startOnLoad: false, theme: "default" })
-
-        // find all .mermaid elements
-        const nodes = ref.current?.querySelectorAll<HTMLElement>(".mermaid")
-        if (!nodes) return
-
-        nodes.forEach((el) => {
-          const graph = el.textContent
-          if (!graph) return
-          const id = `mermaid-${Math.random().toString(36).slice(2)}`
-
-          try {
-            mermaid.render(id, graph, (svg) => {
-              if (cancelled) return
-              const wrapper = document.createElement("div")
-              wrapper.innerHTML = svg
-              el.parentElement?.replaceChild(wrapper, el)
-            })
-          } catch (err) {
-            console.error("Mermaid render error →", err instanceof Error ? err.message : String(err))
-          }
-        })
-      } catch (err) {
-        console.error("Mermaid load failed →", err instanceof Error ? err.message : String(err))
-      }
-    })()
-
-    return () => {
-      cancelled = true
-    }
-  }, [html])
+  const componentCount = state.components.length
+  const wordCount = markdownContent.split(/\s+/).filter(word => word.length > 0).length
+  const charCount = markdownContent.length
 
   return (
-    <div className="h-full flex flex-col">
-      <Tabs defaultValue="preview" className="flex flex-col flex-1 overflow-hidden">
-        <TabsList className="mx-2 mt-2 shrink-0">
-          <TabsTrigger value="preview">Live Preview</TabsTrigger>
-          <TabsTrigger value="markdown">Markdown</TabsTrigger>
-          <TabsTrigger value="html">HTML</TabsTrigger>
-        </TabsList>
-
-        {/* ---------- Live preview --------- */}
-        <TabsContent value="preview" className="flex-1 overflow-hidden p-2">
-          <ScrollArea className="h-full prose dark:prose-invert max-w-none">
-            <div
-              ref={ref}
-              dangerouslySetInnerHTML={{ __html: html }}
-              className="prose prose-sm max-w-none dark:prose-invert"
-            />
-          </ScrollArea>
-        </TabsContent>
-
-        {/* ---------- Markdown source --------- */}
-        <TabsContent value="markdown" className="flex-1 overflow-hidden">
-          <div className="h-full flex flex-col">
-            <div className="p-4 border-b flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => copyToClipboard(markdown)}
-                className="flex items-center gap-2"
-              >
-                <Copy className="h-4 w-4" />
-                Copy
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => downloadFile(markdown, "content.md")}
-                className="flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Download
-              </Button>
+    <div className="h-full flex flex-col bg-gradient-to-b from-slate-50 to-white">
+      {/* Header */}
+      <div className="p-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-blue-600">
+              <Eye className="h-5 w-5 text-white" />
             </div>
-            <ScrollArea className="h-full p-2 font-mono whitespace-pre-wrap text-sm">{markdown}</ScrollArea>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">Preview</h2>
+              <p className="text-sm text-slate-600">Live preview and export</p>
+            </div>
           </div>
-        </TabsContent>
-
-        {/* ---------- Raw HTML source --------- */}
-        <TabsContent value="html" className="flex-1 overflow-hidden">
-          <div className="h-full flex flex-col">
-            <div className="p-4 border-b flex gap-2">
+          
+          {/* Preview mode toggles */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-slate-100 rounded-lg p-1">
               <Button
+                variant={previewMode === "desktop" ? "default" : "ghost"}
                 size="sm"
-                variant="outline"
-                onClick={() => copyToClipboard(html)}
-                className="flex items-center gap-2"
+                onClick={() => setPreviewMode("desktop")}
+                className="h-8 px-3"
               >
-                <Copy className="h-4 w-4" />
-                Copy
+                <Monitor className="h-4 w-4" />
               </Button>
               <Button
+                variant={previewMode === "tablet" ? "default" : "ghost"}
                 size="sm"
-                variant="outline"
-                onClick={() => downloadFile(html, "content.html")}
-                className="flex items-center gap-2"
+                onClick={() => setPreviewMode("tablet")}
+                className="h-8 px-3"
               >
-                <Download className="h-4 w-4" />
-                Download
+                <Tablet className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={previewMode === "mobile" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setPreviewMode("mobile")}
+                className="h-8 px-3"
+              >
+                <Smartphone className="h-4 w-4" />
               </Button>
             </div>
-            <ScrollArea className="h-full p-2 font-mono whitespace-pre-wrap text-sm">{html}</ScrollArea>
           </div>
-        </TabsContent>
-      </Tabs>
-    </div>
-  )
-}
+        </div>
 
-/* ------------------------------------------------------------------ */
-/*  Syntax-highlighted <code> render used by ReactMarkdown             */
-/* ------------------------------------------------------------------ */
+        {/* Stats */}
+        <div className="flex items-center gap-6 text-sm text-slate-600">
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            <span>{componentCount} components</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            <span>{wordCount} words</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Code className="h-4 w-4" />
+            <span>{charCount} characters</span>
+          </div>
+        </div>
+      </div>
 
-export function CodeBlock({
-  inline,
-  className,
-  children,
-  ...props
-}: React.ComponentProps<"code"> & { inline?: boolean }) {
-  const match = /language-(\w+)/.exec(className || "")
-  const language = (match?.[1] as Language) || "tsx"
+      {/* Content */}
+      <div className="flex-1">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3 bg-slate-100">
+            <TabsTrigger value="preview" className="text-sm flex items-center gap-2">
+              <Eye className="h-4 w-4" />
+              Live Preview
+            </TabsTrigger>
+            <TabsTrigger value="markdown" className="text-sm flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Markdown
+            </TabsTrigger>
+            <TabsTrigger value="html" className="text-sm flex items-center gap-2">
+              <Code className="h-4 w-4" />
+              HTML
+            </TabsTrigger>
+          </TabsList>
 
-  if (inline) {
-    return (
-      <code className={className} {...props}>
-        {children}
-      </code>
-    )
-  }
+          {/* Live Preview Tab */}
+          <TabsContent value="preview" className="flex-1 mt-4">
+            <ScrollArea className="h-full">
+              <div className="p-4">
+                <div className={getPreviewClasses()}>
+                  {state.components.length === 0 ? (
+                    <div className="text-center py-16">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
+                        <Eye className="h-8 w-8 text-slate-400" />
+                      </div>
+                      <h3 className="text-lg font-semibold text-slate-900 mb-2">No Content Yet</h3>
+                      <p className="text-slate-500 max-w-sm mx-auto">
+                        Add components from the palette to see them rendered here in real-time.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {state.components
+                        .sort((a, b) => a.order - b.order)
+                        .map((component) => (
+                          <div key={component.id} className="relative">
+                            <ComponentRenderer
+                              component={component}
+                              isSelected={false}
+                              updateComponentContent={updateComponentContent}
+                            />
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </ScrollArea>
+          </TabsContent>
 
-  return (
-    <Highlight code={String(children).replace(/\n$/, "")} language={language} theme={draculaTheme}>
-      {({ className: c, style, tokens, getLineProps, getTokenProps }) => (
-        <pre className={c} style={{ ...style, margin: 0 }} {...props}>
-          {tokens.map((line, i) => (
-            <div key={i} {...getLineProps({ line, key: i })}>
-              {line.map((token, key) => (
-                <span key={key} {...getTokenProps({ token, key })} />
-              ))}
-            </div>
-          ))}
-        </pre>
-      )}
-    </Highlight>
-  )
-}
-
-// Named export for compatibility
-export { PreviewPanel as default }
+          {/* Markdown Tab */}
+          <TabsContent value="markdown\
