@@ -1,35 +1,32 @@
 export interface ComponentStyle {
-  // Text
+  // Text styles
   color?: string
   backgroundColor?: string
-  fontSize?: string // e.g., '16px', '1.2em'
-  fontWeight?: "normal" | "bold"
-  fontStyle?: "normal" | "italic"
-  textDecoration?: "none" | "underline" | "line-through"
+  fontSize?: string
+  fontWeight?: string | number
+  fontStyle?: "normal" | "italic" | "oblique"
+  textDecoration?: string
   textAlign?: "left" | "center" | "right" | "justify"
 
-  // Box model
+  // Layout styles
   width?: string
   height?: string
-  padding?: string // shorthand: "10px", "10px 20px"
+  padding?: string
   margin?: string
-  border?: string // shorthand: "1px solid #000"
-  borderRadius?: string
 
-  // Effects
+  // Border and visual styles
+  border?: string
+  borderRadius?: string
   boxShadow?: string
   opacity?: number
 
-  // Hover effects (applied via CSS classes or simple style changes)
+  // Hover effects
   hover?: {
-    backgroundColor?: string
     color?: string
+    backgroundColor?: string
     boxShadow?: string
-    transform?: string // e.g., "scale(1.05)"
+    transform?: string
   }
-
-  // Custom CSS classes
-  className?: string
 }
 
 export interface HtmlBlockContent {
@@ -46,39 +43,41 @@ export interface MarkdownComponent {
     | "code"
     | "button"
     | "card"
-    | "grid"
-    | "divider" // Replaces horizontalRule for clarity
-    | "list" // Unordered list
+    | "divider"
+    | "list"
     | "orderedList"
     | "taskList"
     | "blockquote"
-    | "video" // Placeholder, needs custom Tiptap node
     | "alert"
+    | "spacer"
+    | "columns"
+    | "table"
     | "mermaid"
-    | "spacer" // New: for adding vertical space
-    | "columns" // New: for basic two/three column layouts (simplified)
+    | "htmlBlock"
   content: any
-  style?: ComponentStyle // Enhanced styling options
-  order: number
+  style?: ComponentStyle
+  position: { x: number; y: number }
+  size?: { width: number; height: number }
 }
 
 export interface EditorState {
   components: MarkdownComponent[]
-  selectedComponent: string | null
-  theme: "light" | "dark" // Assuming this comes from a theme provider
-  previewMode: "split" | "markdown" | "html" | "preview" // 'split' is canvas + preview
-  fileName: string
-  filePath: string
-  fileVersion: string // New: for document versioning
-  isDirty: boolean
-  layoutMode: "default" | "focus-canvas" | "focus-preview" // New: for adaptable layout
+  selectedComponentId: string | null
+  canvasSize: { width: number; height: number }
+  zoom: number
+}
+
+export interface FileState {
+  currentFile: string | null
+  files: Record<string, EditorState>
+  unsavedChanges: boolean
 }
 
 // Action types for useReducer
 export type EditorAction =
   | {
       type: "ADD_COMPONENT"
-      payload: { component: Omit<MarkdownComponent, "id" | "order">; index?: number }
+      payload: { component: Omit<MarkdownComponent, "id">; index?: number }
       returnId?: (id: string) => void
     }
   | { type: "DELETE_COMPONENT"; payload: { id: string } }
