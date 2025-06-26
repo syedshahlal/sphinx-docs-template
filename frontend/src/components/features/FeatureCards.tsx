@@ -1,5 +1,5 @@
 import type React from "react"
-import { ArrowRight } from "lucide-react"
+import { ArrowRight } from 'lucide-react'
 
 interface FeatureCardProps {
   title: string
