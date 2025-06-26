@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Menu, X, Github, Twitter, ChevronDown, Bell, Sun, Moon } from "lucide-react"
+import { Search, Menu, X, GitBranch, ChevronDown, Bell, Sun, Moon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
@@ -471,24 +471,13 @@ export function Header() {
                 </Button>
                 <Button
                   variant="ghost"
-                  size="icon" // Changed to icon size
+                  size="icon"
                   asChild
                   className={`rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                  aria-label="GitHub Repository"
+                  aria-label="Bitbucket Repository"
                 >
-                  <Link href="https://github.com/your-repo" target="_blank">
-                    <Github className="h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon" // Changed to icon size
-                  asChild
-                  className={`rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                  aria-label="Twitter Profile"
-                >
-                  <Link href="https://twitter.com/your-profile" target="_blank">
-                    <Twitter className="h-5 w-5" />
+                  <Link href="https://bitbucket.org/your-repo" target="_blank">
+                    <GitBranch className="h-5 w-5" />
                   </Link>
                 </Button>
               </div>
