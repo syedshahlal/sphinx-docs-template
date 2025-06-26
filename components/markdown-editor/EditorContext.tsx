@@ -1,150 +1,239 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useState, useCallback } from "react"
-import type { EditorState, MarkdownComponent } from "./types"
+import { createContext, useContext, useReducer, useCallback } from "react"
+import type { EditorState, EditorAction, MarkdownComponent, ComponentStyle } from "./types"
+import { v4 as uuidv4 } from "uuid"
 
-interface EditorContextType {
+const initialState: EditorState = {
+  components: [],
+  selectedComponent: null,
+  theme: "light", // Default, should be synced with actual theme provider
+  previewMode: "split",
+  fileName: "untitled.md",
+  filePath: "docs/untitled.md",
+  fileVersion: "1.0.0",
+  isDirty: false,
+  layoutMode: "default",
+}
+
+const EditorContext = createContext<{
   state: EditorState
-  addComponent: (component: Omit<MarkdownComponent, "id" | "order">, returnId?: boolean) => string | void
-  updateComponent: (id: string, updates: Partial<MarkdownComponent>) => void
+  dispatch: React.Dispatch<EditorAction>
+  // Convenience functions (wrappers around dispatch)
+  addComponent: (
+    component: Omit<MarkdownComponent, "id" | "order">,
+    returnId?: boolean,
+    index?: number,
+  ) => string | void
   deleteComponent: (id: string) => void
+  updateComponentContent: (id: string, contentUpdates: any) => void
+  updateComponentStyle: (id: string, styleUpdates: Partial<ComponentStyle>) => void
   reorderComponents: (components: MarkdownComponent[]) => void
   selectComponent: (id: string | null) => void
-  setPreviewMode: (mode: EditorState["previewMode"]) => void
-  setFileName: (name: string) => void
-  setFilePath: (path: string) => void
-  generateMarkdown: () => string
-  generateHTML: () => string
-  saveFile: () => Promise<void>
-  loadFile: (content: string, fileName: string, filePath: string) => void
-  newFile: () => void
+  setFileDetails: (details: { fileName?: string; filePath?: string; fileVersion?: string }) => void
+  loadDocument: (document: {
+    components: MarkdownComponent[]
+    fileName: string
+    filePath: string
+    fileVersion: string
+  }) => void
+  setLayoutMode: (mode: EditorState["layoutMode"]) => void
+}>({
+  state: initialState,
+  dispatch: () => null,
+  addComponent: () => {},
+  deleteComponent: () => {},
+  updateComponentContent: () => {},
+  updateComponentStyle: () => {},
+  reorderComponents: () => {},
+  selectComponent: () => {},
+  setFileDetails: () => {},
+  loadDocument: () => {},
+  setLayoutMode: () => {},
+})
+
+function editorReducer(state: EditorState, action: EditorAction): EditorState {
+  switch (action.type) {
+    case "ADD_COMPONENT": {
+      const newId = uuidv4()
+      const newComponent: MarkdownComponent = {
+        ...action.payload.component,
+        id: newId,
+        order: 0, // Order will be set when reordering
+      }
+      let newComponents = [...state.components]
+      if (
+        action.payload.index !== undefined &&
+        action.payload.index >= 0 &&
+        action.payload.index <= newComponents.length
+      ) {
+        newComponents.splice(action.payload.index, 0, newComponent)
+      } else {
+        newComponents.push(newComponent)
+      }
+      // Re-assign order
+      newComponents = newComponents.map((comp, idx) => ({ ...comp, order: idx }))
+      if (action.returnId) action.returnId(newId)
+      return { ...state, components: newComponents, isDirty: true, selectedComponent: newId }
+    }
+    case "DELETE_COMPONENT": {
+      const updatedComponents = state.components
+        .filter((comp) => comp.id !== action.payload.id)
+        .map((comp, idx) => ({ ...comp, order: idx }))
+      return {
+        ...state,
+        components: updatedComponents,
+        isDirty: true,
+        selectedComponent: state.selectedComponent === action.payload.id ? null : state.selectedComponent,
+      }
+    }
+    case "UPDATE_COMPONENT": // Generic update, can update content, style, etc.
+      return {
+        ...state,
+        components: state.components.map((comp) =>
+          comp.id === action.payload.id ? { ...comp, ...action.payload.updates } : comp,
+        ),
+        isDirty: true,
+      }
+    case "UPDATE_COMPONENT_CONTENT":
+      return {
+        ...state,
+        components: state.components.map((comp) =>
+          comp.id === action.payload.id
+            ? { ...comp, content: { ...comp.content, ...action.payload.contentUpdates } }
+            : comp,
+        ),
+        isDirty: true,
+      }
+    case "UPDATE_COMPONENT_STYLE":
+      return {
+        ...state,
+        components: state.components.map((comp) =>
+          comp.id === action.payload.id
+            ? { ...comp, style: { ...(comp.style || {}), ...action.payload.styleUpdates } }
+            : comp,
+        ),
+        isDirty: true,
+      }
+    case "REORDER_COMPONENTS": {
+      const reordered = action.payload.components.map((comp, idx) => ({ ...comp, order: idx }))
+      return { ...state, components: reordered, isDirty: true }
+    }
+    case "SELECT_COMPONENT":
+      return { ...state, selectedComponent: action.payload.id }
+    case "SET_PREVIEW_MODE":
+      return { ...state, previewMode: action.payload.mode }
+    case "SET_FILE_DETAILS":
+      return { ...state, ...action.payload, isDirty: true } // Setting details implies change
+    case "LOAD_COMPONENTS":
+      return {
+        ...state,
+        components: action.payload.components.map((comp, idx) => ({ ...comp, order: idx })),
+        fileName: action.payload.fileName,
+        filePath: action.payload.filePath,
+        fileVersion: action.payload.fileVersion,
+        isDirty: false,
+        selectedComponent: null,
+      }
+    case "SET_DIRTY":
+      return { ...state, isDirty: action.payload.isDirty }
+    case "SET_LAYOUT_MODE":
+      return { ...state, layoutMode: action.payload.mode }
+    default:
+      return state
+  }
 }
 
-const EditorContext = createContext<EditorContextType | null>(null)
-
-export function EditorProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<EditorState>({
-    components: [],
-    selectedComponent: null,
-    theme: "light",
-    previewMode: "split",
-    fileName: "untitled.md",
-    filePath: "content/docs/",
-    isDirty: false,
-  })
+export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(editorReducer, initialState)
 
   const addComponent = useCallback(
-    (component: Omit<MarkdownComponent, "id" | "order">, returnId = false): string | void => {
-      const id = `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-      const newComponent: MarkdownComponent = {
-        ...component,
-        id,
-        order: state.components.length,
-      }
-
-      setState((prev) => ({
-        ...prev,
-        components: [...prev.components, newComponent],
-        selectedComponent: id,
-        isDirty: true,
-      }))
-
+    (component: Omit<MarkdownComponent, "id" | "order">, returnId?: boolean, index?: number): string | void => {
       if (returnId) {
-        return id
+        let newId = ""
+        dispatch({ type: "ADD_COMPONENT", payload: { component, index }, returnId: (id) => (newId = id) })
+        return newId
       }
+      dispatch({ type: "ADD_COMPONENT", payload: { component, index } })
     },
-    [state.components],
+    [dispatch],
   )
 
-  const updateComponent = useCallback((id: string, updates: Partial<MarkdownComponent>) => {
-    setState((prev) => ({
-      ...prev,
-      components: prev.components.map((comp) => (comp.id === id ? { ...comp, ...updates } : comp)),
-      isDirty: true,
-    }))
-  }, [])
+  const deleteComponent = useCallback(
+    (id: string) => {
+      dispatch({ type: "DELETE_COMPONENT", payload: { id } })
+    },
+    [dispatch],
+  )
 
-  const deleteComponent = useCallback((id: string) => {
-    setState((prev) => ({
-      ...prev,
-      components: prev.components.filter((comp) => comp.id !== id),
-      selectedComponent: prev.selectedComponent === id ? null : prev.selectedComponent,
-      isDirty: true,
-    }))
-  }, [])
+  const updateComponentContent = useCallback(
+    (id: string, contentUpdates: any) => {
+      dispatch({ type: "UPDATE_COMPONENT_CONTENT", payload: { id, contentUpdates } })
+    },
+    [dispatch],
+  )
 
-  const reorderComponents = useCallback((components: MarkdownComponent[]) => {
-    setState((prev) => ({
-      ...prev,
-      components: components.map((comp, index) => ({ ...comp, order: index })),
-      isDirty: true,
-    }))
-  }, [])
+  const updateComponentStyle = useCallback(
+    (id: string, styleUpdates: Partial<ComponentStyle>) => {
+      dispatch({ type: "UPDATE_COMPONENT_STYLE", payload: { id, styleUpdates } })
+    },
+    [dispatch],
+  )
 
-  const selectComponent = useCallback((id: string | null) => {
-    setState((prev) => ({ ...prev, selectedComponent: id }))
-  }, [])
+  const reorderComponents = useCallback(
+    (components: MarkdownComponent[]) => {
+      dispatch({ type: "REORDER_COMPONENTS", payload: { components } })
+    },
+    [dispatch],
+  )
 
-  const setPreviewMode = useCallback((mode: EditorState["previewMode"]) => {
-    setState((prev) => ({ ...prev, previewMode: mode }))
-  }, [])
+  const selectComponent = useCallback(
+    (id: string | null) => {
+      dispatch({ type: "SELECT_COMPONENT", payload: { id } })
+    },
+    [dispatch],
+  )
 
-  const setFileName = useCallback((name: string) => {
-    setState((prev) => ({ ...prev, fileName: name, isDirty: true }))
-  }, [])
+  const setFileDetails = useCallback(
+    (details: { fileName?: string; filePath?: string; fileVersion?: string }) => {
+      dispatch({ type: "SET_FILE_DETAILS", payload: details })
+    },
+    [dispatch],
+  )
 
-  const setFilePath = useCallback((path: string) => {
-    setState((prev) => ({ ...prev, filePath: path, isDirty: true }))
-  }, [])
+  const loadDocument = useCallback(
+    (document: { components: MarkdownComponent[]; fileName: string; filePath: string; fileVersion: string }) => {
+      dispatch({ type: "LOAD_COMPONENTS", payload: document })
+    },
+    [dispatch],
+  )
+  const setLayoutMode = useCallback(
+    (mode: EditorState["layoutMode"]) => {
+      dispatch({ type: "SET_LAYOUT_MODE", payload: { mode } })
+    },
+    [dispatch],
+  )
 
-  const generateMarkdown = useCallback(() => {
-    const sortedComponents = [...state.components].sort((a, b) => a.order - b.order)
-    // ... (rest of the function is unchanged)
-    return sortedComponents.map(() => "/* markdown generation */").join("\n")
-  }, [state.components])
-
-  const generateHTML = useCallback(() => {
-    // ... (rest of the function is unchanged)
-    return "<!-- html generation -->"
-  }, [generateMarkdown])
-
-  const saveFile = useCallback(async () => {
-    // ... (rest of the function is unchanged)
-  }, [state.fileName, state.filePath, generateMarkdown, generateHTML])
-
-  const loadFile = useCallback((content: string, fileName: string, filePath: string) => {
-    // ... (rest of the function is unchanged)
-  }, [])
-
-  const newFile = useCallback(() => {
-    // ... (rest of the function is unchanged)
-  }, [])
-
-  const value: EditorContextType = {
-    state,
-    addComponent,
-    updateComponent,
-    deleteComponent,
-    reorderComponents,
-    selectComponent,
-    setPreviewMode,
-    setFileName,
-    setFilePath,
-    generateMarkdown,
-    generateHTML,
-    saveFile,
-    loadFile,
-    newFile,
-  }
-
-  return <EditorContext.Provider value={value}>{children}</EditorContext.Provider>
+  return (
+    <EditorContext.Provider
+      value={{
+        state,
+        dispatch,
+        addComponent,
+        deleteComponent,
+        updateComponentContent,
+        updateComponentStyle,
+        reorderComponents,
+        selectComponent,
+        setFileDetails,
+        loadDocument,
+        setLayoutMode,
+      }}
+    >
+      {children}
+    </EditorContext.Provider>
+  )
 }
 
-export function useEditor() {
-  const context = useContext(EditorContext)
-  if (!context) {
-    throw new Error("useEditor must be used within EditorProvider")
-  }
-  return context
-}
+export const useEditor = () => useContext(EditorContext)
