@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Info, ExternalLink, ArrowRight, Sparkles } from "lucide-react"
 
-const platformLanes = [
+const relatedPlatforms = [
   {
     key: "dev",
     name: "GRA Core Platform · Dev Lane",
