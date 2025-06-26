@@ -66,7 +66,7 @@ export const DocsNavigation: React.FC<DocsNavigationProps> = ({
     <>
       <button
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-[60] p-2.5 bg-card dark:bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-lg text-foreground dark:text-gray-200 border border-border dark:border-gray-700"
+        className="md:hidden fixed top-4 left-4 z-[60] p-2.5 bg-card dark:bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-lg text-foreground dark:text-gray-200 border border-border dark:border-gray-700"
         aria-label="Open navigation menu"
       >
         <Menu size={20} />
@@ -74,7 +74,7 @@ export const DocsNavigation: React.FC<DocsNavigationProps> = ({
 
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/60 dark:bg-black/80 z-[9998] lg:hidden"
+          className="fixed inset-0 bg-black/60 dark:bg-black/80 z-[9998] md:hidden"
           onClick={() => setIsMobileOpen(false)}
           aria-hidden="true"
         />
@@ -84,8 +84,8 @@ export const DocsNavigation: React.FC<DocsNavigationProps> = ({
         className={`
           fixed top-0 left-0 h-full w-72 bg-card dark:bg-gray-900 border-r border-border dark:border-gray-700
           flex flex-col transition-transform duration-300 ease-in-out z-[50] 
-          lg:sticky lg:top-0 lg:h-screen lg:flex-shrink-0 lg:z-auto 
-          ${isMobileOpen ? "translate-x-0 shadow-xl" : "-translate-x-full lg:translate-x-0"}
+          md:sticky md:top-0 md:h-screen md:flex-shrink-0 md:z-auto 
+          ${isMobileOpen ? "translate-x-0 shadow-xl" : "-translate-x-full md:translate-x-0"}
           `}
         // ${debugHiddenClass} // Add this to the line above for debugging
         aria-label="Documentation Navigation"
@@ -101,7 +101,7 @@ export const DocsNavigation: React.FC<DocsNavigationProps> = ({
           </Link>
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="lg:hidden p-1.5 -mr-1 text-muted-foreground dark:text-gray-300 hover:bg-muted dark:hover:bg-gray-800 rounded-md"
+            className="md:hidden p-1.5 -mr-1 text-muted-foreground dark:text-gray-300 hover:bg-muted dark:hover:bg-gray-800 rounded-md"
             aria-label="Close navigation menu"
           >
             <X size={20} />
