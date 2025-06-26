@@ -7,6 +7,7 @@ const config = {
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
+    "./node_modules/tailgrids/plugin.js",
     "*.{js,ts,jsx,tsx,mdx}",
   ],
   prefix: "",
@@ -75,7 +76,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography"), require("tailgrids/plugin")],
 } satisfies Config
 
 export default config

@@ -1,48 +1,30 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import { ThemeProvider } from "@/providers/ThemeProvider"
+import { Toaster } from "react-hot-toast"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "GRA Core Platform Documentation",
-  description: "A comprehensive, modern platform built for the GRA community.",
+  title: "SaaS Platform Docs",
+  description: "Modern documentation for your SaaS platform.",
     generator: 'v0.dev'
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
-    <html lang="en" suppressHydrationWarning className="w-full">
-      <head>
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
-        />
-      </head>
-      <body
-        className={`${inter.className} min-h-screen w-full m-0 p-0 transition-colors duration-300`}
-        style={{
-          backgroundColor: "rgb(var(--background))",
-          color: "rgb(var(--foreground))",
-        }}
-      >
-        <div
-          className="min-h-screen w-full m-0 p-0 transition-colors duration-300"
-          style={{
-            backgroundColor: "rgb(var(--background))",
-            color: "rgb(var(--foreground))",
-          }}
-        >
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
-        </div>
+          <Toaster position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   )
