@@ -15,13 +15,13 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
-import { Loader2, Github, FileText, Eye, Settings, MapIcon as Diagram } from "lucide-react" // Added Diagram icon
+import { Loader2, Github, FileText, Eye, Settings } from "lucide-react"
 import { fetchBranches, publishToGitHub } from "@/lib/github"
 import { PreviewPanel } from "../markdown-editor/PreviewPanel"
 import { useTheme } from "next-themes"
 
-import { BlockNoteView, useBlockNote, getDefaultSlashMenuItems } from "@blocknote/react" // Import getDefaultSlashMenuItems
-import type { BlockNoteEditor, PartialBlock, Block } from "@blocknote/core"
+import { BlockNoteView, useBlockNote } from "@blocknote/react"
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core"
 // Ensure "@blocknote/core/style.css" is linked in app/layout.tsx or globals.css
 import "@/styles/blocknote-custom.css"
 
@@ -42,25 +42,6 @@ const initialContent: PartialBlock[] = [
     content: "Start writing your amazing documentation here! Type '/' for commands.",
   },
 ]
-
-// Example custom slash menu item
-const insertMermaidPlaceholder = (editor: BlockNoteEditor) => ({
-  title: "Mermaid Diagram",
-  onItemClick: () => {
-    // This is a placeholder. A real implementation would insert a custom block.
-    // For now, let's insert a code block pre-filled with a sample Mermaid diagram.
-    const mermaidBlock: Block = {
-      type: "codeBlock",
-      props: { language: "mermaid" },
-      content: `graph TD;\n    A-->B;\n    A-->C;\n    B-->D;\n    C-->D;`,
-    }
-    editor.insertBlocks([mermaidBlock], editor.getTextCursorPosition().block, "after")
-  },
-  aliases: ["diagram", "flowchart", "mermaid"],
-  group: "Media",
-  icon: <Diagram size={18} />,
-  hint: "Insert a Mermaid diagram (placeholder).",
-})
 
 export function CreateDocDialog({ isOpen, onOpenChange, onPublishSuccess }: CreateDocDialogProps) {
   const [step, setStep] = useState(1)
@@ -95,11 +76,7 @@ export function CreateDocDialog({ isOpen, onOpenChange, onPublishSuccess }: Crea
         }
       }
     },
-    slashMenuItems: (editorInstance) => [
-      // Customize slash menu items
-      ...getDefaultSlashMenuItems(editorInstance), // Keep default items
-      insertMermaidPlaceholder(editorInstance), // Add our custom item
-    ],
+    // Removed custom slashMenuItems to restore default behavior
   })
 
   useEffect(() => {

@@ -26,7 +26,9 @@ export default function RootLayout({
           crossOrigin="anonymous"
           referrerPolicy="no-referrer"
         />
-        <link rel="stylesheet" href="https://esm.sh/@blocknote/core/style.css" />
+        {/* Ensure BlockNote core styles are linked */}
+        <link rel="stylesheet" href="https://esm.sh/@blocknote/core@0.13/style.css" />
+        {/* Your custom BlockNote styles */}
         <link rel="stylesheet" href="/styles/blocknote-custom.css" />
       </head>
       <body

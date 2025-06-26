@@ -3,7 +3,7 @@
 import { Banner } from "@/components/banner"
 import { Header } from "@/components/header"
 import { useTheme } from "next-themes"
-import { BlockNoteView, useBlockNote } from "@blocknote/react" // Reverted to named import
+import { BlockNoteView, useBlockNote } from "@blocknote/react"
 import "@/styles/blocknote-custom.css"
 // Ensure "@blocknote/core/style.css" is linked in app/layout.tsx or globals.css, not imported here as a module
 
