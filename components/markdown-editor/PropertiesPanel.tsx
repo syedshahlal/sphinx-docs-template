@@ -1,641 +1,552 @@
 "use client"
-
-import React from "react"
-import { useDebouncedCallback } from "use-debounce"
-
-import { useEditor } from "./EditorContext"
+import { useState } from "react"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import type { ComponentStyle, MarkdownComponent, HtmlBlockContent } from "./types"
-import {
-  ChevronDown,
-  Palette,
-  Settings,
-  CodeIcon,
-  ImageIcon as ImageIconProp,
-  Columns,
-  AlignCenter,
-  AlignJustify,
-  AlignLeft,
-  AlignRight,
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  PaletteIcon,
-  LayoutGrid,
-} from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Settings, Palette, Layout, Type, ChevronDown, ChevronRight, Eye, Sliders } from "lucide-react"
+import type { MarkdownComponent, ComponentStyle } from "./types"
 
-// ─── Debounced Helpers ──────────────────────────────────────────────────────────
-
-const DebouncedInput: React.FC<React.ComponentProps<typeof Input> & { onDebouncedChange: (value: string) => void }> = ({
-  onDebouncedChange,
-  defaultValue = "",
-  ...props
-}) => {
-  const [value, setValue] = React.useState<string>(String(defaultValue))
-  // keep local state in sync when parent changes (e.g. selecting another component)
-  React.useEffect(() => setValue(String(defaultValue)), [defaultValue])
-
-  const debounced = useDebouncedCallback(onDebouncedChange, 300)
-
-  return (
-    <Input
-      {...props}
-      value={value}
-      onChange={(e) => {
-        const v = e.target.value
-        setValue(v)
-        debounced(v)
-      }}
-    />
-  )
+interface PropertiesPanelProps {
+  selectedComponent: MarkdownComponent | null
+  onUpdateComponent: (updates: Partial<MarkdownComponent>) => void
+  onUpdateStyle: (styleUpdates: Partial<ComponentStyle>) => void
 }
 
-const DebouncedTextarea: React.FC<
-  React.ComponentProps<typeof Textarea> & { onDebouncedChange: (value: string) => void }
-> = ({ onDebouncedChange, defaultValue = "", ...props }) => {
-  const [value, setValue] = React.useState<string>(String(defaultValue))
-  React.useEffect(() => setValue(String(defaultValue)), [defaultValue])
+export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdateStyle }: PropertiesPanelProps) {
+  const [expandedSections, setExpandedSections] = useState<string[]>(["content", "style"])
 
-  const debounced = useDebouncedCallback(onDebouncedChange, 300)
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]))
+  }
 
-  return (
-    <Textarea
-      {...props}
-      value={value}
-      onChange={(e) => {
-        const v = e.target.value
-        setValue(v)
-        debounced(v)
-      }}
-    />
-  )
-}
+  const updateContent = (field: string, value: any) => {
+    if (!selectedComponent) return
+    onUpdateComponent({
+      content: { ...selectedComponent.content, [field]: value },
+    })
+  }
 
-// Helper for style updates
-const StyleInput: React.FC<{
-  label: string
-  value: string | number | undefined
-  onChange: (value: string) => void
-  placeholder?: string
-  type?: string
-}> = ({ label, value, onChange, placeholder, type = "text" }) => (
-  <div>
-    <Label htmlFor={`style-${label.toLowerCase().replace(" ", "-")}`} className="text-xs text-muted-foreground">
-      {label}
-    </Label>
-    <DebouncedInput
-      id={`style-${label.toLowerCase().replace(" ", "-")}`}
-      defaultValue={value || ""}
-      onDebouncedChange={onChange}
-      placeholder={placeholder}
-      type={type}
-      className="h-8 text-sm"
-    />
-  </div>
-)
+  const updateStyle = (field: string, value: any) => {
+    if (!selectedComponent) return
+    onUpdateStyle({ [field]: value })
+  }
 
-const ColorInput: React.FC<{ label: string; value: string | undefined; onChange: (value: string) => void }> = ({
-  label,
-  value,
-  onChange,
-}) => (
-  <div>
-    <Label htmlFor={`style-${label.toLowerCase()}`} className="text-xs text-muted-foreground">
-      {label}
-    </Label>
-    <div className="flex items-center gap-2">
-      <Input
-        id={`style-${label.toLowerCase()}`}
-        type="color"
-        value={value || "#000000"}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-8 w-8 p-1"
-      />
-      <DebouncedInput
-        type="text"
-        defaultValue={value || ""}
-        onDebouncedChange={onChange}
-        placeholder="#RRGGBB"
-        className="h-8 text-sm flex-1"
-      />
-    </div>
-  </div>
-)
+  const renderContentEditor = () => {
+    if (!selectedComponent) return null
 
-const ToggleGroup: React.FC<{
-  label: string
-  options: { value: string; icon: React.ElementType; label: string }[]
-  value: string | undefined
-  onValueChange: (value: string) => void
-}> = ({ label, options, value, onValueChange }) => (
-  <div>
-    <Label className="text-xs text-muted-foreground mb-1 block">{label}</Label>
-    <div className="flex space-x-1">
-      {options.map((opt) => (
-        <Button
-          key={opt.value}
-          variant={value === opt.value ? "secondary" : "outline"}
-          size="icon_sm" // Custom size or adjust padding
-          onClick={() => onValueChange(opt.value === value ? "" : opt.value)} // Toggle off if same value clicked
-          title={opt.label}
-          className="p-2 h-8 w-8"
-        >
-          <opt.icon className="h-4 w-4" />
-        </Button>
-      ))}
-    </div>
-  </div>
-)
+    switch (selectedComponent.type) {
+      case "heading":
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="heading-text">Text</Label>
+              <Input
+                id="heading-text"
+                value={selectedComponent.content.text || ""}
+                onChange={(e) => updateContent("text", e.target.value)}
+                placeholder="Heading text"
+              />
+            </div>
+            <div>
+              <Label htmlFor="heading-level">Level</Label>
+              <Select
+                value={selectedComponent.content.level?.toString() || "2"}
+                onValueChange={(value) => updateContent("level", Number.parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6].map((level) => (
+                    <SelectItem key={level} value={level.toString()}>
+                      H{level}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )
 
-export function PropertiesPanel() {
-  const { state, updateComponentContent, updateComponentStyle, selectComponent } = useEditor()
-  const selectedComponent = state.components.find((c) => c.id === state.selectedComponent)
+      case "paragraph":
+        return (
+          <div>
+            <Label htmlFor="paragraph-text">Text</Label>
+            <Textarea
+              id="paragraph-text"
+              value={selectedComponent.content.text || ""}
+              onChange={(e) => updateContent("text", e.target.value)}
+              placeholder="Paragraph text"
+              rows={4}
+            />
+          </div>
+        )
 
-  if (!selectedComponent) {
+      case "image":
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="image-src">Image URL</Label>
+              <Input
+                id="image-src"
+                value={selectedComponent.content.src || ""}
+                onChange={(e) => updateContent("src", e.target.value)}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="image-alt">Alt Text</Label>
+              <Input
+                id="image-alt"
+                value={selectedComponent.content.alt || ""}
+                onChange={(e) => updateContent("alt", e.target.value)}
+                placeholder="Describe the image"
+              />
+            </div>
+            <div>
+              <Label htmlFor="image-caption">Caption</Label>
+              <Input
+                id="image-caption"
+                value={selectedComponent.content.caption || ""}
+                onChange={(e) => updateContent("caption", e.target.value)}
+                placeholder="Image caption"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="image-width">Width</Label>
+                <Input
+                  id="image-width"
+                  value={selectedComponent.content.width || ""}
+                  onChange={(e) => updateContent("width", e.target.value)}
+                  placeholder="100%, 400px"
+                />
+              </div>
+              <div>
+                <Label htmlFor="image-height">Height</Label>
+                <Input
+                  id="image-height"
+                  value={selectedComponent.content.height || ""}
+                  onChange={(e) => updateContent("height", e.target.value)}
+                  placeholder="auto, 300px"
+                />
+              </div>
+            </div>
+          </div>
+        )
+
+      case "button":
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="button-text">Text</Label>
+              <Input
+                id="button-text"
+                value={selectedComponent.content.text || ""}
+                onChange={(e) => updateContent("text", e.target.value)}
+                placeholder="Button text"
+              />
+            </div>
+            <div>
+              <Label htmlFor="button-link">Link (optional)</Label>
+              <Input
+                id="button-link"
+                value={selectedComponent.content.link || ""}
+                onChange={(e) => updateContent("link", e.target.value)}
+                placeholder="https://example.com"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="button-variant">Variant</Label>
+                <Select
+                  value={selectedComponent.content.variant || "default"}
+                  onValueChange={(value) => updateContent("variant", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Default</SelectItem>
+                    <SelectItem value="destructive">Destructive</SelectItem>
+                    <SelectItem value="outline">Outline</SelectItem>
+                    <SelectItem value="secondary">Secondary</SelectItem>
+                    <SelectItem value="ghost">Ghost</SelectItem>
+                    <SelectItem value="link">Link</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="button-size">Size</Label>
+                <Select
+                  value={selectedComponent.content.size || "default"}
+                  onValueChange={(value) => updateContent("size", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sm">Small</SelectItem>
+                    <SelectItem value="default">Default</SelectItem>
+                    <SelectItem value="lg">Large</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "card":
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="card-title">Title</Label>
+              <Input
+                id="card-title"
+                value={selectedComponent.content.title || ""}
+                onChange={(e) => updateContent("title", e.target.value)}
+                placeholder="Card title"
+              />
+            </div>
+            <div>
+              <Label htmlFor="card-description">Description</Label>
+              <Textarea
+                id="card-description"
+                value={selectedComponent.content.description || ""}
+                onChange={(e) => updateContent("description", e.target.value)}
+                placeholder="Card description"
+                rows={3}
+              />
+            </div>
+            <div>
+              <Label htmlFor="card-image">Image URL (optional)</Label>
+              <Input
+                id="card-image"
+                value={selectedComponent.content.imageUrl || ""}
+                onChange={(e) => updateContent("imageUrl", e.target.value)}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="card-layout">Layout</Label>
+              <Select
+                value={selectedComponent.content.layout || "default"}
+                onValueChange={(value) => updateContent("layout", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default</SelectItem>
+                  <SelectItem value="horizontal">Horizontal</SelectItem>
+                  <SelectItem value="minimal">Minimal</SelectItem>
+                  <SelectItem value="feature">Feature</SelectItem>
+                  <SelectItem value="pricing">Pricing</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )
+
+      default:
+        return (
+          <div className="text-center py-8 text-gray-500">
+            <Settings className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p>No specific properties available for this component type.</p>
+          </div>
+        )
+    }
+  }
+
+  const renderStyleEditor = () => {
+    if (!selectedComponent) return null
+
+    const style = selectedComponent.style || {}
+
     return (
-      <div className="p-4 h-full flex flex-col items-center justify-center text-center bg-background dark:bg-neutral-900">
-        <PaletteIcon className="w-12 h-12 text-muted-foreground mb-4" strokeWidth={1} />
-        <h3 className="text-lg font-semibold text-foreground dark:text-neutral-100">Properties</h3>
-        <p className="text-muted-foreground text-sm max-w-xs dark:text-neutral-400">
-          Select a component on the canvas to view and edit its properties here.
-        </p>
+      <div className="space-y-6">
+        {/* Typography */}
+        <Collapsible open={expandedSections.includes("typography")} onOpenChange={() => toggleSection("typography")}>
+          <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-50 rounded-md">
+            <div className="flex items-center gap-2">
+              <Type className="w-4 h-4" />
+              <span className="font-medium">Typography</span>
+            </div>
+            {expandedSections.includes("typography") ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-3 mt-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="font-size">Font Size</Label>
+                <Input
+                  id="font-size"
+                  value={style.fontSize || ""}
+                  onChange={(e) => updateStyle("fontSize", e.target.value)}
+                  placeholder="16px, 1rem"
+                />
+              </div>
+              <div>
+                <Label htmlFor="font-weight">Font Weight</Label>
+                <Select
+                  value={style.fontWeight?.toString() || ""}
+                  onValueChange={(value) => updateStyle("fontWeight", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="300">Light</SelectItem>
+                    <SelectItem value="400">Normal</SelectItem>
+                    <SelectItem value="500">Medium</SelectItem>
+                    <SelectItem value="600">Semibold</SelectItem>
+                    <SelectItem value="700">Bold</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="text-color">Text Color</Label>
+              <Input
+                id="text-color"
+                type="color"
+                value={style.color || "#000000"}
+                onChange={(e) => updateStyle("color", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="text-align">Text Align</Label>
+              <Select value={style.textAlign || ""} onValueChange={(value) => updateStyle("textAlign", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="left">Left</SelectItem>
+                  <SelectItem value="center">Center</SelectItem>
+                  <SelectItem value="right">Right</SelectItem>
+                  <SelectItem value="justify">Justify</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Layout */}
+        <Collapsible open={expandedSections.includes("layout")} onOpenChange={() => toggleSection("layout")}>
+          <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-50 rounded-md">
+            <div className="flex items-center gap-2">
+              <Layout className="w-4 h-4" />
+              <span className="font-medium">Layout</span>
+            </div>
+            {expandedSections.includes("layout") ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-3 mt-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="width">Width</Label>
+                <Input
+                  id="width"
+                  value={style.width || ""}
+                  onChange={(e) => updateStyle("width", e.target.value)}
+                  placeholder="100%, 400px"
+                />
+              </div>
+              <div>
+                <Label htmlFor="height">Height</Label>
+                <Input
+                  id="height"
+                  value={style.height || ""}
+                  onChange={(e) => updateStyle("height", e.target.value)}
+                  placeholder="auto, 300px"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label htmlFor="padding">Padding</Label>
+                <Input
+                  id="padding"
+                  value={style.padding || ""}
+                  onChange={(e) => updateStyle("padding", e.target.value)}
+                  placeholder="16px, 1rem"
+                />
+              </div>
+              <div>
+                <Label htmlFor="margin">Margin</Label>
+                <Input
+                  id="margin"
+                  value={style.margin || ""}
+                  onChange={(e) => updateStyle("margin", e.target.value)}
+                  placeholder="16px, 1rem"
+                />
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Appearance */}
+        <Collapsible open={expandedSections.includes("appearance")} onOpenChange={() => toggleSection("appearance")}>
+          <CollapsibleTrigger className="flex w-full items-center justify-between p-2 hover:bg-gray-50 rounded-md">
+            <div className="flex items-center gap-2">
+              <Palette className="w-4 h-4" />
+              <span className="font-medium">Appearance</span>
+            </div>
+            {expandedSections.includes("appearance") ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-3 mt-2">
+            <div>
+              <Label htmlFor="bg-color">Background Color</Label>
+              <Input
+                id="bg-color"
+                type="color"
+                value={style.backgroundColor || "#ffffff"}
+                onChange={(e) => updateStyle("backgroundColor", e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="border">Border</Label>
+              <Input
+                id="border"
+                value={style.border || ""}
+                onChange={(e) => updateStyle("border", e.target.value)}
+                placeholder="1px solid #ccc"
+              />
+            </div>
+            <div>
+              <Label htmlFor="border-radius">Border Radius</Label>
+              <Input
+                id="border-radius"
+                value={style.borderRadius || ""}
+                onChange={(e) => updateStyle("borderRadius", e.target.value)}
+                placeholder="8px, 0.5rem"
+              />
+            </div>
+            <div>
+              <Label htmlFor="box-shadow">Box Shadow</Label>
+              <Input
+                id="box-shadow"
+                value={style.boxShadow || ""}
+                onChange={(e) => updateStyle("boxShadow", e.target.value)}
+                placeholder="0 4px 6px rgba(0,0,0,0.1)"
+              />
+            </div>
+            <div>
+              <Label htmlFor="opacity">Opacity</Label>
+              <Input
+                id="opacity"
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value={style.opacity || 1}
+                onChange={(e) => updateStyle("opacity", Number.parseFloat(e.target.value))}
+              />
+              <div className="text-xs text-gray-500 mt-1">{((style.opacity || 1) * 100).toFixed(0)}%</div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     )
   }
 
-  const handleContentChange = (field: string, value: any) => {
-    updateComponentContent(selectedComponent.id, { [field]: value })
-  }
+  if (!selectedComponent) {
+    return (
+      <div className="h-full flex flex-col">
+        <div className="p-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
+              <Settings className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Properties</h2>
+              <p className="text-sm text-gray-600">Component settings</p>
+            </div>
+          </div>
+        </div>
 
-  const handleStyleChange = (field: keyof ComponentStyle, value: any) => {
-    updateComponentStyle(selectedComponent.id, { [field]: value })
-  }
-
-  const handleNestedStyleChange = (group: keyof ComponentStyle, field: string, value: any) => {
-    const currentGroupStyle = (selectedComponent.style?.[group] as Record<string, any>) || {}
-    updateComponentStyle(selectedComponent.id, { [group]: { ...currentGroupStyle, [field]: value } })
-  }
-
-  const commonStyleControls = (
-    <AccordionItem value="common-styles">
-      <AccordionTrigger className="text-sm font-medium">Common Styles</AccordionTrigger>
-      <AccordionContent className="space-y-3 pt-2">
-        <StyleInput
-          label="Custom CSS Class"
-          value={selectedComponent.style?.className}
-          onChange={(v) => handleStyleChange("className", v)}
-          placeholder="e.g., my-custom-style"
-        />
-        {selectedComponent.type !== "htmlBlock" && ( // HTML Blocks manage their own colors via raw HTML
-          <>
-            <ColorInput
-              label="Text Color"
-              value={selectedComponent.style?.color}
-              onChange={(v) => handleStyleChange("color", v)}
-            />
-            <ColorInput
-              label="Background Color"
-              value={selectedComponent.style?.backgroundColor}
-              onChange={(v) => handleStyleChange("backgroundColor", v)}
-            />
-          </>
-        )}
-        <StyleInput
-          label="Font Size (e.g., 16px, 1.2em)"
-          value={selectedComponent.style?.fontSize}
-          onChange={(v) => handleStyleChange("fontSize", v)}
-          placeholder="16px"
-        />
-        <ToggleGroup
-          label="Text Align"
-          value={selectedComponent.style?.textAlign}
-          onValueChange={(v) => handleStyleChange("textAlign", v)}
-          options={[
-            { value: "left", icon: AlignLeft, label: "Left" },
-            { value: "center", icon: AlignCenter, label: "Center" },
-            { value: "right", icon: AlignRight, label: "Right" },
-            { value: "justify", icon: AlignJustify, label: "Justify" },
-          ]}
-        />
-      </AccordionContent>
-    </AccordionItem>
-  )
-
-  const textStyleControls = (
-    <AccordionItem value="text-styles">
-      <AccordionTrigger className="text-sm font-medium">Text Formatting</AccordionTrigger>
-      <AccordionContent className="space-y-3 pt-2">
-        <ToggleGroup
-          label="Font Weight"
-          value={selectedComponent.style?.fontWeight}
-          onValueChange={(v) => handleStyleChange("fontWeight", v)}
-          options={[{ value: "bold", icon: Bold, label: "Bold" }]}
-        />
-        <ToggleGroup
-          label="Font Style"
-          value={selectedComponent.style?.fontStyle}
-          onValueChange={(v) => handleStyleChange("fontStyle", v)}
-          options={[{ value: "italic", icon: Italic, label: "Italic" }]}
-        />
-        <ToggleGroup
-          label="Text Decoration"
-          value={selectedComponent.style?.textDecoration}
-          onValueChange={(v) => handleStyleChange("textDecoration", v)}
-          options={[
-            { value: "underline", icon: Underline, label: "Underline" },
-            { value: "line-through", icon: Strikethrough, label: "Strikethrough" },
-          ]}
-        />
-      </AccordionContent>
-    </AccordionItem>
-  )
-
-  const boxModelControls = (
-    <AccordionItem value="box-model">
-      <AccordionTrigger className="text-sm font-medium">Layout & Spacing</AccordionTrigger>
-      <AccordionContent className="space-y-3 pt-2">
-        <StyleInput
-          label="Width (e.g., 100%, 300px)"
-          value={selectedComponent.style?.width}
-          onChange={(v) => handleStyleChange("width", v)}
-          placeholder="auto"
-        />
-        <StyleInput
-          label="Height (e.g., auto, 100px)"
-          value={selectedComponent.style?.height}
-          onChange={(v) => handleStyleChange("height", v)}
-          placeholder="auto"
-        />
-        <StyleInput
-          label="Padding (e.g., 10px, 1rem 2rem)"
-          value={selectedComponent.style?.padding}
-          onChange={(v) => handleStyleChange("padding", v)}
-          placeholder="0px"
-        />
-        <StyleInput
-          label="Margin (e.g., 10px auto)"
-          value={selectedComponent.style?.margin}
-          onChange={(v) => handleStyleChange("margin", v)}
-          placeholder="0px"
-        />
-        {selectedComponent.type !== "htmlBlock" && (
-          <StyleInput
-            label="Border (e.g., 1px solid #ccc)"
-            value={selectedComponent.style?.border}
-            onChange={(v) => handleStyleChange("border", v)}
-            placeholder="none"
-          />
-        )}
-        <StyleInput
-          label="Border Radius (e.g., 8px, 50%)"
-          value={selectedComponent.style?.borderRadius}
-          onChange={(v) => handleStyleChange("borderRadius", v)}
-          placeholder="0px"
-        />
-      </AccordionContent>
-    </AccordionItem>
-  )
-
-  const effectsControls = (
-    <AccordionItem value="effects-styles">
-      <AccordionTrigger className="text-sm font-medium">Effects</AccordionTrigger>
-      <AccordionContent className="space-y-3 pt-2">
-        {selectedComponent.type !== "htmlBlock" && (
-          <StyleInput
-            label="Box Shadow (e.g., 0 2px 4px #0001)"
-            value={selectedComponent.style?.boxShadow}
-            onChange={(v) => handleStyleChange("boxShadow", v)}
-            placeholder="none"
-          />
-        )}
-        <StyleInput
-          label="Opacity (0-1)"
-          value={selectedComponent.style?.opacity}
-          onChange={(v) => handleStyleChange("opacity", Number.parseFloat(v))}
-          placeholder="1"
-          type="number"
-        />
-        {selectedComponent.type !== "htmlBlock" && (
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="hover-effects" className="border-b-0">
-              <AccordionTrigger className="text-xs font-normal py-2 text-muted-foreground hover:no-underline">
-                Hover Effects
-              </AccordionTrigger>
-              <AccordionContent className="space-y-2 pt-1">
-                <ColorInput
-                  label="Hover BG Color"
-                  value={selectedComponent.style?.hover?.backgroundColor}
-                  onChange={(v) => handleNestedStyleChange("hover", "backgroundColor", v)}
-                />
-                <ColorInput
-                  label="Hover Text Color"
-                  value={selectedComponent.style?.hover?.color}
-                  onChange={(v) => handleNestedStyleChange("hover", "color", v)}
-                />
-                <StyleInput
-                  label="Hover Box Shadow"
-                  value={selectedComponent.style?.hover?.boxShadow}
-                  onChange={(v) => handleNestedStyleChange("hover", "boxShadow", v)}
-                />
-                <StyleInput
-                  label="Hover Transform (e.g. scale(1.05))"
-                  value={selectedComponent.style?.hover?.transform}
-                  onChange={(v) => handleNestedStyleChange("hover", "transform", v)}
-                />
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        )}
-      </AccordionContent>
-    </AccordionItem>
-  )
-
-  const renderSpecificControls = () => {
-    switch (selectedComponent.type) {
-      case "heading":
-        return (
-          <div className="space-y-3">
-            <Label htmlFor="heading-text">Text</Label>
-            <DebouncedInput
-              id="heading-text"
-              defaultValue={selectedComponent.content.text}
-              onDebouncedChange={(v) => handleContentChange("text", v)}
-            />
-            <Label htmlFor="heading-level">Level</Label>
-            <Select
-              value={selectedComponent.content.level.toString()}
-              onValueChange={(v) => handleContentChange("level", Number.parseInt(v))}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5, 6].map((lvl) => (
-                  <SelectItem key={lvl} value={lvl.toString()}>
-                    H{lvl}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )
-      case "paragraph":
-        return (
-          <div className="space-y-3">
-            <Label htmlFor="paragraph-text">Text</Label>
-            <DebouncedTextarea
-              id="paragraph-text"
-              defaultValue={selectedComponent.content.text}
-              onDebouncedChange={(v) => handleContentChange("text", v)}
-              rows={5}
-            />
-          </div>
-        )
-      case "image":
-        return (
-          <div className="space-y-3">
-            <Label htmlFor="image-src">Image URL</Label>
-            <DebouncedInput
-              id="image-src"
-              defaultValue={selectedComponent.content.src}
-              onDebouncedChange={(v) => handleContentChange("src", v)}
-            />
-            <Label htmlFor="image-alt">Alt Text</Label>
-            <DebouncedInput
-              id="image-alt"
-              defaultValue={selectedComponent.content.alt}
-              onDebouncedChange={(v) => handleContentChange("alt", v)}
-            />
-            <Label htmlFor="image-caption">Caption</Label>
-            <DebouncedInput
-              id="image-caption"
-              defaultValue={selectedComponent.content.caption || ""}
-              onDebouncedChange={(v) => handleContentChange("caption", v)}
-            />
-          </div>
-        )
-      case "code":
-        return (
-          <div className="space-y-3">
-            <Label htmlFor="code-language">Language</Label>
-            <DebouncedInput
-              id="code-language"
-              defaultValue={selectedComponent.content.language}
-              onDebouncedChange={(v) => handleContentChange("language", v)}
-            />
-            <Label htmlFor="code-content">Code</Label>
-            <DebouncedTextarea
-              id="code-content"
-              defaultValue={selectedComponent.content.code}
-              onDebouncedChange={(v) => handleContentChange("code", v)}
-              rows={8}
-              className="font-mono text-xs"
-            />
-          </div>
-        )
-      case "button":
-        return (
-          <div className="space-y-3">
-            <Label htmlFor="button-text">Button Text</Label>
-            <DebouncedInput
-              id="button-text"
-              defaultValue={selectedComponent.content.text}
-              onDebouncedChange={(v) => handleContentChange("text", v)}
-            />
-            <Label htmlFor="button-link">Link URL</Label>
-            <DebouncedInput
-              id="button-link"
-              defaultValue={selectedComponent.content.link}
-              onDebouncedChange={(v) => handleContentChange("link", v)}
-            />
-          </div>
-        )
-      case "card":
-        return (
-          <div className="space-y-3">
-            <Label htmlFor="card-title">Title</Label>
-            <DebouncedInput
-              id="card-title"
-              defaultValue={selectedComponent.content.title}
-              onDebouncedChange={(v) => handleContentChange("title", v)}
-            />
-            <Label htmlFor="card-description">Description</Label>
-            <DebouncedTextarea
-              id="card-description"
-              defaultValue={selectedComponent.content.description}
-              onDebouncedChange={(v) => handleContentChange("description", v)}
-              rows={3}
-            />
-            <Label htmlFor="card-image">Image URL (Optional)</Label>
-            <DebouncedInput
-              id="card-image"
-              defaultValue={selectedComponent.content.imageUrl || ""}
-              onDebouncedChange={(v) => handleContentChange("imageUrl", v)}
-            />
-          </div>
-        )
-      case "alert":
-        return (
-          <div className="space-y-3">
-            <Label htmlFor="alert-text">Text</Label>
-            <DebouncedTextarea
-              id="alert-text"
-              defaultValue={selectedComponent.content.text}
-              onDebouncedChange={(v) => handleContentChange("text", v)}
-              rows={3}
-            />
-            <Label htmlFor="alert-type">Type</Label>
-            <Select value={selectedComponent.content.type} onValueChange={(v) => handleContentChange("type", v)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="info">Info</SelectItem>
-                <SelectItem value="warning">Warning</SelectItem>
-                <SelectItem value="error">Error</SelectItem>
-                <SelectItem value="success">Success</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )
-      case "spacer":
-        return (
-          <div className="space-y-3">
-            <Label htmlFor="spacer-height">Height (e.g., 20px, 2rem)</Label>
-            <DebouncedInput
-              id="spacer-height"
-              defaultValue={selectedComponent.content.height || "20px"}
-              onDebouncedChange={(v) => handleContentChange("height", v)}
-            />
-          </div>
-        )
-      case "columns": // Simple 2-column for now
-        return (
-          <div className="space-y-3">
-            <Label>Column Content (Markdown supported)</Label>
-            <DebouncedTextarea
-              placeholder="Column 1 Content"
-              defaultValue={selectedComponent.content.column1Text || ""}
-              onDebouncedChange={(v) => handleContentChange("column1Text", v)}
-              rows={4}
-            />
-            <DebouncedTextarea
-              placeholder="Column 2 Content"
-              defaultValue={selectedComponent.content.column2Text || ""}
-              onDebouncedChange={(v) => handleContentChange("column2Text", v)}
-              rows={4}
-            />
-          </div>
-        )
-      case "htmlBlock":
-        const htmlContent = selectedComponent.content as HtmlBlockContent
-        return (
-          <div className="space-y-3">
-            <Label htmlFor="htmlblock-name">Block Name</Label>
-            <Input
-              id="htmlblock-name"
-              value={htmlContent.name || "Custom HTML Block"}
-              readOnly // Name is derived from palette, not directly editable here
-              className="text-sm h-8 bg-muted"
-            />
-            <Label htmlFor="htmlblock-content">HTML Content</Label>
-            <DebouncedTextarea
-              id="htmlblock-content"
-              defaultValue={htmlContent.htmlContent}
-              onDebouncedChange={(v) => handleContentChange("htmlContent", v)}
-              rows={10}
-              className="font-mono text-xs"
-              placeholder="Enter your HTML snippet here..."
-            />
-            <p className="text-xs text-muted-foreground">
-              Note: Ensure your HTML uses Tailwind CSS classes available in this project. Complex scripts or styles
-              might not render correctly in the editor.
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+              <Eye className="h-8 w-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Component Selected</h3>
+            <p className="text-gray-500 max-w-sm mx-auto">
+              Select a component from the canvas to view and edit its properties.
             </p>
           </div>
-        )
-      // Add cases for list, orderedList, taskList, blockquote, table, mermaid, etc.
-      // For lists, you'd manage an array of items. For tables, headers and rows.
-      default:
-        return <p className="text-muted-foreground text-sm">No specific content properties for this component type.</p>
-    }
+        </div>
+      </div>
+    )
   }
-
-  const getIconForType = (type: MarkdownComponent["type"]) => {
-    const icons: Record<string, React.ElementType> = {
-      // Allow string for htmlBlock
-      heading: Settings,
-      paragraph: AlignLeft,
-      image: ImageIconProp,
-      code: CodeIcon,
-      button: Settings,
-      card: Settings,
-      grid: Settings,
-      divider: Settings,
-      list: Settings,
-      orderedList: Settings,
-      taskList: Settings,
-      blockquote: Settings,
-      video: Settings,
-      alert: Settings,
-      mermaid: Settings,
-      spacer: Settings,
-      columns: Columns,
-      table: Settings,
-      htmlBlock: LayoutGrid,
-    }
-    return icons[type] || Settings
-  }
-  const Icon = getIconForType(selectedComponent.type)
 
   return (
-    <div className="p-0 h-full flex flex-col bg-background dark:bg-neutral-900 border-l border-border dark:border-neutral-700">
-      <div className="p-4 border-b border-border dark:border-neutral-700">
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-2">
-            <Icon className="w-5 h-5 text-muted-foreground" />
-            <h3 className="text-md font-semibold capitalize text-foreground dark:text-neutral-100">
-              {selectedComponent.type === "htmlBlock"
-                ? (selectedComponent.content as HtmlBlockContent).name || "HTML Block"
-                : selectedComponent.type}
-            </h3>
+    <div className="h-full flex flex-col">
+      <div className="p-4 border-b border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600">
+              <Settings className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Properties</h2>
+              <p className="text-sm text-gray-600">Component settings</p>
+            </div>
           </div>
-          <Button variant="ghost" size="icon_sm" onClick={() => selectComponent(null)} className="h-7 w-7">
-            <ChevronDown className="w-4 h-4" />
-          </Button>
         </div>
-        <p className="text-xs text-muted-foreground dark:text-neutral-400 truncate">ID: {selectedComponent.id}</p>
+
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="capitalize">
+            {selectedComponent.type}
+          </Badge>
+          {selectedComponent.locked && (
+            <Badge variant="secondary" className="text-xs">
+              Locked
+            </Badge>
+          )}
+          {selectedComponent.hidden && (
+            <Badge variant="secondary" className="text-xs">
+              Hidden
+            </Badge>
+          )}
+        </div>
       </div>
 
       <ScrollArea className="flex-1">
         <div className="p-4">
           <Tabs defaultValue="content" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4 h-9">
-              <TabsTrigger value="content" className="text-xs px-2">
-                <Settings className="w-3.5 h-3.5 mr-1.5" />
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="content" className="flex items-center gap-2">
+                <Type className="w-4 h-4" />
                 Content
               </TabsTrigger>
-              <TabsTrigger value="style" className="text-xs px-2">
-                <Palette className="w-3.5 h-3.5 mr-1.5" />
-                Appearance
+              <TabsTrigger value="style" className="flex items-center gap-2">
+                <Sliders className="w-4 h-4" />
+                Style
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="content">{renderSpecificControls()}</TabsContent>
-            <TabsContent value="style">
-              <Accordion type="multiple" defaultValue={["common-styles"]} className="w-full">
-                {commonStyleControls}
-                {["heading", "paragraph", "button", "card", "alert"].includes(selectedComponent.type) &&
-                  textStyleControls}
-                {boxModelControls}
-                {effectsControls}
-              </Accordion>
+
+            <TabsContent value="content" className="space-y-4">
+              {renderContentEditor()}
+            </TabsContent>
+
+            <TabsContent value="style" className="space-y-4">
+              {renderStyleEditor()}
             </TabsContent>
           </Tabs>
         </div>

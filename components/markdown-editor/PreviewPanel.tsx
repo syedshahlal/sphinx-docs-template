@@ -1,409 +1,423 @@
 "use client"
-
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useEditor } from "./EditorContext"
-import { ComponentRenderer } from "./ComponentRenderer"
-import { Eye, Code, FileText, Monitor, Tablet, Smartphone, Zap } from "lucide-react"
-import type { MarkdownComponent, ComponentStyle } from "./types"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import {
+  Eye,
+  Code,
+  Download,
+  Copy,
+  Smartphone,
+  Tablet,
+  Monitor,
+  FileText,
+  Globe,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+import type { MarkdownComponent } from "./types"
 
-// Generate clean markdown from components
-export function generateMarkdown(components: MarkdownComponent[]): string {
-  const sortedComponents = components.sort((a, b) => a.order - b.order)
-
-  return sortedComponents
-    .map((component) => {
-      switch (component.type) {
-        case "heading":
-          return `${"#".repeat(component.content.level || 2)} ${component.content.text || "Heading"}\n`
-
-        case "paragraph":
-          return `${component.content.text || "Paragraph text"}\n`
-
-        case "image":
-          const caption = component.content.caption ? `\n*${component.content.caption}*` : ""
-          return `![${component.content.alt || "Image"}](${component.content.src || "/placeholder.svg"})${caption}\n`
-
-        case "code":
-          return `\`\`\`${component.content.language || ""}\n${component.content.code || ""}\n\`\`\`\n`
-
-        case "blockquote":
-          return `> ${component.content.text || "Quote"}\n`
-
-        case "list":
-          return (component.content.items || []).map((item: string) => `- ${item}`).join("\n") + "\n"
-
-        case "orderedList":
-          const start = component.content.start || 1
-          return (
-            (component.content.items || [])
-              .map((item: string, index: number) => `${start + index}. ${item}`)
-              .join("\n") + "\n"
-          )
-
-        case "taskList":
-          return (
-            (component.content.items || [])
-              .map((item: { text: string; checked: boolean }) => `- [${item.checked ? "x" : " "}] ${item.text}`)
-              .join("\n") + "\n"
-          )
-
-        case "table":
-          if (!component.content.headers || !component.content.rows) return ""
-          const headers = `| ${component.content.headers.join(" | ")} |`
-          const separator = `| ${component.content.headers.map(() => "---").join(" | ")} |`
-          const rows = component.content.rows.map((row: string[]) => `| ${row.join(" | ")} |`).join("\n")
-          return `${headers}\n${separator}\n${rows}\n`
-
-        case "alert":
-          return `> **${component.content.type?.toUpperCase() || "INFO"}**: ${component.content.text || "Alert message"}\n`
-
-        case "divider":
-          return "---\n"
-
-        case "spacer":
-          return "\n"
-
-        case "mermaid":
-          return `\`\`\`mermaid\n${component.content.code || ""}\n\`\`\`\n`
-
-        case "htmlBlock":
-          return `\`\`\`html\n${component.content.htmlContent || ""}\n\`\`\`\n`
-
-        default:
-          return `<!-- ${component.type} component -->\n`
-      }
-    })
-    .join("\n")
+interface PreviewPanelProps {
+  components: MarkdownComponent[]
+  previewMode: "edit" | "preview" | "mobile" | "tablet"
+  onPreviewModeChange: (mode: "edit" | "preview" | "mobile" | "tablet") => void
 }
 
-// Generate clean HTML from components
-export function generateHtml(components: MarkdownComponent[]): string {
-  const sortedComponents = components.sort((a, b) => a.order - b.order)
+export function PreviewPanel({ components, previewMode, onPreviewModeChange }: PreviewPanelProps) {
+  const [activeTab, setActiveTab] = useState("preview")
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copying" | "copied">("idle")
 
-  const htmlContent = sortedComponents
-    .map((component) => {
-      const styleAttr = component.style ? ` style="${generateInlineStyles(component.style)}"` : ""
-      const classAttr = component.style?.className ? ` class="${component.style.className}"` : ""
+  // Generate markdown from components
+  const generateMarkdown = (): string => {
+    return components
+      .sort((a, b) => a.order - b.order)
+      .map((component) => {
+        switch (component.type) {
+          case "heading":
+            const level = "#".repeat(component.content.level || 2)
+            return `${level} ${component.content.text || "Heading"}\n`
 
-      switch (component.type) {
-        case "heading":
-          const level = component.content.level || 2
-          return `<h${level}${classAttr}${styleAttr}>${component.content.text || "Heading"}</h${level}>`
+          case "paragraph":
+            return `${component.content.text || "Paragraph text"}\n`
 
-        case "paragraph":
-          return `<p${classAttr}${styleAttr}>${component.content.text || "Paragraph text"}</p>`
+          case "image":
+            const alt = component.content.alt || "Image"
+            const src = component.content.src || "/placeholder.svg"
+            const caption = component.content.caption ? `\n*${component.content.caption}*` : ""
+            return `![${alt}](${src})${caption}\n`
 
-        case "image":
-          const caption = component.content.caption ? `<figcaption>${component.content.caption}</figcaption>` : ""
-          return `<figure${classAttr}${styleAttr}>
-          <img src="${component.content.src || "/placeholder.svg"}" alt="${component.content.alt || "Image"}" />
-          ${caption}
-        </figure>`
+          case "button":
+            const buttonText = component.content.text || "Button"
+            const link = component.content.link || "#"
+            return `[${buttonText}](${link})\n`
 
-        case "code":
-          return `<pre${classAttr}${styleAttr}><code class="language-${component.content.language || "text"}">${component.content.code || ""}</code></pre>`
+          case "card":
+            const title = component.content.title || "Card Title"
+            const description = component.content.description || "Card description"
+            return `### ${title}\n\n${description}\n`
 
-        case "blockquote":
-          return `<blockquote${classAttr}${styleAttr}>${component.content.text || "Quote"}</blockquote>`
+          case "list":
+            const listItems = component.content.items || ["List item"]
+            return listItems.map((item: string) => `- ${item}`).join("\n") + "\n"
 
-        case "list":
-          const listItems = (component.content.items || []).map((item: string) => `<li>${item}</li>`).join("")
-          return `<ul${classAttr}${styleAttr}>${listItems}</ul>`
+          case "orderedList":
+            const orderedItems = component.content.items || ["List item"]
+            const start = component.content.start || 1
+            return orderedItems.map((item: string, index: number) => `${start + index}. ${item}`).join("\n") + "\n"
 
-        case "orderedList":
-          const orderedItems = (component.content.items || []).map((item: string) => `<li>${item}</li>`).join("")
-          const startAttr =
-            component.content.start && component.content.start !== 1 ? ` start="${component.content.start}"` : ""
-          return `<ol${startAttr}${classAttr}${styleAttr}>${orderedItems}</ol>`
+          case "taskList":
+            const tasks = component.content.items || [{ text: "Task", checked: false }]
+            return tasks.map((task: any) => `- [${task.checked ? "x" : " "}] ${task.text}`).join("\n") + "\n"
 
-        case "table":
-          if (!component.content.headers || !component.content.rows) return ""
-          const headerCells = component.content.headers.map((header: string) => `<th>${header}</th>`).join("")
-          const bodyRows = component.content.rows
-            .map((row: string[]) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`)
-            .join("")
-          return `<table${classAttr}${styleAttr}>
-          <thead><tr>${headerCells}</tr></thead>
-          <tbody>${bodyRows}</tbody>
-        </table>`
+          case "blockquote":
+            const quote = component.content.text || "Quote text"
+            const author = component.content.author ? `\n\n— ${component.content.author}` : ""
+            return `> ${quote}${author}\n`
 
-        case "divider":
-          return `<hr${classAttr}${styleAttr} />`
+          case "code":
+            const code = component.content.code || "// Code here"
+            const language = component.content.language || ""
+            return `\`\`\`${language}\n${code}\n\`\`\`\n`
 
-        case "spacer":
-          const height = component.content.height || "40px"
-          return `<div${classAttr} style="height: ${height}${styleAttr ? `;${styleAttr.slice(8, -1)}` : ""}"></div>`
+          case "divider":
+            return `---\n`
 
-        case "htmlBlock":
-          return component.content.htmlContent || ""
+          case "table":
+            const headers = component.content.headers || ["Header 1", "Header 2"]
+            const rows = component.content.rows || [["Cell 1", "Cell 2"]]
+            const headerRow = `| ${headers.join(" | ")} |`
+            const separatorRow = `| ${headers.map(() => "---").join(" | ")} |`
+            const dataRows = rows.map((row: string[]) => `| ${row.join(" | ")} |`).join("\n")
+            return `${headerRow}\n${separatorRow}\n${dataRows}\n`
 
-        default:
-          return `<!-- ${component.type} component -->`
-      }
-    })
-    .join("\n")
+          case "alert":
+            const alertText = component.content.text || "Alert message"
+            const alertType = component.content.type || "info"
+            return `> **${alertType.toUpperCase()}**: ${alertText}\n`
 
-  return `<!DOCTYPE html>
+          case "htmlBlock":
+            return `${component.content.htmlContent || "<!-- HTML content -->"}\n`
+
+          default:
+            return `<!-- ${component.type} component -->\n`
+        }
+      })
+      .join("\n")
+  }
+
+  // Generate HTML from components
+  const generateHTML = (): string => {
+    const head = `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generated Content</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .prose { max-width: none; }
+        .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { margin-top: 2rem; margin-bottom: 1rem; }
+        .prose p { margin-bottom: 1rem; line-height: 1.7; }
+        .prose ul, .prose ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.5rem; }
+        .prose blockquote { border-left: 4px solid #e5e7eb; padding-left: 1rem; margin: 1.5rem 0; font-style: italic; color: #6b7280; }
+        .prose img { border-radius: 0.5rem; margin: 1.5rem 0; }
+        .prose table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .prose th, .prose td { border: 1px solid #e5e7eb; padding: 0.75rem; text-align: left; }
+        .prose th { background-color: #f9fafb; font-weight: 600; }
+        .prose code { background-color: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.875em; }
+        .prose pre { background-color: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; margin: 1.5rem 0; }
+        .prose pre code { background: none; padding: 0; color: inherit; }
+    </style>
 </head>
-<body class="bg-white">
-  <div class="max-w-4xl mx-auto p-8">
-    ${htmlContent}
-  </div>
+<body class="bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-lg p-8 prose prose-lg">`
+
+    const body = components
+      .sort((a, b) => a.order - b.order)
+      .map((component) => {
+        switch (component.type) {
+          case "heading":
+            const level = component.content.level || 2
+            const headingText = component.content.text || "Heading"
+            return `<h${level}>${headingText}</h${level}>`
+
+          case "paragraph":
+            return `<p>${component.content.text || "Paragraph text"}</p>`
+
+          case "image":
+            const imgSrc = component.content.src || "/placeholder.svg"
+            const imgAlt = component.content.alt || "Image"
+            const imgCaption = component.content.caption
+              ? `<figcaption class="text-center text-sm text-gray-600 mt-2">${component.content.caption}</figcaption>`
+              : ""
+            return `<figure><img src="${imgSrc}" alt="${imgAlt}" class="w-full h-auto">${imgCaption}</figure>`
+
+          case "htmlBlock":
+            return component.content.htmlContent || "<!-- HTML content -->"
+
+          default:
+            return `<!-- ${component.type} component -->`
+        }
+      })
+      .join("\n")
+
+    const footer = `        </div>
+    </div>
 </body>
 </html>`
-}
 
-// Generate inline styles from ComponentStyle
-function generateInlineStyles(style: ComponentStyle): string {
-  const styles: string[] = []
+    return head + body + footer
+  }
 
-  if (style.color) styles.push(`color: ${style.color}`)
-  if (style.backgroundColor) styles.push(`background-color: ${style.backgroundColor}`)
-  if (style.fontSize) styles.push(`font-size: ${style.fontSize}`)
-  if (style.fontWeight) styles.push(`font-weight: ${style.fontWeight}`)
-  if (style.fontStyle) styles.push(`font-style: ${style.fontStyle}`)
-  if (style.textDecoration) styles.push(`text-decoration: ${style.textDecoration}`)
-  if (style.textAlign) styles.push(`text-align: ${style.textAlign}`)
-  if (style.width) styles.push(`width: ${style.width}`)
-  if (style.height) styles.push(`height: ${style.height}`)
-  if (style.padding) styles.push(`padding: ${style.padding}`)
-  if (style.margin) styles.push(`margin: ${style.margin}`)
-  if (style.border) styles.push(`border: ${style.border}`)
-  if (style.borderRadius) styles.push(`border-radius: ${style.borderRadius}`)
-  if (style.boxShadow) styles.push(`box-shadow: ${style.boxShadow}`)
-  if (style.opacity !== undefined) styles.push(`opacity: ${style.opacity}`)
-  if (style.transform) styles.push(`transform: ${style.transform}`)
-  if (style.transition) styles.push(`transition: ${style.transition}`)
-  if (style.backgroundImage) styles.push(`background-image: ${style.backgroundImage}`)
-  if (style.backgroundSize) styles.push(`background-size: ${style.backgroundSize}`)
-  if (style.backgroundPosition) styles.push(`background-position: ${style.backgroundPosition}`)
-  if (style.backgroundRepeat) styles.push(`background-repeat: ${style.backgroundRepeat}`)
-  if (style.gradient) styles.push(`background: ${style.gradient}`)
-
-  return styles.join("; ")
-}
-
-// Copy to clipboard utility
-async function copyToClipboard(text: string): Promise<boolean> {
-  try {
-    await navigator.clipboard.writeText(text)
-    return true
-  } catch (err) {
-    // Fallback for older browsers
-    const textArea = document.createElement("textarea")
-    textArea.value = text
-    document.body.appendChild(textArea)
-    textArea.focus()
-    textArea.select()
+  // Copy content to clipboard
+  const copyToClipboard = async (content: string, type: string) => {
+    setCopyStatus("copying")
     try {
-      document.execCommand("copy")
-      document.body.removeChild(textArea)
-      return true
+      await navigator.clipboard.writeText(content)
+      setCopyStatus("copied")
+      setTimeout(() => setCopyStatus("idle"), 2000)
     } catch (err) {
-      document.body.removeChild(textArea)
-      return false
-    }
-  }
-}
-
-// Download file utility
-function downloadFile(content: string, filename: string, mimeType: string) {
-  const blob = new Blob([content], { type: mimeType })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement("a")
-  link.href = url
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  URL.revokeObjectURL(url)
-}
-
-export function PreviewPanel() {
-  const { state, updateComponentContent } = useEditor()
-  const [previewMode, setPreviewMode] = useState<"desktop" | "tablet" | "mobile">("desktop")
-  const [copyStatus, setCopyStatus] = useState<{ [key: string]: boolean }>({})
-  const [activeTab, setActiveTab] = useState("preview")
-
-  // Generate content
-  const markdownContent = useMemo(() => generateMarkdown(state.components), [state.components])
-  const htmlContent = useMemo(() => generateHtml(state.components), [state.components])
-
-  // Handle copy operations
-  const handleCopy = async (content: string, type: string) => {
-    const success = await copyToClipboard(content)
-    if (success) {
-      setCopyStatus({ ...copyStatus, [type]: true })
-      setTimeout(() => {
-        setCopyStatus({ ...copyStatus, [type]: false })
-      }, 2000)
+      console.error("Failed to copy:", err)
+      setCopyStatus("idle")
     }
   }
 
-  // Handle download operations
-  const handleDownload = (content: string, filename: string, mimeType: string) => {
-    downloadFile(content, filename, mimeType)
+  // Download content as file
+  const downloadFile = (content: string, filename: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
-  // Get preview container classes based on mode
-  const getPreviewClasses = () => {
+  // Get preview dimensions based on mode
+  const getPreviewDimensions = () => {
     switch (previewMode) {
       case "mobile":
-        return "max-w-sm mx-auto border-2 border-gray-300 rounded-3xl p-4 bg-white shadow-xl"
+        return "max-w-sm mx-auto"
       case "tablet":
-        return "max-w-2xl mx-auto border-2 border-gray-300 rounded-2xl p-6 bg-white shadow-lg"
+        return "max-w-2xl mx-auto"
       default:
-        return "w-full"
+        return "max-w-full"
     }
   }
 
-  const componentCount = state.components.length
-  const wordCount = markdownContent.split(/\s+/).filter((word) => word.length > 0).length
-  const charCount = markdownContent.length
+  // Get device icon
+  const getDeviceIcon = (mode: string) => {
+    switch (mode) {
+      case "mobile":
+        return Smartphone
+      case "tablet":
+        return Tablet
+      default:
+        return Monitor
+    }
+  }
+
+  const markdown = generateMarkdown()
+  const html = generateHTML()
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-slate-50 to-white">
+    <div className="h-full flex flex-col bg-white">
       {/* Header */}
-      <div className="p-4 border-b border-slate-200 bg-white/80 backdrop-blur-sm">
+      <div className="p-4 border-b border-gray-200 bg-gray-50">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-blue-600">
               <Eye className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Preview</h2>
-              <p className="text-sm text-slate-600">Live preview and export</p>
+              <h2 className="text-lg font-bold text-gray-900">Preview</h2>
+              <p className="text-sm text-gray-600">Live preview of your content</p>
             </div>
           </div>
-
-          {/* Preview mode toggles */}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center bg-slate-100 rounded-lg p-1">
-              <Button
-                variant={previewMode === "desktop" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setPreviewMode("desktop")}
-                className="h-8 px-3"
-              >
-                <Monitor className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={previewMode === "tablet" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setPreviewMode("tablet")}
-                className="h-8 px-3"
-              >
-                <Tablet className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={previewMode === "mobile" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setPreviewMode("mobile")}
-                className="h-8 px-3"
-              >
-                <Smartphone className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+          <Badge variant="secondary" className="bg-green-100 text-green-800">
+            {components.length} component{components.length !== 1 ? "s" : ""}
+          </Badge>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-6 text-sm text-slate-600">
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            <span>{componentCount} components</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            <span>{wordCount} words</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Code className="h-4 w-4" />
-            <span>{charCount} characters</span>
-          </div>
+        {/* Device Preview Buttons */}
+        <div className="flex items-center gap-2 mb-4">
+          {(["preview", "tablet", "mobile"] as const).map((mode) => {
+            const Icon = getDeviceIcon(mode)
+            return (
+              <Button
+                key={mode}
+                variant={previewMode === mode ? "default" : "outline"}
+                size="sm"
+                onClick={() => onPreviewModeChange(mode)}
+                className="flex items-center gap-2"
+              >
+                <Icon className="w-4 h-4" />
+                {mode === "preview" ? "Desktop" : mode.charAt(0).toUpperCase() + mode.slice(1)}
+              </Button>
+            )
+          })}
+        </div>
+
+        {/* Export Actions */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => copyToClipboard(markdown, "markdown")}
+            disabled={copyStatus === "copying"}
+            className="flex items-center gap-2"
+          >
+            {copyStatus === "copied" ? (
+              <CheckCircle className="w-4 h-4 text-green-600" />
+            ) : copyStatus === "copying" ? (
+              <AlertCircle className="w-4 h-4 animate-spin" />
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
+            Copy MD
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => copyToClipboard(html, "html")}
+            disabled={copyStatus === "copying"}
+            className="flex items-center gap-2"
+          >
+            <Code className="w-4 h-4" />
+            Copy HTML
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => downloadFile(markdown, "document.md", "text/markdown")}
+            className="flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Download MD
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => downloadFile(html, "document.html", "text/html")}
+            className="flex items-center gap-2"
+          >
+            <Globe className="w-4 h-4" />
+            Download HTML
+          </Button>
         </div>
       </div>
 
       {/* Content */}
       <div className="flex-1">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3 bg-slate-100">
-            <TabsTrigger value="preview" className="text-sm flex items-center gap-2">
-              <Eye className="h-4 w-4" />
-              Live Preview
+          <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3 bg-gray-100">
+            <TabsTrigger value="preview" className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              Preview
             </TabsTrigger>
-            <TabsTrigger value="markdown" className="text-sm flex items-center gap-2">
-              <FileText className="h-4 w-4" />
+            <TabsTrigger value="markdown" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
               Markdown
             </TabsTrigger>
-            <TabsTrigger value="html" className="text-sm flex items-center gap-2">
-              <Code className="h-4 w-4" />
+            <TabsTrigger value="html" className="flex items-center gap-2">
+              <Code className="w-4 h-4" />
               HTML
             </TabsTrigger>
           </TabsList>
 
-          {/* Live Preview Tab */}
           <TabsContent value="preview" className="flex-1 mt-4">
             <ScrollArea className="h-full">
-              <div className="p-4">
-                <div className={getPreviewClasses()}>
-                  {state.components.length === 0 ? (
-                    <div className="text-center py-16">
-                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
-                        <Eye className="h-8 w-8 text-slate-400" />
+              <div className={cn("p-4", getPreviewDimensions())}>
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  {components.length === 0 ? (
+                    <div className="text-center py-12">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                        <Eye className="h-8 w-8 text-gray-400" />
                       </div>
-                      <h3 className="text-lg font-semibold text-slate-900 mb-2">No Content Yet</h3>
-                      <p className="text-slate-500 max-w-sm mx-auto">
-                        Add components from the palette to see them rendered here in real-time.
-                      </p>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No content to preview</h3>
+                      <p className="text-gray-500">Add some components to see the preview here.</p>
                     </div>
                   ) : (
-                    <div className="space-y-6">
-                      {state.components
-                        .sort((a, b) => a.order - b.order)
-                        .map((component) => (
-                          <div key={component.id} className="relative">
-                            <ComponentRenderer
-                              component={component}
-                              isSelected={false}
-                              updateComponentContent={updateComponentContent}
-                            />
-                          </div>
-                        ))}
-                    </div>
+                    <div
+                      className="prose prose-lg max-w-none"
+                      dangerouslySetInnerHTML={{
+                        __html: components
+                          .sort((a, b) => a.order - b.order)
+                          .map((component) => {
+                            // Render a simplified version for preview
+                            switch (component.type) {
+                              case "heading":
+                                const level = component.content.level || 2
+                                return `<h${level}>${component.content.text || "Heading"}</h${level}>`
+                              case "paragraph":
+                                return `<p>${component.content.text || "Paragraph text"}</p>`
+                              case "image":
+                                return `<img src="${component.content.src || "/placeholder.svg"}" alt="${component.content.alt || "Image"}" class="rounded-lg" />`
+                              case "htmlBlock":
+                                return component.content.htmlContent || ""
+                              default:
+                                return `<div class="p-4 bg-gray-100 rounded-lg text-center text-gray-600">
+                                  <strong>${component.type}</strong> component
+                                </div>`
+                            }
+                          })
+                          .join(""),
+                      }}
+                    />
                   )}
                 </div>
               </div>
             </ScrollArea>
           </TabsContent>
 
-          {/* Markdown Tab */}
           <TabsContent value="markdown" className="flex-1 mt-4">
             <ScrollArea className="h-full">
               <div className="p-4">
-                <pre className="bg-slate-100 rounded-lg p-4 overflow-auto">{markdownContent}</pre>
+                <div className="bg-gray-900 rounded-lg p-4">
+                  <pre className="text-green-400 text-sm font-mono whitespace-pre-wrap overflow-x-auto">
+                    {markdown || "# No content\n\nAdd some components to generate markdown."}
+                  </pre>
+                </div>
               </div>
             </ScrollArea>
           </TabsContent>
 
-          {/* HTML Tab */}
           <TabsContent value="html" className="flex-1 mt-4">
             <ScrollArea className="h-full">
               <div className="p-4">
-                <pre className="bg-slate-100 rounded-lg p-4 overflow-auto">{htmlContent}</pre>
+                <div className="bg-gray-900 rounded-lg p-4">
+                  <pre className="text-blue-400 text-sm font-mono whitespace-pre-wrap overflow-x-auto">{html}</pre>
+                </div>
               </div>
             </ScrollArea>
           </TabsContent>
         </Tabs>
+      </div>
+
+      {/* Footer Stats */}
+      <div className="p-4 border-t border-gray-200 bg-gray-50">
+        <div className="flex items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center gap-4">
+            <span>Components: {components.length}</span>
+            <Separator orientation="vertical" className="h-4" />
+            <span>Words: {markdown.split(/\s+/).filter(Boolean).length}</span>
+            <Separator orientation="vertical" className="h-4" />
+            <span>Characters: {markdown.length}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <span>Live Preview</span>
+          </div>
+        </div>
       </div>
     </div>
   )

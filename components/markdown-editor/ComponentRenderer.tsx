@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-
 import { useState, useRef, useEffect } from "react"
 import type {
   MarkdownComponent,
@@ -9,11 +8,13 @@ import type {
   ImageContent,
   CardContent as CardContentType,
   GridContent,
+  TableContent,
+  InfographicContent,
 } from "./types"
 import { Card, CardDescription, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button as UIButton } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
   ExternalLink,
   Edit3,
@@ -49,6 +50,10 @@ import {
   Unlock,
   Settings,
   MoreHorizontal,
+  AlertTriangle,
+  Info,
+  CheckCircle,
+  XCircle,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { JSX } from "react/jsx-runtime"
@@ -179,16 +184,16 @@ interface ComponentRendererProps {
 }
 
 export function ComponentRenderer({ component, isSelected, updateComponentContent }: ComponentRendererProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [editingContent, setEditingContent] = useState<any>(component.content)
+  const [editingField, setEditingField] = useState<string | null>(null)
+  const [tempValue, setTempValue] = useState<string>("")
   const [isHovered, setIsHovered] = useState(false)
-  const editRef = useRef<HTMLDivElement>(null)
+  const editRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
 
   // Handle click outside to save edits
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (editRef.current && !editRef.current.contains(event.target as Node)) {
-        if (isEditing) {
+        if (editingField) {
           handleSaveEdit()
         }
       }
@@ -196,45 +201,113 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
 
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [isEditing, editingContent])
+  }, [editingField, tempValue])
 
-  const handleStartEdit = (e: React.MouseEvent) => {
+  const handleStartEdit = (field: string, currentValue: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    setIsEditing(true)
-    setEditingContent(component.content)
+    setEditingField(field)
+    setTempValue(currentValue || "")
   }
 
   const handleSaveEdit = () => {
-    updateComponentContent(component.id, editingContent)
-    setIsEditing(false)
-  }
+    if (editingField) {
+      const keys = editingField.split(".")
+      const newContent = { ...component.content }
 
-  const handleCancelEdit = () => {
-    setEditingContent(component.content)
-    setIsEditing(false)
+      if (keys.length === 1) {
+        newContent[keys[0]] = tempValue
+      } else if (keys.length === 2) {
+        if (!newContent[keys[0]]) newContent[keys[0]] = {}
+        newContent[keys[0]][keys[1]] = tempValue
+      }
+
+      updateComponentContent(component.id, newContent)
+      setEditingField(null)
+      setTempValue("")
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey && component.type !== "paragraph") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
       handleSaveEdit()
     } else if (e.key === "Escape") {
       e.preventDefault()
-      handleCancelEdit()
+      setEditingField(null)
+      setTempValue("")
     }
   }
 
-  const renderEditableContent = (): JSX.Element => {
-    const baseClasses = cn(
-      "relative group transition-all duration-200",
-      isSelected && "ring-2 ring-blue-500 ring-offset-2 ring-offset-white",
-      isHovered && !isEditing && "ring-1 ring-slate-300 ring-offset-1",
-      getHoverClasses(component.style),
-      component.style?.className,
+  const renderEditableText = (
+    field: string,
+    value: string,
+    placeholder = "Click to edit",
+    multiline = false,
+    className = "",
+  ) => {
+    const isEditing = editingField === field
+
+    if (isEditing) {
+      if (multiline) {
+        return (
+          <textarea
+            ref={editRef as React.RefObject<HTMLTextAreaElement>}
+            value={tempValue}
+            onChange={(e) => setTempValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleSaveEdit}
+            className={cn(
+              "w-full bg-white border-2 border-blue-500 rounded-md px-2 py-1 resize-none focus:outline-none",
+              className,
+            )}
+            autoFocus
+            rows={3}
+          />
+        )
+      } else {
+        return (
+          <input
+            ref={editRef as React.RefObject<HTMLInputElement>}
+            type="text"
+            value={tempValue}
+            onChange={(e) => setTempValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleSaveEdit}
+            className={cn(
+              "w-full bg-white border-2 border-blue-500 rounded-md px-2 py-1 focus:outline-none",
+              className,
+            )}
+            autoFocus
+          />
+        )
+      }
+    }
+
+    return (
+      <span
+        className={cn(
+          "cursor-pointer hover:bg-blue-50 rounded-md px-1 py-0.5 transition-colors min-h-[1.5rem] inline-block",
+          !value && "text-gray-400 italic",
+          className,
+        )}
+        onClick={(e) => handleStartEdit(field, value, e)}
+      >
+        {value || placeholder}
+      </span>
     )
+  }
 
-    const style = applyStyles(component.style)
+  const baseClasses = cn(
+    "relative group transition-all duration-200",
+    isSelected && "ring-2 ring-blue-500 ring-offset-2 ring-offset-white",
+    isHovered && !editingField && "ring-1 ring-slate-300 ring-offset-1",
+    getHoverClasses(component.style),
+    component.style?.className,
+  )
 
+  const style = applyStyles(component.style)
+
+  const renderComponent = (): JSX.Element => {
     switch (component.type) {
       case "heading": {
         const HeadingTag = `h${component.content.level || 2}` as keyof JSX.IntrinsicElements
@@ -244,59 +317,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             style={style}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            ref={editRef}
           >
-            {isEditing ? (
-              <div className="space-y-3 p-4 border-2 border-blue-200 rounded-lg bg-blue-50/50">
-                <input
-                  type="text"
-                  value={editingContent.text || ""}
-                  onChange={(e) => setEditingContent({ ...editingContent, text: e.target.value })}
-                  onKeyDown={handleKeyDown}
-                  className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-inherit font-inherit focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  autoFocus
-                  placeholder="Enter heading text..."
-                />
-                <div className="flex items-center gap-3">
-                  <label className="text-sm font-medium text-gray-700">Level:</label>
-                  <select
-                    value={editingContent.level || 2}
-                    onChange={(e) => setEditingContent({ ...editingContent, level: Number.parseInt(e.target.value) })}
-                    className="border border-gray-300 rounded-md px-2 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {[1, 2, 3, 4, 5, 6].map((level) => (
-                      <option key={level} value={level}>
-                        H{level}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex gap-2">
-                  <UIButton size="sm" onClick={handleSaveEdit}>
-                    Save
-                  </UIButton>
-                  <UIButton size="sm" variant="outline" onClick={handleCancelEdit}>
-                    Cancel
-                  </UIButton>
-                </div>
-              </div>
-            ) : (
-              <HeadingTag
-                className="cursor-pointer hover:bg-blue-50/50 rounded-md px-2 py-1 transition-colors"
-                onClick={handleStartEdit}
-              >
-                {component.content.text || "Heading"}
-              </HeadingTag>
-            )}
-            {(isHovered || isSelected) && !isEditing && (
-              <button
-                onClick={handleStartEdit}
-                className="absolute -top-2 -right-2 bg-blue-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-600 hover:scale-110 shadow-lg"
-                title="Edit heading"
-              >
-                <Edit3 className="w-3 h-3" />
-              </button>
-            )}
+            <HeadingTag className="font-bold">
+              {renderEditableText("text", component.content.text, "Heading")}
+            </HeadingTag>
           </div>
         )
       }
@@ -308,44 +332,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             style={style}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            ref={editRef}
           >
-            {isEditing ? (
-              <div className="space-y-3 p-4 border-2 border-blue-200 rounded-lg bg-blue-50/50">
-                <Textarea
-                  value={editingContent.text || ""}
-                  onChange={(e) => setEditingContent({ ...editingContent, text: e.target.value })}
-                  onKeyDown={handleKeyDown}
-                  className="w-full min-h-[100px] resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  autoFocus
-                  placeholder="Enter paragraph text..."
-                />
-                <div className="flex gap-2">
-                  <UIButton size="sm" onClick={handleSaveEdit}>
-                    Save
-                  </UIButton>
-                  <UIButton size="sm" variant="outline" onClick={handleCancelEdit}>
-                    Cancel
-                  </UIButton>
-                </div>
-              </div>
-            ) : (
-              <p
-                className="cursor-pointer min-h-[24px] hover:bg-blue-50/50 rounded-md px-2 py-1 transition-colors leading-relaxed"
-                onClick={handleStartEdit}
-              >
-                {component.content.text || "Click to edit paragraph"}
-              </p>
-            )}
-            {(isHovered || isSelected) && !isEditing && (
-              <button
-                onClick={handleStartEdit}
-                className="absolute -top-2 -right-2 bg-blue-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-600 hover:scale-110 shadow-lg"
-                title="Edit paragraph"
-              >
-                <Edit3 className="w-3 h-3" />
-              </button>
-            )}
+            <p className="leading-relaxed">
+              {renderEditableText("text", component.content.text, "Click to edit paragraph", true)}
+            </p>
           </div>
         )
 
@@ -357,137 +347,48 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             style={style}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            ref={editRef}
           >
-            {isEditing ? (
-              <div className="space-y-4 p-6 border-2 border-blue-200 rounded-lg bg-blue-50/50">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
-                    <Input
-                      type="text"
-                      placeholder="https://example.com/image.jpg"
-                      value={editingContent.src || ""}
-                      onChange={(e) => setEditingContent({ ...editingContent, src: e.target.value })}
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Alt Text</label>
-                    <Input
-                      type="text"
-                      placeholder="Describe the image"
-                      value={editingContent.alt || ""}
-                      onChange={(e) => setEditingContent({ ...editingContent, alt: e.target.value })}
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Width</label>
-                    <Input
-                      type="text"
-                      placeholder="100%, 400px, auto"
-                      value={editingContent.width || ""}
-                      onChange={(e) => setEditingContent({ ...editingContent, width: e.target.value })}
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Height</label>
-                    <Input
-                      type="text"
-                      placeholder="auto, 300px"
-                      value={editingContent.height || ""}
-                      onChange={(e) => setEditingContent({ ...editingContent, height: e.target.value })}
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Object Fit</label>
-                    <select
-                      value={editingContent.objectFit || "cover"}
-                      onChange={(e) => setEditingContent({ ...editingContent, objectFit: e.target.value })}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="cover">Cover</option>
-                      <option value="contain">Contain</option>
-                      <option value="fill">Fill</option>
-                      <option value="scale-down">Scale Down</option>
-                      <option value="none">None</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Border Radius</label>
-                    <Input
-                      type="text"
-                      placeholder="8px, 1rem, 50%"
-                      value={editingContent.borderRadius || ""}
-                      onChange={(e) => setEditingContent({ ...editingContent, borderRadius: e.target.value })}
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Caption (optional)</label>
-                  <Input
-                    type="text"
-                    placeholder="Image caption"
-                    value={editingContent.caption || ""}
-                    onChange={(e) => setEditingContent({ ...editingContent, caption: e.target.value })}
-                    className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <UIButton onClick={handleSaveEdit}>Save Changes</UIButton>
-                  <UIButton variant="outline" onClick={handleCancelEdit}>
-                    Cancel
-                  </UIButton>
-                </div>
-              </div>
-            ) : (
-              <div className="cursor-pointer group" onClick={handleStartEdit}>
-                <div className="relative overflow-hidden rounded-lg">
-                  <img
-                    src={imageContent.src || "/placeholder.svg?height=300&width=500"}
-                    alt={imageContent.alt || "Image"}
-                    className={cn(
-                      "transition-all duration-300 group-hover:scale-105",
-                      imageContent.objectFit && `object-${imageContent.objectFit}`,
-                    )}
-                    style={{
-                      width: imageContent.width || "100%",
-                      height: imageContent.height || "auto",
-                      borderRadius: imageContent.borderRadius || "8px",
-                    }}
-                  />
-                  {imageContent.overlay?.enabled && (
-                    <div
-                      className="absolute inset-0 flex items-center justify-center"
-                      style={{
-                        backgroundColor: imageContent.overlay.color || "rgba(0,0,0,0.5)",
-                        opacity: imageContent.overlay.opacity || 0.5,
-                      }}
-                    >
-                      {imageContent.overlay.text && (
-                        <span className="text-white text-lg font-semibold">{imageContent.overlay.text}</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {imageContent.caption && (
-                  <p className="text-sm text-gray-600 mt-3 text-center italic">{imageContent.caption}</p>
+            <div className="space-y-2">
+              <img
+                src={imageContent.src || "/placeholder.svg?height=300&width=500"}
+                alt={imageContent.alt || "Image"}
+                className={cn(
+                  "transition-all duration-300 hover:scale-105 rounded-lg",
+                  imageContent.objectFit && `object-${imageContent.objectFit}`,
                 )}
-              </div>
-            )}
-            {(isHovered || isSelected) && !isEditing && (
-              <button
-                onClick={handleStartEdit}
-                className="absolute -top-2 -right-2 bg-blue-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-600 hover:scale-110 shadow-lg"
-                title="Edit image"
-              >
-                <Edit3 className="w-3 h-3" />
-              </button>
-            )}
+                style={{
+                  width: imageContent.width || "100%",
+                  height: imageContent.height || "auto",
+                  borderRadius: imageContent.borderRadius || "8px",
+                }}
+              />
+              {renderEditableText(
+                "caption",
+                imageContent.caption,
+                "Add caption",
+                false,
+                "text-sm text-gray-600 text-center",
+              )}
+            </div>
+          </div>
+        )
+
+      case "button":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <UIButton
+              variant={(component.content.variant as any) || "default"}
+              size={(component.content.size as any) || "default"}
+              className="transition-all duration-200 hover:scale-105"
+            >
+              {renderEditableText("text", component.content.text, "Button Text")}
+              {component.content.link && <ExternalLink className="w-4 h-4 ml-2" />}
+            </UIButton>
           </div>
         )
 
@@ -499,170 +400,48 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             style={style}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            ref={editRef}
           >
-            {isEditing ? (
-              <div className="space-y-4 p-6 border-2 border-blue-200 rounded-lg bg-blue-50/50">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                    <Input
-                      type="text"
-                      placeholder="Card title"
-                      value={editingContent.title || ""}
-                      onChange={(e) => setEditingContent({ ...editingContent, title: e.target.value })}
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Layout</label>
-                    <select
-                      value={editingContent.layout || "default"}
-                      onChange={(e) => setEditingContent({ ...editingContent, layout: e.target.value })}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="default">Default</option>
-                      <option value="horizontal">Horizontal</option>
-                      <option value="minimal">Minimal</option>
-                      <option value="feature">Feature</option>
-                      <option value="pricing">Pricing</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <Textarea
-                    placeholder="Card description"
-                    value={editingContent.description || ""}
-                    onChange={(e) => setEditingContent({ ...editingContent, description: e.target.value })}
-                    className="min-h-[80px] focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            <Card className="transition-all duration-300 hover:shadow-lg border-0 shadow-md">
+              {cardContent.imageUrl && (
+                <div className="overflow-hidden rounded-t-lg">
+                  <img
+                    src={cardContent.imageUrl || "/placeholder.svg"}
+                    alt=""
+                    className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Image URL (optional)</label>
-                  <Input
-                    type="text"
-                    placeholder="https://example.com/image.jpg"
-                    value={editingContent.imageUrl || ""}
-                    onChange={(e) => setEditingContent({ ...editingContent, imageUrl: e.target.value })}
-                    className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <UIButton onClick={handleSaveEdit}>Save Changes</UIButton>
-                  <UIButton variant="outline" onClick={handleCancelEdit}>
-                    Cancel
-                  </UIButton>
-                </div>
-              </div>
-            ) : (
-              <Card
-                className={cn(
-                  "cursor-pointer transition-all duration-300 hover:shadow-lg border-0 shadow-md",
-                  cardContent.layout === "horizontal" && "flex flex-row",
-                  cardContent.layout === "minimal" && "border border-gray-200 shadow-sm",
-                  cardContent.layout === "feature" && "text-center",
-                  cardContent.layout === "pricing" && "relative overflow-hidden",
-                )}
-                onClick={handleStartEdit}
-              >
-                {cardContent.badge && (
-                  <div
-                    className={cn(
-                      "absolute z-10 px-3 py-1 text-xs font-semibold rounded-full",
-                      cardContent.badge.position === "top-left" && "top-4 left-4",
-                      cardContent.badge.position === "top-right" && "top-4 right-4",
-                      cardContent.badge.position === "bottom-left" && "bottom-4 left-4",
-                      cardContent.badge.position === "bottom-right" && "bottom-4 right-4",
-                    )}
-                    style={{ backgroundColor: cardContent.badge.color, color: "white" }}
-                  >
-                    {cardContent.badge.text}
+              )}
+              <CardHeader>
+                <CardTitle className="text-xl font-bold text-gray-900">
+                  {renderEditableText("title", cardContent.title, "Card Title")}
+                </CardTitle>
+                <CardDescription className="text-gray-600 leading-relaxed">
+                  {renderEditableText("description", cardContent.description, "Card description", true)}
+                </CardDescription>
+              </CardHeader>
+              {cardContent.buttons && cardContent.buttons.length > 0 && (
+                <CardContent className="pt-0">
+                  <div className="flex gap-2 flex-wrap">
+                    {cardContent.buttons.map((button, index) => (
+                      <UIButton
+                        key={index}
+                        variant={button.variant as any}
+                        size="sm"
+                        className="transition-all duration-200 hover:scale-105"
+                      >
+                        {button.icon && iconMap[button.icon] && (
+                          <span className="mr-2">
+                            {React.createElement(iconMap[button.icon], { className: "w-4 h-4" })}
+                          </span>
+                        )}
+                        {renderEditableText(`buttons.${index}.text`, button.text, "Button")}
+                        {button.link && <ExternalLink className="w-4 h-4 ml-2" />}
+                      </UIButton>
+                    ))}
                   </div>
-                )}
-
-                {cardContent.imageUrl && cardContent.imagePosition !== "background" && (
-                  <div
-                    className={cn(
-                      "overflow-hidden",
-                      cardContent.imagePosition === "top" && "rounded-t-lg",
-                      cardContent.layout === "horizontal" && cardContent.imagePosition === "left" && "w-1/3",
-                      cardContent.layout === "horizontal" && cardContent.imagePosition === "right" && "w-1/3 order-2",
-                    )}
-                  >
-                    <img
-                      src={cardContent.imageUrl || "/placeholder.svg"}
-                      alt=""
-                      className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
-                    />
-                  </div>
-                )}
-
-                <CardHeader
-                  className={cn(
-                    cardContent.layout === "horizontal" && "flex-1",
-                    cardContent.layout === "feature" && "text-center",
-                  )}
-                >
-                  <CardTitle className="text-xl font-bold text-gray-900">{cardContent.title || "Card Title"}</CardTitle>
-                  <CardDescription className="text-gray-600 leading-relaxed">
-                    {cardContent.description || "Card description"}
-                  </CardDescription>
-                </CardHeader>
-
-                {(cardContent.buttons || cardContent.stats) && (
-                  <CardContent className="pt-0">
-                    {cardContent.stats && (
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        {cardContent.stats.map((stat, index) => (
-                          <div key={index} className="text-center">
-                            <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                            <div className="text-sm text-gray-500">{stat.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {cardContent.buttons && (
-                      <div className="flex gap-2 flex-wrap">
-                        {cardContent.buttons.map((button, index) => (
-                          <UIButton
-                            key={index}
-                            variant={button.variant as any}
-                            size="sm"
-                            className="transition-all duration-200 hover:scale-105"
-                          >
-                            {button.icon && iconMap[button.icon] && (
-                              <span className="mr-2">
-                                {React.createElement(iconMap[button.icon], { className: "w-4 h-4" })}
-                              </span>
-                            )}
-                            {button.text}
-                            {button.link && <ExternalLink className="w-4 h-4 ml-2" />}
-                          </UIButton>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                )}
-
-                {cardContent.imageUrl && cardContent.imagePosition === "background" && (
-                  <div
-                    className="absolute inset-0 bg-cover bg-center opacity-20 rounded-lg"
-                    style={{ backgroundImage: `url(${cardContent.imageUrl})` }}
-                  />
-                )}
-              </Card>
-            )}
-            {(isHovered || isSelected) && !isEditing && (
-              <button
-                onClick={handleStartEdit}
-                className="absolute -top-2 -right-2 bg-blue-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-600 hover:scale-110 shadow-lg"
-                title="Edit card"
-              >
-                <Edit3 className="w-3 h-3" />
-              </button>
-            )}
+                </CardContent>
+              )}
+            </Card>
           </div>
         )
 
@@ -674,124 +453,374 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             style={style}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            ref={editRef}
           >
-            {isEditing ? (
-              <div className="space-y-4 p-6 border-2 border-blue-200 rounded-lg bg-blue-50/50">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Columns</label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="12"
-                      value={editingContent.columns || 3}
-                      onChange={(e) =>
-                        setEditingContent({ ...editingContent, columns: Number.parseInt(e.target.value) })
-                      }
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Gap</label>
-                    <Input
-                      type="text"
-                      placeholder="1rem, 16px"
-                      value={editingContent.gap || "1.5rem"}
-                      onChange={(e) => setEditingContent({ ...editingContent, gap: e.target.value })}
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">SM Columns</label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="12"
-                      value={editingContent.responsive?.sm || 1}
-                      onChange={(e) =>
-                        setEditingContent({
-                          ...editingContent,
-                          responsive: { ...editingContent.responsive, sm: Number.parseInt(e.target.value) },
-                        })
-                      }
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">MD Columns</label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="12"
-                      value={editingContent.responsive?.md || 2}
-                      onChange={(e) =>
-                        setEditingContent({
-                          ...editingContent,
-                          responsive: { ...editingContent.responsive, md: Number.parseInt(e.target.value) },
-                        })
-                      }
-                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    />
-                  </div>
+            <div
+              className="gap-6"
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${gridContent.columns || 3}, 1fr)`,
+                gap: gridContent.gap || "1.5rem",
+              }}
+            >
+              {gridContent.items?.map((item, index) => (
+                <div
+                  key={item.id || index}
+                  className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+                >
+                  {item.type === "card" && (
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2">
+                        {renderEditableText(`items.${index}.content.title`, item.content.title, "Grid Item Title")}
+                      </h3>
+                      <p className="text-gray-600 text-sm">
+                        {renderEditableText(
+                          `items.${index}.content.description`,
+                          item.content.description,
+                          "Grid item description",
+                          true,
+                        )}
+                      </p>
+                    </div>
+                  )}
+                  {item.type === "text" && (
+                    <p className="text-gray-700">
+                      {renderEditableText(`items.${index}.content.text`, item.content.text, "Grid text content", true)}
+                    </p>
+                  )}
                 </div>
-                <div className="flex gap-2">
-                  <UIButton onClick={handleSaveEdit}>Save Changes</UIButton>
-                  <UIButton variant="outline" onClick={handleCancelEdit}>
-                    Cancel
-                  </UIButton>
+              )) || (
+                <div className="col-span-full text-center py-8 text-gray-500">
+                  <p>No grid items yet. Add items to populate this grid.</p>
                 </div>
-              </div>
-            ) : (
-              <div
-                className="cursor-pointer"
-                onClick={handleStartEdit}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: `repeat(${gridContent.columns}, 1fr)`,
-                  gap: gridContent.gap || "1.5rem",
-                }}
-              >
-                {gridContent.items?.map((item, index) => (
-                  <div
-                    key={item.id || index}
-                    className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
-                    style={{
-                      gridColumn: item.span?.columns ? `span ${item.span.columns}` : undefined,
-                      gridRow: item.span?.rows ? `span ${item.span.rows}` : undefined,
-                    }}
-                  >
-                    {item.type === "card" && (
-                      <div>
-                        <h3 className="font-semibold text-gray-900 mb-2">{item.content.title}</h3>
-                        <p className="text-gray-600 text-sm">{item.content.description}</p>
-                      </div>
-                    )}
-                    {item.type === "image" && (
-                      <img
-                        src={item.content.src || "/placeholder.svg?height=200&width=300"}
-                        alt={item.content.alt || "Grid item"}
-                        className="w-full h-32 object-cover rounded-md"
-                      />
-                    )}
-                    {item.type === "text" && <p className="text-gray-700">{item.content.text}</p>}
-                  </div>
-                )) || (
-                  <div className="col-span-full text-center py-8 text-gray-500">
-                    No grid items yet. Click to edit and add items.
+              )}
+            </div>
+          </div>
+        )
+
+      case "banner":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div
+              className="relative overflow-hidden rounded-xl p-8 text-center"
+              style={{
+                background: component.content.backgroundColor || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                color: component.content.textColor || "white",
+              }}
+            >
+              <div className="relative z-10">
+                <h2 className="text-3xl font-bold mb-2">
+                  {renderEditableText("title", component.content.title, "Banner Title")}
+                </h2>
+                <p className="text-lg mb-4 opacity-90">
+                  {renderEditableText("subtitle", component.content.subtitle, "Banner subtitle")}
+                </p>
+                <p className="mb-6">
+                  {renderEditableText("description", component.content.description, "Banner description", true)}
+                </p>
+                {component.content.buttons && component.content.buttons.length > 0 && (
+                  <div className="flex gap-4 justify-center">
+                    {component.content.buttons.map((button: any, index: number) => (
+                      <UIButton
+                        key={index}
+                        variant={button.variant as any}
+                        className="transition-all duration-200 hover:scale-105"
+                      >
+                        {renderEditableText(`buttons.${index}.text`, button.text, "Button")}
+                      </UIButton>
+                    ))}
                   </div>
                 )}
               </div>
-            )}
-            {(isHovered || isSelected) && !isEditing && (
-              <button
-                onClick={handleStartEdit}
-                className="absolute -top-2 -right-2 bg-blue-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-600 hover:scale-110 shadow-lg"
-                title="Edit grid"
-              >
-                <Edit3 className="w-3 h-3" />
-              </button>
-            )}
+            </div>
+          </div>
+        )
+
+      case "hero":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div
+              className="relative overflow-hidden rounded-2xl py-16 px-8"
+              style={{
+                background: component.content.backgroundColor || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                textAlign: component.content.textAlign || "center",
+              }}
+            >
+              <div className="relative z-10 max-w-4xl mx-auto">
+                <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+                  {renderEditableText("title", component.content.title, "Hero Title")}
+                </h1>
+                <p className="text-xl text-white/90 mb-4">
+                  {renderEditableText("subtitle", component.content.subtitle, "Hero subtitle")}
+                </p>
+                <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
+                  {renderEditableText("description", component.content.description, "Hero description", true)}
+                </p>
+                {component.content.buttons && component.content.buttons.length > 0 && (
+                  <div className="flex gap-4 justify-center flex-wrap">
+                    {component.content.buttons.map((button: any, index: number) => (
+                      <UIButton
+                        key={index}
+                        variant={button.variant as any}
+                        size="lg"
+                        className="transition-all duration-200 hover:scale-105"
+                      >
+                        {renderEditableText(`buttons.${index}.text`, button.text, "Button")}
+                      </UIButton>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+
+      case "table":
+        const tableContent = component.content as TableContent
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="overflow-hidden rounded-lg bg-white shadow border border-gray-200">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {tableContent.headers?.map((header, index) => (
+                      <TableHead key={index} className="font-semibold">
+                        {renderEditableText(`headers.${index}`, header, `Header ${index + 1}`)}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tableContent.rows?.map((row, rowIndex) => (
+                    <TableRow key={rowIndex} className="hover:bg-gray-50">
+                      {row.map((cell, cellIndex) => (
+                        <TableCell key={cellIndex}>
+                          {renderEditableText(
+                            `rows.${rowIndex}.${cellIndex}`,
+                            cell,
+                            `Cell ${rowIndex + 1}-${cellIndex + 1}`,
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )
+
+      case "list":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <ul className="list-disc list-inside space-y-2">
+              {component.content.items?.map((item: string, index: number) => (
+                <li key={index} className="text-gray-700">
+                  {renderEditableText(`items.${index}`, item, `List item ${index + 1}`)}
+                </li>
+              )) || <li className="text-gray-400 italic">Click to add list items</li>}
+            </ul>
+          </div>
+        )
+
+      case "orderedList":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <ol className="list-decimal list-inside space-y-2" start={component.content.start || 1}>
+              {component.content.items?.map((item: string, index: number) => (
+                <li key={index} className="text-gray-700">
+                  {renderEditableText(`items.${index}`, item, `List item ${index + 1}`)}
+                </li>
+              )) || <li className="text-gray-400 italic">Click to add list items</li>}
+            </ol>
+          </div>
+        )
+
+      case "taskList":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="space-y-2">
+              {component.content.items?.map((item: { text: string; checked: boolean }, index: number) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={item.checked}
+                    onChange={(e) => {
+                      const newItems = [...component.content.items]
+                      newItems[index] = { ...item, checked: e.target.checked }
+                      updateComponentContent(component.id, { items: newItems })
+                    }}
+                    className="rounded"
+                  />
+                  <span className={item.checked ? "line-through text-gray-500" : "text-gray-700"}>
+                    {renderEditableText(`items.${index}.text`, item.text, `Task ${index + 1}`)}
+                  </span>
+                </div>
+              )) || <div className="text-gray-400 italic">Click to add tasks</div>}
+            </div>
+          </div>
+        )
+
+      case "blockquote":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600">
+              {renderEditableText("text", component.content.text, "Quote text", true)}
+              {component.content.author && (
+                <footer className="text-sm text-gray-500 mt-2">
+                  — {renderEditableText("author", component.content.author, "Author name")}
+                </footer>
+              )}
+            </blockquote>
+          </div>
+        )
+
+      case "alert":
+        const alertIcons = {
+          info: Info,
+          warning: AlertTriangle,
+          success: CheckCircle,
+          error: XCircle,
+        }
+        const AlertIcon = alertIcons[component.content.type as keyof typeof alertIcons] || Info
+
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <Alert>
+              <AlertIcon className="h-4 w-4" />
+              <AlertTitle>Alert</AlertTitle>
+              <AlertDescription>
+                {renderEditableText("text", component.content.text, "Alert message", true)}
+              </AlertDescription>
+            </Alert>
+          </div>
+        )
+
+      case "code":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="bg-gray-100 rounded-lg p-4 overflow-x-auto">
+              <pre className="text-sm">
+                <code>
+                  {renderEditableText("code", component.content.code, "// Your code here", true, "font-mono")}
+                </code>
+              </pre>
+              {component.content.language && (
+                <div className="text-xs text-gray-500 mt-2">Language: {component.content.language}</div>
+              )}
+            </div>
+          </div>
+        )
+
+      case "divider":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <hr className="border-gray-300 my-4" />
+          </div>
+        )
+
+      case "spacer":
+        return (
+          <div
+            className={baseClasses}
+            style={{ ...style, height: component.content.height || "40px" }}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="border border-dashed border-gray-300 rounded flex items-center justify-center text-gray-400 text-sm h-full">
+              Spacer ({component.content.height || "40px"})
+            </div>
+          </div>
+        )
+
+      case "columns":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="grid grid-cols-2 gap-6">
+              <div className="p-4 border border-gray-200 rounded">
+                {renderEditableText("column1Text", component.content.column1Text, "Column 1 content", true)}
+              </div>
+              <div className="p-4 border border-gray-200 rounded">
+                {renderEditableText("column2Text", component.content.column2Text, "Column 2 content", true)}
+              </div>
+            </div>
+          </div>
+        )
+
+      case "mermaid":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="bg-gray-100 p-4 rounded-md border">
+              <div className="text-center text-gray-600 mb-2">Mermaid Diagram</div>
+              <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+                {renderEditableText(
+                  "code",
+                  component.content.code,
+                  "graph TD;\n    A[Start] --> B[Process];",
+                  true,
+                  "font-mono",
+                )}
+              </pre>
+            </div>
           </div>
         )
 
@@ -802,86 +831,190 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             style={style}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            ref={editRef}
           >
-            {isEditing ? (
-              <div className="space-y-4 p-6 border-2 border-blue-200 rounded-lg bg-blue-50/50">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Block Name</label>
-                  <Input
-                    type="text"
-                    placeholder="Custom HTML Block"
-                    value={editingContent.name || ""}
-                    onChange={(e) => setEditingContent({ ...editingContent, name: e.target.value })}
-                    className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">HTML Content</label>
-                  <Textarea
-                    placeholder="Enter your HTML content here..."
-                    value={editingContent.htmlContent || ""}
-                    onChange={(e) => setEditingContent({ ...editingContent, htmlContent: e.target.value })}
-                    className="min-h-[200px] font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div className="flex items-center gap-4">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={editingContent.editable !== false}
-                      onChange={(e) => setEditingContent({ ...editingContent, editable: e.target.checked })}
-                      className="rounded"
-                    />
-                    <span className="text-sm text-gray-700">Editable</span>
-                  </label>
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={editingContent.responsive !== false}
-                      onChange={(e) => setEditingContent({ ...editingContent, responsive: e.target.checked })}
-                      className="rounded"
-                    />
-                    <span className="text-sm text-gray-700">Responsive</span>
-                  </label>
-                </div>
-                <div className="flex gap-2">
-                  <UIButton onClick={handleSaveEdit}>Save Changes</UIButton>
-                  <UIButton variant="outline" onClick={handleCancelEdit}>
-                    Cancel
-                  </UIButton>
-                </div>
+            <div
+              dangerouslySetInnerHTML={{
+                __html:
+                  component.content.htmlContent ||
+                  "<div class='p-8 border-2 border-dashed border-gray-300 rounded-xl text-center bg-gray-50'><h3 class='text-lg font-semibold text-gray-700 mb-2'>Custom HTML Block</h3><p class='text-gray-500'>Click to edit HTML content</p></div>",
+              }}
+              className={cn("transition-all duration-200", component.content.responsive && "w-full")}
+            />
+            {component.content.name && (
+              <div className="text-xs text-gray-500 mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                {component.content.name}
               </div>
-            ) : (
-              <div className="cursor-pointer group" onClick={handleStartEdit}>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html:
-                      component.content.htmlContent ||
-                      "<div class='p-8 border-2 border-dashed border-gray-300 rounded-xl text-center bg-gray-50'><h3 class='text-lg font-semibold text-gray-700 mb-2'>Custom HTML Block</h3><p class='text-gray-500'>Click to edit HTML content</p></div>",
-                  }}
-                  className={cn("transition-all duration-200", component.content.responsive && "w-full")}
-                />
-                {component.content.name && (
-                  <div className="text-xs text-gray-500 mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    {component.content.name}
-                  </div>
-                )}
-              </div>
-            )}
-            {(isHovered || isSelected) && !isEditing && (
-              <button
-                onClick={handleStartEdit}
-                className="absolute -top-2 -right-2 bg-blue-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-600 hover:scale-110 shadow-lg"
-                title="Edit HTML block"
-              >
-                <Edit3 className="w-3 h-3" />
-              </button>
             )}
           </div>
         )
 
-      // Add more component types here...
+      case "infographic":
+        const infographicContent = component.content as InfographicContent
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">
+                {renderEditableText("title", infographicContent.title, "Infographic Title")}
+              </h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {infographicContent.items?.map((item, index) => {
+                const IconComponent = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Target
+                return (
+                  <div key={item.id || index} className="text-center">
+                    <div
+                      className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: item.color || "#3B82F6" }}
+                    >
+                      <IconComponent className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="text-3xl font-bold text-gray-900 mb-2">
+                      {renderEditableText(`items.${index}.value`, item.value?.toString() || "", "0")}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {renderEditableText(`items.${index}.title`, item.title, "Stat title")}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+
+      case "gallery":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {component.content.images?.map((image: any, index: number) => (
+                <div key={index} className="relative group">
+                  <img
+                    src={image.src || "/placeholder.svg?height=300&width=400"}
+                    alt={image.alt || `Gallery image ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg transition-transform duration-300 hover:scale-105"
+                  />
+                  {image.caption && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
+                      {renderEditableText(`images.${index}.caption`, image.caption, "Image caption")}
+                    </div>
+                  )}
+                </div>
+              )) || (
+                <div className="col-span-full text-center py-8 text-gray-500">
+                  <p>No images in gallery yet.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+
+      case "testimonial":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="bg-white rounded-lg p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={cn(
+                      "w-5 h-5",
+                      i < (component.content.rating || 5) ? "text-yellow-400 fill-current" : "text-gray-300",
+                    )}
+                  />
+                ))}
+              </div>
+              <blockquote className="text-gray-700 mb-4 italic">
+                "{renderEditableText("quote", component.content.quote, "Testimonial quote", true)}"
+              </blockquote>
+              <div className="flex items-center">
+                <img
+                  src={component.content.avatar || "/placeholder.svg?height=50&width=50"}
+                  alt={component.content.author || "Author"}
+                  className="w-12 h-12 rounded-full mr-4"
+                />
+                <div>
+                  <div className="font-semibold text-gray-900">
+                    {renderEditableText("author", component.content.author, "Author Name")}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {renderEditableText("position", component.content.position, "Position, Company")}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "pricing":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {component.content.plans?.map((plan: any, index: number) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "bg-white rounded-lg p-6 shadow-lg border-2 transition-all duration-300 hover:scale-105",
+                    plan.popular ? "border-blue-500 relative" : "border-gray-200",
+                  )}
+                >
+                  {plan.popular && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                      Popular
+                    </div>
+                  )}
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      {renderEditableText(`plans.${index}.name`, plan.name, "Plan Name")}
+                    </h3>
+                    <div className="text-4xl font-bold text-gray-900 mb-1">
+                      {renderEditableText(`plans.${index}.price`, plan.price, "$0")}
+                    </div>
+                    <div className="text-gray-600 mb-6">
+                      /{renderEditableText(`plans.${index}.period`, plan.period, "month")}
+                    </div>
+                    <ul className="space-y-3 mb-6 text-left">
+                      {plan.features?.map((feature: string, featureIndex: number) => (
+                        <li key={featureIndex} className="flex items-center">
+                          <Check className="w-5 h-5 text-green-500 mr-3" />
+                          <span className="text-gray-700">
+                            {renderEditableText(`plans.${index}.features.${featureIndex}`, feature, "Feature")}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <UIButton className="w-full" variant={plan.popular ? "default" : "outline"}>
+                      {renderEditableText(`plans.${index}.buttonText`, plan.buttonText, "Get Started")}
+                    </UIButton>
+                  </div>
+                </div>
+              )) || (
+                <div className="col-span-full text-center py-8 text-gray-500">
+                  <p>No pricing plans yet.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+
       default:
         return (
           <div className={baseClasses} style={style}>
@@ -897,5 +1030,19 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
     }
   }
 
-  return renderEditableContent()
+  return (
+    <div className="relative">
+      {renderComponent()}
+      {(isHovered || isSelected) && !editingField && (
+        <div className="absolute -top-2 -right-2 flex gap-1">
+          <button
+            className="bg-blue-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-600 hover:scale-110 shadow-lg"
+            title="Edit component"
+          >
+            <Edit3 className="w-3 h-3" />
+          </button>
+        </div>
+      )}
+    </div>
+  )
 }
