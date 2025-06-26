@@ -61,13 +61,14 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
 }
 
 interface FeatureCardsProps {
-  sections: FeatureCardProps[]
+  sections?: FeatureCardProps[]
 }
 
-const FeatureCards: React.FC<FeatureCardsProps> = ({ sections }) => {
+const FeatureCards: React.FC<{ sections?: FeatureCardProps[] }> = ({ sections }) => {
+  const data = sections ?? features
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {sections.map((section) => (
+      {data.map((section) => (
         <FeatureCard key={section.id} {...section} />
       ))}
     </div>
@@ -75,6 +76,7 @@ const FeatureCards: React.FC<FeatureCardsProps> = ({ sections }) => {
 }
 
 export default FeatureCards
+export { FeatureCards }
 
 export const features = [
   {
