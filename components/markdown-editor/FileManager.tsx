@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { useEditor } from "./EditorContext"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { X, Search, FileText, Folder, Plus, MoreVertical } from "lucide-react"
 
 interface FileManagerProps {
