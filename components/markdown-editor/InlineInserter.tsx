@@ -1,116 +1,106 @@
 "use client"
 
-import type React from "react"
-import { useState, useRef } from "react"
-import {
-  PlusCircle,
-  Type,
-  AlignLeft,
-  ImageIcon,
-  Code,
-  Minus,
-  List,
-  CheckSquare,
-  AlertTriangle,
-  Columns,
-  Share2,
-  Table,
-  MousePointer,
-  CreditCard,
-  Hourglass,
-  Quote,
-} from "lucide-react"
+import { useMemo, useState } from "react"
+import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useEditor } from "./EditorContext"
-import { getDefaultContent } from "./ComponentPalette" // Assuming this is exported
 import type { MarkdownComponent } from "./types"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { getDefaultContent, componentCategories } from "./ComponentPalette" // Import componentCategories
 import { cn } from "@/lib/utils"
 
 interface InlineInserterProps {
   targetIndex: number
   isVisible: boolean
-  alwaysVisible?: boolean // For the empty canvas case
+  alwaysVisible?: boolean
 }
-
-const inserterOptions: { label: string; type: MarkdownComponent["type"]; icon: React.ElementType }[] = [
-  { label: "Paragraph", type: "paragraph", icon: AlignLeft },
-  { label: "Heading", type: "heading", icon: Type },
-  { label: "Image", type: "image", icon: ImageIcon },
-  { label: "Bullet List", type: "list", icon: List },
-  { label: "Task List", type: "taskList", icon: CheckSquare },
-  { label: "Code Block", type: "code", icon: Code },
-  { label: "Divider", type: "divider", icon: Minus },
-  { label: "Blockquote", type: "blockquote", icon: Quote },
-  { label: "Table", type: "table", icon: Table },
-  { label: "Button", type: "button", icon: MousePointer },
-  { label: "Card", type: "card", icon: CreditCard },
-  { label: "Alert", type: "alert", icon: AlertTriangle },
-  { label: "Columns", type: "columns", icon: Columns }, // Simple 2-column
-  { label: "Spacer", type: "spacer", icon: Hourglass },
-  { label: "Mermaid", type: "mermaid", icon: Share2 },
-  // { label: "Video", type: "video", icon: Youtube }, // Needs custom Tiptap node
-]
 
 export function InlineInserter({ targetIndex, isVisible, alwaysVisible = false }: InlineInserterProps) {
   const { addComponent } = useEditor()
-  const [popoverOpen, setPopoverOpen] = useState(false)
-  const triggerRef = useRef<HTMLButtonElement>(null)
+  const [open, setOpen] = useState(false)
 
-  const handleAddComponent = (type: MarkdownComponent["type"]) => {
-    const content = getDefaultContent(type)
+  const componentDefinitions = useMemo(() => {
+    return componentCategories.flatMap((category) =>
+      category.components.map((comp) => ({
+        ...comp,
+        categoryName: category.name,
+      })),
+    )
+  }, [])
+
+  const onSelectComponentType = (type: MarkdownComponent["type"], htmlBlockKey?: string) => {
+    console.log(`InlineInserter: Attempting to add component type "${type}" at index ${targetIndex}`, htmlBlockKey)
+    const content = getDefaultContent(type, htmlBlockKey)
+    if (content === undefined) {
+      // Check for undefined specifically
+      console.error(`InlineInserter: getDefaultContent returned undefined for type "${type}". Aborting add.`)
+      setOpen(false)
+      return
+    }
     addComponent({ type, content }, false, targetIndex)
-    setPopoverOpen(false)
+    setOpen(false) // Close dropdown after selection
   }
 
   if (!isVisible && !alwaysVisible) {
-    return <div className="h-8 my-1"></div> // Placeholder for spacing, hidden
+    return null
   }
 
   return (
-    <div
-      className={cn(
-        "relative flex items-center justify-center my-1 transition-opacity duration-200",
-        isVisible || alwaysVisible ? "opacity-100" : "opacity-0 pointer-events-none",
-      )}
-    >
-      <div className="w-full h-px bg-muted-foreground/20 absolute top-1/2 left-0 z-0"></div>
-      <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-        <PopoverTrigger asChild ref={triggerRef}>
+    <div className={cn("relative flex justify-center my-2", alwaysVisible ? "py-2" : "")}>
+      <div className={cn("absolute inset-0 flex items-center", alwaysVisible ? "px-4" : "")} aria-hidden="true">
+        {!alwaysVisible && <div className="w-full border-t border-dashed border-muted-foreground/50" />}
+      </div>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
+        <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
             className={cn(
-              "rounded-full bg-background hover:bg-muted border border-transparent hover:border-muted-foreground/30 z-10",
-              "transition-all duration-150 ease-in-out",
-              isVisible || alwaysVisible ? "scale-100 opacity-100" : "scale-90 opacity-0",
+              "relative rounded-full w-8 h-8 transition-opacity duration-150 ease-in-out group-hover:opacity-100 focus-visible:opacity-100",
+              isVisible || alwaysVisible ? "opacity-100" : "opacity-0",
+              alwaysVisible
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-card hover:bg-accent dark:bg-neutral-700 dark:hover:bg-neutral-600 border dark:border-neutral-600",
             )}
-            aria-label="Add element"
+            onClick={(e) => {
+              e.stopPropagation() // Prevent canvas deselection or other parent clicks
+              // setOpen(!open); // onOpenChange handles this
+            }}
+            aria-label="Add component here"
           >
-            <PlusCircle className="w-6 h-6 text-muted-foreground group-hover:text-primary" />
+            <Plus className="w-4 h-4" />
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-72 p-1" side="bottom" align="center">
-          <ScrollArea className="h-[250px]">
-            <div className="grid grid-cols-1 gap-1 p-1">
-              {inserterOptions.map((opt) => (
-                <Button
-                  key={opt.type}
-                  variant="ghost"
-                  className="w-full justify-start h-10 px-3"
-                  onClick={() => handleAddComponent(opt.type)}
-                >
-                  <opt.icon className="w-4 h-4 mr-3 text-muted-foreground" />
-                  {opt.label}
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
-        </PopoverContent>
-      </Popover>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          onClick={(e) => e.stopPropagation()}
+          className="max-h-96 overflow-y-auto w-64 dark:bg-neutral-800 dark:border-neutral-700"
+          align="center"
+          sideOffset={5}
+        >
+          <DropdownMenuLabel className="dark:text-neutral-300">Add Element</DropdownMenuLabel>
+          <DropdownMenuSeparator className="dark:bg-neutral-700" />
+          {componentDefinitions.map((componentDef) => (
+            <DropdownMenuItem
+              key={`${componentDef.type}-${componentDef.label}-${componentDef.htmlBlockKey || ""}`}
+              onSelect={(event) => {
+                event.preventDefault() // Crucial for custom onSelect logic
+                onSelectComponentType(componentDef.type, componentDef.htmlBlockKey)
+              }}
+              className="flex items-center gap-2 cursor-pointer dark:text-neutral-300 dark:hover:bg-neutral-700"
+            >
+              <componentDef.icon className={`w-4 h-4 ${componentDef.color} flex-shrink-0`} />
+              <span>{componentDef.label}</span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   )
 }
-
-export default InlineInserter

@@ -1,7 +1,16 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent, closestCenter } from "@dnd-kit/core"
+import {
+  DndContext,
+  type DragEndEvent,
+  DragOverlay,
+  type DragStartEvent,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { ComponentPalette, getDefaultContent } from "./ComponentPalette"
 import { EditorCanvas } from "./EditorCanvas"
@@ -10,10 +19,10 @@ import { PreviewPanel } from "./PreviewPanel"
 import { EditorToolbar } from "./EditorToolbar"
 import { useEditor } from "./EditorContext"
 import type { MarkdownComponent } from "./types"
-import { cn } from "@/lib/utils" // Assuming you have a cn utility
+import { cn } from "@/lib/utils"
 
 interface MarkdownEditorProps {
-  onToggleFileManager: () => void // Assuming this is for a separate file manager UI
+  onToggleFileManager: () => void
   showFileManager: boolean
 }
 
@@ -21,9 +30,17 @@ export function MarkdownEditor({ onToggleFileManager, showFileManager }: Markdow
   const { state, addComponent, reorderComponents, selectComponent } = useEditor()
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
 
+  // Using PointerSensor to potentially avoid issues with complex nested elements
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Drag starts after 8px of movement
+      },
+    }),
+  )
+
   const handleDragStart = (event: DragStartEvent) => {
     setActiveDragId(event.active.id as string)
-    // If dragging from palette, don't select a component on canvas yet
     if (!(event.active.id as string).startsWith("palette-")) {
       selectComponent(event.active.id as string)
     }
@@ -33,35 +50,47 @@ export function MarkdownEditor({ onToggleFileManager, showFileManager }: Markdow
     setActiveDragId(null)
     const { active, over } = event
 
-    if (!over) return
+    if (!active) return
 
     const activeId = active.id as string
-    const overId = over.id as string
 
     // Case 1: Dragging from Palette to Canvas
     if (activeId.startsWith("palette-")) {
-      const componentType = activeId.replace("palette-", "") as MarkdownComponent["type"]
-      const newComponentContent = getDefaultContent(componentType)
+      const componentTypeFromPalette = active.data.current?.type as MarkdownComponent["type"]
+      const htmlBlockKeyFromPalette = active.data.current?.htmlBlockKey as string | undefined
+
+      if (!componentTypeFromPalette) {
+        console.error(
+          "DragEnd Error: Component type missing from palette item data for ID:",
+          activeId,
+          active.data.current,
+        )
+        return
+      }
+
+      const newComponentContent = getDefaultContent(componentTypeFromPalette, htmlBlockKeyFromPalette)
+      if (newComponentContent === undefined) {
+        console.error(
+          `DragEnd Error: getDefaultContent returned undefined for type "${componentTypeFromPalette}". Aborting add.`,
+        )
+        return
+      }
       const newComponentBase: Omit<MarkdownComponent, "id" | "order"> = {
-        type: componentType,
+        type: componentTypeFromPalette,
         content: newComponentContent,
       }
 
-      let targetIndex = state.components.length
-      const overComponentIndex = state.components.findIndex((c) => c.id === overId)
-      if (overComponentIndex !== -1) {
-        // Determine if dropping above or below the 'over' component based on mouse position relative to midpoint
-        // This is a simplification; dnd-kit provides more robust ways if needed
-        targetIndex = overComponentIndex // Default to inserting before
-        // A more precise calculation would involve `event.delta.y` or `over.rect`
-      }
-
+      // Always add to the end of the list for chronological order when dragging from palette
+      const targetIndex = state.components.length
       addComponent(newComponentBase, false, targetIndex)
-      // The new component ID is generated inside addComponent, selection happens there
+      // addComponent in context handles selection of the new component.
       return
     }
 
     // Case 2: Reordering existing components on the Canvas
+    if (!over) return // No drop target for reordering
+    const overId = over.id as string
+
     if (activeId !== overId) {
       const oldIndex = state.components.findIndex((item) => item.id === activeId)
       const newIndex = state.components.findIndex((item) => item.id === overId)
@@ -77,10 +106,11 @@ export function MarkdownEditor({ onToggleFileManager, showFileManager }: Markdow
   }
 
   const editorLayoutClasses = useMemo(() => {
+    // ... (rest of the layout logic remains the same)
     switch (state.layoutMode) {
       case "focus-canvas":
         return {
-          palette: "w-64",
+          palette: "w-64 md:w-72 lg:w-80", // Responsive palette width
           mainArea: "flex-1",
           canvasContainer: "flex-1",
           previewPanel: "hidden",
@@ -92,31 +122,34 @@ export function MarkdownEditor({ onToggleFileManager, showFileManager }: Markdow
           mainArea: "flex-1",
           canvasContainer: "hidden",
           previewPanel: "flex-1",
-          propertiesPanel: "w-80", // Or hidden, depending on desired focus
+          propertiesPanel: "w-80 md:w-96", // Responsive properties panel
         }
       case "default":
       default:
         return {
-          palette: "w-64",
+          palette: "w-64 md:w-72 lg:w-80",
           mainArea: "flex-1 flex",
-          canvasContainer: "flex-1", // Takes up remaining space next to preview
-          previewPanel: "w-1/2 border-l", // Split view
-          propertiesPanel: "w-80 border-l",
+          canvasContainer: "flex-1",
+          previewPanel: "w-1/2 border-l dark:border-neutral-700",
+          propertiesPanel: "w-80 md:w-96 border-l dark:border-neutral-700",
         }
     }
   }, [state.layoutMode])
 
   return (
-    <div className="flex flex-col h-screen bg-background text-foreground">
-      <EditorToolbar
-        onToggleFileManager={onToggleFileManager} // This might be for a different file manager
-      />
-      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+    <div className="flex flex-col h-screen bg-background text-foreground dark:bg-neutral-900 dark:text-neutral-100">
+      <EditorToolbar onToggleFileManager={onToggleFileManager} />
+      <DndContext
+        sensors={sensors}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        collisionDetection={closestCenter}
+      >
         <div className="flex flex-1 overflow-hidden">
           {/* Component Palette */}
           <div
             className={cn(
-              "border-r border-border bg-card overflow-y-auto transition-all duration-300",
+              "border-r border-border dark:border-neutral-700 bg-card dark:bg-neutral-800 overflow-y-auto transition-all duration-300",
               editorLayoutClasses.palette,
               state.layoutMode === "focus-preview" ? "hidden" : "block",
             )}
@@ -130,7 +163,7 @@ export function MarkdownEditor({ onToggleFileManager, showFileManager }: Markdow
               {/* Editor Canvas */}
               <div
                 className={cn(
-                  "overflow-y-auto bg-muted/20 transition-all duration-300",
+                  "overflow-y-auto bg-muted/20 dark:bg-neutral-800/30 transition-all duration-300",
                   editorLayoutClasses.canvasContainer,
                   state.layoutMode === "focus-preview" ? "hidden" : "block",
                 )}
@@ -143,7 +176,7 @@ export function MarkdownEditor({ onToggleFileManager, showFileManager }: Markdow
               {/* Preview Panel */}
               <div
                 className={cn(
-                  "border-border bg-card overflow-y-auto transition-all duration-300",
+                  "border-border bg-card dark:bg-neutral-800 overflow-y-auto transition-all duration-300",
                   editorLayoutClasses.previewPanel,
                   state.layoutMode === "focus-canvas" ? "hidden" : "block",
                 )}
@@ -156,7 +189,7 @@ export function MarkdownEditor({ onToggleFileManager, showFileManager }: Markdow
           {/* Properties Panel */}
           <div
             className={cn(
-              "border-l border-border bg-card overflow-y-auto transition-all duration-300",
+              "border-l border-border dark:border-neutral-700 bg-card dark:bg-neutral-800 overflow-y-auto transition-all duration-300",
               editorLayoutClasses.propertiesPanel,
               state.layoutMode === "focus-canvas" || state.layoutMode === "focus-preview" || !state.selectedComponent
                 ? "hidden"
@@ -170,7 +203,7 @@ export function MarkdownEditor({ onToggleFileManager, showFileManager }: Markdow
             {activeDragId ? (
               <div className="bg-primary text-primary-foreground border border-primary-focus rounded-lg p-3 shadow-xl text-sm">
                 {activeDragId.startsWith("palette-")
-                  ? `Adding ${activeDragId.replace("palette-", "")}...`
+                  ? `Adding ${activeDragId.split("-")[1]}...` // Simpler label for overlay
                   : "Moving component..."}
               </div>
             ) : null}
