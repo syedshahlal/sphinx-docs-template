@@ -1,8 +1,8 @@
 "use client"
 
 import { useEditor } from "./EditorContext"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Save, FolderOpen, FileText, Settings, Download, Undo, Redo } from "lucide-react"
 
 interface EditorToolbarProps {
