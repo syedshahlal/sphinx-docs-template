@@ -35,11 +35,9 @@ export function Header() {
   useEffect(() => {
     const detectVersions = async () => {
       try {
-        // This would typically be done server-side or via an API endpoint
-        // For now, we'll simulate the folder structure detection
-        const allVersions = ["5.7", "5.6", "5.5", "5.4", "5.3", "5.2", "5.1", "5.0"].filter(
-          (v) => Number.parseFloat(v) <= 5.7,
-        ) // Only versions <= 5.7
+        // For now, we'll only show the versions that actually exist
+        // In a real implementation, you'd check the file system or have an API endpoint
+        const existingVersions = ["5.7"] // Only include versions that actually exist
 
         const latestVersion = "5.7"
         const currentVersionData = [
@@ -51,7 +49,8 @@ export function Header() {
           },
         ]
 
-        const previousVersionsData = allVersions
+        // Only include previous versions if they actually exist
+        const previousVersionsData = existingVersions
           .filter((v) => v !== latestVersion)
           .sort((a, b) => Number.parseFloat(b) - Number.parseFloat(a))
           .map((v) => ({
