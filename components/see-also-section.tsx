@@ -3,24 +3,46 @@
 import { useState } from "react"
 import { Info, ExternalLink, ArrowRight, Sparkles } from "lucide-react"
 
-const relatedPlatforms = [
+const platformLanes = [
   {
-    name: "GRA Enterprise Platform",
-    description: "Full-featured enterprise solution with advanced sidebar navigation",
+    key: "dev",
+    name: "GRA Core Platform · Dev Lane",
+    description: "Full-featured enterprise lane with advanced sidebar navigation.",
     color: "from-blue-500 to-cyan-500",
     badge: "Enterprise",
+    href: "https://gra.example.com/dev/overview",
   },
   {
-    name: "GRA Lite",
-    description: "Lightweight version perfect for small to medium projects",
+    key: "sbx",
+    name: "GRA Core Platform · SBX Dev Lane",
+    description: "Lightweight lane, ideal for small-to-medium projects.",
     color: "from-green-500 to-emerald-500",
     badge: "Lightweight",
+    href: "https://gra.example.com/sbx/overview",
   },
   {
-    name: "GRA Platforms Gallery",
-    description: "Showcase of amazing projects built with our platform",
+    key: "uat",
+    name: "GRA Core Platform · SDX UAT Lane",
+    description: "User-acceptance test lane that showcases upcoming releases.",
     color: "from-purple-500 to-pink-500",
     badge: "Showcase",
+    href: "https://gra.example.com/uat/overview",
+  },
+  {
+    key: "beta",
+    name: "GRA Core Platform · SDX Beta Lane",
+    description: "Early-access beta features for power users.",
+    color: "from-purple-500 to-pink-500",
+    badge: "Showcase",
+    href: "https://gra.example.com/beta/overview",
+  },
+  {
+    key: "prod",
+    name: "GRA Core Platform · Prod Lane",
+    description: "Official production environment for all customers.",
+    color: "from-purple-500 to-pink-500",
+    badge: "Production",
+    href: "https://gra.example.com/prod/overview",
   },
 ]
 
@@ -48,7 +70,7 @@ export function SeeAlsoSection() {
                   <Sparkles className="w-5 h-5 text-green-500 animate-pulse" />
                 </h3>
                 <p className="text-green-700/80 dark:text-green-300/80 text-lg leading-relaxed">
-                  Explore our family of platforms designed to meet different needs and use cases.
+                  Explore our GCP UI to meet different needs and use cases.
                 </p>
               </div>
             </div>
