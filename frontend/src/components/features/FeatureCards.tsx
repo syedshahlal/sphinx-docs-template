@@ -17,7 +17,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, features,
       <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-accent">{icon}</div>
       <h3 className="font-semibold text-lg mb-2 group-hover:text-foreground transition-colors">{title}</h3>
       <div className="CardContent">
-        <p className="leading-relaxed text-muted-foreground mb-3 group-hover:text-foreground transition-colors">
+        <p className="leading-relaxed text-muted-foreground mb-0 group-hover:text-foreground transition-colors">
           {description}
         </p>
       </div>
