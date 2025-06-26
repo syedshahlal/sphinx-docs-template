@@ -1,0 +1,231 @@
+<!-- User Guide Section -->
+<div class="nav-section">
+  <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#user-guide-nav" aria-expanded="true">
+    <i class="fas fa-book nav-section-icon"></i>
+    <span class="nav-section-title">User Guide</span>
+    <i class="fas fa-chevron-down nav-section-chevron"></i>
+  </div>
+  <div class="collapse show" id="user-guide-nav">
+    <ul class="nav-section-list">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('user-guide/installation') }}">
+          <i class="fas fa-download"></i>
+          Installation
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('user-guide/configuration') }}">
+          <i class="fas fa-cog"></i>
+          Configuration
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('user-guide/deployment') }}">
+          <i class="fas fa-rocket"></i>
+          Deployment
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('user-guide/troubleshooting') }}">
+          <i class="fas fa-wrench"></i>
+          Troubleshooting
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- API Reference Section -->
+<div class="nav-section">
+  <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#api-nav" aria-expanded="false">
+    <i class="fas fa-code nav-section-icon"></i>
+    <span class="nav-section-title">API Reference</span>
+    <i class="fas fa-chevron-down nav-section-chevron"></i>
+  </div>
+  <div class="collapse" id="api-nav">
+    <ul class="nav-section-list">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('api/core') }}">
+          <i class="fas fa-cube"></i>
+          Core API
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('api/authentication') }}">
+          <i class="fas fa-shield-alt"></i>
+          Authentication
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('api/data-access') }}">
+          <i class="fas fa-database"></i>
+          Data Access
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('api/integrations') }}">
+          <i class="fas fa-plug"></i>
+          Integrations
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Examples Section -->
+<div class="nav-section">
+  <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#examples-nav" aria-expanded="false">
+    <i class="fas fa-lightbulb nav-section-icon"></i>
+    <span class="nav-section-title">Examples</span>
+    <i class="fas fa-chevron-down nav-section-chevron"></i>
+  </div>
+  <div class="collapse" id="examples-nav">
+    <ul class="nav-section-list">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('examples/quickstart') }}">
+          <i class="fas fa-play"></i>
+          Quick Start
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('examples/advanced') }}">
+          <i class="fas fa-graduation-cap"></i>
+          Advanced Examples
+        </a>
+      </li>
+      <li class="nav-item has-children">
+        <a class="nav-link nav-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#web-examples">
+          <i class="fas fa-globe"></i>
+          Web Applications
+          <i class="fas fa-chevron-right nav-toggle-icon"></i>
+        </a>
+        <div class="collapse" id="web-examples">
+          <ul class="nav-section-sublist">
+            <li><a class="nav-link" href="{{ pathto('examples/web/basic-app') }}"><i class="fas fa-circle me-2"></i>Basic Web App</a></li>
+            <li><a class="nav-link" href="{{ pathto('examples/web/rest-api') }}"><i class="fas fa-circle me-2"></i>REST API</a></li>
+            <li><a class="nav-link" href="{{ pathto('examples/web/authentication') }}"><i class="fas fa-circle me-2"></i>Authentication</a></li>
+          </ul>
+        </div>
+      </li>
+      <li class="nav-item has-children">
+        <a class="nav-link nav-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#data-examples">
+          <i class="fas fa-chart-bar"></i>
+          Data Processing
+          <i class="fas fa-chevron-right nav-toggle-icon"></i>
+        </a>
+        <div class="collapse" id="data-examples">
+          <ul class="nav-section-sublist">
+            <li><a class="nav-link" href="{{ pathto('examples/data/etl-pipeline') }}"><i class="fas fa-circle me-2"></i>ETL Pipeline</a></li>
+            <li><a class="nav-link" href="{{ pathto('examples/data/analytics') }}"><i class="fas fa-circle me-2"></i>Analytics Dashboard</a></li>
+            <li><a class="nav-link" href="{{ pathto('examples/data/real-time') }}"><i class="fas fa-circle me-2"></i>Real-time Processing</a></li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Tutorials Section -->
+<div class="nav-section">
+  <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#tutorials-nav" aria-expanded="false">
+    <i class="fas fa-chalkboard-teacher nav-section-icon"></i>
+    <span class="nav-section-title">Tutorials</span>
+    <i class="fas fa-chevron-down nav-section-chevron"></i>
+  </div>
+  <div class="collapse" id="tutorials-nav">
+    <ul class="nav-section-list">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('tutorials/getting-started') }}">
+          <i class="fas fa-flag"></i>
+          Getting Started
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('tutorials/building-apps') }}">
+          <i class="fas fa-hammer"></i>
+          Building Applications
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('tutorials/best-practices') }}">
+          <i class="fas fa-star"></i>
+          Best Practices
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Development Section -->
+<div class="nav-section">
+  <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#development-nav" aria-expanded="false">
+    <i class="fas fa-tools nav-section-icon"></i>
+    <span class="nav-section-title">Development</span>
+    <i class="fas fa-chevron-down nav-section-chevron"></i>
+  </div>
+  <div class="collapse" id="development-nav">
+    <ul class="nav-section-list">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('contributing/index') }}">
+          <i class="fas fa-hands-helping"></i>
+          Contributing
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('contributing/development-setup') }}">
+          <i class="fas fa-laptop-code"></i>
+          Development Setup
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('contributing/testing') }}">
+          <i class="fas fa-vial"></i>
+          Testing
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('migration/index') }}">
+          <i class="fas fa-exchange-alt"></i>
+          Migration Guide
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Community Section -->
+<div class="nav-section">
+  <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#community-nav" aria-expanded="false">
+    <i class="fas fa-users nav-section-icon"></i>
+    <span class="nav-section-title">Community</span>
+    <i class="fas fa-chevron-down nav-section-chevron"></i>
+  </div>
+  <div class="collapse" id="community-nav">
+    <ul class="nav-section-list">
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('community') }}">
+          <i class="fas fa-comments"></i>
+          Community Forum
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('support') }}">
+          <i class="fas fa-life-ring"></i>
+          Support
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('changelog') }}">
+          <i class="fas fa-list-alt"></i>
+          Changelog
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{{ pathto('roadmap') }}">
+          <i class="fas fa-road"></i>
+          Roadmap
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
