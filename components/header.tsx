@@ -297,16 +297,6 @@ export function Header() {
                       </div>
                     )}
                   </div>
-
-                  {/* Live Badge */}
-                  <span
-                    className={`px-2 py-1 rounded-md text-xs font-medium ${
-                      theme === "dark" ? "bg-green-900/50 text-green-300" : "bg-green-100 text-green-700"
-                    }`}
-                  >
-                    <span className="inline-block w-1.5 h-1.5 bg-green-400 rounded-full mr-1 animate-pulse" />
-                    Live
-                  </span>
                 </div>
               </div>
             </div>
