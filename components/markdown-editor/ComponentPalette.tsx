@@ -251,3 +251,8 @@ export default function ComponentPalette({ onComponentSelect }: Props) {
     </div>
   )
 }
+
+/** Named export so other modules can do
+ *   import { ComponentPalette } from "@/components/markdown-editor/ComponentPalette"
+ */
+export { ComponentPalette }
