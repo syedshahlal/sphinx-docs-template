@@ -14,7 +14,7 @@ export function SeeAlsoSection() {
         name: "GRA Core Platform · Dev Lane",
         description: "Full-featured enterprise lane with advanced sidebar navigation.",
         color: "from-blue-500 to-cyan-500",
-        badge: "Enterprise",
+        badge: "Tech Lower Lanes",
         href: "https://gra.example.com/dev/overview",
       },
       {
@@ -22,7 +22,7 @@ export function SeeAlsoSection() {
         name: "GRA Core Platform · SBX Dev Lane",
         description: "Lightweight lane, ideal for small-to-medium projects.",
         color: "from-green-500 to-emerald-500",
-        badge: "Lightweight",
+        badge: "GRA DEV Lane",
         href: "https://gra.example.com/sbx/overview",
       },
       {
@@ -30,7 +30,7 @@ export function SeeAlsoSection() {
         name: "GRA Core Platform · SDX UAT Lane",
         description: "User-acceptance test lane that showcases upcoming releases.",
         color: "from-purple-500 to-pink-500",
-        badge: "Showcase",
+        badge: "GRA UAT Lane",
         href: "https://gra.example.com/uat/overview",
       },
       {
@@ -38,7 +38,7 @@ export function SeeAlsoSection() {
         name: "GRA Core Platform · SDX Beta Lane",
         description: "Early-access beta features for power users.",
         color: "from-purple-500 to-pink-500",
-        badge: "Showcase",
+        badge: "GRA LLE",
         href: "https://gra.example.com/beta/overview",
       },
       {
