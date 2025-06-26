@@ -161,7 +161,7 @@ export function UserGuideSection() {
                   href="#"
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors group"
                 >
-                  <span className="text-sm">Matter Most</span>
+                  <span className="text-sm">Mattermost</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </a>
                 <a
