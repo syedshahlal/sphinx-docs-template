@@ -5,6 +5,7 @@ import { Search, Menu, X, Github, Twitter, ChevronDown, Bell, Sun, Moon } from "
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
+import Image from "next/image";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
