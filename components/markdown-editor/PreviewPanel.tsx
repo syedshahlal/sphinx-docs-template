@@ -267,7 +267,7 @@ export function PreviewPanel() {
   }
 
   const componentCount = state.components.length
-  const wordCount = markdownContent.split(/\s+/).filter(word => word.length > 0).length
+  const wordCount = markdownContent.split(/\s+/).filter((word) => word.length > 0).length
   const charCount = markdownContent.length
 
   return (
@@ -284,7 +284,7 @@ export function PreviewPanel() {
               <p className="text-sm text-slate-600">Live preview and export</p>
             </div>
           </div>
-          
+
           {/* Preview mode toggles */}
           <div className="flex items-center gap-2">
             <div className="flex items-center bg-slate-100 rounded-lg p-1">
@@ -387,4 +387,24 @@ export function PreviewPanel() {
           </TabsContent>
 
           {/* Markdown Tab */}
-          <TabsContent value="markdown\
+          <TabsContent value="markdown" className="flex-1 mt-4">
+            <ScrollArea className="h-full">
+              <div className="p-4">
+                <pre className="bg-slate-100 rounded-lg p-4 overflow-auto">{markdownContent}</pre>
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          {/* HTML Tab */}
+          <TabsContent value="html" className="flex-1 mt-4">
+            <ScrollArea className="h-full">
+              <div className="p-4">
+                <pre className="bg-slate-100 rounded-lg p-4 overflow-auto">{htmlContent}</pre>
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  )
+}
