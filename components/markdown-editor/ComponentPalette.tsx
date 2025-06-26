@@ -414,8 +414,7 @@ export function ComponentPalette() {
 
             return (
               <Collapsible key={category.name} open={isExpanded} onOpenChange={() => toggleCategory(category.name)}>
-                <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg bg-muted/50 p-3 text-left hover:bg-muted/70 transition-colors">
-                  <div className="flex items-center space-x-2">
+                <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg p-3 text-left hover:bg-muted/70 transition-colors bg-sky-30000400                  <div className="flex items-center space-x-2">
                     <IconComponent className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">{category.name}</span>
                     <Badge variant="secondary" className="text-xs">
