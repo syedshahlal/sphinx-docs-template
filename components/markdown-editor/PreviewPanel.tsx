@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
-import { Highlight, defaultProps, type Language } from "prism-react-renderer"
+import { Highlight, type Language } from "prism-react-renderer"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
@@ -79,7 +79,7 @@ const PreviewPanel: React.FC<PreviewPanelProps> = ({ markdown }) => {
             const codeString = String(children).replace(/\n$/, "")
 
             return (
-              <Highlight {...defaultProps} code={codeString} language={language} theme={draculaTheme}>
+              <Highlight code={codeString} language={language} theme={draculaTheme}>
                 {({ className: c, style, tokens, getLineProps, getTokenProps }) => (
                   <pre className={c} style={{ ...style, margin: 0 }} {...props}>
                     {tokens.map((line, i) => (
