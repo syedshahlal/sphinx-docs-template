@@ -43,7 +43,7 @@ const sampleTailGridsSnippets: Record<string, { label: string; html: string }> =
 }
 // --- End Sample Snippets ---
 
-const componentCategories = [
+export const componentCategories = [
   {
     name: "Text Elements",
     components: [
