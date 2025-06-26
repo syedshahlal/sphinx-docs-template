@@ -28,7 +28,15 @@ interface MarkdownEditorProps {
 }
 
 function MarkdownEditorContent({ onToggleFileManager, showFileManager }: MarkdownEditorProps) {
-  const { state, addComponent, reorderComponents, selectComponent, updateComponentContent } = useEditor()
+  const {
+    state,
+    addComponent,
+    reorderComponents,
+    selectComponent,
+    updateComponent,
+    updateComponentContent,
+    updateComponentStyle,
+  } = useEditor()
   const [activeDragId, setActiveDragId] = useState<string | null>(null)
   const [showFileManagerPanel, setShowFileManagerPanel] = useState(false)
 
@@ -124,6 +132,18 @@ function MarkdownEditorContent({ onToggleFileManager, showFileManager }: Markdow
     }
   }
 
+  const handleUpdateComponent = (updates: Partial<MarkdownComponent>) => {
+    if (state.selectedComponent) {
+      updateComponent(state.selectedComponent, updates)
+    }
+  }
+
+  const handleUpdateStyle = (styleUpdates: any) => {
+    if (state.selectedComponent) {
+      updateComponentStyle(state.selectedComponent, styleUpdates)
+    }
+  }
+
   return (
     <div className="flex flex-col h-screen bg-background text-foreground">
       <EditorToolbar onToggleFileManager={handleToggleFileManager} />
@@ -179,16 +199,8 @@ function MarkdownEditorContent({ onToggleFileManager, showFileManager }: Markdow
                     ? state.components.find((comp) => comp.id === state.selectedComponent) || null
                     : null
                 }
-                onUpdateComponent={(updates) => {
-                  if (state.selectedComponent) {
-                    // Handle component updates
-                  }
-                }}
-                onUpdateStyle={(styleUpdates) => {
-                  if (state.selectedComponent) {
-                    // Handle style updates
-                  }
-                }}
+                onUpdateComponent={handleUpdateComponent}
+                onUpdateStyle={handleUpdateStyle}
               />
             )}
           </div>

@@ -1,22 +1,12 @@
 "use client"
 
-import React from "react"
+import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import type {
-  MarkdownComponent,
-  ComponentStyle,
-  ImageContent,
-  CardContent as CardContentType,
-  GridContent,
-  TableContent,
-  InfographicContent,
-} from "./types"
-import { Card, CardDescription, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import type { MarkdownComponent, ComponentStyle, ImageContent, GridContent, TableContent, ChartContent } from "./types"
 import { Button as UIButton } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Input } from "@/components/ui/input"
 import {
-  ExternalLink,
   Edit3,
   Star,
   Users,
@@ -50,13 +40,103 @@ import {
   Unlock,
   Settings,
   MoreHorizontal,
-  AlertTriangle,
-  Info,
-  CheckCircle,
-  XCircle,
+  Plus,
+  X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { JSX } from "react/jsx-runtime"
+
+// Simple Chart Component (since we can't use external charting libraries in this environment)
+function SimpleChart({ data, type, title }: { data: ChartContent; type: string; title?: string }) {
+  const maxValue = Math.max(...data.data.datasets.flatMap((d) => d.data))
+
+  if (type === "bar") {
+    return (
+      <div className="p-4 bg-card border border-border rounded-lg">
+        {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
+        <div className="space-y-3">
+          {data.data.labels.map((label, index) => (
+            <div key={index} className="flex items-center gap-3">
+              <div className="w-20 text-sm text-muted-foreground">{label}</div>
+              <div className="flex-1 bg-muted rounded-full h-6 relative overflow-hidden">
+                {data.data.datasets.map((dataset, datasetIndex) => (
+                  <div
+                    key={datasetIndex}
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{
+                      width: `${(dataset.data[index] / maxValue) * 100}%`,
+                      backgroundColor: Array.isArray(dataset.backgroundColor)
+                        ? dataset.backgroundColor[index] || dataset.backgroundColor[0] || "#3b82f6"
+                        : dataset.backgroundColor || "#3b82f6",
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="w-12 text-sm text-foreground text-right">{data.data.datasets[0]?.data[index] || 0}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (type === "pie") {
+    const total = data.data.datasets[0]?.data.reduce((sum, val) => sum + val, 0) || 1
+    return (
+      <div className="p-4 bg-card border border-border rounded-lg">
+        {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
+        <div className="flex items-center justify-center">
+          <div className="w-48 h-48 rounded-full relative overflow-hidden border-4 border-muted">
+            {data.data.datasets[0]?.data.map((value, index) => {
+              const percentage = (value / total) * 100
+              const color = Array.isArray(data.data.datasets[0].backgroundColor)
+                ? data.data.datasets[0].backgroundColor[index] || "#3b82f6"
+                : data.data.datasets[0].backgroundColor || "#3b82f6"
+
+              return (
+                <div
+                  key={index}
+                  className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white"
+                  style={{
+                    background: `conic-gradient(${color} 0deg ${percentage * 3.6}deg, transparent ${percentage * 3.6}deg 360deg)`,
+                    transform: `rotate(${(data.data.datasets[0]?.data.slice(0, index).reduce((sum, val) => sum + val, 0) / total) * 360}deg)`,
+                  }}
+                >
+                  {percentage > 10 && `${percentage.toFixed(1)}%`}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          {data.data.labels.map((label, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <div
+                className="w-3 h-3 rounded-full"
+                style={{
+                  backgroundColor: Array.isArray(data.data.datasets[0]?.backgroundColor)
+                    ? data.data.datasets[0].backgroundColor[index] || "#3b82f6"
+                    : data.data.datasets[0]?.backgroundColor || "#3b82f6",
+                }}
+              />
+              <span className="text-sm text-foreground">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-4 bg-card border border-border rounded-lg">
+      {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
+      <div className="text-center py-8 text-muted-foreground">
+        <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-50" />
+        <p>Chart type "{type}" not implemented</p>
+      </div>
+    </div>
+  )
+}
 
 // Helper to apply styles with enhanced support
 const applyStyles = (style?: ComponentStyle): React.CSSProperties => {
@@ -219,6 +299,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
       } else if (keys.length === 2) {
         if (!newContent[keys[0]]) newContent[keys[0]] = {}
         newContent[keys[0]][keys[1]] = tempValue
+      } else if (keys.length === 3) {
+        if (!newContent[keys[0]]) newContent[keys[0]] = {}
+        if (!newContent[keys[0]][keys[1]]) newContent[keys[0]][keys[1]] = {}
+        newContent[keys[0]][keys[1]][keys[2]] = tempValue
       }
 
       updateComponentContent(component.id, newContent)
@@ -297,6 +381,78 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
     )
   }
 
+  // Helper functions for editable arrays
+  const addTableRow = () => {
+    const newContent = { ...component.content }
+    if (!newContent.rows) newContent.rows = []
+    const newRow = new Array(newContent.headers?.length || 3).fill("")
+    newContent.rows.push(newRow)
+    updateComponentContent(component.id, newContent)
+  }
+
+  const removeTableRow = (index: number) => {
+    const newContent = { ...component.content }
+    if (newContent.rows) {
+      newContent.rows.splice(index, 1)
+      updateComponentContent(component.id, newContent)
+    }
+  }
+
+  const addTableColumn = () => {
+    const newContent = { ...component.content }
+    if (!newContent.headers) newContent.headers = []
+    if (!newContent.rows) newContent.rows = []
+
+    newContent.headers.push(`Column ${newContent.headers.length + 1}`)
+    newContent.rows.forEach((row) => row.push(""))
+    updateComponentContent(component.id, newContent)
+  }
+
+  const removeTableColumn = (index: number) => {
+    const newContent = { ...component.content }
+    if (newContent.headers) {
+      newContent.headers.splice(index, 1)
+    }
+    if (newContent.rows) {
+      newContent.rows.forEach((row) => row.splice(index, 1))
+    }
+    updateComponentContent(component.id, newContent)
+  }
+
+  const addListItem = () => {
+    const newContent = { ...component.content }
+    if (!newContent.items) newContent.items = []
+    newContent.items.push("New item")
+    updateComponentContent(component.id, newContent)
+  }
+
+  const removeListItem = (index: number) => {
+    const newContent = { ...component.content }
+    if (newContent.items) {
+      newContent.items.splice(index, 1)
+      updateComponentContent(component.id, newContent)
+    }
+  }
+
+  const addGridItem = () => {
+    const newContent = { ...component.content }
+    if (!newContent.items) newContent.items = []
+    newContent.items.push({
+      id: `item-${Date.now()}`,
+      type: "card",
+      content: { title: "New Item", description: "Description" },
+    })
+    updateComponentContent(component.id, newContent)
+  }
+
+  const removeGridItem = (index: number) => {
+    const newContent = { ...component.content }
+    if (newContent.items) {
+      newContent.items.splice(index, 1)
+      updateComponentContent(component.id, newContent)
+    }
+  }
+
   const baseClasses = cn(
     "relative group transition-all duration-200 mb-6",
     isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
@@ -349,19 +505,46 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseLeave={() => setIsHovered(false)}
           >
             <div className="space-y-2">
-              <img
-                src={imageContent.src || "/placeholder.svg?height=300&width=500"}
-                alt={imageContent.alt || "Image"}
-                className={cn(
-                  "transition-all duration-300 hover:scale-105 rounded-lg",
-                  imageContent.objectFit && `object-${imageContent.objectFit}`,
-                )}
-                style={{
-                  width: imageContent.width || "100%",
-                  height: imageContent.height || "auto",
-                  borderRadius: imageContent.borderRadius || "8px",
-                }}
-              />
+              <div className="relative group">
+                <img
+                  src={imageContent.src || "/placeholder.svg?height=300&width=500"}
+                  alt={imageContent.alt || "Image"}
+                  className={cn(
+                    "transition-all duration-300 hover:scale-105 rounded-lg w-full",
+                    imageContent.objectFit && `object-${imageContent.objectFit}`,
+                  )}
+                  style={{
+                    width: imageContent.width || "100%",
+                    height: imageContent.height || "auto",
+                    borderRadius: imageContent.borderRadius || "8px",
+                  }}
+                />
+                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <UIButton
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      const input = document.createElement("input")
+                      input.type = "file"
+                      input.accept = "image/*"
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = (e) => {
+                            const result = e.target?.result as string
+                            updateComponentContent(component.id, { src: result })
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }
+                      input.click()
+                    }}
+                  >
+                    <Upload className="w-4 h-4" />
+                  </UIButton>
+                </div>
+              </div>
               {renderEditableText(
                 "caption",
                 imageContent.caption,
@@ -373,7 +556,8 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
           </div>
         )
 
-      case "button":
+      case "chart":
+        const chartContent = component.content as ChartContent
         return (
           <div
             className={baseClasses}
@@ -381,19 +565,80 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <UIButton
-              variant={(component.content.variant as any) || "default"}
-              size={(component.content.size as any) || "default"}
-              className="transition-all duration-200 hover:scale-105"
-            >
-              {renderEditableText("text", component.content.text, "Button Text")}
-              {component.content.link && <ExternalLink className="w-4 h-4 ml-2" />}
-            </UIButton>
+            <SimpleChart
+              data={chartContent}
+              type={chartContent.type}
+              title={renderEditableText("title", chartContent.title || "", "Chart Title")}
+            />
+            <div className="mt-4 p-4 bg-muted rounded-lg">
+              <h4 className="font-semibold mb-2">Chart Data</h4>
+              <div className="space-y-2">
+                {chartContent.data?.labels?.map((label, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      value={label}
+                      onChange={(e) => {
+                        const newContent = { ...component.content }
+                        newContent.data.labels[index] = e.target.value
+                        updateComponentContent(component.id, newContent)
+                      }}
+                      className="flex-1"
+                      placeholder="Label"
+                    />
+                    <Input
+                      type="number"
+                      value={chartContent.data.datasets[0]?.data[index] || 0}
+                      onChange={(e) => {
+                        const newContent = { ...component.content }
+                        if (!newContent.data.datasets[0]) {
+                          newContent.data.datasets[0] = { label: "Dataset 1", data: [] }
+                        }
+                        newContent.data.datasets[0].data[index] = Number(e.target.value)
+                        updateComponentContent(component.id, newContent)
+                      }}
+                      className="w-20"
+                      placeholder="Value"
+                    />
+                    <UIButton
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const newContent = { ...component.content }
+                        newContent.data.labels.splice(index, 1)
+                        newContent.data.datasets.forEach((dataset) => {
+                          dataset.data.splice(index, 1)
+                        })
+                        updateComponentContent(component.id, newContent)
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </UIButton>
+                  </div>
+                ))}
+                <UIButton
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const newContent = { ...component.content }
+                    if (!newContent.data.labels) newContent.data.labels = []
+                    if (!newContent.data.datasets[0]) {
+                      newContent.data.datasets[0] = { label: "Dataset 1", data: [] }
+                    }
+                    newContent.data.labels.push("New Label")
+                    newContent.data.datasets[0].data.push(0)
+                    updateComponentContent(component.id, newContent)
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Data Point
+                </UIButton>
+              </div>
+            </div>
           </div>
         )
 
-      case "card":
-        const cardContent = component.content as CardContentType
+      case "table":
+        const tableContent = component.content as TableContent
         return (
           <div
             className={baseClasses}
@@ -401,47 +646,65 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            <Card className="transition-all duration-300 hover:shadow-lg border-border shadow-md">
-              {cardContent.imageUrl && (
-                <div className="overflow-hidden rounded-t-lg">
-                  <img
-                    src={cardContent.imageUrl || "/placeholder.svg"}
-                    alt=""
-                    className="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                </div>
-              )}
-              <CardHeader>
-                <CardTitle className="text-xl font-bold text-foreground">
-                  {renderEditableText("title", cardContent.title, "Card Title")}
-                </CardTitle>
-                <CardDescription className="text-muted-foreground leading-relaxed">
-                  {renderEditableText("description", cardContent.description, "Card description", true)}
-                </CardDescription>
-              </CardHeader>
-              {cardContent.buttons && cardContent.buttons.length > 0 && (
-                <CardContent className="pt-0">
-                  <div className="flex gap-2 flex-wrap">
-                    {cardContent.buttons.map((button, index) => (
-                      <UIButton
-                        key={index}
-                        variant={button.variant as any}
-                        size="sm"
-                        className="transition-all duration-200 hover:scale-105"
-                      >
-                        {button.icon && iconMap[button.icon] && (
-                          <span className="mr-2">
-                            {React.createElement(iconMap[button.icon], { className: "w-4 h-4" })}
-                          </span>
-                        )}
-                        {renderEditableText(`buttons.${index}.text`, button.text, "Button")}
-                        {button.link && <ExternalLink className="w-4 h-4 ml-2" />}
-                      </UIButton>
+            <div className="overflow-hidden rounded-lg bg-card shadow border border-border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {tableContent.headers?.map((header, index) => (
+                      <TableHead key={index} className="font-semibold relative group">
+                        {renderEditableText(`headers.${index}`, header, `Header ${index + 1}`)}
+                        <UIButton
+                          size="sm"
+                          variant="ghost"
+                          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                          onClick={() => removeTableColumn(index)}
+                        >
+                          <X className="w-3 h-3" />
+                        </UIButton>
+                      </TableHead>
                     ))}
-                  </div>
-                </CardContent>
-              )}
-            </Card>
+                    <TableHead className="w-12">
+                      <UIButton size="sm" variant="ghost" onClick={addTableColumn}>
+                        <Plus className="w-4 h-4" />
+                      </UIButton>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tableContent.rows?.map((row, rowIndex) => (
+                    <TableRow key={rowIndex} className="hover:bg-muted/50 group">
+                      {row.map((cell, cellIndex) => (
+                        <TableCell key={cellIndex}>
+                          {renderEditableText(
+                            `rows.${rowIndex}.${cellIndex}`,
+                            cell,
+                            `Cell ${rowIndex + 1}-${cellIndex + 1}`,
+                          )}
+                        </TableCell>
+                      ))}
+                      <TableCell>
+                        <UIButton
+                          size="sm"
+                          variant="ghost"
+                          className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                          onClick={() => removeTableRow(rowIndex)}
+                        >
+                          <X className="w-3 h-3" />
+                        </UIButton>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow>
+                    <TableCell colSpan={(tableContent.headers?.length || 0) + 1}>
+                      <UIButton size="sm" variant="ghost" onClick={addTableRow} className="w-full">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Row
+                      </UIButton>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
           </div>
         )
 
@@ -454,6 +717,23 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">Columns:</label>
+                <Input
+                  type="number"
+                  min="1"
+                  max="6"
+                  value={gridContent.columns || 3}
+                  onChange={(e) => updateComponentContent(component.id, { columns: Number(e.target.value) })}
+                  className="w-20"
+                />
+              </div>
+              <UIButton size="sm" variant="outline" onClick={addGridItem}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Item
+              </UIButton>
+            </div>
             <div
               className="gap-6"
               style={{
@@ -465,8 +745,16 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
               {gridContent.items?.map((item, index) => (
                 <div
                   key={item.id || index}
-                  className="bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+                  className="bg-card rounded-lg border border-border p-4 shadow-sm hover:shadow-md transition-shadow duration-200 relative group"
                 >
+                  <UIButton
+                    size="sm"
+                    variant="ghost"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                    onClick={() => removeGridItem(index)}
+                  >
+                    <X className="w-3 h-3" />
+                  </UIButton>
                   {item.type === "card" && (
                     <div>
                       <h3 className="font-semibold text-foreground mb-2">
@@ -497,395 +785,6 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
           </div>
         )
 
-      case "banner":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div
-              className="relative overflow-hidden rounded-xl p-8 text-center"
-              style={{
-                background: component.content.backgroundColor || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                color: component.content.textColor || "white",
-              }}
-            >
-              <div className="relative z-10">
-                <h2 className="text-3xl font-bold mb-2">
-                  {renderEditableText("title", component.content.title, "Banner Title")}
-                </h2>
-                <p className="text-lg mb-4 opacity-90">
-                  {renderEditableText("subtitle", component.content.subtitle, "Banner subtitle")}
-                </p>
-                <p className="mb-6">
-                  {renderEditableText("description", component.content.description, "Banner description", true)}
-                </p>
-                {component.content.buttons && component.content.buttons.length > 0 && (
-                  <div className="flex gap-4 justify-center">
-                    {component.content.buttons.map((button: any, index: number) => (
-                      <UIButton
-                        key={index}
-                        variant={button.variant as any}
-                        className="transition-all duration-200 hover:scale-105"
-                      >
-                        {renderEditableText(`buttons.${index}.text`, button.text, "Button")}
-                      </UIButton>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )
-
-      case "hero":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div
-              className="relative overflow-hidden rounded-2xl py-16 px-8"
-              style={{
-                background: component.content.backgroundColor || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                textAlign: component.content.textAlign || "center",
-              }}
-            >
-              <div className="relative z-10 max-w-4xl mx-auto">
-                <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-                  {renderEditableText("title", component.content.title, "Hero Title")}
-                </h1>
-                <p className="text-xl text-white/90 mb-4">
-                  {renderEditableText("subtitle", component.content.subtitle, "Hero subtitle")}
-                </p>
-                <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
-                  {renderEditableText("description", component.content.description, "Hero description", true)}
-                </p>
-                {component.content.buttons && component.content.buttons.length > 0 && (
-                  <div className="flex gap-4 justify-center flex-wrap">
-                    {component.content.buttons.map((button: any, index: number) => (
-                      <UIButton
-                        key={index}
-                        variant={button.variant as any}
-                        size="lg"
-                        className="transition-all duration-200 hover:scale-105"
-                      >
-                        {renderEditableText(`buttons.${index}.text`, button.text, "Button")}
-                      </UIButton>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )
-
-      case "table":
-        const tableContent = component.content as TableContent
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div className="overflow-hidden rounded-lg bg-card shadow border border-border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {tableContent.headers?.map((header, index) => (
-                      <TableHead key={index} className="font-semibold">
-                        {renderEditableText(`headers.${index}`, header, `Header ${index + 1}`)}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tableContent.rows?.map((row, rowIndex) => (
-                    <TableRow key={rowIndex} className="hover:bg-muted/50">
-                      {row.map((cell, cellIndex) => (
-                        <TableCell key={cellIndex}>
-                          {renderEditableText(
-                            `rows.${rowIndex}.${cellIndex}`,
-                            cell,
-                            `Cell ${rowIndex + 1}-${cellIndex + 1}`,
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        )
-
-      case "list":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <ul className="list-disc list-inside space-y-2">
-              {component.content.items?.map((item: string, index: number) => (
-                <li key={index} className="text-foreground">
-                  {renderEditableText(`items.${index}`, item, `List item ${index + 1}`)}
-                </li>
-              )) || <li className="text-muted-foreground italic">Click to add list items</li>}
-            </ul>
-          </div>
-        )
-
-      case "orderedList":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <ol className="list-decimal list-inside space-y-2" start={component.content.start || 1}>
-              {component.content.items?.map((item: string, index: number) => (
-                <li key={index} className="text-foreground">
-                  {renderEditableText(`items.${index}`, item, `List item ${index + 1}`)}
-                </li>
-              )) || <li className="text-muted-foreground italic">Click to add list items</li>}
-            </ol>
-          </div>
-        )
-
-      case "taskList":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div className="space-y-2">
-              {component.content.items?.map((item: { text: string; checked: boolean }, index: number) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={item.checked}
-                    onChange={(e) => {
-                      const newItems = [...component.content.items]
-                      newItems[index] = { ...item, checked: e.target.checked }
-                      updateComponentContent(component.id, { items: newItems })
-                    }}
-                    className="rounded"
-                  />
-                  <span className={item.checked ? "line-through text-muted-foreground" : "text-foreground"}>
-                    {renderEditableText(`items.${index}.text`, item.text, `Task ${index + 1}`)}
-                  </span>
-                </div>
-              )) || <div className="text-muted-foreground italic">Click to add tasks</div>}
-            </div>
-          </div>
-        )
-
-      case "blockquote":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <blockquote className="border-l-4 border-border pl-4 italic text-muted-foreground">
-              {renderEditableText("text", component.content.text, "Quote text", true)}
-              {component.content.author && (
-                <footer className="text-sm text-muted-foreground mt-2">
-                  — {renderEditableText("author", component.content.author, "Author name")}
-                </footer>
-              )}
-            </blockquote>
-          </div>
-        )
-
-      case "alert":
-        const alertIcons = {
-          info: Info,
-          warning: AlertTriangle,
-          success: CheckCircle,
-          error: XCircle,
-        }
-        const AlertIcon = alertIcons[component.content.type as keyof typeof alertIcons] || Info
-
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <Alert>
-              <AlertIcon className="h-4 w-4" />
-              <AlertTitle>Alert</AlertTitle>
-              <AlertDescription>
-                {renderEditableText("text", component.content.text, "Alert message", true)}
-              </AlertDescription>
-            </Alert>
-          </div>
-        )
-
-      case "code":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div className="bg-muted rounded-lg p-4 overflow-x-auto">
-              <pre className="text-sm">
-                <code className="text-foreground">
-                  {renderEditableText("code", component.content.code, "// Your code here", true, "font-mono")}
-                </code>
-              </pre>
-              {component.content.language && (
-                <div className="text-xs text-muted-foreground mt-2">Language: {component.content.language}</div>
-              )}
-            </div>
-          </div>
-        )
-
-      case "divider":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <hr className="border-border my-4" />
-          </div>
-        )
-
-      case "spacer":
-        return (
-          <div
-            className={baseClasses}
-            style={{ ...style, height: component.content.height || "40px" }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div className="border border-dashed border-border rounded flex items-center justify-center text-muted-foreground text-sm h-full">
-              Spacer ({component.content.height || "40px"})
-            </div>
-          </div>
-        )
-
-      case "columns":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div className="grid grid-cols-2 gap-6">
-              <div className="p-4 border border-border rounded">
-                {renderEditableText("column1Text", component.content.column1Text, "Column 1 content", true)}
-              </div>
-              <div className="p-4 border border-border rounded">
-                {renderEditableText("column2Text", component.content.column2Text, "Column 2 content", true)}
-              </div>
-            </div>
-          </div>
-        )
-
-      case "mermaid":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div className="bg-muted p-4 rounded-md border border-border">
-              <div className="text-center text-muted-foreground mb-2">Mermaid Diagram</div>
-              <pre className="text-sm text-foreground whitespace-pre-wrap">
-                {renderEditableText(
-                  "code",
-                  component.content.code,
-                  "graph TD;\n    A[Start] --> B[Process];",
-                  true,
-                  "font-mono",
-                )}
-              </pre>
-            </div>
-          </div>
-        )
-
-      case "htmlBlock":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div
-              dangerouslySetInnerHTML={{
-                __html:
-                  component.content.htmlContent ||
-                  "<div class='p-8 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-center bg-gray-50 dark:bg-gray-800'><h3 class='text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2'>Custom HTML Block</h3><p class='text-gray-500 dark:text-gray-400'>Click to edit HTML content</p></div>",
-              }}
-              className={cn("transition-all duration-200", component.content.responsive && "w-full")}
-            />
-            {component.content.name && (
-              <div className="text-xs text-muted-foreground mt-2 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                {component.content.name}
-              </div>
-            )}
-          </div>
-        )
-
-      case "infographic":
-        const infographicContent = component.content as InfographicContent
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-foreground">
-                {renderEditableText("title", infographicContent.title, "Infographic Title")}
-              </h3>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {infographicContent.items?.map((item, index) => {
-                const IconComponent = item.icon && iconMap[item.icon] ? iconMap[item.icon] : Target
-                return (
-                  <div key={item.id || index} className="text-center">
-                    <div
-                      className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: item.color || "#3B82F6" }}
-                    >
-                      <IconComponent className="w-8 h-8 text-white" />
-                    </div>
-                    <div className="text-3xl font-bold text-foreground mb-2">
-                      {renderEditableText(`items.${index}.value`, item.value?.toString() || "", "0")}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {renderEditableText(`items.${index}.title`, item.title, "Stat title")}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )
-
       case "gallery":
         return (
           <div
@@ -894,6 +793,41 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
+            <div className="mb-4 flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Image Gallery</h3>
+              <UIButton
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const input = document.createElement("input")
+                  input.type = "file"
+                  input.accept = "image/*"
+                  input.multiple = true
+                  input.onchange = (e) => {
+                    const files = Array.from((e.target as HTMLInputElement).files || [])
+                    files.forEach((file) => {
+                      const reader = new FileReader()
+                      reader.onload = (e) => {
+                        const result = e.target?.result as string
+                        const newContent = { ...component.content }
+                        if (!newContent.images) newContent.images = []
+                        newContent.images.push({
+                          src: result,
+                          alt: file.name,
+                          caption: "",
+                        })
+                        updateComponentContent(component.id, newContent)
+                      }
+                      reader.readAsDataURL(file)
+                    })
+                  }
+                  input.click()
+                }}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Images
+              </UIButton>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {component.content.images?.map((image: any, index: number) => (
                 <div key={index} className="relative group">
@@ -902,6 +836,18 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                     alt={image.alt || `Gallery image ${index + 1}`}
                     className="w-full h-48 object-cover rounded-lg transition-transform duration-300 hover:scale-105"
                   />
+                  <UIButton
+                    size="sm"
+                    variant="destructive"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                    onClick={() => {
+                      const newContent = { ...component.content }
+                      newContent.images.splice(index, 1)
+                      updateComponentContent(component.id, newContent)
+                    }}
+                  >
+                    <X className="w-3 h-3" />
+                  </UIButton>
                   {image.caption && (
                     <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg">
                       {renderEditableText(`images.${index}.caption`, image.caption, "Image caption")}
@@ -910,51 +856,10 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                 </div>
               )) || (
                 <div className="col-span-full text-center py-8 text-muted-foreground">
+                  <Camera className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p>No images in gallery yet.</p>
                 </div>
               )}
-            </div>
-          </div>
-        )
-
-      case "testimonial":
-        return (
-          <div
-            className={baseClasses}
-            style={style}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-          >
-            <div className="bg-card rounded-lg p-6 shadow-lg border border-border">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={cn(
-                      "w-5 h-5",
-                      i < (component.content.rating || 5) ? "text-yellow-400 fill-current" : "text-muted-foreground",
-                    )}
-                  />
-                ))}
-              </div>
-              <blockquote className="text-foreground mb-4 italic">
-                "{renderEditableText("quote", component.content.quote, "Testimonial quote", true)}"
-              </blockquote>
-              <div className="flex items-center">
-                <img
-                  src={component.content.avatar || "/placeholder.svg?height=50&width=50"}
-                  alt={component.content.author || "Author"}
-                  className="w-12 h-12 rounded-full mr-4"
-                />
-                <div>
-                  <div className="font-semibold text-foreground">
-                    {renderEditableText("author", component.content.author, "Author Name")}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {renderEditableText("position", component.content.position, "Position, Company")}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         )
@@ -967,15 +872,50 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
+            <div className="mb-4 flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Pricing Plans</h3>
+              <UIButton
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const newContent = { ...component.content }
+                  if (!newContent.plans) newContent.plans = []
+                  newContent.plans.push({
+                    name: "New Plan",
+                    price: "$0",
+                    period: "month",
+                    features: ["Feature 1", "Feature 2"],
+                    buttonText: "Get Started",
+                    popular: false,
+                  })
+                  updateComponentContent(component.id, newContent)
+                }}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Plan
+              </UIButton>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {component.content.plans?.map((plan: any, index: number) => (
                 <div
                   key={index}
                   className={cn(
-                    "bg-card rounded-lg p-6 shadow-lg border-2 transition-all duration-300 hover:scale-105",
+                    "bg-card rounded-lg p-6 shadow-lg border-2 transition-all duration-300 hover:scale-105 relative group",
                     plan.popular ? "border-primary relative" : "border-border",
                   )}
                 >
+                  <UIButton
+                    size="sm"
+                    variant="destructive"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 h-6 w-6 p-0"
+                    onClick={() => {
+                      const newContent = { ...component.content }
+                      newContent.plans.splice(index, 1)
+                      updateComponentContent(component.id, newContent)
+                    }}
+                  >
+                    <X className="w-3 h-3" />
+                  </UIButton>
                   {plan.popular && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                       Popular
@@ -993,13 +933,40 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                     </div>
                     <ul className="space-y-3 mb-6 text-left">
                       {plan.features?.map((feature: string, featureIndex: number) => (
-                        <li key={featureIndex} className="flex items-center">
+                        <li key={featureIndex} className="flex items-center group">
                           <Check className="w-5 h-5 text-green-500 mr-3" />
-                          <span className="text-foreground">
+                          <span className="text-foreground flex-1">
                             {renderEditableText(`plans.${index}.features.${featureIndex}`, feature, "Feature")}
                           </span>
+                          <UIButton
+                            size="sm"
+                            variant="ghost"
+                            className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 ml-2"
+                            onClick={() => {
+                              const newContent = { ...component.content }
+                              newContent.plans[index].features.splice(featureIndex, 1)
+                              updateComponentContent(component.id, newContent)
+                            }}
+                          >
+                            <X className="w-3 h-3" />
+                          </UIButton>
                         </li>
                       ))}
+                      <li>
+                        <UIButton
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            const newContent = { ...component.content }
+                            if (!newContent.plans[index].features) newContent.plans[index].features = []
+                            newContent.plans[index].features.push("New Feature")
+                            updateComponentContent(component.id, newContent)
+                          }}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Feature
+                        </UIButton>
+                      </li>
                     </ul>
                     <UIButton className="w-full" variant={plan.popular ? "default" : "outline"}>
                       {renderEditableText(`plans.${index}.buttonText`, plan.buttonText, "Get Started")}
@@ -1008,6 +975,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                 </div>
               )) || (
                 <div className="col-span-full text-center py-8 text-muted-foreground">
+                  <Award className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p>No pricing plans yet.</p>
                 </div>
               )}
@@ -1015,6 +983,39 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
           </div>
         )
 
+      case "list":
+        return (
+          <div
+            className={baseClasses}
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <ul className="list-disc list-inside space-y-2">
+              {component.content.items?.map((item: string, index: number) => (
+                <li key={index} className="text-foreground flex items-center group">
+                  <span className="flex-1">{renderEditableText(`items.${index}`, item, `List item ${index + 1}`)}</span>
+                  <UIButton
+                    size="sm"
+                    variant="ghost"
+                    className="opacity-0 group-hover:opacity-100 h-6 w-6 p-0 ml-2"
+                    onClick={() => removeListItem(index)}
+                  >
+                    <X className="w-3 h-3" />
+                  </UIButton>
+                </li>
+              )) || <li className="text-muted-foreground italic">Click to add list items</li>}
+              <li>
+                <UIButton size="sm" variant="ghost" onClick={addListItem}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Item
+                </UIButton>
+              </li>
+            </ul>
+          </div>
+        )
+
+      // Continue with other component types...
       default:
         return (
           <div className={baseClasses} style={style}>

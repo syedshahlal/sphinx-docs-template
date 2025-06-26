@@ -1,16 +1,12 @@
 "use client"
 import { useState } from "react"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Settings, Palette, Layout, Type, ChevronDown, ChevronRight, Eye, Sliders, Save, Check } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Settings, Palette, Layout, Type, ChevronDown, ChevronRight } from "lucide-react"
+import { useEditor } from "./EditorContext"
 import type { MarkdownComponent, ComponentStyle } from "./types"
 
 interface PropertiesPanelProps {
@@ -20,6 +16,7 @@ interface PropertiesPanelProps {
 }
 
 export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdateStyle }: PropertiesPanelProps) {
+  const { updateComponentContent, updateComponentStyle } = useEditor()
   const [expandedSections, setExpandedSections] = useState<string[]>(["content", "style"])
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle")
 
@@ -29,14 +26,12 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
 
   const updateContent = (field: string, value: any) => {
     if (!selectedComponent) return
-    onUpdateComponent({
-      content: { ...selectedComponent.content, [field]: value },
-    })
+    updateComponentContent(selectedComponent.id, { [field]: value })
   }
 
   const updateStyle = (field: string, value: any) => {
     if (!selectedComponent) return
-    onUpdateStyle({ [field]: value })
+    updateComponentStyle(selectedComponent.id, { [field]: value })
   }
 
   const handleSave = async () => {
@@ -308,6 +303,76 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
           </div>
         )
 
+      case "chart":
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="chart-type" className="text-foreground">
+                Chart Type
+              </Label>
+              <Select
+                value={selectedComponent.content.type || "bar"}
+                onValueChange={(value) => updateContent("type", value)}
+              >
+                <SelectTrigger className="bg-background border-border">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bar">Bar Chart</SelectItem>
+                  <SelectItem value="line">Line Chart</SelectItem>
+                  <SelectItem value="pie">Pie Chart</SelectItem>
+                  <SelectItem value="doughnut">Doughnut Chart</SelectItem>
+                  <SelectItem value="area">Area Chart</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="chart-title" className="text-foreground">
+                Title
+              </Label>
+              <Input
+                id="chart-title"
+                value={selectedComponent.content.title || ""}
+                onChange={(e) => updateContent("title", e.target.value)}
+                placeholder="Chart title"
+                className="bg-background border-border text-foreground"
+              />
+            </div>
+          </div>
+        )
+
+      case "grid":
+        return (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="grid-columns" className="text-foreground">
+                Columns
+              </Label>
+              <Input
+                id="grid-columns"
+                type="number"
+                min="1"
+                max="6"
+                value={selectedComponent.content.columns || 3}
+                onChange={(e) => updateContent("columns", Number(e.target.value))}
+                className="bg-background border-border text-foreground"
+              />
+            </div>
+            <div>
+              <Label htmlFor="grid-gap" className="text-foreground">
+                Gap
+              </Label>
+              <Input
+                id="grid-gap"
+                value={selectedComponent.content.gap || "1.5rem"}
+                onChange={(e) => updateContent("gap", e.target.value)}
+                placeholder="1.5rem, 24px"
+                className="bg-background border-border text-foreground"
+              />
+            </div>
+          </div>
+        )
+
       default:
         return (
           <div className="text-center py-8 text-muted-foreground">
@@ -567,110 +632,4 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
             </div>
             <div>
               <h2 className="text-lg font-bold text-foreground">Properties</h2>
-              <p className="text-sm text-muted-foreground">Component settings</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center py-12">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-              <Eye className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">No Component Selected</h3>
-            <p className="text-muted-foreground max-w-sm mx-auto">
-              Select a component from the canvas to view and edit its properties.
-            </p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="h-full flex flex-col bg-card">
-      <div className="p-4 border-b border-border bg-muted/50">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary">
-              <Settings className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Properties</h2>
-              <p className="text-sm text-muted-foreground">Component settings</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="capitalize">
-              {selectedComponent.type}
-            </Badge>
-            {selectedComponent.locked && (
-              <Badge variant="secondary" className="text-xs">
-                Locked
-              </Badge>
-            )}
-            {selectedComponent.hidden && (
-              <Badge variant="secondary" className="text-xs">
-                Hidden
-              </Badge>
-            )}
-          </div>
-          <Button
-            onClick={handleSave}
-            disabled={saveStatus === "saving"}
-            size="sm"
-            className={cn(
-              "transition-all duration-200",
-              saveStatus === "saved" && "bg-green-600 hover:bg-green-700 text-white",
-            )}
-          >
-            {saveStatus === "saving" ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                Saving...
-              </>
-            ) : saveStatus === "saved" ? (
-              <>
-                <Check className="w-4 h-4 mr-2" />
-                Saved
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Save
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-
-      <ScrollArea className="flex-1">
-        <div className="p-4">
-          <Tabs defaultValue="content" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="content" className="flex items-center gap-2">
-                <Type className="w-4 h-4" />
-                Content
-              </TabsTrigger>
-              <TabsTrigger value="style" className="flex items-center gap-2">
-                <Sliders className="w-4 h-4" />
-                Style
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="content" className="space-y-4">
-              {renderContentEditor()}
-            </TabsContent>
-
-            <TabsContent value="style" className="space-y-4">
-              {renderStyleEditor()}
-            </TabsContent>
-          </Tabs>
-        </div>
-      </ScrollArea>
-    </div>
-  )
-}
+              <p className="text-sm text\

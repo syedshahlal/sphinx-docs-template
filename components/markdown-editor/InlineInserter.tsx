@@ -1,106 +1,200 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { Plus } from "lucide-react"
+import type React from "react"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useEditor } from "./EditorContext"
-import type { MarkdownComponent } from "./types"
-import { getDefaultContent, componentCategories } from "./ComponentPalette" // Import componentCategories
-import { cn } from "@/lib/utils"
+import { Upload, ImageIcon, Link, FileText, Video, Music, Plus } from "lucide-react"
 
 interface InlineInserterProps {
-  targetIndex: number
-  isVisible: boolean
-  alwaysVisible?: boolean
+  onInsertImage: (src: string, alt?: string) => void
+  onInsertLink: (url: string, text?: string) => void
+  onInsertFile: (file: File) => void
 }
 
-export function InlineInserter({ targetIndex, isVisible, alwaysVisible = false }: InlineInserterProps) {
-  const { addComponent } = useEditor()
-  const [open, setOpen] = useState(false)
+export function InlineInserter({ onInsertImage, onInsertLink, onInsertFile }: InlineInserterProps) {
+  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false)
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false)
+  const [imageUrl, setImageUrl] = useState("")
+  const [imageAlt, setImageAlt] = useState("")
+  const [linkUrl, setLinkUrl] = useState("")
+  const [linkText, setLinkText] = useState("")
 
-  const componentDefinitions = useMemo(() => {
-    return componentCategories.flatMap((category) =>
-      category.components.map((comp) => ({
-        ...comp,
-        categoryName: category.name,
-      })),
-    )
-  }, [])
-
-  const onSelectComponentType = (type: MarkdownComponent["type"], htmlBlockKey?: string) => {
-    console.log(`InlineInserter: Attempting to add component type "${type}" at index ${targetIndex}`, htmlBlockKey)
-    const content = getDefaultContent(type, htmlBlockKey)
-    if (content === undefined) {
-      // Check for undefined specifically
-      console.error(`InlineInserter: getDefaultContent returned undefined for type "${type}". Aborting add.`)
-      setOpen(false)
-      return
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Handle file upload
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          const result = e.target?.result as string
+          onInsertImage(result, file.name)
+        }
+        reader.readAsDataURL(file)
+      } else {
+        onInsertFile(file)
+      }
     }
-    addComponent({ type, content }, false, targetIndex)
-    setOpen(false) // Close dropdown after selection
   }
 
-  if (!isVisible && !alwaysVisible) {
-    return null
+  const handleInsertImage = () => {
+    if (imageUrl) {
+      onInsertImage(imageUrl, imageAlt)
+      setImageUrl("")
+      setImageAlt("")
+      setIsImageDialogOpen(false)
+    }
+  }
+
+  const handleInsertLink = () => {
+    if (linkUrl) {
+      onInsertLink(linkUrl, linkText)
+      setLinkUrl("")
+      setLinkText("")
+      setIsLinkDialogOpen(false)
+    }
   }
 
   return (
-    <div className={cn("relative flex justify-center my-2", alwaysVisible ? "py-2" : "")}>
-      <div className={cn("absolute inset-0 flex items-center", alwaysVisible ? "px-4" : "")} aria-hidden="true">
-        {!alwaysVisible && <div className="w-full border-t border-dashed border-muted-foreground/50" />}
-      </div>
-      <DropdownMenu open={open} onOpenChange={setOpen}>
+    <div className="flex items-center gap-2">
+      <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "relative rounded-full w-8 h-8 transition-opacity duration-150 ease-in-out group-hover:opacity-100 focus-visible:opacity-100",
-              isVisible || alwaysVisible ? "opacity-100" : "opacity-0",
-              alwaysVisible
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                : "bg-card hover:bg-accent dark:bg-neutral-700 dark:hover:bg-neutral-600 border dark:border-neutral-600",
-            )}
-            onClick={(e) => {
-              e.stopPropagation() // Prevent canvas deselection or other parent clicks
-              // setOpen(!open); // onOpenChange handles this
-            }}
-            aria-label="Add component here"
-          >
-            <Plus className="w-4 h-4" />
+          <Button variant="outline" size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Insert
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          onClick={(e) => e.stopPropagation()}
-          className="max-h-96 overflow-y-auto w-64 dark:bg-neutral-800 dark:border-neutral-700"
-          align="center"
-          sideOffset={5}
-        >
-          <DropdownMenuLabel className="dark:text-neutral-300">Add Element</DropdownMenuLabel>
-          <DropdownMenuSeparator className="dark:bg-neutral-700" />
-          {componentDefinitions.map((componentDef) => (
-            <DropdownMenuItem
-              key={`${componentDef.type}-${componentDef.label}-${componentDef.htmlBlockKey || ""}`}
-              onSelect={(event) => {
-                event.preventDefault() // Crucial for custom onSelect logic
-                onSelectComponentType(componentDef.type, componentDef.htmlBlockKey)
-              }}
-              className="flex items-center gap-2 cursor-pointer dark:text-neutral-300 dark:hover:bg-neutral-700"
-            >
-              <componentDef.icon className={`w-4 h-4 ${componentDef.color} flex-shrink-0`} />
-              <span>{componentDef.label}</span>
-            </DropdownMenuItem>
-          ))}
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={() => setIsImageDialogOpen(true)}>
+            <ImageIcon className="w-4 h-4 mr-2" />
+            Image from URL
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => document.getElementById("file-upload")?.click()}>
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Image
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setIsLinkDialogOpen(true)}>
+            <Link className="w-4 h-4 mr-2" />
+            Link
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => document.getElementById("file-upload")?.click()}>
+            <FileText className="w-4 h-4 mr-2" />
+            File
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => document.getElementById("file-upload")?.click()}>
+            <Video className="w-4 h-4 mr-2" />
+            Video
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => document.getElementById("file-upload")?.click()}>
+            <Music className="w-4 h-4 mr-2" />
+            Audio
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Hidden file input */}
+      <input
+        id="file-upload"
+        type="file"
+        className="hidden"
+        accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.md"
+        onChange={handleFileUpload}
+      />
+
+      {/* Image Dialog */}
+      <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Insert Image</DialogTitle>
+            <DialogDescription>Add an image from a URL to your document.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div>
+              <Label htmlFor="image-url">Image URL</Label>
+              <Input
+                id="image-url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+            <div>
+              <Label htmlFor="image-alt">Alt Text (optional)</Label>
+              <Input
+                id="image-alt"
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+                placeholder="Describe the image"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsImageDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleInsertImage} disabled={!imageUrl}>
+              Insert Image
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Dialog */}
+      <Dialog open={isLinkDialogOpen} onOpenChange={setIsLinkDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Insert Link</DialogTitle>
+            <DialogDescription>Add a link to your document.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div>
+              <Label htmlFor="link-url">URL</Label>
+              <Input
+                id="link-url"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://example.com"
+              />
+            </div>
+            <div>
+              <Label htmlFor="link-text">Link Text (optional)</Label>
+              <Input
+                id="link-text"
+                value={linkText}
+                onChange={(e) => setLinkText(e.target.value)}
+                placeholder="Click here"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsLinkDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleInsertLink} disabled={!linkUrl}>
+              Insert Link
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -1,8 +1,10 @@
 "use client"
 
+import { Separator } from "@/components/ui/separator"
+
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
@@ -12,25 +14,32 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  Save,
-  FileText,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import {
   Download,
+  Upload,
+  Share2,
+  Settings,
   Undo,
   Redo,
-  Settings,
-  Share,
-  Plus,
-  FolderOpen,
-  ChevronDown,
+  Eye,
+  GitBranch,
+  FileText,
+  MoreHorizontal,
+  Zap,
+  Palette,
+  Monitor,
   Smartphone,
   Tablet,
-  Monitor,
-  Grid,
-  Layers,
-  FileCode,
-  Globe,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
 import { useEditor } from "./EditorContext"
 
 interface EditorToolbarProps {
@@ -40,6 +49,17 @@ interface EditorToolbarProps {
 export function EditorToolbar({ onToggleFileManager }: EditorToolbarProps) {
   const { state, dispatch } = useEditor()
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle")
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false)
+  const [publishSettings, setPublishSettings] = useState({
+    repository: "",
+    branch: "main",
+    path: "docs/",
+    filename: "document.md",
+    commitMessage: "Update documentation",
+    createPR: true,
+    prTitle: "Documentation Update",
+    prDescription: "Automated documentation update from markdown editor",
+  })
 
   const handleSave = async () => {
     setSaveStatus("saving")
@@ -52,6 +72,65 @@ export function EditorToolbar({ onToggleFileManager }: EditorToolbarProps) {
   const handleExport = (format: "markdown" | "html" | "json") => {
     // Export logic would go here
     console.log(`Exporting as ${format}`)
+  }
+
+  const handleImport = () => {
+    // Import logic here
+    console.log("Importing document...")
+  }
+
+  const handlePublish = async () => {
+    try {
+      // Generate markdown content
+      const markdownContent = generateMarkdownFromComponents(state.components)
+
+      // Publish to Bitbucket
+      await publishToBitbucket({
+        ...publishSettings,
+        content: markdownContent,
+      })
+
+      setIsPublishDialogOpen(false)
+    } catch (error) {
+      console.error("Failed to publish:", error)
+    }
+  }
+
+  const generateMarkdownFromComponents = (components: any[]) => {
+    // Convert components to markdown
+    let markdown = ""
+    components.forEach((component) => {
+      // Add component conversion logic here
+      switch (component.type) {
+        case "heading":
+          markdown += `${"#".repeat(component.content.level || 2)} ${component.content.text || "Heading"}\n\n`
+          break
+        case "paragraph":
+          markdown += `${component.content.text || "Paragraph text"}\n\n`
+          break
+        // Add more component types...
+        default:
+          markdown += `<!-- ${component.type} component -->\n\n`
+      }
+    })
+    return markdown
+  }
+
+  const publishToBitbucket = async (settings: any) => {
+    // Bitbucket API integration
+    const response = await fetch("/api/publish-bitbucket", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(settings),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to publish to Bitbucket")
+    }
+
+    return response.json()
   }
 
   const handleUndo = () => {
@@ -87,88 +166,68 @@ export function EditorToolbar({ onToggleFileManager }: EditorToolbarProps) {
   return (
     <div className="flex items-center justify-between p-4 border-b border-border bg-card">
       {/* Left Section - File Operations */}
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={handleNewFile} className="flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          New
-        </Button>
-
-        <Button variant="ghost" size="sm" onClick={onToggleFileManager} className="flex items-center gap-2">
-          <FolderOpen className="w-4 h-4" />
-          Files
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleSave}
-          disabled={saveStatus === "saving"}
-          className={cn(
-            "flex items-center gap-2 transition-all duration-200",
-            saveStatus === "saved" && "text-green-600",
-            state.isDirty && "text-orange-600",
-          )}
-        >
-          {saveStatus === "saving" ? (
-            <>
-              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              Saving...
-            </>
-          ) : (
-            <>
-              <Save className="w-4 h-4" />
-              {saveStatus === "saved" ? "Saved" : state.isDirty ? "Save*" : "Save"}
-            </>
-          )}
-        </Button>
-
-        <Separator orientation="vertical" className="h-6" />
-
-        {/* Export Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="flex items-center gap-2">
-              <Download className="w-4 h-4" />
-              Export
-              <ChevronDown className="w-3 h-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onClick={() => handleExport("markdown")}>
-              <FileText className="w-4 h-4 mr-2" />
-              Export as Markdown
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport("html")}>
-              <Globe className="w-4 h-4 mr-2" />
-              Export as HTML
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport("json")}>
-              <FileCode className="w-4 h-4 mr-2" />
-              Export as JSON
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Share className="w-4 h-4 mr-2" />
-              Share Link
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Center Section - Document Info */}
       <div className="flex items-center gap-4">
-        <div className="text-center">
-          <div className="text-sm font-medium text-foreground">{state.fileName || "Untitled Document"}</div>
-          <div className="text-xs text-muted-foreground">
-            {state.components.length} component{state.components.length !== 1 ? "s" : ""}
+        <div className="flex items-center gap-2">
+          <div className="p-2 rounded-lg bg-primary">
+            <FileText className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-foreground">Markdown Editor</h1>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>{state.fileName || "Untitled Document"}</span>
+              {state.isDirty && (
+                <Badge variant="secondary" className="text-xs">
+                  Unsaved
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
 
-        {state.isDirty && (
-          <Badge variant="outline" className="text-orange-600 border-orange-600">
-            Unsaved
-          </Badge>
-        )}
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" onClick={handleUndo} disabled={state.history.past.length === 0}>
+            <Undo className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleRedo} disabled={state.history.future.length === 0}>
+            <Redo className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Center Section - Document Info */}
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+          <Button
+            variant={state.previewMode === "edit" ? "default" : "ghost"}
+            size="sm"
+            className="h-8"
+            onClick={() => handlePreviewModeChange("edit")}
+          >
+            <Monitor className="w-4 h-4 mr-1" />
+            Edit
+          </Button>
+          <Button
+            variant={state.previewMode === "preview" ? "default" : "ghost"}
+            size="sm"
+            className="h-8"
+            onClick={() => handlePreviewModeChange("preview")}
+          >
+            <Eye className="w-4 h-4 mr-1" />
+            Preview
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+          <Button variant="ghost" size="sm" className="h-8" onClick={() => handlePreviewModeChange("edit")}>
+            <Monitor className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8" onClick={() => handlePreviewModeChange("tablet")}>
+            <Tablet className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8" onClick={() => handlePreviewModeChange("mobile")}>
+            <Smartphone className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Right Section - Editor Controls */}
@@ -216,36 +275,165 @@ export function EditorToolbar({ onToggleFileManager }: EditorToolbarProps) {
 
         <Separator orientation="vertical" className="h-6" />
 
-        {/* Layout Mode */}
+        {/* Share Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="flex items-center gap-2">
-              <Grid className="w-4 h-4" />
-              Layout
-              <ChevronDown className="w-3 h-3" />
+            <Button variant="outline" size="sm" className="flex items-center gap-2">
+              <Share2 className="w-4 h-4 mr-2" />
+              Share
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => dispatch({ type: "SET_LAYOUT_MODE", payload: { mode: "freeform" } })}>
-              <Layers className="w-4 h-4 mr-2" />
-              Freeform
+            <DropdownMenuItem onClick={() => handleExport("markdown")}>
+              <Download className="w-4 h-4 mr-2" />
+              Export Markdown
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => dispatch({ type: "SET_LAYOUT_MODE", payload: { mode: "grid" } })}>
-              <Grid className="w-4 h-4 mr-2" />
-              Grid
+            <DropdownMenuItem onClick={handleImport}>
+              <Upload className="w-4 h-4 mr-2" />
+              Import File
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => dispatch({ type: "SET_LAYOUT_MODE", payload: { mode: "flex" } })}>
-              <Layers className="w-4 h-4 mr-2" />
-              Flex
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setIsPublishDialogOpen(true)}>
+              <GitBranch className="w-4 h-4 mr-2" />
+              Publish to Bitbucket
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Settings */}
-        <Button variant="ghost" size="sm" className="flex items-center gap-2">
-          <Settings className="w-4 h-4" />
-        </Button>
+        {/* Settings Menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Palette className="w-4 h-4 mr-2" />
+              Theme
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Zap className="w-4 h-4 mr-2" />
+              Keyboard Shortcuts
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+
+      {/* Publish Dialog */}
+      <Dialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Publish to Bitbucket</DialogTitle>
+            <DialogDescription>
+              Configure the settings to publish your document to a Bitbucket repository.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="repository">Repository</Label>
+                <Input
+                  id="repository"
+                  value={publishSettings.repository}
+                  onChange={(e) => setPublishSettings((prev) => ({ ...prev, repository: e.target.value }))}
+                  placeholder="username/repository-name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="branch">Branch</Label>
+                <Input
+                  id="branch"
+                  value={publishSettings.branch}
+                  onChange={(e) => setPublishSettings((prev) => ({ ...prev, branch: e.target.value }))}
+                  placeholder="main"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="path">Path</Label>
+                <Input
+                  id="path"
+                  value={publishSettings.path}
+                  onChange={(e) => setPublishSettings((prev) => ({ ...prev, path: e.target.value }))}
+                  placeholder="docs/"
+                />
+              </div>
+              <div>
+                <Label htmlFor="filename">Filename</Label>
+                <Input
+                  id="filename"
+                  value={publishSettings.filename}
+                  onChange={(e) => setPublishSettings((prev) => ({ ...prev, filename: e.target.value }))}
+                  placeholder="document.md"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="commit-message">Commit Message</Label>
+              <Input
+                id="commit-message"
+                value={publishSettings.commitMessage}
+                onChange={(e) => setPublishSettings((prev) => ({ ...prev, commitMessage: e.target.value }))}
+                placeholder="Update documentation"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="create-pr"
+                checked={publishSettings.createPR}
+                onChange={(e) => setPublishSettings((prev) => ({ ...prev, createPR: e.target.checked }))}
+              />
+              <Label htmlFor="create-pr">Create Pull Request</Label>
+            </div>
+
+            {publishSettings.createPR && (
+              <>
+                <div>
+                  <Label htmlFor="pr-title">PR Title</Label>
+                  <Input
+                    id="pr-title"
+                    value={publishSettings.prTitle}
+                    onChange={(e) => setPublishSettings((prev) => ({ ...prev, prTitle: e.target.value }))}
+                    placeholder="Documentation Update"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="pr-description">PR Description</Label>
+                  <Textarea
+                    id="pr-description"
+                    value={publishSettings.prDescription}
+                    onChange={(e) => setPublishSettings((prev) => ({ ...prev, prDescription: e.target.value }))}
+                    placeholder="Automated documentation update from markdown editor"
+                    rows={3}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPublishDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handlePublish}>
+              <GitBranch className="w-4 h-4 mr-2" />
+              Publish
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -1,10 +1,9 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useReducer, type ReactNode } from "react"
-import type { EditorState, EditorAction, MarkdownComponent, ComponentStyle } from "./types"
+import { createContext, useContext, useReducer, useCallback } from "react"
+import type { EditorState, EditorAction, MarkdownComponent } from "./types"
 
-// Initial editor state
 const initialState: EditorState = {
   components: [],
   selectedComponent: null,
@@ -21,7 +20,7 @@ const initialState: EditorState = {
     fontFamily: "Inter, sans-serif",
     primaryColor: "#3b82f6",
     secondaryColor: "#6b7280",
-    accentColor: "#10b981",
+    accentColor: "#f59e0b",
     borderRadius: "0.5rem",
     spacing: "1rem",
   },
@@ -32,132 +31,110 @@ const initialState: EditorState = {
   },
 }
 
-// Editor reducer
 function editorReducer(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
     case "ADD_COMPONENT": {
       const newComponent: MarkdownComponent = {
-        ...action.payload.component,
         id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        order: action.payload.index !== undefined ? action.payload.index : state.components.length,
+        ...action.payload.component,
+        order: action.payload.index ?? state.components.length,
       }
 
-      // Adjust order of existing components if inserting at specific index
-      let updatedComponents = [...state.components]
+      const newComponents = [...state.components]
       if (action.payload.index !== undefined) {
-        updatedComponents = updatedComponents.map((comp) =>
-          comp.order >= action.payload.index! ? { ...comp, order: comp.order + 1 } : comp,
-        )
+        newComponents.splice(action.payload.index, 0, newComponent)
+      } else {
+        newComponents.push(newComponent)
       }
 
-      const newState = {
-        ...state,
-        components: [...updatedComponents, newComponent],
-        selectedComponent: newComponent.id,
-        isDirty: true,
-      }
+      // Update order for all components
+      const orderedComponents = newComponents.map((comp, index) => ({
+        ...comp,
+        order: index,
+      }))
 
       if (action.returnId) {
         action.returnId(newComponent.id)
       }
 
-      return newState
-    }
-
-    case "DELETE_COMPONENT":
       return {
         ...state,
-        components: state.components.filter((comp) => comp.id !== action.payload.id),
+        components: orderedComponents,
+        selectedComponent: newComponent.id,
+        isDirty: true,
+      }
+    }
+
+    case "DELETE_COMPONENT": {
+      const newComponents = state.components.filter((comp) => comp.id !== action.payload.id)
+      return {
+        ...state,
+        components: newComponents.map((comp, index) => ({ ...comp, order: index })),
         selectedComponent: state.selectedComponent === action.payload.id ? null : state.selectedComponent,
         isDirty: true,
       }
+    }
 
-    case "UPDATE_COMPONENT":
+    case "UPDATE_COMPONENT": {
+      const newComponents = state.components.map((comp) =>
+        comp.id === action.payload.id ? { ...comp, ...action.payload.updates } : comp,
+      )
       return {
         ...state,
-        components: state.components.map((comp) =>
-          comp.id === action.payload.id ? { ...comp, ...action.payload.updates } : comp,
-        ),
+        components: newComponents,
         isDirty: true,
       }
+    }
 
-    case "UPDATE_COMPONENT_CONTENT":
+    case "UPDATE_COMPONENT_CONTENT": {
+      const newComponents = state.components.map((comp) =>
+        comp.id === action.payload.id
+          ? { ...comp, content: { ...comp.content, ...action.payload.contentUpdates } }
+          : comp,
+      )
       return {
         ...state,
-        components: state.components.map((comp) =>
-          comp.id === action.payload.id
-            ? { ...comp, content: { ...comp.content, ...action.payload.contentUpdates } }
-            : comp,
-        ),
+        components: newComponents,
         isDirty: true,
       }
+    }
 
-    case "UPDATE_COMPONENT_STYLE":
+    case "UPDATE_COMPONENT_STYLE": {
+      const newComponents = state.components.map((comp) =>
+        comp.id === action.payload.id ? { ...comp, style: { ...comp.style, ...action.payload.styleUpdates } } : comp,
+      )
       return {
         ...state,
-        components: state.components.map((comp) =>
-          comp.id === action.payload.id ? { ...comp, style: { ...comp.style, ...action.payload.styleUpdates } } : comp,
-        ),
+        components: newComponents,
         isDirty: true,
       }
+    }
 
-    case "REORDER_COMPONENTS":
+    case "REORDER_COMPONENTS": {
+      const orderedComponents = action.payload.components.map((comp, index) => ({
+        ...comp,
+        order: index,
+      }))
       return {
         ...state,
-        components: action.payload.components.map((comp, index) => ({ ...comp, order: index })),
+        components: orderedComponents,
         isDirty: true,
       }
+    }
 
-    case "SELECT_COMPONENT":
+    case "SELECT_COMPONENT": {
       return {
         ...state,
         selectedComponent: action.payload.id,
       }
+    }
 
-    case "SET_PREVIEW_MODE":
+    case "SET_PREVIEW_MODE": {
       return {
         ...state,
         previewMode: action.payload.mode,
       }
-
-    case "SET_LAYOUT_MODE":
-      return {
-        ...state,
-        layoutMode: action.payload.mode,
-      }
-
-    case "SET_CANVAS_SETTINGS":
-      return {
-        ...state,
-        canvasSettings: { ...state.canvasSettings, ...action.payload.settings },
-        isDirty: true,
-      }
-
-    case "SET_GLOBAL_STYLES":
-      return {
-        ...state,
-        globalStyles: { ...state.globalStyles, ...action.payload.styles },
-        isDirty: true,
-      }
-
-    case "SET_FILE_DETAILS":
-      return {
-        ...state,
-        fileName: action.payload.fileName || state.fileName,
-        filePath: action.payload.filePath || state.filePath,
-        fileVersion: action.payload.fileVersion || state.fileVersion,
-        isDirty: true,
-      }
-
-    case "LOAD_COMPONENTS":
-      return {
-        ...state,
-        components: action.payload.components,
-        fileName: action.payload.fileName,
-        filePath: action.payload.filePath,
-        fileVersion: action.payload.fileVersion,
-        isDirty: false,
-      }
+    }
 
     case "DUPLICATE_COMPONENT": {
       const componentToDuplicate = state.components.find((comp) => comp.id === action.payload.id)
@@ -169,265 +146,116 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
         order: componentToDuplicate.order + 1,
       }
 
-      const updatedComponents = state.components.map((comp) =>
-        comp.order > componentToDuplicate.order ? { ...comp, order: comp.order + 1 } : comp,
-      )
+      const newComponents = [...state.components]
+      const insertIndex = componentToDuplicate.order + 1
+      newComponents.splice(insertIndex, 0, duplicatedComponent)
 
       return {
         ...state,
-        components: [...updatedComponents, duplicatedComponent],
+        components: newComponents.map((comp, index) => ({ ...comp, order: index })),
         selectedComponent: duplicatedComponent.id,
         isDirty: true,
       }
     }
-
-    case "COPY_COMPONENT": {
-      const componentToCopy = state.components.find((comp) => comp.id === action.payload.id)
-      if (!componentToCopy) return state
-
-      return {
-        ...state,
-        clipboard: componentToCopy,
-      }
-    }
-
-    case "PASTE_COMPONENT": {
-      if (!state.clipboard) return state
-
-      const pastedComponent: MarkdownComponent = {
-        ...state.clipboard,
-        id: `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        order: action.payload.index !== undefined ? action.payload.index : state.components.length,
-      }
-
-      let updatedComponents = [...state.components]
-      if (action.payload.index !== undefined) {
-        updatedComponents = updatedComponents.map((comp) =>
-          comp.order >= action.payload.index! ? { ...comp, order: comp.order + 1 } : comp,
-        )
-      }
-
-      return {
-        ...state,
-        components: [...updatedComponents, pastedComponent],
-        selectedComponent: pastedComponent.id,
-        isDirty: true,
-      }
-    }
-
-    case "LOCK_COMPONENT":
-      return {
-        ...state,
-        components: state.components.map((comp) =>
-          comp.id === action.payload.id ? { ...comp, locked: action.payload.locked } : comp,
-        ),
-        isDirty: true,
-      }
-
-    case "HIDE_COMPONENT":
-      return {
-        ...state,
-        components: state.components.map((comp) =>
-          comp.id === action.payload.id ? { ...comp, hidden: action.payload.hidden } : comp,
-        ),
-        isDirty: true,
-      }
-
-    case "SET_DIRTY":
-      return {
-        ...state,
-        isDirty: action.payload.isDirty,
-      }
-
-    case "UNDO": {
-      if (state.history.past.length === 0) return state
-
-      const previous = state.history.past[state.history.past.length - 1]
-      const newPast = state.history.past.slice(0, state.history.past.length - 1)
-
-      return {
-        ...previous,
-        history: {
-          past: newPast,
-          future: [state, ...state.history.future],
-        },
-      }
-    }
-
-    case "REDO": {
-      if (state.history.future.length === 0) return state
-
-      const next = state.history.future[0]
-      const newFuture = state.history.future.slice(1)
-
-      return {
-        ...next,
-        history: {
-          past: [...state.history.past, state],
-          future: newFuture,
-        },
-      }
-    }
-
-    case "CLEAR_HISTORY":
-      return {
-        ...state,
-        history: {
-          past: [],
-          future: [],
-        },
-      }
 
     default:
       return state
   }
 }
 
-// Context type
 interface EditorContextType {
   state: EditorState
-  dispatch: React.Dispatch<EditorAction>
-  addComponent: (component: Omit<MarkdownComponent, "id" | "order">, selectAfterAdd?: boolean, index?: number) => void
+  addComponent: (component: Omit<MarkdownComponent, "id" | "order">, select?: boolean, index?: number) => string
+  deleteComponent: (id: string) => void
   updateComponent: (id: string, updates: Partial<MarkdownComponent>) => void
   updateComponentContent: (id: string, contentUpdates: any) => void
-  updateComponentStyle: (id: string, styleUpdates: Partial<ComponentStyle>) => void
-  deleteComponent: (id: string) => void
+  updateComponentStyle: (id: string, styleUpdates: any) => void
   selectComponent: (id: string | null) => void
   reorderComponents: (components: MarkdownComponent[]) => void
   duplicateComponent: (id: string) => void
-  setFileDetails: (details: { fileName?: string; filePath?: string; fileVersion?: string }) => void
-  loadFile: (content: string, fileName: string, filePath: string) => void
-  newFile: () => void
-  setLayoutMode: (mode: EditorState["layoutMode"]) => void
+  moveComponent: (id: string, newIndex: number) => void
 }
 
-// Create context
-const EditorContext = createContext<EditorContextType | undefined>(undefined)
+const EditorContext = createContext<EditorContextType | null>(null)
 
-// Provider component
-interface EditorProviderProps {
-  children: ReactNode
-}
-
-export function EditorProvider({ children }: EditorProviderProps) {
+export function EditorProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(editorReducer, initialState)
 
-  // Helper functions
-  const addComponent = (component: Omit<MarkdownComponent, "id" | "order">, selectAfterAdd = true, index?: number) => {
-    dispatch({
-      type: "ADD_COMPONENT",
-      payload: { component, index },
-    })
-  }
+  const addComponent = useCallback(
+    (component: Omit<MarkdownComponent, "id" | "order">, select = true, index?: number): string => {
+      let componentId = ""
+      dispatch({
+        type: "ADD_COMPONENT",
+        payload: { component, index },
+        returnId: (id) => {
+          componentId = id
+        },
+      })
+      return componentId
+    },
+    [],
+  )
 
-  const updateComponent = (id: string, updates: Partial<MarkdownComponent>) => {
-    dispatch({
-      type: "UPDATE_COMPONENT",
-      payload: { id, updates },
-    })
-  }
+  const deleteComponent = useCallback((id: string) => {
+    dispatch({ type: "DELETE_COMPONENT", payload: { id } })
+  }, [])
 
-  const updateComponentContent = (id: string, contentUpdates: any) => {
-    dispatch({
-      type: "UPDATE_COMPONENT_CONTENT",
-      payload: { id, contentUpdates },
-    })
-  }
+  const updateComponent = useCallback((id: string, updates: Partial<MarkdownComponent>) => {
+    dispatch({ type: "UPDATE_COMPONENT", payload: { id, updates } })
+  }, [])
 
-  const updateComponentStyle = (id: string, styleUpdates: Partial<ComponentStyle>) => {
-    dispatch({
-      type: "UPDATE_COMPONENT_STYLE",
-      payload: { id, styleUpdates },
-    })
-  }
+  const updateComponentContent = useCallback((id: string, contentUpdates: any) => {
+    dispatch({ type: "UPDATE_COMPONENT_CONTENT", payload: { id, contentUpdates } })
+  }, [])
 
-  const deleteComponent = (id: string) => {
-    dispatch({
-      type: "DELETE_COMPONENT",
-      payload: { id },
-    })
-  }
+  const updateComponentStyle = useCallback((id: string, styleUpdates: any) => {
+    dispatch({ type: "UPDATE_COMPONENT_STYLE", payload: { id, styleUpdates } })
+  }, [])
 
-  const selectComponent = (id: string | null) => {
-    dispatch({
-      type: "SELECT_COMPONENT",
-      payload: { id },
-    })
-  }
+  const selectComponent = useCallback((id: string | null) => {
+    dispatch({ type: "SELECT_COMPONENT", payload: { id } })
+  }, [])
 
-  const reorderComponents = (components: MarkdownComponent[]) => {
-    dispatch({
-      type: "REORDER_COMPONENTS",
-      payload: { components },
-    })
-  }
+  const reorderComponents = useCallback((components: MarkdownComponent[]) => {
+    dispatch({ type: "REORDER_COMPONENTS", payload: { components } })
+  }, [])
 
-  const duplicateComponent = (id: string) => {
-    dispatch({
-      type: "DUPLICATE_COMPONENT",
-      payload: { id },
-    })
-  }
+  const duplicateComponent = useCallback((id: string) => {
+    dispatch({ type: "DUPLICATE_COMPONENT", payload: { id } })
+  }, [])
 
-  const setFileDetails = (details: { fileName?: string; filePath?: string; fileVersion?: string }) => {
-    dispatch({
-      type: "SET_FILE_DETAILS",
-      payload: details,
-    })
-  }
+  const moveComponent = useCallback(
+    (id: string, newIndex: number) => {
+      const component = state.components.find((comp) => comp.id === id)
+      if (!component) return
 
-  const loadFile = (content: string, fileName: string, filePath: string) => {
-    // Parse content and create components
-    // This is a simplified implementation
-    const components: MarkdownComponent[] = []
-    dispatch({
-      type: "LOAD_COMPONENTS",
-      payload: { components, fileName, filePath, fileVersion: "1.0.0" },
-    })
-  }
-
-  const newFile = () => {
-    dispatch({
-      type: "LOAD_COMPONENTS",
-      payload: { components: [], fileName: "", filePath: "", fileVersion: "" },
-    })
-  }
-
-  const setLayoutMode = (mode: EditorState["layoutMode"]) => {
-    dispatch({
-      type: "SET_LAYOUT_MODE",
-      payload: { mode },
-    })
-  }
+      const newComponents = state.components.filter((comp) => comp.id !== id)
+      newComponents.splice(newIndex, 0, component)
+      reorderComponents(newComponents)
+    },
+    [state.components, reorderComponents],
+  )
 
   const value: EditorContextType = {
     state,
-    dispatch,
     addComponent,
+    deleteComponent,
     updateComponent,
     updateComponentContent,
     updateComponentStyle,
-    deleteComponent,
     selectComponent,
     reorderComponents,
     duplicateComponent,
-    setFileDetails,
-    loadFile,
-    newFile,
-    setLayoutMode,
+    moveComponent,
   }
 
   return <EditorContext.Provider value={value}>{children}</EditorContext.Provider>
 }
 
-// Hook to use the context
 export function useEditor() {
   const context = useContext(EditorContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useEditor must be used within an EditorProvider")
   }
   return context
 }
-
-// Export the context for direct usage
-export { EditorContext }
