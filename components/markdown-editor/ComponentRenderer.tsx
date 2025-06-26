@@ -48,7 +48,17 @@ import type { JSX } from "react/jsx-runtime"
 
 // Simple Chart Component (since we can't use external charting libraries in this environment)
 function SimpleChart({ data, type, title }: { data: ChartContent; type: string; title?: string }) {
-  const maxValue = Math.max(...data.data.datasets.flatMap((d) => d.data))
+  const datasets = data.data?.datasets?.length
+    ? data.data.datasets
+    : [
+        {
+          label: "Dataset 1",
+          data: new Array(data.data?.labels?.length || 0).fill(0),
+          backgroundColor: "#3b82f6",
+        },
+      ]
+
+  const maxValue = Math.max(...datasets.flatMap((d) => d.data))
 
   if (type === "bar") {
     return (
@@ -59,7 +69,7 @@ function SimpleChart({ data, type, title }: { data: ChartContent; type: string; 
             <div key={index} className="flex items-center gap-3">
               <div className="w-20 text-sm text-muted-foreground">{label}</div>
               <div className="flex-1 bg-muted rounded-full h-6 relative overflow-hidden">
-                {data.data.datasets.map((dataset, datasetIndex) => (
+                {datasets.map((dataset, datasetIndex) => (
                   <div
                     key={datasetIndex}
                     className="h-full rounded-full transition-all duration-500"
@@ -72,7 +82,7 @@ function SimpleChart({ data, type, title }: { data: ChartContent; type: string; 
                   />
                 ))}
               </div>
-              <div className="w-12 text-sm text-foreground text-right">{data.data.datasets[0]?.data[index] || 0}</div>
+              <div className="w-12 text-sm text-foreground text-right">{datasets[0]?.data[index] || 0}</div>
             </div>
           ))}
         </div>
@@ -81,13 +91,13 @@ function SimpleChart({ data, type, title }: { data: ChartContent; type: string; 
   }
 
   if (type === "pie") {
-    const total = data.data.datasets[0]?.data.reduce((sum, val) => sum + val, 0) || 1
+    const total = datasets[0]?.data.reduce((sum, val) => sum + val, 0) || 1
     return (
       <div className="p-4 bg-card border border-border rounded-lg">
         {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
         <div className="flex items-center justify-center">
           <div className="w-48 h-48 rounded-full relative overflow-hidden border-4 border-muted">
-            {data.data.datasets[0]?.data.map((value, index) => {
+            {datasets[0]?.data.map((value, index) => {
               const percentage = (value / total) * 100
               const color = Array.isArray(data.data.datasets[0].backgroundColor)
                 ? data.data.datasets[0].backgroundColor[index] || "#3b82f6"
@@ -99,7 +109,7 @@ function SimpleChart({ data, type, title }: { data: ChartContent; type: string; 
                   className="absolute inset-0 flex items-center justify-center text-xs font-medium text-white"
                   style={{
                     background: `conic-gradient(${color} 0deg ${percentage * 3.6}deg, transparent ${percentage * 3.6}deg 360deg)`,
-                    transform: `rotate(${(data.data.datasets[0]?.data.slice(0, index).reduce((sum, val) => sum + val, 0) / total) * 360}deg)`,
+                    transform: `rotate(${(datasets[0]?.data.slice(0, index).reduce((sum, val) => sum + val, 0) / total) * 360}deg)`,
                   }}
                 >
                   {percentage > 10 && `${percentage.toFixed(1)}%`}
@@ -590,6 +600,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
                       value={chartContent.data.datasets[0]?.data[index] || 0}
                       onChange={(e) => {
                         const newContent = { ...component.content }
+                        if (!newContent.data.datasets) newContent.data.datasets = []
                         if (!newContent.data.datasets[0]) {
                           newContent.data.datasets[0] = { label: "Dataset 1", data: [] }
                         }
