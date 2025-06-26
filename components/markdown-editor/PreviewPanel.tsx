@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useEditor } from "./EditorContext"
-import { Button } from "@/components/core/ui/button"
+import { Button } from "@/components/ui/button"
 import { Eye, Code, FileText, Copy } from "lucide-react"
 
 export function PreviewPanel() {
