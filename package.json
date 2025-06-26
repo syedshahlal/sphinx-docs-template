@@ -13,7 +13,7 @@
     "@dnd-kit/sortable": "latest",
     "@dnd-kit/utilities": "latest",
     "@emotion/is-prop-valid": "latest",
-    "@octokit/rest": "latest",
+    "@octokit/rest": "^20.1.1",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-label": "latest",
     "@radix-ui/react-popover": "^1.0.7",
