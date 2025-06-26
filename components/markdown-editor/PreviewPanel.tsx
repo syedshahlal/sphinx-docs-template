@@ -4,6 +4,28 @@
 // -----------------------------------------------------------
 import type { MarkdownComponent } from "./types"
 
+/** Convert a Component list to Markdown */
+export function generateMarkdown(blocks: MarkdownComponent[]): string {
+  return blocks
+    .map((b) => {
+      switch (b.type) {
+        case "heading":
+          return `${"#".repeat(b.content.level || 1)} ${b.content.text}\n\n`
+        case "paragraph":
+          return `${b.content.text}\n\n`
+        case "image":
+          return `![${b.content.alt}](${b.content.src})\n\n`
+        case "code":
+          return `\`\`\`${b.content.language || ""}\n${b.content.code}\n\`\`\`\n\n`
+        case "htmlBlock":
+          return `${b.content.html}\n\n`
+        default:
+          return ""
+      }
+    })
+    .join("")
+}
+
 export function generateHtml(components: MarkdownComponent[]): string {
   return components
     .map((c) => {
