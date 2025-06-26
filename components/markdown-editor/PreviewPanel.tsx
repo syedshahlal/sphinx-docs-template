@@ -7,7 +7,7 @@ import { Highlight, type Language } from "prism-react-renderer"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
-import type { MarkdownComponent, ComponentStyle } from "./types"
+import type { MarkdownComponent, ComponentStyle, HtmlBlockContent } from "./types"
 import { useEditor } from "./EditorContext"
 
 /* ------------------------------------------------------------------ */
@@ -23,7 +23,7 @@ const styleObjectToString = (style?: ComponentStyle): string => {
     .join(" ")
 }
 
-/** Generate Markdown from the editor’s component list (used for export/publish) */
+/** Generate Markdown from the editor's component list (used for export/publish) */
 function generateMarkdown(components: MarkdownComponent[]): string {
   return components
     .sort((a, b) => a.order - b.order)
@@ -52,9 +52,42 @@ function generateMarkdown(components: MarkdownComponent[]): string {
             (content.items || []).map((i: string, idx: number) => `${(content.start || 1) + idx}. ${i}`).join("\n") +
             "\n"
           )
+        case "taskList":
+          return (
+            (content.items || [])
+              .map((item: { text: string; checked: boolean }) => `- [${item.checked ? "x" : " "}] ${item.text}`)
+              .join("\n") + "\n"
+          )
+        case "blockquote":
+          return `> ${content.text || ""}\n`
+        case "alert":
+          return `> **${(content.type || "info").toUpperCase()}**: ${content.text || ""}\n`
+        case "card":
+          let cardMd = `## ${content.title || "Card Title"}\n`
+          if (content.description) cardMd += `${content.description}\n`
+          if (content.imageUrl) cardMd += `![Card Image](${content.imageUrl})\n`
+          return cardMd + "\n"
+        case "table":
+          let tableMd = ""
+          if (content.headers) {
+            tableMd += "| " + content.headers.join(" | ") + " |\n"
+            tableMd += "| " + content.headers.map(() => "---").join(" | ") + " |\n"
+          }
+          if (content.rows) {
+            content.rows.forEach((row: string[]) => {
+              tableMd += "| " + row.join(" | ") + " |\n"
+            })
+          }
+          return tableMd + "\n"
+        case "columns":
+          return `### Column 1\n${content.column1Text || ""}\n\n### Column 2\n${content.column2Text || ""}\n`
+        case "spacer":
+          return `\n<!-- Spacer: ${content.height || "40px"} -->\n\n`
         case "mermaid":
           return `\`\`\`mermaid\n${content.code || ""}\n\`\`\`\n`
-        /* …handle any other component types you support… */
+        case "htmlBlock":
+          const htmlContent = content as HtmlBlockContent
+          return `<!-- ${htmlContent.name || "HTML Block"} -->\n${htmlContent.htmlContent || ""}\n`
         default:
           return ""
       }
@@ -62,7 +95,7 @@ function generateMarkdown(components: MarkdownComponent[]): string {
     .join("\n")
 }
 
-/** Generate HTML from the editor’s component list (used for live preview & export) */
+/** Generate HTML from the editor's component list (used for live preview & export) */
 function generateHtml(components: MarkdownComponent[]): string {
   return components
     .sort((a, b) => a.order - b.order)
@@ -78,12 +111,91 @@ function generateHtml(components: MarkdownComponent[]): string {
         case "paragraph":
           return `<p class="${cls}" style="${style}">${content.text || ""}</p>`
         case "image":
-          return `<img src="${content.src || ""}" alt="${content.alt || ""}" class="${cls}" style="${style}" />`
+          let imgHtml = `<img src="${content.src || ""}" alt="${content.alt || ""}" class="${cls}" style="${style}" />`
+          if (content.caption) {
+            imgHtml = `<figure class="${cls}" style="${style}">${imgHtml}<figcaption>${content.caption}</figcaption></figure>`
+          }
+          return imgHtml
         case "code":
           return `<pre class="${cls}" style="${style}"><code class="language-${
             content.language || ""
           }">${content.code || ""}</code></pre>`
-        /* …other component types… */
+        case "button":
+          if (content.link) {
+            return `<a href="${content.link}" class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700 ${cls}" style="${style}">${content.text || "Button"}</a>`
+          }
+          return `<button class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700 ${cls}" style="${style}">${content.text || "Button"}</button>`
+        case "card":
+          let cardHtml = `<div class="overflow-hidden rounded-lg bg-white shadow ${cls}" style="${style}">`
+          if (content.imageUrl) {
+            cardHtml += `<img src="${content.imageUrl}" alt="" class="h-48 w-full object-cover" />`
+          }
+          cardHtml += `<div class="px-4 py-5 sm:p-6">`
+          cardHtml += `<h3 class="text-lg font-medium leading-6 text-gray-900">${content.title || "Card Title"}</h3>`
+          if (content.description) {
+            cardHtml += `<div class="mt-2 max-w-xl text-sm text-gray-500"><p>${content.description}</p></div>`
+          }
+          cardHtml += `</div></div>`
+          return cardHtml
+        case "divider":
+          return `<hr class="${cls}" style="${style}" />`
+        case "list":
+          return `<ul class="list-disc list-inside ${cls}" style="${style}">${(content.items || []).map((item: string) => `<li>${item}</li>`).join("")}</ul>`
+        case "orderedList":
+          return `<ol class="list-decimal list-inside ${cls}" style="${style}" start="${content.start || 1}">${(content.items || []).map((item: string) => `<li>${item}</li>`).join("")}</ol>`
+        case "taskList":
+          return `<ul class="list-none ${cls}" style="${style}">${(content.items || [])
+            .map(
+              (item: { text: string; checked: boolean }) =>
+                `<li class="flex items-center space-x-2"><input type="checkbox" ${item.checked ? "checked" : ""} class="rounded" /><span${item.checked ? ' class="line-through text-gray-500"' : ""}>${item.text}</span></li>`,
+            )
+            .join("")}</ul>`
+        case "blockquote":
+          return `<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600 ${cls}" style="${style}">${content.text || ""}</blockquote>`
+        case "alert":
+          const alertColors = {
+            info: "bg-blue-50 text-blue-800 border-blue-200",
+            warning: "bg-yellow-50 text-yellow-800 border-yellow-200",
+            error: "bg-red-50 text-red-800 border-red-200",
+            success: "bg-green-50 text-green-800 border-green-200",
+          }
+          const alertColor = alertColors[content.type as keyof typeof alertColors] || alertColors.info
+          return `<div class="rounded-md border p-4 ${alertColor} ${cls}" style="${style}"><strong>${(content.type || "info").toUpperCase()}:</strong> ${content.text || ""}</div>`
+        case "table":
+          let tableHtml = `<table class="min-w-full divide-y divide-gray-200 ${cls}" style="${style}"><thead class="bg-gray-50">`
+          if (content.headers) {
+            tableHtml +=
+              "<tr>" +
+              content.headers
+                .map(
+                  (header: string) =>
+                    `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${header}</th>`,
+                )
+                .join("") +
+              "</tr>"
+          }
+          tableHtml += '</thead><tbody class="bg-white divide-y divide-gray-200">'
+          if (content.rows) {
+            content.rows.forEach((row: string[]) => {
+              tableHtml +=
+                "<tr>" +
+                row
+                  .map((cell: string) => `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cell}</td>`)
+                  .join("") +
+                "</tr>"
+            })
+          }
+          tableHtml += "</tbody></table>"
+          return tableHtml
+        case "columns":
+          return `<div class="grid grid-cols-2 gap-6 ${cls}" style="${style}"><div class="p-4 border border-gray-200 rounded">${content.column1Text || ""}</div><div class="p-4 border border-gray-200 rounded">${content.column2Text || ""}</div></div>`
+        case "spacer":
+          return `<div class="${cls}" style="height: ${content.height || "40px"}; ${style}"></div>`
+        case "mermaid":
+          return `<div class="mermaid ${cls}" style="${style}">${content.code || ""}</div>`
+        case "htmlBlock":
+          const htmlContent = content as HtmlBlockContent
+          return `<div class="${cls}" style="${style}">${htmlContent.htmlContent || ""}</div>`
         default:
           return ""
       }
@@ -125,7 +237,7 @@ export function PreviewPanel() {
     if (!ref.current) return
 
     // Skip loading Mermaid unless the preview contains a diagram
-    if (!html.includes("language-mermaid") && !html.includes('class="mermaid"') && !html.includes("`mermaid")) {
+    if (!html.includes("mermaid") && !html.includes('class="mermaid"')) {
       return
     }
 
@@ -138,8 +250,9 @@ export function PreviewPanel() {
         const mermaid = mod.default ?? mod
         mermaid.initialize({ startOnLoad: false, theme: "default" })
 
-        // find all <pre class="mermaid"> or \`\`\`mermaid code blocks
-        const nodes = ref.current.querySelectorAll<HTMLElement>("pre code.language-mermaid, pre.mermaid, .mermaid")
+        // find all .mermaid elements
+        const nodes = ref.current?.querySelectorAll<HTMLElement>(".mermaid")
+        if (!nodes) return
 
         nodes.forEach((el) => {
           const graph = el.textContent
@@ -167,15 +280,6 @@ export function PreviewPanel() {
     }
   }, [html])
 
-  /* helper to retry failed images */
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const broken = e.target as HTMLImageElement
-    const retry = new Image()
-    retry.crossOrigin = "anonymous"
-    retry.onload = () => (broken.src = retry.src)
-    retry.src = broken.src
-  }
-
   return (
     <div className="h-full flex flex-col">
       <Tabs defaultValue="preview" className="flex flex-col flex-1 overflow-hidden">
@@ -188,16 +292,10 @@ export function PreviewPanel() {
         {/* ---------- Live preview --------- */}
         <TabsContent value="preview" className="flex-1 overflow-hidden p-2">
           <ScrollArea className="h-full prose dark:prose-invert max-w-none">
-            {/* Render HTML (mermaid placeholders are handled via effect) */}
             <div
-              className="text-white"
-              className="text-white"
-              className=""
-              className="text-white"
-              className="text-white"
-              className=""
               ref={ref}
               dangerouslySetInnerHTML={{ __html: html }}
+              className="prose prose-sm max-w-none dark:prose-invert"
             />
           </ScrollArea>
         </TabsContent>
