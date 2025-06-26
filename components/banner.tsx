@@ -8,7 +8,7 @@ export function Banner() {
             <span className="font-semibold text-purple-900">New Release</span>
           </div>
           <span>
-            GRA Core Platform v5.7.0 is now available with enhanced security features and improved performance.
+            GRA Core Platform Planned and Unplanned Outages Dashboard.
           </span>
         </div>
         <div className="flex items-center space-x-4">
