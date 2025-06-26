@@ -325,14 +325,19 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
     case "htmlBlock": // HTML block content is raw HTML, edited in PropertiesPanel
       const htmlContent = component.content as HtmlBlockContent
       return (
-        <div
-          style={styles}
-          className={cn("my-2 p-2 border border-dashed border-sky-500/50 rounded-md bg-sky-500/10", combinedClasses)}
-        >
-          <p className="text-xs font-semibold text-sky-700 dark:text-sky-300 mb-1">
-            HTML Block: {htmlContent.name || "Custom HTML"}
-          </p>
-          <div className="text-sm text-muted-foreground">[HTML content renders in preview]</div>
+        <div style={styles} className={cn("my-2 relative group", combinedClasses)}>
+          {isSelected && (
+            <div className="absolute -top-6 left-0 bg-blue-600 text-white text-xs px-2 py-1 rounded text-nowrap z-10">
+              {htmlContent.name || "HTML Block"}
+            </div>
+          )}
+          <div
+            dangerouslySetInnerHTML={{ __html: htmlContent.htmlContent || "" }}
+            className="prose prose-sm max-w-none dark:prose-invert"
+          />
+          {isSelected && (
+            <div className="absolute inset-0 border-2 border-blue-500 rounded pointer-events-none opacity-50"></div>
+          )}
         </div>
       )
     default:

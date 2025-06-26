@@ -32,6 +32,11 @@ export interface ComponentStyle {
   className?: string
 }
 
+export interface HtmlBlockContent {
+  htmlContent: string
+  name: string
+}
+
 export interface MarkdownComponent {
   id: string
   type:
