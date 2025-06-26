@@ -17,7 +17,7 @@ const initialState: EditorState = {
   layoutMode: "default",
 }
 
-const EditorContext = createContext<{
+export const EditorContext = createContext<{
   state: EditorState
   dispatch: React.Dispatch<EditorAction>
   // Convenience functions (wrappers around dispatch)
