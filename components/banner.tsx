@@ -12,8 +12,8 @@ export function Banner() {
           </span>
         </div>
         <div className="flex items-center space-x-4">
-          <a href="#" className="text-purple-700 underline hover:text-purple-900 font-medium">
-            View Release Notes
+          <a href="https://gcp-outage-notifications.vercel.app/" className="text-purple-700 underline hover:text-purple-900 font-medium">
+            View in Dashboard
           </a>
           <button className="text-purple-600 hover:text-purple-800">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
