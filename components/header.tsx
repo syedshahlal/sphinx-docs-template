@@ -11,7 +11,7 @@ export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isVersionDropdownOpen, setIsVersionDropdownOpen] = useState(false)
-  const [currentVersion, setCurrentVersion] = useState("v5.7.0")
+  const [currentVersion, setCurrentVersion] = useState("v5.7")
 
   const [theme, setTheme] = useState(() => {
     if (typeof window !== "undefined") {
@@ -22,21 +22,59 @@ export function Header() {
     return "light"
   })
 
-  const versions = {
-    current: [{ version: "v5.7.0", label: "v5.7.0", status: "stable", statusColor: "bg-green-100 text-green-800" }],
-    previous: [
-      { version: "v5.6.2", label: "v5.6.2", status: "legacy", statusColor: "bg-gray-100 text-gray-600" },
-      { version: "v5.5.4", label: "v5.5.4", status: "legacy", statusColor: "bg-gray-100 text-gray-600" },
-      { version: "v5.4.8", label: "v5.4.8", status: "legacy", statusColor: "bg-gray-100 text-gray-600" },
-      { version: "v5.3.6", label: "v5.3.6", status: "legacy", statusColor: "bg-gray-100 text-gray-600" },
-      { version: "v5.2.3", label: "v5.2.3", status: "legacy", statusColor: "bg-gray-100 text-gray-600" },
-      { version: "v5.1.9", label: "v5.1.9", status: "legacy", statusColor: "bg-gray-100 text-gray-600" },
-    ],
-    development: [
-      { version: "v5.8.0-beta", label: "v5.8.0-beta", status: "beta", statusColor: "bg-orange-100 text-orange-800" },
-      { version: "v6.0.0-alpha", label: "v6.0.0-alpha", status: "alpha", statusColor: "bg-purple-100 text-purple-800" },
-    ],
-  }
+  // Replace the static versions object with this dynamic version detection
+  const [availableVersions, setAvailableVersions] = useState<{
+    current: Array<{ version: string; label: string; status: string; statusColor: string }>
+    previous: Array<{ version: string; label: string; status: string; statusColor: string }>
+  }>({
+    current: [],
+    previous: [],
+  })
+
+  // Add this useEffect to detect available versions from docs folders
+  useEffect(() => {
+    const detectVersions = async () => {
+      try {
+        // This would typically be done server-side or via an API endpoint
+        // For now, we'll simulate the folder structure detection
+        const allVersions = ["5.7", "5.6", "5.5", "5.4", "5.3", "5.2", "5.1", "5.0"].filter(
+          (v) => Number.parseFloat(v) <= 5.7,
+        ) // Only versions <= 5.7
+
+        const latestVersion = "5.7"
+        const currentVersionData = [
+          {
+            version: `v${latestVersion}`,
+            label: `v${latestVersion}`,
+            status: "stable",
+            statusColor: "bg-green-100 text-green-800",
+          },
+        ]
+
+        const previousVersionsData = allVersions
+          .filter((v) => v !== latestVersion)
+          .sort((a, b) => Number.parseFloat(b) - Number.parseFloat(a))
+          .map((v) => ({
+            version: `v${v}`,
+            label: `v${v}`,
+            status: "legacy",
+            statusColor: "bg-gray-100 text-gray-600",
+          }))
+
+        setAvailableVersions({
+          current: currentVersionData,
+          previous: previousVersionsData,
+        })
+
+        // Set default current version to latest
+        setCurrentVersion(`v${latestVersion}`)
+      } catch (error) {
+        console.error("Error detecting versions:", error)
+      }
+    }
+
+    detectVersions()
+  }, [])
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light"
@@ -221,7 +259,7 @@ export function Header() {
                           >
                             Current
                           </div>
-                          {versions.current.map((ver) => (
+                          {availableVersions.current.map((ver) => (
                             <button
                               key={ver.version}
                               className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center justify-between ${
@@ -248,34 +286,7 @@ export function Header() {
                           >
                             Previous Versions
                           </div>
-                          {versions.previous.map((ver) => (
-                            <button
-                              key={ver.version}
-                              className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center justify-between ${
-                                currentVersion === ver.version
-                                  ? theme === "dark"
-                                    ? "bg-slate-700/50 text-gray-200"
-                                    : "bg-gray-50 text-gray-900"
-                                  : theme === "dark"
-                                    ? "text-gray-300 hover:bg-slate-700/30 hover:text-gray-200"
-                                    : "text-gray-700 hover:bg-gray-50"
-                              }`}
-                              onClick={() => handleVersionChange(ver.version)}
-                            >
-                              <span>{ver.label}</span>
-                              <span className={`text-xs px-2 py-1 rounded-full ${ver.statusColor}`}>{ver.status}</span>
-                            </button>
-                          ))}
-
-                          {/* Development Versions */}
-                          <div
-                            className={`px-3 py-2 text-xs font-semibold uppercase tracking-wide border-b border-t mt-2 ${
-                              theme === "dark" ? "text-gray-400 border-slate-700/50" : "text-gray-500 border-gray-100"
-                            }`}
-                          >
-                            Development
-                          </div>
-                          {versions.development.map((ver) => (
+                          {availableVersions.previous.map((ver) => (
                             <button
                               key={ver.version}
                               className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center justify-between ${
