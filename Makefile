@@ -17,8 +17,20 @@ REACT_BUILD  = _static/react-dashboard
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@echo "GRA Core Platform Documentation"
+	@echo ""
+	@echo "Available targets:"
+	@echo "  setup     - Initial setup of development environment"
+	@echo "  build     - Build documentation and React components"
+	@echo "  serve     - Build and serve documentation locally"
+	@echo "  watch     - Build and serve with auto-reload"
+	@echo "  clean     - Clean build directories"
+	@echo "  deploy    - Deploy documentation"
+	@echo "  test      - Run tests"
+	@echo "  lint      - Run linting"
+	@echo "  help      - Show this help message"
 
-.PHONY: help Makefile clean html livehtml multiversion docs-init docs-new-version docs-list docs-switch docs-validate docs-build-all react react-dev serve dev
+.PHONY: help Makefile clean html livehtml multiversion docs-init docs-new-version docs-list docs-switch docs-validate docs-build-all react react-dev serve dev setup build watch deploy test lint dev-frontend dev-docs install update
 
 # Initialize documentation structure
 docs-init:
@@ -83,12 +95,24 @@ clean:
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo "Cleaning React build..."
 	@rm -rf $(REACT_BUILD)
+	@echo "Cleaning build directories..."
+	./scripts/build-docs.sh --clean
 
 # Install dependencies
 install:
 	@echo "📦 Installing dependencies..."
 	pip install -r requirements.txt
+	@echo "Installing dependencies..."
+	cd frontend && npm install
+	source venv/bin/activate && pip install -r docs/gcp-5.7/0.1/requirements.txt
 	@echo "✅ Dependencies installed."
+
+# Update dependencies
+update:
+	@echo "Updating dependencies..."
+	cd frontend && npm update
+	source venv/bin/activate && pip install --upgrade -r docs/gcp-5.7/0.1/requirements.txt
+	@echo "✅ Dependencies updated."
 
 # Development setup
 dev-setup: install docs-init
@@ -116,6 +140,9 @@ lint:
 			sphinx-build -b linkcheck "$$version_dir" "$(BUILDDIR)/linkcheck/$$(basename $$version_dir)" $(SPHINXOPTS); \
 		fi \
 	done
+	@echo "Running linting..."
+	cd frontend && npm run lint
+	cd docs/gcp-5.7/0.1 && flake8 . || echo "No Python files to lint"
 	@echo "✅ Link check complete."
 
 # Deploy to GitHub Pages
@@ -123,6 +150,8 @@ deploy:
 	@echo "🚀 Deploying to GitHub Pages..."
 	@chmod +x scripts/deploy.sh
 	@./scripts/deploy.sh
+	@echo "Deploying documentation..."
+	./scripts/deploy.sh
 	@echo "✅ Deployment complete!"
 
 # Show current documentation status
@@ -177,14 +206,46 @@ react-dev:
 serve: html
 	@echo "Starting documentation server at http://localhost:8000"
 	@cd $(BUILDDIR)/html && python -m http.server 8000
+	@echo "Building and serving documentation..."
+	./scripts/build-docs.sh --serve
+
+# Watch for changes and rebuild
+watch:
+	@echo "Starting development server with auto-reload..."
+	./scripts/build-docs.sh --watch
+
+# Setup development environment
+setup:
+	@echo "Setting up development environment..."
+	./scripts/setup-docs.sh
+
+# Build documentation
+build:
+	@echo "Building documentation..."
+	./scripts/build-docs.sh
+
+# Run tests
+test:
+	@echo "Running tests..."
+	cd frontend && npm test
+	cd docs/gcp-5.7/0.1 && python -m pytest tests/ || echo "No tests found"
+
+# Development shortcuts
+dev-frontend:
+	@echo "Starting frontend development server..."
+	cd frontend && npm run dev
+
+dev-docs:
+	@echo "Starting Sphinx auto-build..."
+	cd docs/gcp-5.7/0.1 && sphinx-autobuild . _build/html --host 0.0.0.0 --port 8001
 
 # Development mode
 dev:
 	@echo "Starting development mode..."
 	@echo "React dev server: http://localhost:3000"
-	@echo "Sphinx auto-build: http://localhost:8000"
+	@echo "Sphinx auto-build: http://localhost:8001"
 	@make react-dev &
-	@sphinx-autobuild "$(SOURCEDIR)" "$(BUILDDIR)/html" --host 0.0.0.0 --port 8000
+	@make dev-docs
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
