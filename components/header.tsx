@@ -186,7 +186,7 @@ export function Header() {
       ],
     },
     {
-      label: "Markdown Editor",
+      label: "Create Doc",
       href: "/markdown-editor",
       hasDropdown: true,
       dropdownItems: [
