@@ -1,0 +1,42 @@
+<nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" id="sidebar">
+  <div class="sidebar-sticky">
+    <div class="sidebar-header">
+      <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+        <span><i class="fas fa-sitemap me-2"></i>Navigation</span>
+        <button class="btn btn-sm sidebar-collapse-btn" id="sidebar-collapse" title="Collapse all sections">
+          <i class="fas fa-compress-alt"></i>
+        </button>
+      </h6>
+    </div>
+    
+    <!-- Search in sidebar -->
+    <div class="sidebar-search px-3 mb-3">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text">
+          <i class="fas fa-search"></i>
+        </span>
+        <input type="text" class="form-control" id="sidebar-search" placeholder="Search navigation...">
+        <button class="btn btn-outline-secondary" type="button" id="sidebar-search-clear" style="display: none;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tree -->
+    <div class="sidebar-nav">
+      {% include 'partials/nav-sections.html' %}
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="sidebar-version-info">
+        <small class="text-muted">
+          <i class="fas fa-tag me-1"></i>Version {{ version }}<br>
+          <a href="{{ pathto('changelog') }}" class="text-muted">
+            <i class="fas fa-history me-1"></i>View changelog
+          </a>
+        </small>
+      </div>
+    </div>
+  </div>
+</nav>

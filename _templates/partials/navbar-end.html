@@ -1,0 +1,71 @@
+<div class="navbar-end-items">
+  <!-- Version Switcher -->
+  <div class="navbar-item">
+    <div class="version-switcher-container">
+      <select class="version-switcher" id="version-switcher" aria-label="Select documentation version">
+        <option value="v5.7" selected>v5.7 (latest)</option>
+        <option value="v5.6">v5.6</option>
+        <option value="v5.5">v5.5</option>
+        <option value="v5.4">v5.4</option>
+      </select>
+      <button class="btn btn-sm btn-outline-secondary version-compare" 
+              id="version-compare" 
+              title="Compare versions"
+              aria-label="Compare documentation versions">
+        <i class="fas fa-code-compare"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="navbar-item">
+    <div class="search-container">
+      <input type="search" 
+             class="form-control search-input" 
+             placeholder="Search docs..." 
+             aria-label="Search documentation"
+             autocomplete="off">
+      <i class="fas fa-search search-icon" aria-hidden="true"></i>
+      <kbd class="search-kbd" aria-hidden="true">
+        <i class="fas fa-keyboard me-1"></i>Ctrl K
+      </kbd>
+    </div>
+  </div>
+
+  <!-- Theme Switcher Pill Toggle -->
+  <div class="navbar-item">
+    <div class="theme-toggle-pill" id="theme-toggle-pill" role="switch" aria-checked="false" aria-label="Toggle dark/light theme" tabindex="0">
+      <div class="theme-toggle-track">
+        <div class="theme-toggle-thumb">
+          <i class="theme-icon fas fa-sun" aria-hidden="true"></i>
+        </div>
+        <div class="theme-toggle-labels">
+          <span class="theme-label light-label">Light</span>
+          <span class="theme-label dark-label">Dark</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GitHub Link -->
+  <div class="navbar-item">
+    <a href="{{ theme_repository_url }}" 
+       class="btn btn-sm btn-outline-secondary" 
+       title="View source on GitHub"
+       aria-label="View source on GitHub"
+       target="_blank"
+       rel="noopener noreferrer">
+      <i class="fab fa-github" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <!-- Help/Support -->
+  <div class="navbar-item">
+    <button class="btn btn-sm btn-outline-secondary" 
+            id="help-button"
+            title="Get help"
+            aria-label="Get help">
+      <i class="fas fa-question-circle" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>

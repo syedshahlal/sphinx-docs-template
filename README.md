@@ -1,30 +1,52 @@
-# Pydata documentation clone
+# GRA Core Platform - Documentation Project
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+This project contains the source for the GRA Core Platform documentation,
+combining a Next.js frontend for dynamic content and Sphinx for static/API documentation.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/syedshahlals-projects/v0-pydata-documentation-clone)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/5ZcTL7y1sF1)
+## Project Structure
 
-## Overview
+- **/frontend**: Next.js application. Handles dynamic pages, Markdown rendering, and UI components.
+- **/docs**: Sphinx documentation source files (.rst, conf.py, etc.).
+- **/scripts**: Utility scripts for build, deployment, etc.
+- **/Makefile**: Helper for common development and build tasks.
+- **/_extensions**: Custom Sphinx extensions.
+- **/_static**: Global static assets for Sphinx.
+- **/_templates**: Global HTML templates for Sphinx.
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## Setup
 
-## Deployment
+Refer to `frontend/SYSTEM_GUIDE.md` for setting up and using the Next.js/Markdown part.
+Refer to Sphinx documentation for setting up the Python/Sphinx environment.
 
-Your project is live at:
+\`\`\`bash
+# General setup steps (example)
+pip install -r requirements.txt # For Sphinx dependencies
+make install-frontend
+\`\`\`
 
-**[https://vercel.com/syedshahlals-projects/v0-pydata-documentation-clone](https://vercel.com/syedshahlals-projects/v0-pydata-documentation-clone)**
+## Development
 
-## Build your app
+\`\`\`bash
+make dev # Example: might need to run frontend and sphinx dev servers separately
+# Or:
+# cd frontend && npm run dev
+# sphinx-autobuild docs docs/_build/html --port 8001
+\`\`\`
 
-Continue building your app on:
+## Building
 
-**[https://v0.dev/chat/projects/5ZcTL7y1sF1](https://v0.dev/chat/projects/5ZcTL7y1sF1)**
+\`\`\`bash
+make build-frontend
+make build-sphinx
+\`\`\`
+\`\`\`
 
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+  {/* Root requirements.txt for Sphinx (or it might be in docs/requirements.txt) */}
+\`\`\`plaintext file="requirements.txt"
+# Sphinx and common extensions
+sphinx>=4.0
+sphinx-rtd-theme
+sphinx-autobuild
+# Add other Python dependencies for Sphinx, like myst-parser if using Markdown in Sphinx directly
+# myst-parser
+# Example: if you have custom extensions with dependencies
