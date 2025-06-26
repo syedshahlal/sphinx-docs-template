@@ -6,7 +6,7 @@ import { Search, X, Menu } from "lucide-react"
 import type { NavItem } from "@/lib/docs-navigation"
 import { DocsNavigationItem } from "./DocsNavigationItem"
 import Link from "next/link"
-import { usePathname } from "next/navigation" // To close mobile nav on navigation
+import { usePathname } from "next/navigation"
 
 interface DocsNavigationProps {
   navItems: NavItem[]
@@ -26,23 +26,31 @@ export const DocsNavigation: React.FC<DocsNavigationProps> = ({
   const pathname = usePathname()
 
   useEffect(() => {
-    // Close mobile navigation when path changes
-    setIsMobileOpen(false)
+    setIsMobileOpen(false) // Close mobile nav on route change
   }, [pathname])
+
+  useEffect(() => {
+    // For debugging:
+    if (process.env.NODE_ENV === "development") {
+      console.log("DocsNavigation navItems:", navItems)
+      if (!navItems || navItems.length === 0) {
+        console.warn("DocsNavigation received empty or no navItems. Sidebar content will be minimal.")
+      }
+    }
+  }, [navItems])
 
   const filteredNavItems = useMemo(() => {
     if (!searchQuery) return navItems
     const lowerQuery = searchQuery.toLowerCase()
-
     function filterItems(items: NavItem[]): NavItem[] {
       return items.reduce((acc, item) => {
         const titleMatches = item.title.toLowerCase().includes(lowerQuery)
         if (titleMatches) {
-          acc.push(item)
+          acc.push({ ...item, isInitiallyOpen: true }) // Ensure parent is open if title matches
         } else if (item.children) {
           const filteredChildren = filterItems(item.children)
           if (filteredChildren.length > 0) {
-            acc.push({ ...item, children: filteredChildren, isInitiallyOpen: true }) // Keep parent open if child matches
+            acc.push({ ...item, children: filteredChildren, isInitiallyOpen: true })
           }
         }
         return acc
@@ -51,11 +59,14 @@ export const DocsNavigation: React.FC<DocsNavigationProps> = ({
     return filterItems(navItems)
   }, [navItems, searchQuery])
 
+  // DEBUG: Add a very obvious background if it's supposed to be hidden on desktop but isn't.
+  // const debugHiddenClass = "lg:bg-pink-500/50"; // Remove for production
+
   return (
     <>
       <button
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-3.5 left-3.5 z-[60] p-2.5 bg-card dark:bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-lg text-foreground dark:text-gray-200 border border-border dark:border-gray-700"
+        className="lg:hidden fixed top-4 left-4 z-[60] p-2.5 bg-card dark:bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-lg text-foreground dark:text-gray-200 border border-border dark:border-gray-700"
         aria-label="Open navigation menu"
       >
         <Menu size={20} />
@@ -72,10 +83,11 @@ export const DocsNavigation: React.FC<DocsNavigationProps> = ({
       <aside
         className={`
           fixed top-0 left-0 h-full w-72 bg-card dark:bg-gray-900 border-r border-border dark:border-gray-700
-          flex flex-col transition-transform duration-300 ease-in-out z-[9999]
-          lg:sticky lg:top-0 lg:h-screen lg:flex-shrink-0 
+          flex flex-col transition-transform duration-300 ease-in-out z-[50] 
+          lg:sticky lg:top-0 lg:h-screen lg:flex-shrink-0 lg:z-auto 
           ${isMobileOpen ? "translate-x-0 shadow-xl" : "-translate-x-full lg:translate-x-0"}
-        `}
+          `}
+        // ${debugHiddenClass} // Add this to the line above for debugging
         aria-label="Documentation Navigation"
       >
         <div className="p-4 h-16 border-b border-border dark:border-gray-700 flex items-center justify-between shrink-0">
@@ -136,12 +148,23 @@ export const DocsNavigation: React.FC<DocsNavigationProps> = ({
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 pb-4 space-y-0.5" aria-label="Main documentation navigation">
-          {filteredNavItems.length > 0 ? (
+          {filteredNavItems && filteredNavItems.length > 0 ? ( // Added check for filteredNavItems
             filteredNavItems.map((item) => (
-              <DocsNavigationItem key={item.path} item={item} level={0} isInitiallyOpen={!!searchQuery} />
+              <DocsNavigationItem
+                key={item.path}
+                item={item}
+                level={0}
+                isInitiallyOpen={!!searchQuery || item.isInitiallyOpen}
+              />
             ))
           ) : (
-            <p className="px-3 py-2 text-sm text-muted-foreground dark:text-gray-400">No items match your filter.</p>
+            <p className="px-3 py-2 text-sm text-muted-foreground dark:text-gray-400">
+              {searchQuery
+                ? "No items match your filter."
+                : navItems && navItems.length > 0
+                  ? "Filter to see items."
+                  : "No navigation items found."}
+            </p>
           )}
         </nav>
       </aside>
