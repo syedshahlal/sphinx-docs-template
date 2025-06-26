@@ -1,10 +1,15 @@
-import { Home } from "./pages/Home"
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
+import MarkdownPage from "./components/features/MarkdownPage"
 
 function App() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Home />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/platform-introduction" element={<MarkdownPage />} />
+        <Route path="/getting-started" element={<MarkdownPage />} />
+        <Route path="/api-reference" element={<MarkdownPage />} />
+      </Routes>
+    </Router>
   )
 }
 

@@ -27,6 +27,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@chakra-ui/react": "latest",
+    "@emotion/react": "latest",
     "@radix-ui/react-slot": "^1.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -38,6 +40,14 @@
     "path": "latest",
     "react": "^19",
     "react-dom": "^19",
+    "react-router-dom": "latest",
+    "rehype-autolink-headings": "latest",
+    "rehype-highlight": "latest",
+    "rehype-slug": "latest",
+    "rehype-stringify": "latest",
+    "remark-gfm": "latest",
+    "remark-parse": "latest",
+    "remark-rehype": "latest",
     "sass": "latest",
     "sass-embedded": "latest",
     "shadcn": "latest",
@@ -47,6 +57,7 @@
     "tailwindcss-animate": "^1.0.7",
     "terser": "latest",
     "tsx": "latest",
+    "unified": "latest",
     "yaml": "latest"
   },
   "devDependencies": {
