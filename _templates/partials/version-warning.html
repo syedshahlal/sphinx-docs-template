@@ -1,0 +1,9 @@
+{% if version != theme_latest_version %}
+<div class="alert alert-warning version-warning" role="alert">
+  <i class="fas fa-exclamation-triangle me-2"></i>
+  You are viewing documentation for version {{ version }}. 
+  <a href="{{ pathto('index', 1) }}" class="alert-link">
+    <i class="fas fa-arrow-right me-1"></i>View latest version ({{ theme_latest_version }})
+  </a>
+</div>
+{% endif %}

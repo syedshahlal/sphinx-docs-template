@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
 <meta name="theme-color" content="#e31837">
 {%- endblock extrahead %}
 
@@ -21,41 +21,120 @@
       <div class="navbar-item">
         <a class="navbar-brand logo" href="{{ pathto(master_doc) }}">
           <div class="logo-container">
-            <img src="{{ pathto('_static/images/gra-logo.png', 1) }}" alt="GRA Logo" class="logo-img">
+            <!-- Bank of America Logo -->
+            <div class="boa-logo">
+              <svg width="120" height="40" viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
+                <!-- Bank of America Flag Design -->
+                <rect width="120" height="40" fill="#e31837"/>
+                <rect x="0" y="0" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="8" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="16" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="24" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="32" width="120" height="4" fill="#ffffff"/>
+                <rect x="0" y="0" width="40" height="20" fill="#012169"/>
+                <!-- Stars pattern -->
+                <circle cx="8" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="16" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="24" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="32" cy="4" r="1" fill="#ffffff"/>
+                <circle cx="12" cy="8" r="1" fill="#ffffff"/>
+                <circle cx="20" cy="8" r="1" fill="#ffffff"/>
+                <circle cx="28" cy="8" r="1" fill="#ffffff"/>
+                <circle cx="8" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="16" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="24" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="32" cy="12" r="1" fill="#ffffff"/>
+                <circle cx="12" cy="16" r="1" fill="#ffffff"/>
+                <circle cx="20" cy="16" r="1" fill="#ffffff"/>
+                <circle cx="28" cy="16" r="1" fill="#ffffff"/>
+                <!-- Bank of America Text -->
+                <text x="50" y="15" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff">BANK OF</text>
+                <text x="50" y="25" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff">AMERICA</text>
+                <text x="50" y="35" font-family="Arial, sans-serif" font-size="6" fill="#ffffff">DOCUMENTATION</text>
+              </svg>
+            </div>
             <div class="brand-text">
               <span class="brand-name">{{ project }}</span>
-              <span class="brand-tagline">Documentation</span>
+              <span class="brand-tagline">Documentation Portal</span>
             </div>
           </div>
         </a>
       </div>
+      <!-- Mobile menu button -->
+      <button class="navbar-toggler d-lg-none" type="button" id="mobile-nav-toggle" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
 
     <!-- Center Navigation -->
-    <div class="navbar-center-items">
+    <div class="navbar-center-items d-none d-lg-flex">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link" href="{{ pathto('user-guide/index') }}">User Guide</a>
+          <a class="nav-link" href="{{ pathto('user-guide/index') }}" 
+             {% if 'user-guide' in pagename %}aria-current="page"{% endif %}>
+            <i class="fas fa-book me-2"></i>
+            User Guide
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ pathto('api/index') }}">API Reference</a>
+          <a class="nav-link" href="{{ pathto('api/index') }}"
+             {% if 'api' in pagename %}aria-current="page"{% endif %}>
+            <i class="fas fa-code me-2"></i>
+            API Reference
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ pathto('examples/index') }}">Examples</a>
+          <a class="nav-link" href="{{ pathto('examples/index') }}"
+             {% if 'examples' in pagename %}aria-current="page"{% endif %}>
+            <i class="fas fa-lightbulb me-2"></i>
+            Examples
+          </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ pathto('tutorials/index') }}">Tutorials</a>
+          <a class="nav-link" href="{{ pathto('tutorials/index') }}"
+             {% if 'tutorials' in pagename %}aria-current="page"{% endif %}>
+            <i class="fas fa-chalkboard-teacher me-2"></i>
+            Tutorials
+          </a>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" 
+             data-bs-toggle="dropdown" aria-expanded="false" id="more-dropdown">
+            <i class="fas fa-ellipsis-h me-2"></i>
             More
           </a>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{{ pathto('changelog') }}">Changelog</a></li>
-            <li><a class="dropdown-item" href="{{ pathto('contributing/index') }}">Contributing</a></li>
-            <li><a class="dropdown-item" href="{{ pathto('community') }}">Community</a></li>
+          <ul class="dropdown-menu" aria-labelledby="more-dropdown">
+            <li>
+              <a class="dropdown-item" href="{{ pathto('changelog') }}">
+                <i class="fas fa-list-alt me-2"></i>
+                Changelog
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ pathto('contributing/index') }}">
+                <i class="fas fa-hands-helping me-2"></i>
+                Contributing
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ pathto('community') }}">
+                <i class="fas fa-users me-2"></i>
+                Community
+              </a>
+            </li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="{{ pathto('support') }}">Support</a></li>
+            <li>
+              <a class="dropdown-item" href="{{ pathto('support') }}">
+                <i class="fas fa-life-ring me-2"></i>
+                Support
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{{ pathto('roadmap') }}">
+                <i class="fas fa-road me-2"></i>
+                Roadmap
+              </a>
+            </li>
           </ul>
         </li>
       </ul>
@@ -66,13 +145,16 @@
       <!-- Version Switcher -->
       <div class="navbar-item">
         <div class="version-switcher-container">
-          <select class="version-switcher" id="version-switcher">
+          <select class="version-switcher" id="version-switcher" aria-label="Select documentation version">
             <option value="v5.7" selected>v5.7 (latest)</option>
             <option value="v5.6">v5.6</option>
             <option value="v5.5">v5.5</option>
             <option value="v5.4">v5.4</option>
           </select>
-          <button class="btn btn-sm btn-outline-secondary version-compare" id="version-compare" title="Compare versions">
+          <button class="btn btn-sm btn-outline-secondary version-compare" 
+                  id="version-compare" 
+                  title="Compare versions"
+                  aria-label="Compare documentation versions">
             <i class="fas fa-code-compare"></i>
           </button>
         </div>
@@ -81,25 +163,109 @@
       <!-- Search -->
       <div class="navbar-item">
         <div class="search-container">
-          <input type="search" class="form-control search-input" placeholder="Search docs..." aria-label="Search">
-          <i class="fas fa-search search-icon"></i>
-          <kbd class="search-kbd">Ctrl K</kbd>
+          <input type="search" 
+                 class="form-control search-input" 
+                 placeholder="Search docs..." 
+                 aria-label="Search documentation"
+                 autocomplete="off">
+          <i class="fas fa-search search-icon" aria-hidden="true"></i>
+          <kbd class="search-kbd" aria-hidden="true">
+            <i class="fas fa-keyboard me-1"></i>Ctrl K
+          </kbd>
         </div>
       </div>
 
       <!-- Theme Switcher -->
       <div class="navbar-item">
-        <button class="btn btn-sm btn-outline-secondary theme-switch-button" id="theme-switcher" title="Toggle theme">
-          <i class="fas fa-sun"></i>
+        <button class="btn btn-sm btn-outline-secondary theme-switch-button" 
+                id="theme-switcher" 
+                title="Toggle light/dark theme"
+                aria-label="Toggle theme">
+          <i class="fas fa-sun" aria-hidden="true"></i>
         </button>
       </div>
 
       <!-- GitHub Link -->
       <div class="navbar-item">
-        <a href="{{ theme_repository_url }}" class="btn btn-sm btn-outline-secondary" title="View on GitHub">
-          <i class="fab fa-github"></i>
+        <a href="{{ theme_repository_url }}" 
+           class="btn btn-sm btn-outline-secondary" 
+           title="View source on GitHub"
+           aria-label="View source on GitHub"
+           target="_blank"
+           rel="noopener noreferrer">
+          <i class="fab fa-github" aria-hidden="true"></i>
         </a>
       </div>
+
+      <!-- Help/Support -->
+      <div class="navbar-item">
+        <button class="btn btn-sm btn-outline-secondary" 
+                id="help-button"
+                title="Get help"
+                aria-label="Get help">
+          <i class="fas fa-question-circle" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div class="navbar-center-items d-lg-none" id="mobile-nav-menu" style="display: none;">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('user-guide/index') }}">
+            <i class="fas fa-book me-2"></i>
+            User Guide
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('api/index') }}">
+            <i class="fas fa-code me-2"></i>
+            API Reference
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('examples/index') }}">
+            <i class="fas fa-lightbulb me-2"></i>
+            Examples
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('tutorials/index') }}">
+            <i class="fas fa-chalkboard-teacher me-2"></i>
+            Tutorials
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('changelog') }}">
+            <i class="fas fa-list-alt me-2"></i>
+            Changelog
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('contributing/index') }}">
+            <i class="fas fa-hands-helping me-2"></i>
+            Contributing
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('community') }}">
+            <i class="fas fa-users me-2"></i>
+            Community
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('support') }}">
+            <i class="fas fa-life-ring me-2"></i>
+            Support
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('roadmap') }}">
+            <i class="fas fa-road me-2"></i>
+            Roadmap
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </nav>
@@ -112,9 +278,273 @@
     <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" id="sidebar">
       <div class="sidebar-sticky">
         <div class="sidebar-header">
-          <h6 class="sidebar-heading">Navigation</h6>
+          <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+            <span><i class="fas fa-sitemap me-2"></i>Navigation</span>
+            <button class="btn btn-sm sidebar-collapse-btn" id="sidebar-collapse" title="Collapse all sections">
+              <i class="fas fa-compress-alt"></i>
+            </button>
+          </h6>
         </div>
-        {{ toctree(maxdepth=4, collapse=false, includehidden=true, titles_only=false) }}
+        
+        <!-- Search in sidebar -->
+        <div class="sidebar-search px-3 mb-3">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input type="text" class="form-control" id="sidebar-search" placeholder="Search navigation...">
+            <button class="btn btn-outline-secondary" type="button" id="sidebar-search-clear" style="display: none;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Navigation Tree -->
+        <div class="sidebar-nav">
+          <!-- User Guide Section -->
+          <div class="nav-section">
+            <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#user-guide-nav" aria-expanded="true">
+              <i class="fas fa-book nav-section-icon"></i>
+              <span class="nav-section-title">User Guide</span>
+              <i class="fas fa-chevron-down nav-section-chevron"></i>
+            </div>
+            <div class="collapse show" id="user-guide-nav">
+              <ul class="nav-section-list">
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('user-guide/installation') }}">
+                    <i class="fas fa-download"></i>
+                    Installation
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('user-guide/configuration') }}">
+                    <i class="fas fa-cog"></i>
+                    Configuration
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('user-guide/deployment') }}">
+                    <i class="fas fa-rocket"></i>
+                    Deployment
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('user-guide/troubleshooting') }}">
+                    <i class="fas fa-wrench"></i>
+                    Troubleshooting
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- API Reference Section -->
+          <div class="nav-section">
+            <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#api-nav" aria-expanded="false">
+              <i class="fas fa-code nav-section-icon"></i>
+              <span class="nav-section-title">API Reference</span>
+              <i class="fas fa-chevron-down nav-section-chevron"></i>
+            </div>
+            <div class="collapse" id="api-nav">
+              <ul class="nav-section-list">
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('api/core') }}">
+                    <i class="fas fa-cube"></i>
+                    Core API
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('api/authentication') }}">
+                    <i class="fas fa-shield-alt"></i>
+                    Authentication
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('api/data-access') }}">
+                    <i class="fas fa-database"></i>
+                    Data Access
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('api/integrations') }}">
+                    <i class="fas fa-plug"></i>
+                    Integrations
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Examples Section -->
+          <div class="nav-section">
+            <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#examples-nav" aria-expanded="false">
+              <i class="fas fa-lightbulb nav-section-icon"></i>
+              <span class="nav-section-title">Examples</span>
+              <i class="fas fa-chevron-down nav-section-chevron"></i>
+            </div>
+            <div class="collapse" id="examples-nav">
+              <ul class="nav-section-list">
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('examples/quickstart') }}">
+                    <i class="fas fa-play"></i>
+                    Quick Start
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('examples/advanced') }}">
+                    <i class="fas fa-graduation-cap"></i>
+                    Advanced Examples
+                  </a>
+                </li>
+                <li class="nav-item has-children">
+                  <a class="nav-link nav-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#web-examples">
+                    <i class="fas fa-globe"></i>
+                    Web Applications
+                    <i class="fas fa-chevron-right nav-toggle-icon"></i>
+                  </a>
+                  <div class="collapse" id="web-examples">
+                    <ul class="nav-section-sublist">
+                      <li><a class="nav-link" href="{{ pathto('examples/web/basic-app') }}"><i class="fas fa-circle me-2"></i>Basic Web App</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/web/rest-api') }}"><i class="fas fa-circle me-2"></i>REST API</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/web/authentication') }}"><i class="fas fa-circle me-2"></i>Authentication</a></li>
+                    </ul>
+                  </div>
+                </li>
+                <li class="nav-item has-children">
+                  <a class="nav-link nav-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#data-examples">
+                    <i class="fas fa-chart-bar"></i>
+                    Data Processing
+                    <i class="fas fa-chevron-right nav-toggle-icon"></i>
+                  </a>
+                  <div class="collapse" id="data-examples">
+                    <ul class="nav-section-sublist">
+                      <li><a class="nav-link" href="{{ pathto('examples/data/etl-pipeline') }}"><i class="fas fa-circle me-2"></i>ETL Pipeline</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/data/analytics') }}"><i class="fas fa-circle me-2"></i>Analytics Dashboard</a></li>
+                      <li><a class="nav-link" href="{{ pathto('examples/data/real-time') }}"><i class="fas fa-circle me-2"></i>Real-time Processing</a></li>
+                    </ul>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Tutorials Section -->
+          <div class="nav-section">
+            <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#tutorials-nav" aria-expanded="false">
+              <i class="fas fa-chalkboard-teacher nav-section-icon"></i>
+              <span class="nav-section-title">Tutorials</span>
+              <i class="fas fa-chevron-down nav-section-chevron"></i>
+            </div>
+            <div class="collapse" id="tutorials-nav">
+              <ul class="nav-section-list">
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('tutorials/getting-started') }}">
+                    <i class="fas fa-flag"></i>
+                    Getting Started
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('tutorials/building-apps') }}">
+                    <i class="fas fa-hammer"></i>
+                    Building Applications
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('tutorials/best-practices') }}">
+                    <i class="fas fa-star"></i>
+                    Best Practices
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Development Section -->
+          <div class="nav-section">
+            <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#development-nav" aria-expanded="false">
+              <i class="fas fa-tools nav-section-icon"></i>
+              <span class="nav-section-title">Development</span>
+              <i class="fas fa-chevron-down nav-section-chevron"></i>
+            </div>
+            <div class="collapse" id="development-nav">
+              <ul class="nav-section-list">
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('contributing/index') }}">
+                    <i class="fas fa-hands-helping"></i>
+                    Contributing
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('contributing/development-setup') }}">
+                    <i class="fas fa-laptop-code"></i>
+                    Development Setup
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('contributing/testing') }}">
+                    <i class="fas fa-vial"></i>
+                    Testing
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('migration/index') }}">
+                    <i class="fas fa-exchange-alt"></i>
+                    Migration Guide
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Community Section -->
+          <div class="nav-section">
+            <div class="nav-section-header" data-bs-toggle="collapse" data-bs-target="#community-nav" aria-expanded="false">
+              <i class="fas fa-users nav-section-icon"></i>
+              <span class="nav-section-title">Community</span>
+              <i class="fas fa-chevron-down nav-section-chevron"></i>
+            </div>
+            <div class="collapse" id="community-nav">
+              <ul class="nav-section-list">
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('community') }}">
+                    <i class="fas fa-comments"></i>
+                    Community Forum
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('support') }}">
+                    <i class="fas fa-life-ring"></i>
+                    Support
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('changelog') }}">
+                    <i class="fas fa-list-alt"></i>
+                    Changelog
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ pathto('roadmap') }}">
+                    <i class="fas fa-road"></i>
+                    Roadmap
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+          <div class="sidebar-version-info">
+            <small class="text-muted">
+              <i class="fas fa-tag me-1"></i>Version {{ version }}<br>
+              <a href="{{ pathto('changelog') }}" class="text-muted">
+                <i class="fas fa-history me-1"></i>View changelog
+              </a>
+            </small>
+          </div>
+        </div>
       </div>
     </nav>
 
@@ -124,20 +554,30 @@
         <!-- Breadcrumbs -->
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ pathto(master_doc) }}">Home</a></li>
+            <li class="breadcrumb-item">
+              <a href="{{ pathto(master_doc) }}">
+                <i class="fas fa-home me-1"></i>Home
+              </a>
+            </li>
             {% for parent in parents %}
-            <li class="breadcrumb-item"><a href="{{ parent.link|e }}">{{ parent.title }}</a></li>
+            <li class="breadcrumb-item">
+              <a href="{{ parent.link|e }}">{{ parent.title }}</a>
+            </li>
             {% endfor %}
-            <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+            <li class="breadcrumb-item active" aria-current="page">
+              <i class="fas fa-file-alt me-1"></i>{{ title }}
+            </li>
           </ol>
         </nav>
 
         <!-- Version Warning -->
         {% if version != theme_latest_version %}
         <div class="alert alert-warning version-warning" role="alert">
-          <i class="fas fa-exclamation-triangle"></i>
+          <i class="fas fa-exclamation-triangle me-2"></i>
           You are viewing documentation for version {{ version }}. 
-          <a href="{{ pathto('index', 1) }}" class="alert-link">View latest version ({{ theme_latest_version }})</a>
+          <a href="{{ pathto('index', 1) }}" class="alert-link">
+            <i class="fas fa-arrow-right me-1"></i>View latest version ({{ theme_latest_version }})
+          </a>
         </div>
         {% endif %}
 
@@ -152,14 +592,14 @@
             <div class="col-md-6">
               {% if prev %}
               <a href="{{ prev.link|e }}" class="btn btn-outline-primary">
-                <i class="fas fa-arrow-left"></i> {{ prev.title }}
+                <i class="fas fa-arrow-left me-2"></i>{{ prev.title }}
               </a>
               {% endif %}
             </div>
             <div class="col-md-6 text-end">
               {% if next %}
               <a href="{{ next.link|e }}" class="btn btn-outline-primary">
-                {{ next.title }} <i class="fas fa-arrow-right"></i>
+                {{ next.title }}<i class="fas fa-arrow-right ms-2"></i>
               </a>
               {% endif %}
             </div>
@@ -171,7 +611,9 @@
     <!-- Right Sidebar (TOC) -->
     <nav class="col-lg-2 d-none d-lg-block toc-sidebar">
       <div class="toc-sticky">
-        <h6 class="toc-heading">On this page</h6>
+        <h6 class="toc-heading">
+          <i class="fas fa-list me-2"></i>On this page
+        </h6>
         {{ toc }}
       </div>
     </nav>
@@ -187,8 +629,10 @@
   </div>
   <div class="chatbot-container" id="chatbot-container" style="display: none;">
     <div class="chatbot-header">
-      <h5>Documentation Assistant</h5>
-      <button class="chatbot-close" id="chatbot-close">×</button>
+      <h5><i class="fas fa-robot me-2"></i>Documentation Assistant</h5>
+      <button class="chatbot-close" id="chatbot-close">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
     <div class="chatbot-messages" id="chatbot-messages">
       <div class="message bot-message">
@@ -196,7 +640,7 @@
           <i class="fas fa-robot"></i>
         </div>
         <div class="message-content">
-          Hi! I can help you find information in the GRA Core Platform documentation. What would you like to know?
+          <i class="fas fa-wave-square me-2"></i>Hi! I can help you find information in the GRA Core Platform documentation. What would you like to know?
         </div>
       </div>
     </div>
@@ -207,7 +651,10 @@
       </button>
     </div>
     <div class="chatbot-footer">
-      <small class="text-muted">Powered by AI • Answers based on documentation</small>
+      <small class="text-muted">
+        <i class="fas fa-magic me-1"></i>Powered by AI • 
+        <i class="fas fa-book me-1"></i>Answers based on documentation
+      </small>
     </div>
   </div>
 </div>
@@ -218,18 +665,64 @@
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Compare Documentation Versions</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title">
+          <i class="fas fa-code-compare me-2"></i>Compare Documentation Versions
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
       <div class="modal-body">
         <div class="row">
           <div class="col-md-6">
-            <h6>Version <span id="compare-version-1"></span></h6>
+            <h6><i class="fas fa-tag me-2"></i>Version <span id="compare-version-1"></span></h6>
             <div id="compare-content-1" class="compare-content"></div>
           </div>
           <div class="col-md-6">
-            <h6>Version <span id="compare-version-2"></span></h6>
+            <h6><i class="fas fa-tag me-2"></i>Version <span id="compare-version-2"></span></h6>
             <div id="compare-content-2" class="compare-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="help-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-question-circle me-2"></i>Need Help?
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="help-options">
+          <div class="help-option">
+            <i class="fas fa-robot text-primary"></i>
+            <h6>AI Assistant</h6>
+            <p>Use the chatbot in the bottom-right corner for instant help</p>
+          </div>
+          <div class="help-option">
+            <i class="fas fa-keyboard text-info"></i>
+            <h6>Keyboard Shortcuts</h6>
+            <p><kbd>Ctrl + K</kbd> - Search documentation<br>
+               <kbd>Alt + S</kbd> - Focus sidebar search<br>
+               <kbd>Alt + C</kbd> - Toggle chatbot</p>
+          </div>
+          <div class="help-option">
+            <i class="fas fa-users text-success"></i>
+            <h6>Community</h6>
+            <p>Join our community forum for discussions and support</p>
+          </div>
+          <div class="help-option">
+            <i class="fas fa-envelope text-warning"></i>
+            <h6>Contact Support</h6>
+            <p>Email us at <a href="mailto:support@gra-platform.org">support@gra-platform.org</a></p>
           </div>
         </div>
       </div>
