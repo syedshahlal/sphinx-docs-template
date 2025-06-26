@@ -1,0 +1,196 @@
+/* Custom styles for BlockNote to better integrate with Tailwind and shadcn/ui theme */
+
+/* Ensure BlockNoteView takes full height in its container */
+.bn-container .bn-editor {
+  flex-grow: 1;
+  overflow-y: auto;
+  height: 100%; /* Make sure it can grow */
+}
+
+/* General text color based on theme */
+[data-theme="light"] .bn-editor {
+  color: hsl(var(--foreground));
+}
+[data-theme="dark"] .bn-editor {
+  color: hsl(var(--foreground)); /* Assuming foreground is correctly set for dark */
+}
+
+/* Headings */
+.bn-editor h1,
+.bn-editor h2,
+.bn-editor h3 {
+  color: hsl(var(--foreground));
+  border-bottom: none; /* Remove BlockNote's default heading border */
+  font-weight: 600; /* Tailwind's font-semibold */
+}
+.bn-editor h1 {
+  font-size: 1.875rem; /* text-3xl */
+  margin-bottom: 0.75rem;
+}
+.bn-editor h2 {
+  font-size: 1.5rem; /* text-2xl */
+  margin-bottom: 0.5rem;
+}
+.bn-editor h3 {
+  font-size: 1.25rem; /* text-xl */
+  margin-bottom: 0.5rem;
+}
+
+/* Paragraphs */
+.bn-editor p {
+  color: hsl(var(--foreground));
+  line-height: 1.75; /* Tailwind's leading-relaxed */
+}
+
+/* Links */
+.bn-editor a {
+  color: hsl(var(--primary));
+  text-decoration: none;
+}
+.bn-editor a:hover {
+  text-decoration: underline;
+}
+
+/* Code blocks - basic theming, relies on BlockNote's internal Prism.js */
+.bn-editor pre[data-content-type="codeBlock"] {
+  background-color: hsl(var(--muted));
+  border-radius: var(--radius);
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: 0.875rem; /* text-sm */
+}
+[data-theme="dark"] .bn-editor pre[data-content-type="codeBlock"] {
+  background-color: hsl(var(--neutral-800, #27272a)); /* A common dark bg */
+}
+.bn-editor pre[data-content-type="codeBlock"] code {
+  font-family: var(--font-mono);
+}
+
+/* Callouts / Info Panels */
+.bn-editor div[data-content-type="callout"] {
+  padding: 1rem;
+  border-radius: var(--radius);
+  border-width: 1px;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+/* Default Callout (Info) */
+.bn-editor div[data-callout-type="default"] {
+  background-color: hsl(var(--info-muted, var(--sky-50))); /* Assuming info-muted or fallback */
+  border-color: hsl(var(--info-border, var(--sky-200)));
+  color: hsl(var(--info-foreground, var(--sky-700)));
+}
+[data-theme="dark"] .bn-editor div[data-callout-type="default"] {
+  background-color: hsl(var(--info-muted-dark, var(--sky-900)));
+  border-color: hsl(var(--info-border-dark, var(--sky-700)));
+  color: hsl(var(--info-foreground-dark, var(--sky-300)));
+}
+
+/* Warning Callout */
+.bn-editor div[data-callout-type="warning"] {
+  background-color: hsl(var(--warning-muted, var(--amber-50)));
+  border-color: hsl(var(--warning-border, var(--amber-200)));
+  color: hsl(var(--warning-foreground, var(--amber-700)));
+}
+[data-theme="dark"] .bn-editor div[data-callout-type="warning"] {
+  background-color: hsl(var(--warning-muted-dark, var(--amber-900)));
+  border-color: hsl(var(--warning-border-dark, var(--amber-700)));
+  color: hsl(var(--warning-foreground-dark, var(--amber-300)));
+}
+
+/* Error Callout */
+.bn-editor div[data-callout-type="error"] {
+  background-color: hsl(var(--destructive-muted, var(--red-50)));
+  border-color: hsl(var(--destructive-border, var(--red-200)));
+  color: hsl(var(--destructive-foreground, var(--red-700)));
+}
+[data-theme="dark"] .bn-editor div[data-callout-type="error"] {
+  background-color: hsl(var(--destructive-muted-dark, var(--red-900)));
+  border-color: hsl(var(--destructive-border-dark, var(--red-700)));
+  color: hsl(var(--destructive-foreground-dark, var(--red-300)));
+}
+
+/* Success Callout */
+.bn-editor div[data-callout-type="success"] {
+  background-color: hsl(var(--success-muted, var(--green-50)));
+  border-color: hsl(var(--success-border, var(--green-200)));
+  color: hsl(var(--success-foreground, var(--green-700)));
+}
+[data-theme="dark"] .bn-editor div[data-callout-type="success"] {
+  background-color: hsl(var(--success-muted-dark, var(--green-900)));
+  border-color: hsl(var(--success-border-dark, var(--green-700)));
+  color: hsl(var(--success-foreground-dark, var(--green-300)));
+}
+
+/* Toolbar theming (basic example, BlockNote's toolbar is quite complex) */
+.bn-ui-buttons-container {
+  background-color: hsl(var(--card)) !important; /* Override BlockNote's inline style */
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-md) !important; /* shadcn shadow */
+}
+.bn-button {
+  color: hsl(var(--foreground)) !important;
+}
+.bn-button:hover {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+.bn-button[data-active="true"] {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+/* Slash menu */
+.bn-slash-menu {
+  background-color: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+.bn-slash-menu-item:hover,
+.bn-slash-menu-item[data-active="true"] {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+
+/* Table styling */
+.bn-editor table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.bn-editor th,
+.bn-editor td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.5rem 0.75rem; /* p-2 px-3 */
+  text-align: left;
+}
+.bn-editor th {
+  background-color: hsl(var(--muted));
+}
+[data-theme="dark"] .bn-editor th {
+  background-color: hsl(var(--neutral-700, #3f3f46));
+}
+
+/* Ensure the editor content area within BlockNoteView can scroll if content overflows */
+.blocknote-container {
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack children vertically */
+  overflow: hidden; /* Prevent parent from scrolling, child will scroll */
+  height: 100%; /* Take full height of its parent in the dialog */
+}
+
+.blocknote-container > div[class^="BlockNoteView__Editor"] {
+  /* Target BlockNote's direct child editor div */
+  flex-grow: 1;
+  overflow-y: auto; /* Allow this specific div to scroll */
+}
+
+/* Placeholder text color */
+.bn-editor [data-placeholder]:before {
+  color: hsl(var(--muted-foreground) / 0.7);
+}

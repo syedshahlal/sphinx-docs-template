@@ -1,246 +1,287 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog"
+import { useState, useEffect, useCallback } from "react"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { TiptapEditor } from "./tiptap-editor"
-import type { Editor } from "@tiptap/react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Save, Loader2, AlertTriangle, X } from "lucide-react"
-import { publishToGitHub, getBranches } from "@/lib/github"
-import { useToast } from "@/components/ui/use-toast"
-import { Combobox } from "@/components/ui/combobox"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { toast } from "@/components/ui/use-toast"
+import { Loader2, Github, FileText, Eye, Settings } from "lucide-react"
+import { fetchBranches, publishToGitHub } from "@/lib/github" // Assuming this is correctly set up
+import { PreviewPanel } from "../markdown-editor/PreviewPanel" // We'll adapt this
+import { useTheme } from "next-themes"
+
+// BlockNote imports
+import { BlockNoteView, useBlockNote } from "@blocknote/react"
+import type { BlockNoteEditor, PartialBlock } from "@blocknote/core"
+import "@blocknote/core/style.css" // Basic BlockNote styling
+import "@/styles/blocknote-custom.css" // Your custom styles for BlockNote
 
 interface CreateDocDialogProps {
   isOpen: boolean
-  onClose: () => void
-  githubConfig: {
-    owner: string
-    repo: string
-    defaultBranch: string
-  }
+  onOpenChange: (isOpen: boolean) => void
+  onPublishSuccess?: (filePath: string) => void
 }
 
-interface Branch {
+interface GitHubFile {
   name: string
-  value: string // for Combobox
-  label: string // for Combobox
+  path: string
+  sha: string
+  content?: string // Base64 encoded
 }
 
-export function CreateDocDialog({ isOpen, onClose, githubConfig }: CreateDocDialogProps) {
-  const [editor, setEditor] = useState<Editor | null>(null)
-  const [filePath, setFilePath] = useState("docs/new-document.md") // Default to a more generic name
-  const [selectedBranch, setSelectedBranch] = useState(githubConfig.defaultBranch)
-  const [branches, setBranches] = useState<Branch[]>([])
-  const [isLoadingBranches, setIsLoadingBranches] = useState(false)
-  const [isPublishing, setIsPublishing] = useState(false)
-  const [publishError, setPublishError] = useState<string | null>(null)
-  const { toast } = useToast()
+const initialContent: PartialBlock[] = [
+  {
+    type: "heading",
+    content: "Untitled Document",
+  },
+  {
+    type: "paragraph",
+    content: "Start writing your amazing documentation here!",
+  },
+]
 
-  const GITHUB_TOKEN = process.env.NEXT_PUBLIC_GITHUB_TOKEN
+export function CreateDocDialog({ isOpen, onOpenChange, onPublishSuccess }: CreateDocDialogProps) {
+  const [step, setStep] = useState(1) // 1: Editor, 2: Metadata, 3: Publish
+  const [title, setTitle] = useState("New Document")
+  const [description, setDescription] = useState("")
+  const [filePath, setFilePath] = useState("docs/new-document.md")
+  const [commitMessage, setCommitMessage] = useState("docs: create new document")
+  const [branches, setBranches] = useState<string[]>([])
+  const [selectedBranch, setSelectedBranch] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [baseSha, setBaseSha] = useState<string | undefined>(undefined)
+  const [markdownContent, setMarkdownContent] = useState<string>("")
+
+  const { theme } = useTheme()
+
+  // BlockNote Editor instance
+  const editor: BlockNoteEditor | null = useBlockNote({
+    initialContent: initialContent,
+    onEditorContentChange: async (currentEditor) => {
+      const md = await currentEditor.blocksToMarkdown(currentEditor.topLevelBlocks)
+      setMarkdownContent(md)
+      // Try to extract title from H1
+      const firstBlock = currentEditor.topLevelBlocks[0]
+      if (firstBlock && firstBlock.type === "heading" && firstBlock.props.level === "1") {
+        const h1Text = (firstBlock.content as any[]).map((c) => c.text).join("")
+        if (h1Text) {
+          setTitle(h1Text)
+          setFilePath(`docs/${h1Text.toLowerCase().replace(/\s+/g, "-")}.md`)
+        }
+      }
+    },
+    // You can add more configurations here, like custom block types, slashMenuItems etc.
+    // For example, to add custom slash menu items:
+    // slashMenuItems: (editor) => [
+    //   ...getDefaultSlashMenuItems(editor),
+    //   { name: "Insert Mermaid", keywords: ["mermaid", "diagram"], icon: <Share2/>, execute: () => {/*...*/} }
+    // ]
+  })
 
   useEffect(() => {
-    if (isOpen && GITHUB_TOKEN) {
-      setIsLoadingBranches(true)
-      getBranches({ owner: githubConfig.owner, repo: githubConfig.repo, token: GITHUB_TOKEN })
-        .then((fetchedBranches) => {
-          const formattedBranches = fetchedBranches.map((branch) => ({
-            name: branch.name,
-            value: branch.name,
-            label: branch.name,
-          }))
-          setBranches(formattedBranches)
-          if (!fetchedBranches.some((b) => b.name === githubConfig.defaultBranch)) {
-            setBranches((prev) => [
-              {
-                name: githubConfig.defaultBranch,
-                value: githubConfig.defaultBranch,
-                label: githubConfig.defaultBranch,
-              },
-              ...prev,
-            ])
-          }
-          setSelectedBranch(githubConfig.defaultBranch)
-        })
-        .catch((err) => {
-          console.error("Failed to fetch branches:", err)
+    if (isOpen && step === 2) {
+      // Fetch branches when moving to metadata step
+      const loadBranches = async () => {
+        setIsLoading(true)
+        try {
+          const fetchedBranches = await fetchBranches()
+          setBranches(fetchedBranches)
+          const defaultBranch = process.env.NEXT_PUBLIC_GITHUB_DEFAULT_BRANCH || "main"
+          setSelectedBranch(fetchedBranches.includes(defaultBranch) ? defaultBranch : fetchedBranches[0] || "")
+        } catch (error) {
+          console.error("Failed to fetch branches:", error)
           toast({
+            title: "Error",
+            description: "Could not fetch branches from GitHub. Please check your token and repository settings.",
             variant: "destructive",
-            title: "Error fetching branches",
-            description: err.message || "Could not retrieve branch list from GitHub.",
           })
-          setBranches([
-            { name: githubConfig.defaultBranch, value: githubConfig.defaultBranch, label: githubConfig.defaultBranch },
-            { name: "docs/new-feature", value: "docs/new-feature", label: "docs/new-feature" },
-          ])
-        })
-        .finally(() => setIsLoadingBranches(false))
-    } else if (isOpen && !GITHUB_TOKEN) {
-      setBranches([
-        { name: githubConfig.defaultBranch, value: githubConfig.defaultBranch, label: githubConfig.defaultBranch },
-        { name: "docs/new-feature", value: "docs/new-feature", label: "docs/new-feature" },
-      ])
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      loadBranches()
     }
-  }, [isOpen, githubConfig, GITHUB_TOKEN, toast])
+  }, [isOpen, step])
+
+  const resetForm = useCallback(() => {
+    setStep(1)
+    setTitle("New Document")
+    setDescription("")
+    setFilePath("docs/new-document.md")
+    setCommitMessage("docs: create new document")
+    setBaseSha(undefined)
+    setMarkdownContent("")
+    editor?.removeBlocks(editor.topLevelBlocks)
+    editor?.insertBlocks(initialContent, editor.topLevelBlocks[0]?.id || "root", "before")
+  }, [editor])
+
+  const handleClose = (openState: boolean) => {
+    if (!openState) {
+      resetForm()
+    }
+    onOpenChange(openState)
+  }
 
   const handlePublish = async () => {
     if (!editor) {
-      toast({
-        title: "Editor not ready",
-        description: "The document editor is not initialized.",
-        variant: "destructive",
-      })
+      toast({ title: "Error", description: "Editor not initialized.", variant: "destructive" })
       return
     }
-    if (!GITHUB_TOKEN) {
-      toast({
-        title: "GitHub Token Missing",
-        description: "NEXT_PUBLIC_GITHUB_TOKEN is not set. Publishing is disabled.",
-        variant: "destructive",
-      })
-      setPublishError("GitHub token is missing. Cannot publish.")
-      return
-    }
-
-    const markdown = editor.storage.markdown.getMarkdown()
-    if (!markdown.trim()) {
-      toast({ title: "Content is empty", description: "Please add content before publishing.", variant: "destructive" })
-      return
-    }
-    if (!filePath.trim() || !filePath.endsWith(".md")) {
-      toast({
-        title: "Invalid File Path",
-        description: "Please provide a valid Markdown file path (e.g., docs/topic/file.md).",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsPublishing(true)
-    setPublishError(null)
-
+    setIsLoading(true)
     try {
-      const result = await publishToGitHub({
-        owner: githubConfig.owner,
-        repo: githubConfig.repo,
-        branch: selectedBranch,
-        filepath: filePath,
-        markdownContent: markdown,
-        token: GITHUB_TOKEN,
-        defaultBranch: githubConfig.defaultBranch,
-        commitMessage: `docs: add/update ${filePath}`,
-      })
-
+      const finalMarkdown = await editor.blocksToMarkdown(editor.topLevelBlocks)
+      const result = await publishToGitHub(filePath, finalMarkdown, commitMessage, selectedBranch, baseSha)
       toast({
-        title: "Successfully published to GitHub!",
-        description: result.prUrl
-          ? `Pull request created: ${result.prUrl}`
-          : `Content published to branch: ${selectedBranch}. Path: ${filePath}`,
+        title: "Success!",
+        description: `Document published to ${result.commit.html_url}`,
       })
-      onClose()
+      onPublishSuccess?.(filePath)
+      handleClose(false)
     } catch (error: any) {
-      console.error("Failed to publish to GitHub:", error)
-      const errorMessage = error.message || "An unknown error occurred during publishing."
-      setPublishError(errorMessage)
+      console.error("Publishing error:", error)
       toast({
-        variant: "destructive",
         title: "Publishing Failed",
-        description: errorMessage,
+        description: error.message || "An unexpected error occurred.",
+        variant: "destructive",
       })
     } finally {
-      setIsPublishing(false)
+      setIsLoading(false)
     }
   }
 
-  const branchOptions =
-    branches.length > 0
-      ? branches
-      : [{ name: githubConfig.defaultBranch, value: githubConfig.defaultBranch, label: githubConfig.defaultBranch }]
+  const renderStepContent = () => {
+    switch (step) {
+      case 1: // Editor
+        return (
+          <div className="min-h-[500px] max-h-[70vh] flex flex-col py-4">
+            {editor ? (
+              <div className="flex-grow overflow-y-auto rounded-md border dark:border-neutral-700 blocknote-container">
+                <BlockNoteView editor={editor} theme={theme === "dark" ? "dark" : "light"} className="flex-grow" />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                <p className="ml-2">Loading Editor...</p>
+              </div>
+            )}
+          </div>
+        )
+      case 2: // Metadata & Preview
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4 max-h-[70vh]">
+            <div className="space-y-4 overflow-y-auto pr-2">
+              <div>
+                <Label htmlFor="doc-title">Document Title</Label>
+                <Input
+                  id="doc-title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="My Awesome Document"
+                />
+              </div>
+              <div>
+                <Label htmlFor="doc-description">Description (Optional)</Label>
+                <Textarea
+                  id="doc-description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="A brief summary of this document."
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label htmlFor="doc-filepath">File Path</Label>
+                <Input
+                  id="doc-filepath"
+                  value={filePath}
+                  onChange={(e) => setFilePath(e.target.value)}
+                  placeholder="docs/category/filename.md"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Example: `docs/user-guide/new-feature.md`</p>
+              </div>
+              <div>
+                <Label htmlFor="doc-branch">Branch</Label>
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {branches.map((branch) => (
+                        <SelectItem key={branch} value={branch}>
+                          {branch}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="doc-commit">Commit Message</Label>
+                <Input id="doc-commit" value={commitMessage} onChange={(e) => setCommitMessage(e.target.value)} />
+              </div>
+            </div>
+            <div className="overflow-y-auto border rounded-md p-1 dark:border-neutral-700">
+              <h3 className="text-lg font-semibold p-3 border-b dark:border-neutral-700">Preview</h3>
+              {/* Pass markdownContent to PreviewPanel */}
+              <PreviewPanel markdown={markdownContent} initialPreviewMode="preview" />
+            </div>
+          </div>
+        )
+      default:
+        return null
+    }
+  }
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-          <DialogContent
-            className="p-0 border-0 max-w-4xl w-[90vw] h-[90vh] flex flex-col bg-card shadow-2xl rounded-lg"
-            onOpenAutoFocus={(e) => e.preventDefault()}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="flex flex-col h-full"
-            >
-              <DialogHeader className="p-4 border-b">
-                <DialogTitle className="text-lg font-semibold">Create New Document</DialogTitle>
-                <DialogClose asChild>
-                  <Button variant="ghost" size="icon" className="absolute right-4 top-3">
-                    <X className="h-4 w-4" />
-                  </Button>
-                </DialogClose>
-              </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogContent className="max-w-3xl sm:max-w-4xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl data-[state=open]:h-[90vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center">
+            {step === 1 && <FileText className="w-5 h-5 mr-2" />}
+            {step === 2 && <Settings className="w-5 h-5 mr-2" />}
+            Create New Document
+          </DialogTitle>
+          <DialogDescription>
+            {step === 1 &&
+              "Use the rich text editor to create your content. Format text, add images, tables, and more."}
+            {step === 2 && "Review metadata, preview your document, and choose publishing options."}
+          </DialogDescription>
+        </DialogHeader>
 
-              <div className="flex-1 overflow-y-auto p-1 md:p-2 bg-background">
-                <TiptapEditor onEditorChange={setEditor} />
-              </div>
+        {renderStepContent()}
 
-              <DialogFooter className="p-4 border-t bg-muted/30 space-y-4 md:space-y-0 md:flex md:justify-between md:items-end">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 flex-grow mr-4">
-                  <div>
-                    <Label htmlFor="filePath" className="text-xs font-medium text-muted-foreground mb-1 block">
-                      File Path (e.g., docs/topic/file.md)
-                    </Label>
-                    <Input
-                      id="filePath"
-                      value={filePath}
-                      onChange={(e) => setFilePath(e.target.value)}
-                      placeholder="docs/my-new-feature.md"
-                      className="bg-background border-border h-9"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="branch" className="text-xs font-medium text-muted-foreground mb-1 block">
-                      Target Branch
-                    </Label>
-                    <Combobox
-                      options={branchOptions}
-                      value={selectedBranch}
-                      onChange={setSelectedBranch}
-                      placeholder="Select or create branch..."
-                      loading={isLoadingBranches}
-                      className="bg-background border-border [&>button]:h-9"
-                      inputClassName="h-9"
-                    />
-                  </div>
-                </div>
-                <Button
-                  onClick={handlePublish}
-                  disabled={isPublishing || !GITHUB_TOKEN}
-                  className="w-full md:w-auto h-9"
-                  size="sm"
-                >
-                  {isPublishing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                  Publish
-                </Button>
-              </DialogFooter>
-              {(!GITHUB_TOKEN || publishError) && (
-                <div className="px-4 pb-2 text-xs">
-                  {!GITHUB_TOKEN && (
-                    <p className="text-destructive flex items-center">
-                      <AlertTriangle className="mr-1 h-3 w-3 flex-shrink-0" />
-                      NEXT_PUBLIC_GITHUB_TOKEN is not set. Publishing is disabled.
-                    </p>
-                  )}
-                  {publishError && <p className="text-destructive mt-1">Error: {publishError}</p>}
-                </div>
-              )}
-            </motion.div>
-          </DialogContent>
-        </Dialog>
-      )}
-    </AnimatePresence>
+        <DialogFooter className="mt-auto pt-4 border-t dark:border-neutral-700">
+          {step === 1 && (
+            <Button onClick={() => setStep(2)} disabled={!editor || markdownContent.trim().length === 0}>
+              Next: Configure & Preview <Eye className="w-4 h-4 ml-2" />
+            </Button>
+          )}
+          {step === 2 && (
+            <>
+              <Button variant="outline" onClick={() => setStep(1)}>
+                Back to Editor
+              </Button>
+              <Button onClick={handlePublish} disabled={isLoading || !filePath || !commitMessage || !selectedBranch}>
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Github className="w-4 h-4 mr-2" />}
+                Publish to GitHub
+              </Button>
+            </>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
