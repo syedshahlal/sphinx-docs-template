@@ -459,8 +459,8 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
     const newContent = { ...component.content }
     if (newContent.items) {
       newContent.items.splice(index, 1)
-      updateComponentContent(component.id, newContent)
     }
+    updateComponentContent(component.id, newContent)
   }
 
   const baseClasses = cn(
