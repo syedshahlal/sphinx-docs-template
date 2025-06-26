@@ -1,6 +1,7 @@
 "use client"
 
-import type React from "react"
+import React from "react"
+import { useDebounce } from "use-debounce"
 
 import { useEditor } from "./EditorContext"
 import { Input } from "@/components/ui/input"
@@ -30,6 +31,34 @@ import {
   PaletteIcon,
 } from "lucide-react"
 
+// Debounced input component
+const DebouncedInput: React.FC<React.ComponentProps<typeof Input> & { onDebouncedChange: (value: string) => void }> = ({
+  onDebouncedChange,
+  ...props
+}) => {
+  const [value, setValue] = React.useState(props.defaultValue || props.value || "")
+  const [debouncedValue] = useDebounce(value, 300)
+
+  React.useEffect(() => {
+    onDebouncedChange(debouncedValue)
+  }, [debouncedValue, onDebouncedChange])
+
+  return <Input {...props} value={value} onChange={(e) => setValue(e.target.value)} />
+}
+
+const DebouncedTextarea: React.FC<
+  React.ComponentProps<typeof Textarea> & { onDebouncedChange: (value: string) => void }
+> = ({ onDebouncedChange, ...props }) => {
+  const [value, setValue] = React.useState(props.defaultValue || props.value || "")
+  const [debouncedValue] = useDebounce(value, 300)
+
+  React.useEffect(() => {
+    onDebouncedChange(debouncedValue)
+  }, [debouncedValue, onDebouncedChange])
+
+  return <Textarea {...props} value={value} onChange={(e) => setValue(e.target.value)} />
+}
+
 // Helper for style updates
 const StyleInput: React.FC<{
   label: string
@@ -42,10 +71,10 @@ const StyleInput: React.FC<{
     <Label htmlFor={`style-${label.toLowerCase().replace(" ", "-")}`} className="text-xs text-muted-foreground">
       {label}
     </Label>
-    <Input
+    <DebouncedInput
       id={`style-${label.toLowerCase().replace(" ", "-")}`}
-      value={value || ""}
-      onChange={(e) => onChange(e.target.value)}
+      defaultValue={value || ""}
+      onDebouncedChange={onChange}
       placeholder={placeholder}
       type={type}
       className="h-8 text-sm"
@@ -70,10 +99,10 @@ const ColorInput: React.FC<{ label: string; value: string | undefined; onChange:
         onChange={(e) => onChange(e.target.value)}
         className="h-8 w-8 p-1"
       />
-      <Input
+      <DebouncedInput
         type="text"
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
+        defaultValue={value || ""}
+        onDebouncedChange={onChange}
         placeholder="#RRGGBB"
         className="h-8 text-sm flex-1"
       />
@@ -112,7 +141,7 @@ export function PropertiesPanel() {
 
   if (!selectedComponent) {
     return (
-      <div className="p-4 h-full flex flex-col items-center justify-center text-center">
+      <div className="p-4 h-full flex flex-col items-center justify-center text-center bg-background dark:bg-neutral-900">
         <PaletteIcon className="w-12 h-12 text-muted-foreground mb-4" strokeWidth={1} />
         <h3 className="text-lg font-semibold text-foreground">Properties</h3>
         <p className="text-muted-foreground text-sm max-w-xs">
@@ -305,10 +334,10 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-3">
             <Label htmlFor="heading-text">Text</Label>
-            <Input
+            <DebouncedInput
               id="heading-text"
-              value={selectedComponent.content.text}
-              onChange={(e) => handleContentChange("text", e.target.value)}
+              defaultValue={selectedComponent.content.text}
+              onDebouncedChange={(v) => handleContentChange("text", v)}
             />
             <Label htmlFor="heading-level">Level</Label>
             <Select
@@ -332,10 +361,10 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-3">
             <Label htmlFor="paragraph-text">Text</Label>
-            <Textarea
+            <DebouncedTextarea
               id="paragraph-text"
-              value={selectedComponent.content.text}
-              onChange={(e) => handleContentChange("text", e.target.value)}
+              defaultValue={selectedComponent.content.text}
+              onDebouncedChange={(v) => handleContentChange("text", v)}
               rows={5}
             />
           </div>
@@ -344,22 +373,22 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-3">
             <Label htmlFor="image-src">Image URL</Label>
-            <Input
+            <DebouncedInput
               id="image-src"
-              value={selectedComponent.content.src}
-              onChange={(e) => handleContentChange("src", e.target.value)}
+              defaultValue={selectedComponent.content.src}
+              onDebouncedChange={(v) => handleContentChange("src", v)}
             />
             <Label htmlFor="image-alt">Alt Text</Label>
-            <Input
+            <DebouncedInput
               id="image-alt"
-              value={selectedComponent.content.alt}
-              onChange={(e) => handleContentChange("alt", e.target.value)}
+              defaultValue={selectedComponent.content.alt}
+              onDebouncedChange={(v) => handleContentChange("alt", v)}
             />
             <Label htmlFor="image-caption">Caption</Label>
-            <Input
+            <DebouncedInput
               id="image-caption"
-              value={selectedComponent.content.caption || ""}
-              onChange={(e) => handleContentChange("caption", e.target.value)}
+              defaultValue={selectedComponent.content.caption || ""}
+              onDebouncedChange={(v) => handleContentChange("caption", v)}
             />
           </div>
         )
@@ -367,16 +396,16 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-3">
             <Label htmlFor="code-language">Language</Label>
-            <Input
+            <DebouncedInput
               id="code-language"
-              value={selectedComponent.content.language}
-              onChange={(e) => handleContentChange("language", e.target.value)}
+              defaultValue={selectedComponent.content.language}
+              onDebouncedChange={(v) => handleContentChange("language", v)}
             />
             <Label htmlFor="code-content">Code</Label>
-            <Textarea
+            <DebouncedTextarea
               id="code-content"
-              value={selectedComponent.content.code}
-              onChange={(e) => handleContentChange("code", e.target.value)}
+              defaultValue={selectedComponent.content.code}
+              onDebouncedChange={(v) => handleContentChange("code", v)}
               rows={8}
               className="font-mono text-xs"
             />
@@ -386,16 +415,16 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-3">
             <Label htmlFor="button-text">Button Text</Label>
-            <Input
+            <DebouncedInput
               id="button-text"
-              value={selectedComponent.content.text}
-              onChange={(e) => handleContentChange("text", e.target.value)}
+              defaultValue={selectedComponent.content.text}
+              onDebouncedChange={(v) => handleContentChange("text", v)}
             />
             <Label htmlFor="button-link">Link URL</Label>
-            <Input
+            <DebouncedInput
               id="button-link"
-              value={selectedComponent.content.link}
-              onChange={(e) => handleContentChange("link", e.target.value)}
+              defaultValue={selectedComponent.content.link}
+              onDebouncedChange={(v) => handleContentChange("link", v)}
             />
           </div>
         )
@@ -403,23 +432,23 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-3">
             <Label htmlFor="card-title">Title</Label>
-            <Input
+            <DebouncedInput
               id="card-title"
-              value={selectedComponent.content.title}
-              onChange={(e) => handleContentChange("title", e.target.value)}
+              defaultValue={selectedComponent.content.title}
+              onDebouncedChange={(v) => handleContentChange("title", v)}
             />
             <Label htmlFor="card-description">Description</Label>
-            <Textarea
+            <DebouncedTextarea
               id="card-description"
-              value={selectedComponent.content.description}
-              onChange={(e) => handleContentChange("description", e.target.value)}
+              defaultValue={selectedComponent.content.description}
+              onDebouncedChange={(v) => handleContentChange("description", v)}
               rows={3}
             />
             <Label htmlFor="card-image">Image URL (Optional)</Label>
-            <Input
+            <DebouncedInput
               id="card-image"
-              value={selectedComponent.content.imageUrl || ""}
-              onChange={(e) => handleContentChange("imageUrl", e.target.value)}
+              defaultValue={selectedComponent.content.imageUrl || ""}
+              onDebouncedChange={(v) => handleContentChange("imageUrl", v)}
             />
           </div>
         )
@@ -427,10 +456,10 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-3">
             <Label htmlFor="alert-text">Text</Label>
-            <Textarea
+            <DebouncedTextarea
               id="alert-text"
-              value={selectedComponent.content.text}
-              onChange={(e) => handleContentChange("text", e.target.value)}
+              defaultValue={selectedComponent.content.text}
+              onDebouncedChange={(v) => handleContentChange("text", v)}
               rows={3}
             />
             <Label htmlFor="alert-type">Type</Label>
@@ -451,10 +480,10 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-3">
             <Label htmlFor="spacer-height">Height (e.g., 20px, 2rem)</Label>
-            <Input
+            <DebouncedInput
               id="spacer-height"
-              value={selectedComponent.content.height || "20px"}
-              onChange={(e) => handleContentChange("height", e.target.value)}
+              defaultValue={selectedComponent.content.height || "20px"}
+              onDebouncedChange={(v) => handleContentChange("height", v)}
             />
           </div>
         )
@@ -462,16 +491,16 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-3">
             <Label>Column Content (Markdown supported)</Label>
-            <Textarea
+            <DebouncedTextarea
               placeholder="Column 1 Content"
-              value={selectedComponent.content.column1Text || ""}
-              onChange={(e) => handleContentChange("column1Text", e.target.value)}
+              defaultValue={selectedComponent.content.column1Text || ""}
+              onDebouncedChange={(v) => handleContentChange("column1Text", v)}
               rows={4}
             />
-            <Textarea
+            <DebouncedTextarea
               placeholder="Column 2 Content"
-              value={selectedComponent.content.column2Text || ""}
-              onChange={(e) => handleContentChange("column2Text", e.target.value)}
+              defaultValue={selectedComponent.content.column2Text || ""}
+              onDebouncedChange={(v) => handleContentChange("column2Text", v)}
               rows={4}
             />
           </div>
@@ -509,7 +538,7 @@ export function PropertiesPanel() {
   const Icon = getIconForType(selectedComponent.type)
 
   return (
-    <div className="p-0 h-full flex flex-col">
+    <div className="p-0 h-full flex flex-col bg-background dark:bg-neutral-900 border-l border-border">
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">

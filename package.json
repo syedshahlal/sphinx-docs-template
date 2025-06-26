@@ -62,6 +62,7 @@
     "tailwindcss-animate": "^1.0.7",
     "terser": "latest",
     "tsx": "latest",
+    "use-debounce": "latest",
     "uuid": "latest",
     "vite": "latest",
     "yaml": "latest"
