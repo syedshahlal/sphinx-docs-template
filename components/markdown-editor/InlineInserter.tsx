@@ -93,8 +93,7 @@ export function InlineInserter({ targetIndex, isVisible, alwaysVisible = false }
         </PopoverTrigger>
         <PopoverContent className="w-72 p-1" side="bottom" align="center">
           <ScrollArea className="h-[250px]">
-            <div className="grid grid-cols-1 gap-1 p-1 bg-teal-950 bg-emerald-900 bg-green-100 bg-green-300 bg-yellow-800 bg-amber-950 bg-neutral-600 text-slate-400 text-slate-400 text-slate-100 text-slate-700 text-slate-950 text-slate-300 text-slate-100 text-slate-50 text-transparent bg-neutral-600 bg-neutral-700 bg-neutral-600 bg-gray-900 bg-gray-800 bg-slate-900 bg-slate-950 bg-black">
-              {inserterOptions.map((opt) => (
+            <div className="grid grid-cols-1 gap-1 p-1 bg-emerald-900 bg-green-100 bg-green-300 bg-yellow-800 bg-amber-950 bg-neutral-600 text-slate-400 text-slate-400 text-slate-100 text-slate-700 text-slate-950 text-slate-300 text-slate-100 text-slate-50 text-transparent bg-neutral-600 bg-neutral-700 bg-neutral-600 bg-gray-900 bg-gray-800 bg-slate-900 bg-slate-950 bg-black bg-slate-20000  {inserterOptions.map((opt) => (
                 <Button
                   key={opt.type}
                   variant="ghost"
