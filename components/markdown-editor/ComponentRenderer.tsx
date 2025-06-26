@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import type { MarkdownComponent, ComponentStyle } from "./types"
+import type { MarkdownComponent, ComponentStyle, HtmlBlockContent } from "./types" // Added HtmlBlockContent
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button as UIButton } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -47,23 +47,57 @@ const getHoverClasses = (style?: ComponentStyle): string => {
   return classes.trim()
 }
 
-export function ComponentRenderer({ component }: { component: MarkdownComponent }) {
+interface ComponentRendererProps {
+  component: MarkdownComponent
+  isSelected: boolean
+  updateComponentContent: (id: string, contentUpdates: any) => void
+}
+
+export function ComponentRenderer({ component, isSelected, updateComponentContent }: ComponentRendererProps) {
   const styles = applyStyles(component.style)
   const hoverClasses = getHoverClasses(component.style)
   const customClasses = component.style?.className || ""
   const combinedClasses = cn(hoverClasses, customClasses)
 
+  const handleTextBlur = (e: React.FocusEvent<HTMLElement>, field = "text") => {
+    const newText = e.currentTarget.textContent
+    if (newText !== null && newText !== (component.content as any)[field]) {
+      updateComponentContent(component.id, { [field]: newText })
+    }
+  }
+
   switch (component.type) {
     case "heading":
       const Tag = `h${component.content.level || 1}` as keyof JSX.IntrinsicElements
       return (
-        <Tag style={styles} className={combinedClasses}>
+        <Tag
+          style={styles}
+          className={cn(
+            combinedClasses,
+            isSelected ? "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1" : "",
+          )}
+          contentEditable={isSelected}
+          suppressContentEditableWarning={true}
+          onBlur={handleTextBlur}
+          // Key ensures re-render if text changes externally while not focused
+          // However, direct children update should be handled by React.
+          // Let's rely on React's diffing for the child text node.
+        >
           {component.content.text || "Heading"}
         </Tag>
       )
     case "paragraph":
       return (
-        <p style={styles} className={combinedClasses}>
+        <p
+          style={styles}
+          className={cn(
+            combinedClasses,
+            isSelected ? "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1" : "",
+          )}
+          contentEditable={isSelected}
+          suppressContentEditableWarning={true}
+          onBlur={handleTextBlur}
+        >
           {component.content.text || "Paragraph text..."}
         </p>
       )
@@ -76,13 +110,21 @@ export function ComponentRenderer({ component }: { component: MarkdownComponent 
             className="max-w-full h-auto rounded-md shadow-sm"
           />
           {component.content.caption && (
-            <figcaption className="text-sm text-muted-foreground mt-2 text-center">
+            <figcaption
+              className={cn(
+                "text-sm text-muted-foreground mt-2 text-center",
+                isSelected ? "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1" : "",
+              )}
+              contentEditable={isSelected}
+              suppressContentEditableWarning={true}
+              onBlur={(e) => handleTextBlur(e, "caption")}
+            >
               {component.content.caption}
             </figcaption>
           )}
         </figure>
       )
-    case "code":
+    case "code": // Code blocks are typically not contentEditable directly for rich editing.
       return (
         <pre style={styles} className={cn("bg-muted p-4 rounded-md overflow-x-auto my-4 text-sm", combinedClasses)}>
           <code className={`language-${component.content.language || "plaintext"}`}>
@@ -101,10 +143,28 @@ export function ComponentRenderer({ component }: { component: MarkdownComponent 
         >
           {component.content.link ? (
             <a href={component.content.link} target="_blank" rel="noopener noreferrer">
-              {component.content.text || "Button"} <ExternalLink className="w-3 h-3 ml-1.5" />
+              <span
+                className={cn(isSelected ? "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1" : "")}
+                contentEditable={isSelected}
+                suppressContentEditableWarning={true}
+                onBlur={handleTextBlur}
+                onClick={(e) => {
+                  if (isSelected) e.stopPropagation()
+                }} // Prevent link navigation during edit
+              >
+                {component.content.text || "Button"}
+              </span>
+              <ExternalLink className="w-3 h-3 ml-1.5" />
             </a>
           ) : (
-            component.content.text || "Button"
+            <span
+              className={cn(isSelected ? "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1" : "")}
+              contentEditable={isSelected}
+              suppressContentEditableWarning={true}
+              onBlur={handleTextBlur}
+            >
+              {component.content.text || "Button"}
+            </span>
           )}
         </UIButton>
       )
@@ -119,15 +179,31 @@ export function ComponentRenderer({ component }: { component: MarkdownComponent 
             />
           )}
           <CardHeader>
-            <CardTitle>{component.content.title || "Card Title"}</CardTitle>
-            {component.content.description && <CardDescription>{component.content.description}</CardDescription>}
+            <CardTitle
+              className={cn(isSelected ? "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1" : "")}
+              contentEditable={isSelected}
+              suppressContentEditableWarning={true}
+              onBlur={(e) => handleTextBlur(e, "title")}
+            >
+              {component.content.title || "Card Title"}
+            </CardTitle>
+            {component.content.description && (
+              <CardDescription
+                className={cn(isSelected ? "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1" : "")}
+                contentEditable={isSelected}
+                suppressContentEditableWarning={true}
+                onBlur={(e) => handleTextBlur(e, "description")}
+              >
+                {component.content.description}
+              </CardDescription>
+            )}
           </CardHeader>
           {/* Add CardContent or CardFooter if needed based on card complexity */}
         </Card>
       )
     case "divider":
       return <hr style={styles} className={cn("my-6 border-border", combinedClasses)} />
-    case "list": // Unordered List
+    case "list": // Unordered List - Direct editing of items is complex, typically done via PropertiesPanel
       return (
         <ul style={styles} className={cn("list-disc pl-6 my-2 space-y-1", combinedClasses)}>
           {(component.content.items || ["List item 1"]).map((item: string, index: number) => (
@@ -156,7 +232,7 @@ export function ComponentRenderer({ component }: { component: MarkdownComponent 
                 <input
                   type="checkbox"
                   checked={item.checked}
-                  readOnly
+                  readOnly // Task checking usually via click, not direct text edit of checkbox
                   className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                 />
                 <span className={cn(item.checked && "line-through text-muted-foreground")}>{item.text}</span>
@@ -169,7 +245,14 @@ export function ComponentRenderer({ component }: { component: MarkdownComponent 
       return (
         <blockquote
           style={styles}
-          className={cn("border-l-4 border-primary pl-4 italic text-muted-foreground my-4 py-1", combinedClasses)}
+          className={cn(
+            "border-l-4 border-primary pl-4 italic text-muted-foreground my-4 py-1",
+            combinedClasses,
+            isSelected ? "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1" : "",
+          )}
+          contentEditable={isSelected}
+          suppressContentEditableWarning={true}
+          onBlur={handleTextBlur}
         >
           {component.content.text || "This is a quote."}
         </blockquote>
@@ -186,16 +269,22 @@ export function ComponentRenderer({ component }: { component: MarkdownComponent 
         <Alert style={styles} className={cn("my-4", combinedClasses)} variant={alertType as any}>
           {alertIcons[alertType as keyof typeof alertIcons]}
           <AlertTitle className="font-semibold capitalize">{alertType}</AlertTitle>
-          <AlertDescription>{component.content.text || "Alert message."}</AlertDescription>
+          <AlertDescription
+            className={cn(isSelected ? "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1" : "")}
+            contentEditable={isSelected}
+            suppressContentEditableWarning={true}
+            onBlur={handleTextBlur}
+          >
+            {component.content.text || "Alert message."}
+          </AlertDescription>
         </Alert>
       )
     case "spacer":
       return <div style={{ height: component.content.height || "20px", ...styles }} className={combinedClasses}></div>
-    case "columns": // Simple 2-column renderer
+    case "columns": // Direct editing of column content is complex.
       return (
         <div style={styles} className={cn("grid md:grid-cols-2 gap-4 my-4", combinedClasses)}>
           <div className="border border-dashed border-muted-foreground/30 p-3 rounded-md prose dark:prose-invert max-w-none">
-            {/* For simplicity, render as plain text. For full MD, use a Markdown renderer here */}
             <p>{component.content.column1Text || "Column 1 content..."}</p>
           </div>
           <div className="border border-dashed border-muted-foreground/30 p-3 rounded-md prose dark:prose-invert max-w-none">
@@ -203,7 +292,7 @@ export function ComponentRenderer({ component }: { component: MarkdownComponent 
           </div>
         </div>
       )
-    case "mermaid":
+    case "mermaid": // Mermaid code edited in PropertiesPanel
       return (
         <div style={styles} className={cn("my-4 p-4 border rounded-md bg-muted/50 text-center", combinedClasses)}>
           <pre className="mermaid bg-transparent text-left text-sm overflow-x-auto">
@@ -212,7 +301,7 @@ export function ComponentRenderer({ component }: { component: MarkdownComponent 
           <p className="text-xs text-muted-foreground mt-2">Mermaid Diagram (renders in preview/HTML)</p>
         </div>
       )
-    case "table":
+    case "table": // Table content typically edited via PropertiesPanel or a more specialized UI
       return (
         <Table style={styles} className={cn("my-4", combinedClasses)}>
           <TableHeader>
@@ -232,6 +321,19 @@ export function ComponentRenderer({ component }: { component: MarkdownComponent 
             ))}
           </TableBody>
         </Table>
+      )
+    case "htmlBlock": // HTML block content is raw HTML, edited in PropertiesPanel
+      const htmlContent = component.content as HtmlBlockContent
+      return (
+        <div
+          style={styles}
+          className={cn("my-2 p-2 border border-dashed border-sky-500/50 rounded-md bg-sky-500/10", combinedClasses)}
+        >
+          <p className="text-xs font-semibold text-sky-700 dark:text-sky-300 mb-1">
+            HTML Block: {htmlContent.name || "Custom HTML"}
+          </p>
+          <div className="text-sm text-muted-foreground">[HTML content renders in preview]</div>
+        </div>
       )
     default:
       return (

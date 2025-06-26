@@ -14,9 +14,10 @@ import type { MarkdownComponent } from "./types"
 interface SortableItemProps {
   component: MarkdownComponent
   isLast: boolean
+  updateComponentContent: (id: string, contentUpdates: any) => void // Added prop
 }
 
-function SortableComponentItem({ component, isLast }: SortableItemProps) {
+function SortableComponentItem({ component, isLast, updateComponentContent }: SortableItemProps) {
   const { deleteComponent, selectComponent, state } = useEditor()
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: component.id })
 
@@ -39,11 +40,21 @@ function SortableComponentItem({ component, isLast }: SortableItemProps) {
       onMouseEnter={() => setShowInserter(true)}
       onMouseLeave={() => setShowInserter(false)}
       onClick={(e) => {
-        e.stopPropagation() // Prevent canvas click if component is clicked
-        selectComponent(component.id)
+        // If the click target is contentEditable, don't immediately re-select.
+        // Let the contentEditable element handle its focus.
+        // However, if it's not already selected, select it.
+        if (!(e.target instanceof HTMLElement && e.target.isContentEditable) || !isSelected) {
+          e.stopPropagation() // Prevent canvas click if component is clicked
+          selectComponent(component.id)
+        }
       }}
       tabIndex={0} // Make it focusable
-      onFocus={() => selectComponent(component.id)}
+      onFocus={() => {
+        // Only select if not already selected to avoid issues with contentEditable focus
+        if (!isSelected) {
+          selectComponent(component.id)
+        }
+      }}
     >
       {/* Component Content Wrapper for selection outline */}
       <div
@@ -85,7 +96,11 @@ function SortableComponentItem({ component, isLast }: SortableItemProps) {
         <div className="min-h-[40px]">
           {" "}
           {/* Ensure some min height for empty components */}
-          <ComponentRenderer component={component} />
+          <ComponentRenderer
+            component={component}
+            isSelected={isSelected}
+            updateComponentContent={updateComponentContent}
+          />
         </div>
       </div>
 
@@ -96,11 +111,12 @@ function SortableComponentItem({ component, isLast }: SortableItemProps) {
 }
 
 export function EditorCanvas() {
-  const { state, selectComponent } = useEditor()
+  const { state, selectComponent, updateComponentContent } = useEditor() // Added updateComponentContent
 
   const handleCanvasClick = (e: React.MouseEvent) => {
     // Deselect if clicking on the canvas background
-    if (e.target === e.currentTarget) {
+    // And if the click target is not contentEditable
+    if (e.target === e.currentTarget && !(e.target instanceof HTMLElement && e.target.isContentEditable)) {
       selectComponent(null)
     }
   }
@@ -132,6 +148,7 @@ export function EditorCanvas() {
             key={component.id}
             component={component}
             isLast={index === state.components.length - 1}
+            updateComponentContent={updateComponentContent} // Pass down
           />
         ))}
       {/* Fallback inserter at the very end if no components or last one isn't hovered */}
