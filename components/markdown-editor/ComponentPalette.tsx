@@ -52,7 +52,7 @@ const sampleTailGridsSnippets = {
   navbar: `<nav class="bg-white shadow"><div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><div class="flex h-16 justify-between"><div class="flex"><div class="flex flex-shrink-0 items-center"><img class="h-8 w-auto" src="/placeholder.svg?height=32&width=32" alt="Logo"></div><div class="hidden sm:ml-6 sm:flex sm:space-x-8"><a href="#" class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Home</a><a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">About</a><a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Services</a><a href="#" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Contact</a></div></div></div></div></nav>`,
 
   // Marketing
-  heroSection: `<div class="bg-white"><div class="mx-auto max-w-7xl py-24 sm:px-6 sm:py-32 lg:px-8"><div class="relative isolate overflow-hidden bg-gray-900 px-6 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-24 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0"><div class="mx-auto max-w-md text-center lg:mx-0 lg:flex-auto lg:py-32 lg:text-left"><h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Boost your productivity.<br>Start using our app today.</h2><p class="mt-6 text-lg leading-8 text-gray-300">Ac euismod vel sit maecenas id pellentesque eu sed consectetur. Malesuada adipiscing sagittis vel nulla.</p><div class="mt-10 flex items-center justify-center gap-x-6 lg:justify-start"><a href="#" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Get started</a><a href="#" class="text-sm font-semibold leading-6 text-white">Learn more <span aria-hidden="true">→</span></a></div></div></div></div></div>`,
+  heroSection: `<div class="bg-white"><div class="mx-auto max-w-7xl py-24 sm:px-6 sm:py-32 lg:px-8"><div class="relative isolate overflow-hidden bg-gray-900 px-6 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-24 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0"><div class="mx-auto max-w-md text-center lg:mx-0 lg:flex-auto lg:py-32 lg:text-left"><h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Boost your productivity.<br>Start using our app today.</h2><p class="mt-6 text-lg leading-8 text-gray-300">Ac euismod vel sit maecenas id pellentesque eu sed consectetur. Malesuada adipiscing sagittis vel nulla.</p><div class="mt-10 flex items-center justify-center gap-x-6 lg:justify-start"><a href="#" class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Get started</a><a href="#" class="text-sm font-semibold leading-6 text-white">Learn more →</a></div></div></div></div></div>`,
 
   // E-commerce
   productCard: `<div class="group relative"><div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-gray-200 lg:aspect-none group-hover:opacity-75 lg:h-80"><img src="/placeholder.svg?height=320&width=320" alt="Product image" class="h-full w-full object-cover object-center lg:h-full lg:w-full"></div><div class="mt-4 flex justify-between"><div><h3 class="text-sm text-gray-700"><a href="#"><span aria-hidden="true" class="absolute inset-0"></span>Product Name</a></h3><p class="mt-1 text-sm text-gray-500">Color, Size</p></div><p class="text-sm font-medium text-gray-900">$99</p></div></div>`,
@@ -414,7 +414,8 @@ export function ComponentPalette() {
 
             return (
               <Collapsible key={category.name} open={isExpanded} onOpenChange={() => toggleCategory(category.name)}>
-                <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg p-3 text-left hover:bg-muted/70 transition-colors bg-sky-30000400                  <div className="flex items-center space-x-2">
+                <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg p-3 text-left hover:bg-muted/70 transition-colors bg-sky-300">
+                  <div className="flex items-center space-x-2">
                     <IconComponent className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">{category.name}</span>
                     <Badge variant="secondary" className="text-xs">
@@ -441,3 +442,5 @@ export function ComponentPalette() {
     </div>
   )
 }
+
+// Ensure consumers can always import this;
