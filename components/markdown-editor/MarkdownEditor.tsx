@@ -80,10 +80,30 @@ export function MarkdownEditor({ onToggleFileManager, showFileManager }: Markdow
         content: newComponentContent,
       }
 
-      // Always add to the end of the list for chronological order when dragging from palette
-      const targetIndex = state.components.length
+      let targetIndex = state.components.length // Default to end of list
+
+      if (over) {
+        const overId = over.id as string
+        // Check if 'over' is one of the sortable components
+        const overComponentIndex = state.components.findIndex((c) => c.id === overId)
+
+        if (overComponentIndex !== -1) {
+          // Insert after the component dropped onto.
+          // For more precise control (e.g., before/after based on drop position relative to midpoint of 'over' item),
+          // you would typically use 'over.rect' and pointer coordinates from the event.
+          // This simplified version inserts after the 'over' component.
+          targetIndex = overComponentIndex + 1
+        }
+        // If 'over' is not a component ID (e.g., if it were a dedicated drop zone ID for the canvas itself),
+        // that could be handled here. With the current setup (closestCenter and SortableContext items),
+        // 'over' will likely be a component ID if dropped on or near one.
+      }
+      // If 'over' is null (dropped in an empty area not covered by a sortable item) or
+      // if 'over.id' doesn't correspond to an existing component,
+      // the component will be added at the end (initial value of targetIndex).
+
       addComponent(newComponentBase, false, targetIndex)
-      // addComponent in context handles selection of the new component.
+      // The addComponent function in EditorContext is expected to handle selection of the new component.
       return
     }
 
