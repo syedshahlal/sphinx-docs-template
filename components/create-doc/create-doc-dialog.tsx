@@ -15,13 +15,14 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
-import { Loader2, Github, FileText, Eye, Settings } from "lucide-react"
+import { Loader2, Github, FileText, Eye, Settings } from 'lucide-react'
 import { fetchBranches, publishToGitHub } from "@/lib/github" // Assuming this is correctly set up
 import { PreviewPanel } from "../markdown-editor/PreviewPanel" // We'll adapt this
 import { useTheme } from "next-themes"
 
 // BlockNote imports
-import { BlockNoteView, useBlockNote } from "@blocknote/react"
+import { useBlockNote } from "@blocknote/react"
+import BlockNoteView from "@blocknote/react"
 import type { BlockNoteEditor, PartialBlock } from "@blocknote/core"
 import "@blocknote/core/style.css" // Basic BlockNote styling
 import "@/styles/blocknote-custom.css" // Your custom styles for BlockNote

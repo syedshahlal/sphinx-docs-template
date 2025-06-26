@@ -3,7 +3,8 @@
 import { Banner } from "@/components/banner"
 import { Header } from "@/components/header"
 import { useTheme } from "next-themes"
-import { BlockNoteView, useBlockNote } from "@blocknote/react"
+import { useBlockNote } from "@blocknote/react"
+import BlockNoteView from "@blocknote/react"
 import "@/styles/blocknote-custom.css"
 
 export default function MarkdownEditorPage() {
