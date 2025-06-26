@@ -1,11 +1,14 @@
 "use client"
 import { useState } from "react"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Settings, Palette, Layout, Type, ChevronDown, ChevronRight } from "lucide-react"
+import { Settings, Palette, Layout, Type, ChevronDown, ChevronRight, Sliders, Save, Check } from "lucide-react"
 import { useEditor } from "./EditorContext"
 import type { MarkdownComponent, ComponentStyle } from "./types"
 
@@ -632,4 +635,57 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
             </div>
             <div>
               <h2 className="text-lg font-bold text-foreground">Properties</h2>
-              <p className="text-sm text\
+              <p className="text-sm text-muted-foreground">No component selected</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="h-full flex flex-col bg-card">
+      <div className="p-4 border-b border-border bg-muted/50">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-primary">
+            <Settings className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Properties</h2>
+            <p className="text-sm text-muted-foreground">Edit component properties</p>
+          </div>
+        </div>
+      </div>
+      <ScrollArea className="flex-1 p-4">
+        <Tabs defaultValue="content" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="content">Content</TabsTrigger>
+            <TabsTrigger value="style">Style</TabsTrigger>
+          </TabsList>
+          <TabsContent value="content">{renderContentEditor()}</TabsContent>
+          <TabsContent value="style">{renderStyleEditor()}</TabsContent>
+        </Tabs>
+      </ScrollArea>
+      <div className="p-4 border-t border-border bg-muted/50">
+        <Button onClick={handleSave} className="w-full">
+          {saveStatus === "saving" ? (
+            <span className="flex items-center justify-center gap-2">
+              Saving...
+              <Sliders className="w-4 h-4 animate-spin" />
+            </span>
+          ) : saveStatus === "saved" ? (
+            <span className="flex items-center justify-center gap-2">
+              Saved
+              <Check className="w-4 h-4" />
+            </span>
+          ) : (
+            <span className="flex items-center justify-center gap-2">
+              Save
+              <Save className="w-4 h-4" />
+            </span>
+          )}
+        </Button>
+      </div>
+    </div>
+  )
+}
