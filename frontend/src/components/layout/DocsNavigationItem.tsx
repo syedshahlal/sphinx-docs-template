@@ -3,97 +3,91 @@
 import type React from "react"
 
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
-import { ChevronRight, ChevronDown } from "lucide-react"
-import type { NavItem } from "@/lib/docs-navigation"
+import { ChevronRight, Folder, FileText } from "lucide-react"
+import type { NavItem } from "@/lib/docs-navigation" // Ensure this path is correct
 
 interface DocsNavigationItemProps {
   item: NavItem
   level: number
+  isInitiallyOpen?: boolean // Added to control open state from search
 }
 
-export const DocsNavigationItem: React.FC<DocsNavigationItemProps> = ({ item, level }) => {
+export const DocsNavigationItem: React.FC<DocsNavigationItemProps> = ({ item, level, isInitiallyOpen = false }) => {
   const pathname = usePathname()
-  const router = useRouter() // For programmatic navigation if needed
+  const isActive = pathname === item.path || (item.path !== `/docs/${item.version}` && pathname.startsWith(item.path)) // More robust active check
 
-  // An item is active if its path matches the current pathname.
-  // For folders with an index page, item.path will be /docs/version/folder-name.
-  // For pages, item.path will be /docs/version/folder-name/page-name.
-  const isActive = pathname === item.path || pathname === `${item.path}/`
-
-  // A parent is active if not directly active, has children, and current path starts with item's path.
-  const isParentActive = !isActive && item.children && item.children.length > 0 && pathname.startsWith(item.path + "/")
-
-  const [isExpanded, setIsExpanded] = useState(isActive || isParentActive)
+  // Determine if the item should be open by default:
+  // 1. If it's an ancestor of the active path.
+  // 2. If isInitiallyOpen is true (e.g., due to search).
+  const isAncestorOfActivePath =
+    item.children && item.children.length > 0 && pathname.startsWith(item.path + (item.path.endsWith("/") ? "" : "/"))
+  const [isOpen, setIsOpen] = useState(isInitiallyOpen || isAncestorOfActivePath || isActive)
 
   useEffect(() => {
-    // Auto-expand if navigating to a child page
-    if (isParentActive) {
-      setIsExpanded(true)
+    // If the item becomes an ancestor of the active path, open it.
+    // Also respect isInitiallyOpen for search.
+    const shouldBeOpen =
+      isInitiallyOpen || isAncestorOfActivePath || (isActive && item.children && item.children.length > 0)
+    if (shouldBeOpen) {
+      setIsOpen(true)
     }
-  }, [pathname, item.path, isParentActive])
+  }, [pathname, item.path, isActive, isAncestorOfActivePath, isInitiallyOpen, item.children])
 
   const hasChildren = item.children && item.children.length > 0
 
-  // Determine the href for the link
-  // If it's a page (isPage=true), link to item.path.
-  // If it's a folder without its own page (isPage=false) but has children, link to the first child.
-  // If it's a folder without its own page and no children (shouldn't happen with current logic), link to item.path (might 404).
-  const linkHref = item.isPage ? item.path : hasChildren ? item.children![0].path : item.path
-
-  const handleItemClick = (e: React.MouseEvent) => {
-    if (hasChildren) {
-      e.preventDefault() // Prevent Link's default navigation for folders
-      setIsExpanded(!isExpanded)
-      // If it's a folder that doesn't have its own page (e.g. no index.md)
-      // and we are not already on a child of this folder, navigate to the first child.
-      if (!item.isPage && !pathname.startsWith(item.path + "/")) {
-        router.push(linkHref) // Navigate to first child or its defined path
-      } else if (item.isPage && pathname !== item.path) {
-        // If it IS a page (e.g. folder with index.md) and we are not on it, navigate to it.
-        router.push(item.path)
-      }
-    }
-    // If it's a simple page (not a folder), Link component handles navigation.
+  const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault() // Prevent navigation if it's a button on a link
+    e.stopPropagation()
+    setIsOpen(!isOpen)
   }
 
-  const itemContent = (
-    <>
-      <span className="flex-1 truncate" title={item.title}>
-        {item.title}
-      </span>
-      {hasChildren &&
-        (isExpanded ? (
-          <ChevronDown size={16} className="ml-auto opacity-70 flex-shrink-0" />
-        ) : (
-          <ChevronRight size={16} className="ml-auto opacity-70 flex-shrink-0" />
-        ))}
-    </>
-  )
+  const commonLinkClasses = `
+    flex items-center justify-between w-full px-2.5 py-1.5 text-sm rounded-md
+    transition-colors duration-150 ease-in-out group
+  `
+  const activeClasses = "bg-primary/10 text-primary dark:bg-primary/20 dark:text-blue-300 font-medium"
+  const inactiveClasses = "text-muted-foreground hover:text-foreground hover:bg-muted dark:hover:bg-gray-800"
+
+  const IconComponent = hasChildren ? Folder : FileText
 
   return (
-    <div className="text-sm">
-      <Link
-        href={linkHref}
-        onClick={handleItemClick}
-        className={`
-          flex items-center w-full py-1.5 rounded-md transition-colors duration-150 group
-          hover:bg-gray-100 dark:hover:bg-gray-700/50
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400
-          ${isActive ? "font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30" : "text-gray-600 dark:text-gray-300"}
-          ${isParentActive ? "font-medium text-blue-600 dark:text-blue-400" : ""}
-        `}
-        style={{ paddingLeft: `${level * 16 + 12}px`, paddingRight: "12px" }}
-        aria-current={isActive ? "page" : undefined}
-      >
-        {itemContent}
+    <div style={{ paddingLeft: `${level * 0.75}rem` }}>
+      {" "}
+      {/* Indentation based on level */}
+      <Link href={item.path} passHref legacyBehavior>
+        <a
+          className={`${commonLinkClasses} ${isActive ? activeClasses : inactiveClasses}`}
+          onClick={() => {
+            if (hasChildren && !isActive) setIsOpen(true)
+          }} // Open on click if it has children and isn't already active
+          aria-current={isActive ? "page" : undefined}
+        >
+          <span className="flex items-center truncate">
+            <IconComponent
+              className={`mr-2.5 h-4 w-4 flex-shrink-0 ${isActive ? "text-primary dark:text-blue-400" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-400"}`}
+            />
+            <span className="truncate" title={item.title}>
+              {item.title}
+            </span>
+          </span>
+          {hasChildren && (
+            <button
+              onClick={handleToggle}
+              className={`p-0.5 rounded-md hover:bg-muted-foreground/10 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+              aria-expanded={isOpen}
+              aria-label={isOpen ? `Collapse ${item.title}` : `Expand ${item.title}`}
+            >
+              <ChevronRight size={16} />
+            </button>
+          )}
+        </a>
       </Link>
-
-      {hasChildren && isExpanded && (
-        <div className="mt-1">
-          {item.children!.map((child) => (
-            <DocsNavigationItem key={child.path} item={child} level={level + 1} />
+      {hasChildren && isOpen && (
+        <div className="mt-1 space-y-0.5">
+          {item.children.map((child) => (
+            <DocsNavigationItem key={child.path} item={child} level={level + 1} isInitiallyOpen={isInitiallyOpen} />
           ))}
         </div>
       )}
