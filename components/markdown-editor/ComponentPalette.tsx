@@ -1,114 +1,65 @@
-export const componentCategories = {
-  basic: {
-    label: "Basic",
+// ----- Component catalogue -----
+export const componentCategories = [
+  {
+    name: "Basic",
     components: [
-      {
-        name: "Heading",
-        type: "heading",
-        icon: "Heading",
-        description: "A heading for your content.",
-        level: 1,
-      },
-      {
-        name: "Paragraph",
-        type: "paragraph",
-        icon: "Paragraph",
-        description: "A paragraph of text.",
-      },
-      {
-        name: "Image",
-        type: "image",
-        icon: "Image",
-        description: "An image.",
-        src: "https://via.placeholder.com/150",
-        alt: "Placeholder Image",
-      },
-      {
-        name: "List",
-        type: "list",
-        icon: "List",
-        description: "An unordered list.",
-        items: ["Item 1", "Item 2", "Item 3"],
-      },
-      {
-        name: "Ordered List",
-        type: "orderedList",
-        icon: "OrderedList",
-        description: "An ordered list.",
-        items: ["Item 1", "Item 2", "Item 3"],
-      },
-      {
-        name: "Link",
-        type: "link",
-        icon: "Link",
-        description: "A hyperlink.",
-        href: "https://example.com",
-        text: "Example Link",
-      },
+      { type: "heading", icon: "Heading", label: "Heading", color: "text-blue-500" },
+      { type: "paragraph", icon: "Paragraph", label: "Paragraph", color: "text-gray-500" },
+      { type: "image", icon: "Image", label: "Image", color: "text-green-500" },
+      { type: "list", icon: "List", label: "List", color: "text-yellow-500" },
+      { type: "orderedList", icon: "OrderedList", label: "Ordered List", color: "text-yellow-600" },
     ],
   },
-  formatting: {
-    label: "Formatting",
+  {
+    name: "Formatting",
     components: [
-      {
-        name: "Bold",
-        type: "bold",
-        icon: "Bold",
-        description: "Bold text.",
-        content: "Bold Text",
-      },
-      {
-        name: "Italic",
-        type: "italic",
-        icon: "Italic",
-        description: "Italic text.",
-        content: "Italic Text",
-      },
-      {
-        name: "Code",
-        type: "code",
-        icon: "Code",
-        description: "Inline code.",
-        content: "Inline Code",
-      },
-      {
-        name: "Code Block",
-        type: "codeBlock",
-        icon: "CodeBlock",
-        description: "A block of code.",
-        language: "javascript",
-        content: "// Code Block",
-      },
-      {
-        name: "Quote",
-        type: "quote",
-        icon: "Quote",
-        description: "A quotation.",
-        content: "A wise quote.",
-      },
-      {
-        name: "Horizontal Rule",
-        type: "horizontalRule",
-        icon: "HorizontalRule",
-        description: "A horizontal line.",
-      },
+      { type: "bold", icon: "Bold", label: "Bold", color: "text-purple-500" },
+      { type: "italic", icon: "Italic", label: "Italic", color: "text-purple-400" },
+      { type: "code", icon: "Code", label: "Inline Code", color: "text-purple-600" },
+      { type: "codeBlock", icon: "CodeBlock", label: "Code Block", color: "text-purple-700" },
+      { type: "quote", icon: "Quote", label: "Quote", color: "text-cyan-500" },
+      { type: "horizontalRule", icon: "HorizontalRule", label: "Horizontal Rule", color: "text-gray-400" },
     ],
   },
-  table: {
-    label: "Table",
-    components: [
-      {
-        name: "Table",
-        type: "table",
-        icon: "Table",
-        description: "A table.",
-        rows: 2,
-        cols: 3,
-        content: [
-          ["Header 1", "Header 2", "Header 3"],
-          ["Cell 1", "Cell 2", "Cell 3"],
+  {
+    name: "Table",
+    components: [{ type: "table", icon: "Table", label: "Table", color: "text-red-600" }],
+  },
+]
+
+// ----- Default content helper -----
+export function getDefaultContent(type: string) {
+  switch (type) {
+    case "heading":
+      return { level: 1, text: "New Heading" }
+    case "paragraph":
+      return { text: "Start writing here…" }
+    case "image":
+      return { src: "/placeholder.svg?height=200&width=400", alt: "Placeholder image" }
+    case "list":
+      return { items: ["Item 1", "Item 2"] }
+    case "orderedList":
+      return { items: ["Item 1", "Item 2"], start: 1 }
+    case "bold":
+    case "italic":
+      return { text: "Sample text" }
+    case "code":
+      return { code: "`code`" }
+    case "codeBlock":
+      return { language: "javascript", code: "// code block" }
+    case "quote":
+      return { text: "A wise quote." }
+    case "horizontalRule":
+      return {}
+    case "table":
+      return {
+        headers: ["Header 1", "Header 2"],
+        rows: [
+          ["Row 1 Cell 1", "Row 1 Cell 2"],
+          ["Row 2 Cell 1", "Row 2 Cell 2"],
         ],
-      },
-    ],
-  },
-} as const
+      }
+    default:
+      return {}
+  }
+}
