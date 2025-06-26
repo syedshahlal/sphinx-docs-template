@@ -1,37 +1,45 @@
 "use client"
 
-import { useState } from "react"
-import { Header } from "@/components/header"
 import { Banner } from "@/components/banner"
-import { MarkdownEditor } from "@/components/markdown-editor/MarkdownEditor"
-import { FileManager } from "@/components/markdown-editor/FileManager"
-import { EditorProvider } from "@/components/markdown-editor/EditorContext"
+import { Header } from "@/components/header"
+import { useTheme } from "next-themes"
+import { BlockNoteView, useBlockNote } from "@blocknote/react"
+import "@blocknote/core/style.css"
+import "@/styles/blocknote-custom.css"
 
 export default function MarkdownEditorPage() {
-  const [showFileManager, setShowFileManager] = useState(false)
+  const { theme } = useTheme()
+
+  // Create a BlockNote editor instance.
+  const editor = useBlockNote({
+    initialContent: [
+      {
+        type: "heading",
+        props: { level: 1 },
+        content: "Untitled Document",
+      },
+      {
+        type: "paragraph",
+        content: "Start writing here…",
+      },
+    ],
+  })
 
   return (
-    <div className="min-h-screen w-full bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <Banner />
       <Header />
-      <EditorProvider>
-        <div className="flex h-[calc(100vh-120px)]">
-          {/* File Manager Sidebar */}
-          {showFileManager && (
-            <div className="w-80 border-r border-border bg-card">
-              <FileManager onClose={() => setShowFileManager(false)} />
-            </div>
-          )}
 
-          {/* Main Editor */}
-          <div className="flex-1">
-            <MarkdownEditor
-              onToggleFileManager={() => setShowFileManager(!showFileManager)}
-              showFileManager={showFileManager}
-            />
-          </div>
+      {/* Editor area */}
+      <main className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-5xl border rounded-md shadow-sm dark:border-neutral-700">
+          <BlockNoteView
+            editor={editor}
+            theme={theme === "dark" ? "dark" : "light"}
+            className="min-h-[70vh] max-h-[80vh] overflow-y-auto"
+          />
         </div>
-      </EditorProvider>
+      </main>
     </div>
   )
 }
