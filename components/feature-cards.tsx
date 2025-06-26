@@ -5,8 +5,8 @@ import { useState } from "react"
 import { ArrowRight, BookOpen, ExternalLink, Users, Code, Layers, GitBranch, Server } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { docsConfig, getFullDocUrl } from "@/lib/docs-config"
-import { handleDocClick, getDocStatus } from "@/lib/docs-utils"
+import { docsConfig } from "@/lib/docs-config"
+import { getDocStatus } from "@/lib/docs-utils"
 
 type Feature = {
   icon: React.ElementType
@@ -40,6 +40,9 @@ const features: Feature[] = docsConfig.sections.map((section, index) => {
     "text-indigo-600 dark:text-indigo-400",
   ]
 
+  // Map to markdown pages instead of external docs
+  const markdownPath = section.id === "platform-overview" ? "/platform-introduction" : `/${section.id}`
+
   return {
     icon: icons[index % icons.length],
     title: section.title,
@@ -48,7 +51,7 @@ const features: Feature[] = docsConfig.sections.map((section, index) => {
     gradient: section.gradient,
     details: section.topics,
     sectionId: section.id,
-    href: getFullDocUrl(section.path),
+    href: markdownPath,
   }
 })
 
@@ -64,11 +67,13 @@ export function FeatureCards() {
       return
     }
 
-    await handleDocClick(sectionId, {
-      openInNewTab: true,
-      trackClick: true,
-      fallbackUrl: href,
-    })
+    // Navigate to markdown page instead of external docs
+    if (sectionId === "platform-overview") {
+      window.location.href = "/platform-introduction"
+    } else {
+      // For other sections, you can add more markdown pages
+      window.location.href = `/${sectionId}`
+    }
   }
 
   return (
@@ -227,9 +232,10 @@ export function FeatureCards() {
           <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-full border border-primary/20">
             <span className="text-sm font-medium text-foreground">Need help getting started?</span>
             <button
-              onClick={(e) =>
-                handleCardClick("getting-started", "/docs/_build/html/v5.7/getting-started/quickstart.html", e)
-              }
+              onClick={(e) => {
+                e.preventDefault()
+                window.location.href = "/getting-started"
+              }}
               className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
             >
               Quick Start Guide <ArrowRight className="w-3 h-3" />
