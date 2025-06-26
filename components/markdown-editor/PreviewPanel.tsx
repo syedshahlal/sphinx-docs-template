@@ -5,9 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Copy, Download, Eye } from "lucide-react"
-import type { ComponentItem } from "./types"
+import type { MarkdownComponent } from "./types"
 import { Highlight } from "prism-react-renderer"
-import { generateHtml, generateMarkdown } from "./PreviewPanel"
+import { generateHtml } from "./PreviewPanel"
 
 const draculaTheme = {
   plain: { backgroundColor: "transparent", color: "#f8f8f2" },
@@ -48,11 +48,11 @@ function CodeHighlighter({
 }
 
 interface PreviewPanelProps {
-  components: ComponentItem[]
+  blocks: MarkdownComponent[]
   className?: string
 }
 
-export default function PreviewPanel({ components, className }: PreviewPanelProps) {
+export default function PreviewPanel({ blocks, className }: PreviewPanelProps) {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
   }
@@ -69,8 +69,26 @@ export default function PreviewPanel({ components, className }: PreviewPanelProp
     URL.revokeObjectURL(url)
   }
 
-  const markdown = generateMarkdown(components)
-  const html = generateHtml(components)
+  const markdown = blocks
+    .map((block) => {
+      switch (block.type) {
+        case "heading":
+          return `# ${block.content.text}\n\n`
+        case "paragraph":
+          return `${block.content.text}\n\n`
+        case "image":
+          return `![${block.content.alt}](${block.content.src})\n\n`
+        case "code":
+          return `\`\`\`${block.content.language}\n${block.content.code}\n\`\`\`\n\n`
+        case "htmlBlock":
+          return `${block.content.html}\n\n`
+        default:
+          return ""
+      }
+    })
+    .join("")
+
+  const html = React.useMemo(() => generateHtml(blocks), [blocks])
 
   return (
     <div className={`h-full bg-white ${className}`}>
@@ -92,117 +110,41 @@ export default function PreviewPanel({ components, className }: PreviewPanelProp
         <TabsContent value="preview" className="flex-1 m-0">
           <ScrollArea className="h-full">
             <div className="p-6 prose prose-slate max-w-none">
-              {components.length === 0 ? (
+              {blocks.length === 0 ? (
                 <div className="text-center text-slate-500 py-12">
                   <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No components added yet</p>
                   <p className="text-sm">Drag components from the palette to see them here</p>
                 </div>
               ) : (
-                components.map((component, index) => (
-                  <div key={`${component.id}-${index}`} className="mb-6">
-                    {component.type === "heading" &&
+                blocks.map((block, index) => (
+                  <div key={`${block.id}-${index}`} className="mb-6">
+                    {block.type === "heading" &&
                       React.createElement(
-                        `h${component.content.level || 1}`,
+                        `h${block.content.level || 1}`,
                         { className: "text-slate-900" },
-                        component.content.text,
+                        block.content.text,
                       )}
-                    {component.type === "paragraph" && <p className="text-slate-700">{component.content.text}</p>}
-                    {component.type === "image" && (
+                    {block.type === "paragraph" && <p className="text-slate-700">{block.content.text}</p>}
+                    {block.type === "image" && (
                       <figure>
                         <img
-                          src={component.content.url || "/placeholder.svg"}
-                          alt={component.content.alt}
+                          src={block.content.src || "/placeholder.svg"}
+                          alt={block.content.alt}
                           className="rounded-lg shadow-sm"
                         />
-                        {component.content.caption && (
+                        {block.content.caption && (
                           <figcaption className="text-sm text-slate-600 mt-2 text-center">
-                            {component.content.caption}
+                            {block.content.caption}
                           </figcaption>
                         )}
                       </figure>
                     )}
-                    {component.type === "button" && (
-                      <Button variant={component.content.variant as any} size={component.content.size as any} asChild>
-                        <a href={component.content.link || "#"}>{component.content.text}</a>
-                      </Button>
+                    {block.type === "code" && (
+                      <CodeHighlighter code={block.content.code} language={block.content.language || "text"} />
                     )}
-                    {component.type === "card" && (
-                      <div className="border rounded-lg p-6 bg-white shadow-sm">
-                        {component.content.imageUrl && (
-                          <img
-                            src={component.content.imageUrl || "/placeholder.svg"}
-                            alt="Card image"
-                            className="w-full h-48 object-cover rounded-lg mb-4"
-                          />
-                        )}
-                        <h3 className="text-xl font-semibold mb-2">{component.content.title}</h3>
-                        <p className="text-slate-600">{component.content.description}</p>
-                      </div>
-                    )}
-                    {component.type === "list" &&
-                      (component.content.type === "ordered" ? (
-                        <ol className="list-decimal list-inside">
-                          {component.content.items.map((item, i) => (
-                            <li key={i}>{item}</li>
-                          ))}
-                        </ol>
-                      ) : (
-                        <ul className="list-disc list-inside">
-                          {component.content.items.map((item, i) => (
-                            <li key={i}>{item}</li>
-                          ))}
-                        </ul>
-                      ))}
-                    {component.type === "table" && (
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full border-collapse border border-slate-300">
-                          <thead>
-                            <tr className="bg-slate-50">
-                              {component.content.headers.map((header, i) => (
-                                <th key={i} className="border border-slate-300 px-4 py-2 text-left">
-                                  {header}
-                                </th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {component.content.rows.map((row, i) => (
-                              <tr key={i}>
-                                {row.map((cell, j) => (
-                                  <td key={j} className="border border-slate-300 px-4 py-2">
-                                    {cell}
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                    {component.type === "code" && (
-                      <CodeHighlighter code={component.content.code} language={component.content.language || "text"} />
-                    )}
-                    {component.type === "quote" && (
-                      <blockquote className="border-l-4 border-slate-300 pl-4 italic">
-                        <p>"{component.content.text}"</p>
-                        {component.content.author && (
-                          <cite className="text-slate-600">— {component.content.author}</cite>
-                        )}
-                      </blockquote>
-                    )}
-                    {component.type === "link" && (
-                      <a
-                        href={component.content.url}
-                        target={component.content.external ? "_blank" : undefined}
-                        rel={component.content.external ? "noopener noreferrer" : undefined}
-                        className="text-blue-600 hover:text-blue-800 underline"
-                      >
-                        {component.content.text}
-                      </a>
-                    )}
-                    {component.type === "htmlBlock" && (
-                      <div className="html-block" dangerouslySetInnerHTML={{ __html: component.content.html }} />
+                    {block.type === "htmlBlock" && (
+                      <div className="html-block" dangerouslySetInnerHTML={{ __html: block.content.html }} />
                     )}
                   </div>
                 ))
