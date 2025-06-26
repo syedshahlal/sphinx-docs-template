@@ -215,6 +215,84 @@ const sampleTailGridsSnippets = {
   </div>`,
 }
 
+// ---------------------------------------------------------------------------
+// getDefaultContent ---------------------------------------------------------
+// Returns the initial `content` object for a new component placed on the canvas
+// ---------------------------------------------------------------------------
+import type { MarkdownComponent } from "./types"
+
+export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?: string): any {
+  switch (type) {
+    case "heading":
+      return { text: "New Heading", level: 2 }
+
+    case "paragraph":
+      return { text: "This is a new paragraph. Click to edit this text." }
+
+    case "image":
+      return {
+        src: "/placeholder.svg?height=200&width=400",
+        alt: "Sample image",
+        caption: "",
+      }
+
+    case "button":
+      return { text: "Click me", variant: "default", size: "default", link: "" }
+
+    case "card":
+      return {
+        title: "Card Title",
+        description: "This is a card description that provides more details.",
+        imageUrl: "",
+      }
+
+    case "list":
+      return { items: ["First item", "Second item", "Third item"] }
+
+    case "table":
+      return {
+        headers: ["Header 1", "Header 2", "Header 3"],
+        rows: [
+          ["Row 1 Col 1", "Row 1 Col 2", "Row 1 Col 3"],
+          ["Row 2 Col 1", "Row 2 Col 2", "Row 2 Col 3"],
+        ],
+      }
+
+    case "code":
+      return {
+        code: "// Your code here\nconsole.log('Hello, World!');",
+        language: "javascript",
+      }
+
+    case "blockquote":
+      return { text: "This is a quote that provides emphasis to your content." }
+
+    case "alert":
+      return { type: "info", text: "This is an informational alert." }
+
+    case "mermaid":
+      return {
+        code: "graph TD;\n    A[Start] --> B[Process];\n    B --> C[End];",
+      }
+
+    case "htmlBlock":
+      // If a TailGrids key is provided, use that snippet; otherwise a blank block
+      if (htmlBlockKey && sampleTailGridsSnippets[htmlBlockKey as keyof typeof sampleTailGridsSnippets]) {
+        return {
+          html: sampleTailGridsSnippets[htmlBlockKey as keyof typeof sampleTailGridsSnippets],
+          category: "custom",
+        }
+      }
+      return {
+        html: `<div class="p-4 border-2 border-dashed rounded-md text-center text-gray-500">Custom HTML content</div>`,
+        category: "custom",
+      }
+
+    default:
+      return {}
+  }
+}
+
 export const componentCategories = [
   {
     name: "Basic Components",
