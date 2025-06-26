@@ -8,7 +8,17 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { atomDark } from "react-syntax-highlighter/dist/esm/styles/prism" // Or your preferred theme
 import type { MarkdownComponent, ComponentStyle } from "./types"
 import { cn } from "@/lib/utils"
-import mermaid from "mermaid"
+
+// Lazy mermaid loader to avoid SSR crashes
+let mermaid: any = null
+const loadMermaid = async () => {
+  if (mermaid) return mermaid // already loaded
+  if (typeof window === "undefined") return // SSR — skip
+  const mod = await import("mermaid")
+  mermaid = mod.default ?? mod
+  mermaid.initialize({ startOnLoad: false, theme: "default" })
+  return mermaid
+}
 
 // Helper to convert style object to inline CSS string
 const styleObjectToString = (style?: ComponentStyle): string => {
@@ -149,19 +159,23 @@ const MermaidRenderer = ({ chart }: { chart: string }) => {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (ref.current && chart) {
+    if (!chart) return
+    let isMounted = true
+    loadMermaid().then((m) => {
+      if (!m || !isMounted || !ref.current) return
       try {
-        mermaid.render(`mermaid-graph-${Math.random().toString(36).substring(7)}`, chart, (svgCode) => {
-          if (ref.current) {
-            ref.current.innerHTML = svgCode
-          }
-        })
-      } catch (e) {
-        console.error("Mermaid rendering error:", e)
-        if (ref.current) {
-          ref.current.innerHTML = "Error rendering Mermaid diagram."
-        }
+        m.render(
+          `mermaid-${Math.random().toString(36).slice(2)}`,
+          chart,
+          (svgCode: string) => ref.current && (ref.current.innerHTML = svgCode),
+        )
+      } catch (err) {
+        console.error("Mermaid render error:", err)
+        if (ref.current) ref.current.textContent = "Error rendering diagram."
       }
+    })
+    return () => {
+      isMounted = false
     }
   }, [chart])
 
@@ -176,15 +190,6 @@ export function PreviewPanel() {
   const { state } = useEditor()
   const markdownContent = generateMarkdown(state.components)
   const htmlContent = generateHtml(state.components)
-
-  useEffect(() => {
-    mermaid.initialize({ startOnLoad: false, theme: "default" }) // Or your preferred theme
-    try {
-      mermaid.contentLoaded() // Reruns mermaid on content change for pre.mermaid tags
-    } catch (e) {
-      console.error("Error calling mermaid.contentLoaded(): ", e)
-    }
-  }, [state.components]) // Rerun when components change
 
   return (
     <div className="h-full flex flex-col">
