@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useDebounce } from "use-debounce"
+import { useDebouncedCallback } from "use-debounce"
 
 import { useEditor } from "./EditorContext"
 import { Input } from "@/components/ui/input"
@@ -31,32 +31,51 @@ import {
   PaletteIcon,
 } from "lucide-react"
 
-// Debounced input component
+// ─── Debounced Helpers ──────────────────────────────────────────────────────────
+
 const DebouncedInput: React.FC<React.ComponentProps<typeof Input> & { onDebouncedChange: (value: string) => void }> = ({
   onDebouncedChange,
+  defaultValue = "",
   ...props
 }) => {
-  const [value, setValue] = React.useState(props.defaultValue || props.value || "")
-  const [debouncedValue] = useDebounce(value, 300)
+  const [value, setValue] = React.useState<string>(String(defaultValue))
+  // keep local state in sync when parent changes (e.g. selecting another component)
+  React.useEffect(() => setValue(String(defaultValue)), [defaultValue])
 
-  React.useEffect(() => {
-    onDebouncedChange(debouncedValue)
-  }, [debouncedValue, onDebouncedChange])
+  const debounced = useDebouncedCallback(onDebouncedChange, 300)
 
-  return <Input {...props} value={value} onChange={(e) => setValue(e.target.value)} />
+  return (
+    <Input
+      {...props}
+      value={value}
+      onChange={(e) => {
+        const v = e.target.value
+        setValue(v)
+        debounced(v)
+      }}
+    />
+  )
 }
 
 const DebouncedTextarea: React.FC<
   React.ComponentProps<typeof Textarea> & { onDebouncedChange: (value: string) => void }
-> = ({ onDebouncedChange, ...props }) => {
-  const [value, setValue] = React.useState(props.defaultValue || props.value || "")
-  const [debouncedValue] = useDebounce(value, 300)
+> = ({ onDebouncedChange, defaultValue = "", ...props }) => {
+  const [value, setValue] = React.useState<string>(String(defaultValue))
+  React.useEffect(() => setValue(String(defaultValue)), [defaultValue])
 
-  React.useEffect(() => {
-    onDebouncedChange(debouncedValue)
-  }, [debouncedValue, onDebouncedChange])
+  const debounced = useDebouncedCallback(onDebouncedChange, 300)
 
-  return <Textarea {...props} value={value} onChange={(e) => setValue(e.target.value)} />
+  return (
+    <Textarea
+      {...props}
+      value={value}
+      onChange={(e) => {
+        const v = e.target.value
+        setValue(v)
+        debounced(v)
+      }}
+    />
+  )
 }
 
 // Helper for style updates
