@@ -5,7 +5,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { BankChip } from "@/components/ui/bank-chip"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -105,7 +104,7 @@ export function Header() {
           {/* Logo and Title - Extreme Left */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <BankChip className="h-8 w-8" />
+              <img src="/placeholder.svg?height=32&width=32" alt="Bank of America" className="h-8 w-8" />
               <div className="flex flex-col">
                 <span className="font-bold text-lg text-gray-900 dark:text-white leading-tight">GRA Core Platform</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 leading-tight">Documentation</span>
@@ -200,7 +199,7 @@ export function Header() {
                 aria-label="Notifications"
               >
                 <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-background animate-pulse" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-background animate-pulse border-none border-nonepx] border-none border-none" />
               </Button>
 
               {/* Theme Toggle */}

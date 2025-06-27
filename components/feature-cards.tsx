@@ -1,209 +1,278 @@
 "use client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Zap,
-  Shield,
-  Database,
-  Cloud,
-  Code,
-  BarChart3,
-  ArrowRight,
-  CheckCircle,
-  Layers,
-  Globe,
-  Lock,
-  Cpu,
-} from "lucide-react"
-import Link from "next/link"
 
-export function FeatureCards() {
-  const features = [
-    {
-      title: "High Performance",
-      description: "Built for speed with optimized algorithms and efficient resource management",
-      icon: Zap,
-      category: "Performance",
-      categoryColor: "bg-yellow-500",
-      benefits: ["Sub-millisecond response times", "Auto-scaling capabilities", "Optimized memory usage"],
-      href: "/user-guide/performance",
-      status: "stable",
-    },
-    {
-      title: "Enterprise Security",
-      description: "Bank-grade security with end-to-end encryption and compliance standards",
-      icon: Shield,
-      category: "Security",
-      categoryColor: "bg-red-500",
-      benefits: ["SOC 2 Type II certified", "Zero-trust architecture", "Advanced threat detection"],
-      href: "/user-guide/security",
-      status: "stable",
-    },
-    {
-      title: "Data Management",
-      description: "Comprehensive data handling with real-time processing and analytics",
-      icon: Database,
-      category: "Data",
-      categoryColor: "bg-blue-500",
-      benefits: ["Real-time data sync", "Advanced querying", "Data lake integration"],
-      href: "/user-guide/data-management",
-      status: "stable",
-    },
-    {
-      title: "Cloud Native",
-      description: "Designed for modern cloud infrastructure with Kubernetes support",
-      icon: Cloud,
-      category: "Infrastructure",
-      categoryColor: "bg-green-500",
-      benefits: ["Multi-cloud deployment", "Container orchestration", "Serverless functions"],
-      href: "/user-guide/deployment",
-      status: "stable",
-    },
-    {
-      title: "Developer Experience",
-      description: "Intuitive APIs and comprehensive tooling for rapid development",
-      icon: Code,
-      category: "Developer Tools",
-      categoryColor: "bg-purple-500",
-      benefits: ["Rich SDK libraries", "Interactive documentation", "Debug tools"],
-      href: "/api-reference",
-      status: "stable",
-    },
-    {
-      title: "Analytics & Monitoring",
-      description: "Real-time insights with advanced monitoring and alerting capabilities",
-      icon: BarChart3,
-      category: "Observability",
-      categoryColor: "bg-orange-500",
-      benefits: ["Custom dashboards", "Predictive analytics", "Smart alerting"],
-      href: "/user-guide/monitoring",
-      status: "beta",
-    },
-    {
-      title: "Microservices Architecture",
-      description: "Modular design enabling independent scaling and deployment",
-      icon: Layers,
-      category: "Architecture",
-      categoryColor: "bg-indigo-500",
-      benefits: ["Service mesh integration", "Circuit breakers", "Load balancing"],
-      href: "/user-guide/architecture",
-      status: "stable",
-    },
-    {
-      title: "Global CDN",
-      description: "Worldwide content delivery with edge computing capabilities",
-      icon: Globe,
-      category: "Performance",
-      categoryColor: "bg-cyan-500",
-      benefits: ["150+ edge locations", "Smart routing", "Edge computing"],
-      href: "/user-guide/cdn",
-      status: "stable",
-    },
-    {
-      title: "Advanced Authentication",
-      description: "Multi-factor authentication with SSO and identity management",
-      icon: Lock,
-      category: "Security",
-      categoryColor: "bg-pink-500",
-      benefits: ["OAuth 2.0/OIDC", "SAML integration", "Biometric auth"],
-      href: "/user-guide/authentication",
-      status: "stable",
-    },
-    {
-      title: "AI/ML Integration",
-      description: "Built-in machine learning capabilities with pre-trained models",
-      icon: Cpu,
-      category: "AI/ML",
-      categoryColor: "bg-emerald-500",
-      benefits: ["Pre-trained models", "Custom ML pipelines", "AutoML features"],
-      href: "/user-guide/ai-ml",
-      status: "preview",
-    },
+import type React from "react"
+import { useState } from "react"
+import { ArrowLeft, ArrowRight, BookOpen, Code, ExternalLink, GitBranch, Layers, Server, Users } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { UserGuideSection } from "@/components/user-guide-section"
+import { docsConfig } from "@/lib/docs-config"
+import { getDocStatus } from "@/lib/docs-utils"
+
+type Feature = {
+  icon: React.ElementType
+  title: string
+  description: string
+  color: string
+  gradient: string
+  details: string[]
+  sectionId: string
+  href: string
+}
+
+// Generate features from documentation configuration
+const features: Feature[] = docsConfig.sections.map((section, index) => {
+  const icons = [BookOpen, Users, Code, Layers, GitBranch, Server]
+  const colors = [
+    "text-blue-600 dark:text-blue-400",
+    "text-green-600 dark:text-green-400",
+    "text-purple-600 dark:text-purple-400",
+    "text-orange-600 dark:text-orange-400",
+    "text-teal-600 dark:text-teal-400",
+    "text-indigo-600 dark:text-indigo-400",
   ]
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "stable":
-        return (
-          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-            Stable
-          </Badge>
-        )
-      case "beta":
-        return (
-          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-            Beta
-          </Badge>
-        )
-      case "preview":
-        return (
-          <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-            Preview
-          </Badge>
-        )
-      default:
-        return null
+  // Map to markdown pages instead of external docs
+  const markdownPath = section.id === "platform-overview" ? "/platform-introduction" : `/${section.id}`
+
+  return {
+    icon: icons[index % icons.length],
+    title: section.title,
+    description: section.description,
+    color: colors[index % colors.length],
+    gradient: section.gradient,
+    details: section.topics,
+    sectionId: section.id,
+    href: markdownPath,
+  }
+})
+
+export function FeatureCards() {
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  const [showUserGuide, setShowUserGuide] = useState(false)
+
+  const handleCardClick = async (sectionId: string, href: string, event: React.MouseEvent) => {
+    event.preventDefault()
+
+    if (sectionId === "user-guide") {
+      setShowUserGuide(true)
+      return
+    }
+
+    const status = getDocStatus(sectionId)
+    if (!status.available) {
+      alert(status.message || "Documentation not available")
+      return
+    }
+
+    // Navigate to markdown page instead of external docs
+    if (sectionId === "platform-overview") {
+      window.location.href = "/platform-introduction"
+    } else {
+      // For other sections, you can add more markdown pages
+      window.location.href = `/${sectionId}`
     }
   }
 
-  return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {features.map((feature, index) => (
-        <Card
-          key={feature.title}
-          className="glass-strong hover:shadow-themed-lg transition-all duration-300 interactive animate-fade-in border-border group"
-          style={{ animationDelay: `${index * 0.1}s` }}
+  if (showUserGuide) {
+    return (
+      <div className="relative">
+        <Button
+          variant="ghost"
+          onClick={() => setShowUserGuide(false)}
+          className="absolute top-8 left-4 z-10 flex items-center gap-2 text-primary hover:text-primary/80"
         >
-          <CardHeader className="pb-4">
-            <div className="flex items-start justify-between mb-3">
+          <ArrowLeft className="w-4 h-4" />
+          Back to all sections
+        </Button>
+        <UserGuideSection />
+      </div>
+    )
+  }
+
+  return (
+    <section className="py-16 px-4">
+      <div className="container mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-teal-600 bg-clip-text text-transparent">
+              GRA Core Platform Documentation
+            </span>
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Comprehensive documentation and guides to help you master GRA Core Platform with our enterprise-grade tools
+            and workflows.
+          </p>
+        </div>
+
+        {/* Feature Cards Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {features.map(({ icon: Icon, title, description, color, gradient, details, sectionId, href }, index) => {
+            const status = getDocStatus(sectionId)
+            const isUserGuideCard = sectionId === "user-guide"
+
+            return (
               <div
-                className={`w-12 h-12 rounded-lg ${feature.categoryColor} flex items-center justify-center shadow-themed`}
+                key={title}
+                onClick={(e) => handleCardClick(sectionId, href, e)}
+                className="group block focus:outline-none focus:ring-2 focus:ring-primary rounded-xl cursor-pointer"
               >
-                <feature.icon className="w-6 h-6 text-white" />
+                <Card
+                  tabIndex={-1}
+                  className={`relative border border-border bg-card transition-all duration-500 overflow-hidden h-full
+                    hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-3 cursor-pointer
+                    ${hoveredCard === index ? "scale-[1.02]" : ""}
+                    ${!status.available ? "opacity-75" : ""}`}
+                  onMouseEnter={() => setHoveredCard(index)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                >
+                  {/* Status Badge */}
+                  {status.status !== "available" && (
+                    <div className="absolute top-4 right-4 z-20">
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          status.status === "beta"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                        }`}
+                      >
+                        {status.status === "beta" ? "Beta" : "Coming Soon"}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Animated Background Gradient */}
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+                  />
+
+                  {/* Animated Border */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary via-blue-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 p-[1px] rounded-xl">
+                    <div className="w-full h-full bg-card rounded-xl" />
+                  </div>
+
+                  {/* Shimmer Effect */}
+                  <div
+                    className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform group-hover:translate-x-full"
+                    style={{
+                      background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)",
+                      animation: hoveredCard === index ? "shimmer 1.5s ease-in-out" : "none",
+                    }}
+                  />
+
+                  {/* Header */}
+                  <CardHeader className="relative z-10 pb-4">
+                    <CardTitle className="flex items-center justify-between text-xl group-hover:text-primary transition-colors">
+                      <div className="flex items-center space-x-4">
+                        <div
+                          className={`p-3 rounded-xl bg-gradient-to-br ${gradient} group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                        >
+                          <Icon className={`h-7 w-7 ${color}`} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-bold">{title}</span>
+                        </div>
+                      </div>
+                      <ArrowRight className="h-5 w-5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+                    </CardTitle>
+                  </CardHeader>
+
+                  {/* Content */}
+                  <CardContent className="relative z-10 pt-0">
+                    <p className="leading-relaxed text-muted-foreground mb-6 group-hover:text-foreground transition-colors">
+                      {description}
+                    </p>
+
+                    {/* Feature Details */}
+                    <div
+                      className={`space-y-3 transition-all duration-500 ${
+                        hoveredCard === index ? "max-h-48 opacity-100" : "max-h-0 opacity-0"
+                      } overflow-hidden`}
+                    >
+                      <div className="border-t border-border pt-4">
+                        <h4 className="text-sm font-semibold text-foreground mb-3">Key Topics:</h4>
+                        <div className="grid grid-cols-1 gap-2">
+                          {details.map((detail, i) => (
+                            <div key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
+                              <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${gradient.replace("/20", "")}`} />
+                              <span className="group-hover:text-foreground transition-colors">{detail}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Call to Action */}
+                    <div
+                      className={`mt-6 transition-all duration-500 ${
+                        hoveredCard === index ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="inline-flex items-center gap-2 text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
+                          {isUserGuideCard ? "View Guide" : status.available ? "View Documentation" : status.message}
+                          {status.available && !isUserGuideCard && <ExternalLink className="w-3 h-3" />}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <div className="w-1 h-1 bg-primary rounded-full animate-pulse" />
+                          <div
+                            className="w-1 h-1 bg-primary rounded-full animate-pulse"
+                            style={{ animationDelay: "0.2s" }}
+                          />
+                          <div
+                            className="w-1 h-1 bg-primary rounded-full animate-pulse"
+                            style={{ animationDelay: "0.4s" }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+
+                  {/* Progress Indicator */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted rounded-b-xl overflow-hidden">
+                    <div
+                      className={`h-full bg-gradient-to-r ${gradient.replace("/20", "")} transition-all duration-700 ease-out`}
+                      style={{ width: hoveredCard === index ? "100%" : "0%" }}
+                    />
+                  </div>
+                </Card>
               </div>
-              {getStatusBadge(feature.status)}
-            </div>
+            )
+          })}
+        </div>
 
-            <div className="space-y-2">
-              <Badge variant="outline" className="text-xs font-medium border-border text-muted-foreground">
-                {feature.category}
-              </Badge>
-              <CardTitle className="text-xl text-card-foreground group-hover:text-primary transition-colors">
-                {feature.title}
-              </CardTitle>
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <CardDescription className="text-muted-foreground leading-relaxed">{feature.description}</CardDescription>
-
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium text-card-foreground">Key Benefits:</h4>
-              <ul className="space-y-1">
-                {feature.benefits.map((benefit, idx) => (
-                  <li key={idx} className="flex items-center text-sm text-muted-foreground">
-                    <CheckCircle className="w-3 h-3 text-green-500 mr-2 flex-shrink-0" />
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-between text-primary hover:text-primary hover:bg-primary/10 mt-4"
-              asChild
+        {/* Bottom CTA Section */}
+        <div className="text-center mt-16">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-full border border-primary/20">
+            <span className="text-sm font-medium text-foreground">Need help getting started?</span>
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                window.location.href = "/getting-started"
+              }}
+              className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
             >
-              <Link href={feature.href}>
-                Learn More
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+              Quick Start Guide <ArrowRight className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Keyframe Animation for Shimmer Effect */}
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+      `}</style>
+    </section>
   )
 }
+
+export default FeatureCards

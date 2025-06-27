@@ -1,250 +1,214 @@
 "use client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  BookOpen,
-  ArrowRight,
-  Clock,
-  User,
-  Star,
-  PlayCircle,
-  FileText,
-  Settings,
-  Wrench,
-  Shield,
-  BarChart3,
-  Zap,
-} from "lucide-react"
-import Link from "next/link"
+
+import { useState } from "react"
+import { ChevronRight, BookOpen, Clock, Users, Star, ArrowRight } from "lucide-react"
+
+const guideLinks = [
+  { title: "Installation", href: "#", time: "5 min", difficulty: "Beginner", icon: "🚀" },
+  { title: "Platform Structure and Layout", href: "#", time: "10 min", difficulty: "Beginner", icon: "🏗️" },
+  {
+    title: "Navigation depth and collapsing sidebars",
+    href: "#",
+    time: "8 min",
+    difficulty: "Intermediate",
+    icon: "🧭",
+  },
+  { title: "Page Table of Contents", href: "#", time: "6 min", difficulty: "Beginner", icon: "📑" },
+  { title: "Configuration Options", href: "#", time: "15 min", difficulty: "Intermediate", icon: "⚙️" },
+  { title: "Customization Guide", href: "#", time: "20 min", difficulty: "Advanced", icon: "🎨" },
+  { title: "API Integration", href: "#", time: "25 min", difficulty: "Advanced", icon: "🔌" },
+  { title: "Deployment", href: "#", time: "12 min", difficulty: "Intermediate", icon: "🚀" },
+]
+
+const getDifficultyColor = (difficulty: string) => {
+  switch (difficulty) {
+    case "Beginner":
+      return "text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30"
+    case "Intermediate":
+      return "text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30"
+    case "Advanced":
+      return "text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30"
+    default:
+      return "text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30"
+  }
+}
 
 export function UserGuideSection() {
-  const guides = [
-    {
-      title: "Getting Started",
-      description: "Complete setup guide from installation to your first API call",
-      icon: PlayCircle,
-      difficulty: "Beginner",
-      duration: "15 min",
-      rating: 4.9,
-      topics: ["Installation", "Configuration", "First Steps", "Hello World"],
-      href: "/user-guide/getting-started",
-      color: "bg-green-500",
-    },
-    {
-      title: "API Integration",
-      description: "Learn how to integrate with our REST and GraphQL APIs",
-      icon: FileText,
-      difficulty: "Intermediate",
-      duration: "30 min",
-      rating: 4.8,
-      topics: ["REST API", "GraphQL", "Authentication", "Rate Limiting"],
-      href: "/user-guide/api-integration",
-      color: "bg-blue-500",
-    },
-    {
-      title: "Configuration Guide",
-      description: "Advanced configuration options and environment setup",
-      icon: Settings,
-      difficulty: "Intermediate",
-      duration: "25 min",
-      rating: 4.7,
-      topics: ["Environment Variables", "Config Files", "Secrets", "Validation"],
-      href: "/user-guide/configuration",
-      color: "bg-purple-500",
-    },
-    {
-      title: "Development Tools",
-      description: "CLI tools, debugging, and development best practices",
-      icon: Wrench,
-      difficulty: "Intermediate",
-      duration: "20 min",
-      rating: 4.8,
-      topics: ["CLI Tools", "Debugging", "Testing", "Local Development"],
-      href: "/user-guide/development-tools",
-      color: "bg-orange-500",
-    },
-    {
-      title: "Security Best Practices",
-      description: "Implement security measures and compliance requirements",
-      icon: Shield,
-      difficulty: "Advanced",
-      duration: "45 min",
-      rating: 4.9,
-      topics: ["Authentication", "Authorization", "Encryption", "Compliance"],
-      href: "/user-guide/security",
-      color: "bg-red-500",
-    },
-    {
-      title: "Performance Optimization",
-      description: "Optimize your application for maximum performance",
-      icon: Zap,
-      difficulty: "Advanced",
-      duration: "35 min",
-      rating: 4.6,
-      topics: ["Caching", "Load Balancing", "Monitoring", "Scaling"],
-      href: "/user-guide/performance",
-      color: "bg-yellow-500",
-    },
-    {
-      title: "Monitoring & Analytics",
-      description: "Set up comprehensive monitoring and gain insights",
-      icon: BarChart3,
-      difficulty: "Advanced",
-      duration: "40 min",
-      rating: 4.7,
-      topics: ["Metrics", "Logging", "Alerting", "Dashboards"],
-      href: "/user-guide/monitoring",
-      color: "bg-indigo-500",
-    },
-    {
-      title: "Deployment Guide",
-      description: "Deploy to production with confidence using our deployment strategies",
-      icon: BookOpen,
-      difficulty: "Advanced",
-      duration: "50 min",
-      rating: 4.8,
-      topics: ["CI/CD", "Docker", "Kubernetes", "Blue-Green Deployment"],
-      href: "/user-guide/deployment",
-      color: "bg-cyan-500",
-    },
-  ]
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case "Beginner":
-        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-      case "Intermediate":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-      case "Advanced":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
-    }
-  }
+  const [hoveredLink, setHoveredLink] = useState<number | null>(null)
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-foreground mb-4">User Guide</h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Comprehensive guides to help you master the GRA Core Platform, from basic setup to advanced deployment
-          strategies
-        </p>
-      </div>
+    <section className="py-20 px-4">
+      <div className="container mx-auto">
+        {/* Header */}
+        <div className="mb-16">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 bg-primary/10 rounded-xl">
+              <BookOpen className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-2">
+                <span className="bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                  User Guide
+                </span>
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Comprehensive documentation to help you get started and master the platform
+              </p>
+            </div>
+          </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {guides.map((guide, index) => (
-          <Card
-            key={guide.title}
-            className="glass-strong hover:shadow-themed-lg transition-all duration-300 interactive animate-slide-up border-border group"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between mb-3">
-                <div className={`w-10 h-10 rounded-lg ${guide.color} flex items-center justify-center shadow-themed`}>
-                  <guide.icon className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{guide.rating}</span>
-                </div>
-              </div>
-
-              <CardTitle className="text-lg text-card-foreground group-hover:text-primary transition-colors leading-tight">
-                {guide.title}
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <CardDescription className="text-muted-foreground text-sm leading-relaxed">
-                {guide.description}
-              </CardDescription>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant="secondary" className={`text-xs font-medium ${getDifficultyColor(guide.difficulty)}`}>
-                  {guide.difficulty}
-                </Badge>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock className="w-3 h-3" />
-                  {guide.duration}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="text-xs font-medium text-card-foreground uppercase tracking-wide">Topics Covered:</h4>
-                <div className="flex flex-wrap gap-1">
-                  {guide.topics.slice(0, 3).map((topic, idx) => (
-                    <Badge key={idx} variant="outline" className="text-xs border-border text-muted-foreground">
-                      {topic}
-                    </Badge>
-                  ))}
-                  {guide.topics.length > 3 && (
-                    <Badge variant="outline" className="text-xs border-border text-muted-foreground">
-                      +{guide.topics.length - 3} more
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-between text-primary hover:text-primary hover:bg-primary/10 mt-4"
-                asChild
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            {[
+              { icon: BookOpen, label: "Guides", value: "8+" },
+              { icon: Clock, label: "Total Time", value: "~2h" },
+              { icon: Users, label: "Skill Levels", value: "All" },
+              { icon: Star, label: "Rating", value: "4.9/5" },
+            ].map(({ icon: Icon, label, value }) => (
+              <div
+                key={label}
+                className="text-center p-4 bg-card border border-border rounded-lg hover:shadow-md transition-shadow"
               >
-                <Link href={guide.href}>
-                  Start Guide
-                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                <Icon className="w-6 h-6 text-primary mx-auto mb-2" />
+                <div className="text-2xl font-bold text-foreground">{value}</div>
+                <div className="text-sm text-muted-foreground">{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-      {/* Additional Resources */}
-      <div className="mt-12 text-center">
-        <div className="glass rounded-lg p-8 shadow-themed">
-          <h3 className="text-xl font-semibold text-foreground mb-3">Need More Help?</h3>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Can't find what you're looking for? Check out our community resources, video tutorials, or get in touch with
-            our support team.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              variant="outline"
-              className="border-border hover:bg-accent hover:text-accent-foreground bg-transparent"
-              asChild
-            >
-              <Link href="/community">
-                <User className="w-4 h-4 mr-2" />
-                Join Community
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="border-border hover:bg-accent hover:text-accent-foreground bg-transparent"
-              asChild
-            >
-              <Link href="/examples">
-                <PlayCircle className="w-4 h-4 mr-2" />
-                Video Tutorials
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="border-border hover:bg-accent hover:text-accent-foreground bg-transparent"
-              asChild
-            >
-              <Link href="/support">
-                <BookOpen className="w-4 h-4 mr-2" />
-                Contact Support
-              </Link>
-            </Button>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Main Guide Links */}
+          <div className="lg:col-span-2">
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                <span>Getting Started</span>
+                <div className="flex-1 h-px bg-border"></div>
+              </h3>
+
+              <div className="space-y-3">
+                {guideLinks.map((link, index) => (
+                  <div
+                    key={index}
+                    className={`group relative p-4 border border-border rounded-lg transition-all duration-300 cursor-pointer hover:shadow-lg hover:border-primary/50 hover:-translate-y-1 ${
+                      hoveredLink === index ? "bg-primary/5" : "bg-background hover:bg-muted/50"
+                    }`}
+                    onMouseEnter={() => setHoveredLink(index)}
+                    onMouseLeave={() => setHoveredLink(null)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="text-2xl">{link.icon}</div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-1">
+                            <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">
+                              {link.title}
+                            </h4>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(link.difficulty)}`}
+                            >
+                              {link.difficulty}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {link.time}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="mt-3 h-1 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-primary to-blue-500 transition-all duration-500 ease-out"
+                        style={{ width: hoveredLink === index ? "100%" : "0%" }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Quick Start */}
+            <div className="bg-gradient-to-br from-primary/10 to-blue-500/10 border border-primary/20 rounded-xl p-6">
+              <h3 className="font-semibold text-primary mb-4 flex items-center gap-2">
+                <span>⚡</span>
+                Quick Start
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Get up and running in under 5 minutes with our streamlined setup process.
+              </p>
+              <button className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-lg font-medium hover:bg-primary/90 transition-colors">
+                Start Now
+              </button>
+            </div>
+
+            {/* Community */}
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <Users className="w-5 h-5 text-primary" />
+                Community
+              </h3>
+              <div className="space-y-3">
+                <a
+                  href="#"
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors group"
+                >
+                  <span className="text-sm">Mattermost</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </a>
+                <a
+                  href="#"
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors group"
+                >
+                  <span className="text-sm">GitHub Discussions</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </a>
+                <a
+                  href="#"
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors group"
+                >
+                  <span className="text-sm">Stack Overflow</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </a>
+              </div>
+            </div>
+
+            {/* Latest Updates */}
+            <div className="bg-card border border-border rounded-xl p-6">
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <Star className="w-5 h-5 text-primary" />
+                Latest Updates
+              </h3>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <div className="font-medium">v2.1.0 Released</div>
+                    <div className="text-muted-foreground">New theme system and improved performance</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div>
+                    <div className="font-medium">API Documentation</div>
+                    <div className="text-muted-foreground">Complete API reference now available</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   )
 }
+
+export default UserGuideSection
