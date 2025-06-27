@@ -1,111 +1,76 @@
-===============================
-GRA Core Platform Documentation
-===============================
+.. GRA Core Platform v5.8 Beta documentation master file
 
-.. raw:: html
+=======================================
+GRA Core Platform v5.8 Beta
+=======================================
 
-   <div class="version-warning beta-warning">
-     <strong>⚠️ Beta Documentation:</strong> This is beta documentation for GRA Core Platform v5.8. 
-     For stable documentation, see <a href="/docs/v5.7/">v5.7 (Stable)</a>.
-   </div>
+.. warning::
+   **Beta Version Notice**
+   
+   This is the beta documentation for GRA Core Platform v5.8. Features and APIs may change before the stable release.
+   For production use, please refer to the `stable v5.7 documentation <../gcp-5.7/index.html>`_.
 
-Welcome to the **GRA Core Platform v5.8 Beta** documentation. This comprehensive guide will help you understand, deploy, and effectively use the Global Risk Analytics Core Platform.
+Welcome to the GRA Core Platform v5.8 Beta documentation. This version introduces significant enhancements in performance, security, and developer experience.
 
-.. raw:: html
+What's New in v5.8 Beta
+========================
 
-   <div class="hero-section">
-     <div class="hero-content">
-       <h2>🚀 What's New in v5.8 Beta</h2>
-       <div class="feature-grid">
-         <div class="feature-card">
-           <h3>🔧 Enhanced API Gateway</h3>
-           <p>Improved performance and new authentication methods</p>
-         </div>
-         <div class="feature-card">
-           <h3>📊 Advanced Analytics</h3>
-           <p>Real-time data processing and machine learning integration</p>
-         </div>
-         <div class="feature-card">
-           <h3>🛡️ Security Enhancements</h3>
-           <p>Zero-trust architecture and enhanced compliance features</p>
-         </div>
-         <div class="feature-card">
-           <h3>☁️ Cloud-Native</h3>
-           <p>Kubernetes-native deployment with auto-scaling</p>
-         </div>
-       </div>
-     </div>
-   </div>
+🚀 **Performance Improvements**
+   - 40% faster query processing with optimized data pipelines
+   - Enhanced caching mechanisms with Redis Cluster support
+   - Improved memory management and garbage collection
 
-Quick Navigation
-================
+🔒 **Enhanced Security**
+   - AES-256 encryption for data at rest and in transit
+   - Multi-factor authentication (MFA) integration
+   - Advanced threat detection and monitoring
+   - RBAC (Role-Based Access Control) improvements
 
-.. raw:: html
+🛠 **Developer Experience**
+   - New GraphQL API with real-time subscriptions
+   - Enhanced REST API with OpenAPI 3.0 specification
+   - Improved SDK with TypeScript support
+   - Better error handling and debugging tools
 
-   <div class="quick-nav-grid">
-     <a href="getting-started/index.html" class="nav-card">
-       <div class="nav-icon">🚀</div>
-       <h3>Getting Started</h3>
-       <p>Installation, setup, and your first deployment</p>
-     </a>
-     <a href="platform-overview/index.html" class="nav-card">
-       <div class="nav-icon">🏗️</div>
-       <h3>Platform Overview</h3>
-       <p>Architecture, components, and core concepts</p>
-     </a>
-     <a href="user-guide/index.html" class="nav-card">
-       <div class="nav-icon">📖</div>
-       <h3>User Guide</h3>
-       <p>Comprehensive guides for daily operations</p>
-     </a>
-     <a href="api-reference/index.html" class="nav-card">
-       <div class="nav-icon">🔌</div>
-       <h3>API Reference</h3>
-       <p>Complete API documentation and examples</p>
-     </a>
-   </div>
+☁️ **Cloud-Native Features**
+   - Kubernetes-ready with Helm charts
+   - Auto-scaling capabilities
+   - Service mesh integration (Istio support)
+   - Enhanced monitoring with Prometheus and Grafana
 
-Platform Overview
-==================
+📊 **Analytics & Monitoring**
+   - Real-time analytics dashboard
+   - Advanced metrics and KPI tracking
+   - Custom alerting and notification system
+   - Enhanced logging with structured data
 
-The GRA Core Platform is Bank of America's next-generation risk analytics and data processing platform, designed to handle enterprise-scale workloads with high availability, security, and performance.
+Quick Start
+===========
 
-**Key Features:**
+.. code-block:: bash
 
-* **Microservices Architecture**: Scalable, maintainable service-oriented design
-* **Real-time Processing**: Stream processing for live data analytics
-* **Enterprise Security**: Bank-grade security with comprehensive audit trails
-* **Multi-cloud Support**: Deploy on AWS, Azure, or on-premises infrastructure
-* **Developer-Friendly**: Comprehensive APIs and SDKs for rapid integration
+   # Install GRA Core Platform v5.8 Beta
+   npm install @gra/core-platform@5.8.0-beta
+   
+   # Or using pip for Python
+   pip install gra-core-platform==5.8.0b1
 
-System Requirements
-===================
+.. code-block:: javascript
 
-.. list-table:: Minimum System Requirements
-   :widths: 25 75
-   :header-rows: 1
-
-   * - Component
-     - Requirement
-   * - **Operating System**
-     - RHEL 8+, Ubuntu 20.04+, or CentOS 8+
-   * - **Memory**
-     - 32 GB RAM (64 GB recommended)
-   * - **Storage**
-     - 500 GB SSD (1 TB recommended)
-   * - **CPU**
-     - 8 cores (16 cores recommended)
-   * - **Network**
-     - 10 Gbps network interface
-   * - **Container Runtime**
-     - Docker 20.10+ or Podman 3.0+
-   * - **Orchestration**
-     - Kubernetes 1.24+ (OpenShift 4.10+ supported)
+   // Initialize the platform
+   import { GRAPlatform } from '@gra/core-platform';
+   
+   const platform = new GRAPlatform({
+     version: '5.8.0-beta',
+     apiKey: 'your-api-key',
+     environment: 'development'
+   });
+   
+   // Connect to services
+   await platform.connect();
 
 Documentation Structure
 =======================
-
-This documentation is organized into the following sections:
 
 .. toctree::
    :maxdepth: 2
@@ -116,100 +81,79 @@ This documentation is organized into the following sections:
 
 .. toctree::
    :maxdepth: 2
-   :caption: Platform Guide
+   :caption: Platform Overview
 
    platform-overview/index
-   user-guide/index
-   data-processing/index
-   security-compliance/index
+   platform-overview/architecture
+   platform-overview/services
 
 .. toctree::
    :maxdepth: 2
-   :caption: Development
+   :caption: User Guide
+
+   user-guide/index
+   user-guide/authentication
+   user-guide/data-management
+   user-guide/workflows
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
 
    api-reference/index
-   development-tools/index
-   deployment-automation/index
+   api-reference/rest-api
+   api-reference/graphql-api
+   api-reference/websocket-api
 
 .. toctree::
    :maxdepth: 2
-   :caption: Operations
+   :caption: Advanced Topics
 
+   data-processing/index
+   security-compliance/index
    monitoring-analytics/index
+   development-tools/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Deployment & Operations
+
+   deployment-automation/index
    troubleshooting/index
    migration-guides/index
-
-Support and Community
-=====================
-
-.. raw:: html
-
-   <div class="support-section">
-     <div class="support-grid">
-       <div class="support-card">
-         <h3>📞 Enterprise Support</h3>
-         <p>24/7 support for production environments</p>
-         <a href="mailto:gra-support@bankofamerica.com">Contact Support</a>
-       </div>
-       <div class="support-card">
-         <h3>💬 Community</h3>
-         <p>Join our internal Mattermost channels</p>
-         <a href="https://mattermost.bankofamerica.com/gra-core">Join Discussion</a>
-       </div>
-       <div class="support-card">
-         <h3>📚 Training</h3>
-         <p>Comprehensive training programs available</p>
-         <a href="https://learning.bankofamerica.com/gra-core">View Courses</a>
-       </div>
-       <div class="support-card">
-         <h3>🐛 Bug Reports</h3>
-         <p>Report issues and track resolutions</p>
-         <a href="https://jira.bankofamerica.com/projects/GRA">Report Issue</a>
-       </div>
-     </div>
-   </div>
 
 Beta Feedback
 =============
 
-.. important::
-   **We value your feedback!** As this is a beta release, your input is crucial for improving the platform. Please share your experience, report bugs, and suggest improvements.
+We value your feedback on the v5.8 beta release. Please report issues or suggestions:
 
-   * **Feedback Form**: `GRA Core v5.8 Beta Feedback <https://forms.bankofamerica.com/gra-v58-beta>`_
-   * **Email**: gra-beta-feedback@bankofamerica.com
-   * **Mattermost**: #gra-core-v58-beta
+- **GitHub Issues**: `Report bugs and feature requests <https://github.com/bankofamerica/gra-core-platform/issues>`_
+- **Email**: gra-platform-beta@bankofamerica.com
+- **Slack**: #gra-platform-beta
 
-Release Notes
-=============
+Migration from v5.7
+====================
 
-**v5.8.0-beta (Current)**
+If you're upgrading from v5.7, please review our comprehensive migration guide:
 
-* Enhanced API Gateway with improved authentication
-* New real-time analytics dashboard
-* Kubernetes-native deployment improvements
-* Security enhancements and compliance updates
-* Performance optimizations (30% faster processing)
+.. code-block:: bash
 
-**Previous Versions**
+   # Backup your current configuration
+   gra-cli backup --version 5.7
+   
+   # Run migration tool
+   gra-cli migrate --from 5.7 --to 5.8-beta
+   
+   # Verify migration
+   gra-cli verify --version 5.8-beta
 
-* :doc:`v5.7 Release Notes </v5.7/release-notes>`
-* :doc:`v5.6 Release Notes </v5.6/release-notes>`
+Support
+=======
 
-License and Legal
-=================
-
-© 2024 Bank of America Corporation. All rights reserved. This documentation and the GRA Core Platform are proprietary to Bank of America and are intended for internal use only.
-
-**Confidentiality Notice**: This document contains confidential and proprietary information of Bank of America. Any unauthorized use, disclosure, or distribution is strictly prohibited.
-
-.. raw:: html
-
-   <div class="footer-links">
-     <a href="/legal/terms">Terms of Use</a> |
-     <a href="/legal/privacy">Privacy Policy</a> |
-     <a href="/legal/security">Security Policy</a> |
-     <a href="/contact">Contact Us</a>
-   </div>
+- **Documentation**: Complete API reference and guides
+- **Community**: Join our developer community
+- **Enterprise Support**: 24/7 support for enterprise customers
+- **Training**: Certification programs and workshops
 
 Indices and tables
 ==================
