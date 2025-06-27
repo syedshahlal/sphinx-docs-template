@@ -1,17 +1,42 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef, useEffect } from "react"
-import type { MarkdownComponent, ComponentStyle, ImageContent, GridContent, TableContent, ChartContent } from "./types"
+import { useState, useRef } from "react"
+import type {
+  MarkdownComponent,
+  ComponentStyle,
+  ImageContent,
+  GridContent,
+  TableContent,
+  ChartContent,
+  ButtonContent,
+  AlertContent,
+  ListContent,
+  TaskListContent,
+  BlockquoteContent,
+  CodeContent,
+  SpacerContent,
+  ColumnsContent,
+  HtmlBlockContent,
+  HeroContent,
+  BannerContent,
+  TestimonialContent,
+  PricingContent,
+  GalleryContent,
+} from "./types"
 import { Button as UIButton } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Edit3, Check, BarChart3, Upload, Plus, X } from "lucide-react"
+import { Edit3, BarChart3, AlertTriangle, Info, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { JSX } from "react/jsx-runtime"
 
-// Simple Chart Component (since we can't use external charting libraries in this environment)
+// A simple chart component for demonstration
 function SimpleChart({ data, type, title }: { data: ChartContent; type: string; title?: string }) {
   const datasets = data.data?.datasets?.length
     ? data.data.datasets
@@ -55,61 +80,12 @@ function SimpleChart({ data, type, title }: { data: ChartContent; type: string; 
     )
   }
 
-  if (type === "pie") {
-    const total = datasets[0]?.data.reduce((sum, val) => sum + val, 0) || 1
-    let accumulatedPercentage = 0
-    const pieSegments = datasets[0]?.data.map((value) => {
-      const percentage = (value / total) * 100
-      const segment = { percentage, startAngle: accumulatedPercentage * 3.6 }
-      accumulatedPercentage += percentage
-      return segment
-    })
-
-    return (
-      <div className="p-4 bg-card border border-border rounded-lg">
-        {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
-        <div className="flex items-center justify-center">
-          <div
-            className="w-48 h-48 rounded-full"
-            style={{
-              background: `conic-gradient(${pieSegments
-                .map(
-                  (segment, index) =>
-                    `${
-                      Array.isArray(datasets[0].backgroundColor)
-                        ? datasets[0].backgroundColor[index]
-                        : datasets[0].backgroundColor
-                    } ${segment.startAngle}deg ${segment.startAngle + segment.percentage * 3.6}deg`,
-                )
-                .join(", ")})`,
-            }}
-          ></div>
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          {data.data.labels.map((label, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{
-                  backgroundColor: Array.isArray(datasets[0]?.backgroundColor)
-                    ? datasets[0].backgroundColor[index] || "#3b82f6"
-                    : datasets[0]?.backgroundColor || "#3b82f6",
-                }}
-              />
-              <span className="text-sm text-foreground">{label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="p-4 bg-card border border-border rounded-lg">
       {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
       <div className="text-center py-8 text-muted-foreground">
         <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-50" />
-        <p>Chart type "{type}" not implemented</p>
+        <p>Chart type "{type}"</p>
       </div>
     </div>
   )
@@ -131,6 +107,9 @@ const applyStyles = (style?: ComponentStyle): React.CSSProperties => {
   if (style.borderRadius) cssProps.borderRadius = style.borderRadius
   if (style.boxShadow) cssProps.boxShadow = style.boxShadow
   if (style.opacity !== undefined) cssProps.opacity = style.opacity
+  if (style.backgroundImage) cssProps.backgroundImage = `url(${style.backgroundImage})`
+  if (style.backgroundSize) cssProps.backgroundSize = style.backgroundSize
+  if (style.backgroundPosition) cssProps.backgroundPosition = style.backgroundPosition
   return cssProps
 }
 
@@ -146,16 +125,6 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
   const [isHovered, setIsHovered] = useState(false)
   const editRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (editRef.current && !editRef.current.contains(event.target as Node)) {
-        if (editingField) handleSaveEdit()
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [editingField, tempValue])
-
   const handleStartEdit = (field: string, currentValue: string, e: React.MouseEvent) => {
     e.stopPropagation()
     setEditingField(field)
@@ -164,14 +133,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
 
   const handleSaveEdit = () => {
     if (!editingField) return
-    const keys = editingField.split(".")
-    const newContent = JSON.parse(JSON.stringify(component.content))
-    let current = newContent
-    for (let i = 0; i < keys.length - 1; i++) {
-      current = current[keys[i]]
-    }
-    current[keys[keys.length - 1]] = tempValue
-    updateComponentContent(component.id, newContent)
+    updateComponentContent(component.id, { ...component.content, [editingField]: tempValue })
     setEditingField(null)
   }
 
@@ -205,7 +167,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
         autoFocus: true,
       }
       return multiline ? (
-        <Textarea ref={editRef as React.RefObject<HTMLTextAreaElement>} {...commonProps} rows={3} />
+        <Textarea ref={editRef as React.RefObject<HTMLTextAreaElement>} {...commonProps} />
       ) : (
         <Input ref={editRef as React.RefObject<HTMLInputElement>} type="text" {...commonProps} />
       )
@@ -224,331 +186,321 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
     )
   }
 
-  const updateArray = (field: string, newArray: any[]) => {
-    updateComponentContent(component.id, { [field]: newArray })
-  }
-
   const baseClasses = cn(
-    "relative group transition-all duration-200",
+    "relative group transition-all duration-200 my-4",
     isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
   )
   const style = applyStyles(component.style)
 
   const renderComponent = (): JSX.Element => {
+    const content = component.content
+
     switch (component.type) {
-      case "heading": {
-        const HeadingTag = `h${component.content.level || 2}` as keyof JSX.IntrinsicElements
+      case "heading":
+        const HeadingTag = `h${content.level || 2}` as keyof JSX.IntrinsicElements
         return (
           <HeadingTag style={style} className={baseClasses}>
-            {renderEditableText("text", component.content.text, "Heading")}
+            {renderEditableText("text", content.text, "Heading")}
           </HeadingTag>
         )
-      }
+
       case "paragraph":
         return (
           <p style={style} className={baseClasses}>
-            {renderEditableText("text", component.content.text, "Paragraph text", true)}
+            {renderEditableText("text", content.text, "Paragraph text", true)}
           </p>
         )
-      case "image": {
-        const imageContent = component.content as ImageContent
+
+      case "image":
+        const imageContent = content as ImageContent
         return (
           <div style={style} className={baseClasses}>
-            <div className="relative group">
-              <img
-                src={imageContent.src || "/placeholder.svg?height=300&width=500"}
-                alt={imageContent.alt || "Image"}
-                className="rounded-lg w-full"
-              />
-              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <UIButton
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    const input = document.createElement("input")
-                    input.type = "file"
-                    input.accept = "image/*"
-                    input.onchange = (e) => {
-                      const file = (e.target as HTMLInputElement).files?.[0]
-                      if (file) {
-                        const reader = new FileReader()
-                        reader.onload = (e) => updateComponentContent(component.id, { src: e.target?.result as string })
-                        reader.readAsDataURL(file)
-                      }
-                    }
-                    input.click()
-                  }}
-                >
-                  <Upload className="w-4 h-4" />
-                </UIButton>
-              </div>
-            </div>
-            {renderEditableText(
-              "caption",
-              imageContent.caption,
-              "Add caption",
-              false,
-              "text-sm text-muted-foreground text-center mt-2",
+            <img
+              src={imageContent.src || "/placeholder.svg?height=300&width=500"}
+              alt={imageContent.alt || "Image"}
+              className="rounded-lg w-full"
+            />
+            {imageContent.caption && (
+              <p className="text-sm text-muted-foreground text-center mt-2">
+                {renderEditableText("caption", imageContent.caption, "Add caption")}
+              </p>
             )}
           </div>
         )
-      }
-      case "table": {
-        const { headers = [], rows = [] } = component.content as TableContent
+
+      case "button":
+        const buttonContent = content as ButtonContent
         return (
-          <div style={style} className={baseClasses}>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {headers.map((header, index) => (
-                    <TableHead key={index} className="relative group/header">
-                      {renderEditableText(`headers.${index}`, header)}
-                      <UIButton
-                        size="icon"
-                        variant="ghost"
-                        className="absolute top-0 right-0 h-6 w-6 opacity-0 group-hover/header:opacity-100"
-                        onClick={() =>
-                          updateArray(
-                            "headers",
-                            headers.filter((_, i) => i !== index),
-                          )
-                        }
-                      >
-                        {" "}
-                        <X className="h-3 w-3" />{" "}
-                      </UIButton>
-                    </TableHead>
-                  ))}
-                  <TableHead>
-                    <UIButton
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => updateArray("headers", [...headers, "New Header"])}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </UIButton>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((row, rowIndex) => (
-                  <TableRow key={rowIndex} className="group/row">
-                    {row.map((cell, cellIndex) => (
-                      <TableCell key={cellIndex}>{renderEditableText(`rows.${rowIndex}.${cellIndex}`, cell)}</TableCell>
-                    ))}
-                    <TableCell>
-                      <UIButton
-                        size="icon"
-                        variant="ghost"
-                        className="h-6 w-6 opacity-0 group-hover/row:opacity-100"
-                        onClick={() =>
-                          updateArray(
-                            "rows",
-                            rows.filter((_, i) => i !== rowIndex),
-                          )
-                        }
-                      >
-                        {" "}
-                        <X className="h-3 w-3" />{" "}
-                      </UIButton>
-                    </TableCell>
-                  </TableRow>
+          <div className={baseClasses}>
+            <UIButton style={style} variant={buttonContent.variant} size={buttonContent.size}>
+              {buttonContent.text || "Button"}
+            </UIButton>
+          </div>
+        )
+
+      case "card":
+        const cardContent = content as CardContent
+        return (
+          <Card style={style} className={baseClasses}>
+            <CardHeader>
+              {cardContent.imageUrl && (
+                <img
+                  src={cardContent.imageUrl || "/placeholder.svg"}
+                  alt={cardContent.title}
+                  className="mb-4 rounded-md"
+                />
+              )}
+              <CardTitle>{renderEditableText("title", cardContent.title, "Card Title")}</CardTitle>
+              <CardDescription>
+                {renderEditableText("description", cardContent.description, "Card description", true)}
+              </CardDescription>
+            </CardHeader>
+            <CardFooter>
+              {cardContent.buttons?.map((btn, i) => (
+                <UIButton key={i} variant={btn.variant as any}>
+                  {btn.text}
+                </UIButton>
+              ))}
+            </CardFooter>
+          </Card>
+        )
+
+      case "table":
+        const { headers = [], rows = [] } = content as TableContent
+        return (
+          <Table style={style} className={baseClasses}>
+            <TableHeader>
+              <TableRow>
+                {headers.map((h, i) => (
+                  <TableHead key={i}>{h}</TableHead>
                 ))}
-              </TableBody>
-            </Table>
-            <UIButton
-              size="sm"
-              variant="outline"
-              className="mt-2"
-              onClick={() => updateArray("rows", [...rows, new Array(headers.length).fill("")])}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Row
-            </UIButton>
-          </div>
-        )
-      }
-      case "grid": {
-        const { columns = 3, gap = "1rem", items = [] } = component.content as GridContent
-        return (
-          <div style={style} className={baseClasses}>
-            <div className="grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)`, gap }}>
-              {items.map((item, index) => (
-                <div key={item.id} className="relative group/item border p-4 rounded-lg">
-                  <h4 className="font-bold">
-                    {renderEditableText(`items.${index}.content.title`, item.content.title)}
-                  </h4>
-                  <p>
-                    {renderEditableText(
-                      `items.${index}.content.description`,
-                      item.content.description,
-                      "Description",
-                      true,
-                    )}
-                  </p>
-                  <UIButton
-                    size="icon"
-                    variant="ghost"
-                    className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover/item:opacity-100"
-                    onClick={() =>
-                      updateArray(
-                        "items",
-                        items.filter((_, i) => i !== index),
-                      )
-                    }
-                  >
-                    {" "}
-                    <X className="h-3 w-3" />{" "}
-                  </UIButton>
-                </div>
-              ))}
-            </div>
-            <UIButton
-              size="sm"
-              variant="outline"
-              className="mt-2"
-              onClick={() =>
-                updateArray("items", [
-                  ...items,
-                  {
-                    id: `item-${Date.now()}`,
-                    type: "card",
-                    content: { title: "New Item", description: "New Description" },
-                  },
-                ])
-              }
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Item
-            </UIButton>
-          </div>
-        )
-      }
-      case "gallery": {
-        const { images = [] } = component.content
-        return (
-          <div style={style} className={baseClasses}>
-            <div className="grid grid-cols-3 gap-4">
-              {images.map((image: any, index: number) => (
-                <div key={index} className="relative group/item">
-                  <img
-                    src={image.src || "/placeholder.svg"}
-                    alt={image.alt}
-                    className="w-full h-32 object-cover rounded-md"
-                  />
-                  <UIButton
-                    size="icon"
-                    variant="destructive"
-                    className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover/item:opacity-100"
-                    onClick={() =>
-                      updateArray(
-                        "images",
-                        images.filter((_: any, i: number) => i !== index),
-                      )
-                    }
-                  >
-                    {" "}
-                    <X className="h-3 w-3" />{" "}
-                  </UIButton>
-                </div>
-              ))}
-            </div>
-            <UIButton
-              size="sm"
-              variant="outline"
-              className="mt-2"
-              onClick={() => {
-                const input = document.createElement("input")
-                input.type = "file"
-                input.accept = "image/*"
-                input.multiple = true
-                input.onchange = (e) => {
-                  const files = Array.from((e.target as HTMLInputElement).files || [])
-                  files.forEach((file) => {
-                    const reader = new FileReader()
-                    reader.onload = (e) => updateArray("images", [...images, { src: e.target?.result, alt: file.name }])
-                    reader.readAsDataURL(file)
-                  })
-                }
-                input.click()
-              }}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Images
-            </UIButton>
-          </div>
-        )
-      }
-      case "pricing": {
-        const { plans = [] } = component.content
-        return (
-          <div style={style} className={cn(baseClasses, "grid grid-cols-1 md:grid-cols-3 gap-6")}>
-            {plans.map((plan: any, index: number) => (
-              <div
-                key={index}
-                className={cn(
-                  "border rounded-lg p-6 text-center flex flex-col",
-                  plan.popular ? "border-primary" : "border-border",
-                )}
-              >
-                <h3 className="text-xl font-bold">{renderEditableText(`plans.${index}.name`, plan.name)}</h3>
-                <p className="text-4xl font-bold my-4">{renderEditableText(`plans.${index}.price`, plan.price)}</p>
-                <ul className="space-y-2 text-left mb-6">
-                  {plan.features?.map((feature: string, fIndex: number) => (
-                    <li key={fIndex} className="flex items-center group/feature">
-                      <Check className="w-4 h-4 text-green-500 mr-2" />
-                      <span className="flex-1">{renderEditableText(`plans.${index}.features.${fIndex}`, feature)}</span>
-                      <UIButton
-                        size="icon"
-                        variant="ghost"
-                        className="h-5 w-5 opacity-0 group-hover/feature:opacity-100"
-                        onClick={() => {
-                          const newPlans = [...plans]
-                          newPlans[index].features.splice(fIndex, 1)
-                          updateArray("plans", newPlans)
-                        }}
-                      >
-                        <X className="h-3 w-3" />
-                      </UIButton>
-                    </li>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((row, i) => (
+                <TableRow key={i}>
+                  {row.map((cell, j) => (
+                    <TableCell key={j}>{cell}</TableCell>
                   ))}
-                </ul>
-                <UIButton
-                  size="sm"
-                  variant="outline"
-                  className="mb-4"
-                  onClick={() => {
-                    const newPlans = [...plans]
-                    newPlans[index].features.push("New Feature")
-                    updateArray("plans", newPlans)
-                  }}
-                >
-                  <Plus className="w-3 h-3 mr-1" />
-                  Add Feature
-                </UIButton>
-                <UIButton className="mt-auto" variant={plan.popular ? "default" : "outline"}>
-                  {renderEditableText(`plans.${index}.buttonText`, plan.buttonText)}
-                </UIButton>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )
+
+      case "grid":
+        const { columns = 3, gap = "1rem", items = [] } = content as GridContent
+        return (
+          <div
+            style={{ ...style, display: "grid", gridTemplateColumns: `repeat(${columns}, 1fr)`, gap }}
+            className={baseClasses}
+          >
+            {items.map((item) => (
+              <Card key={item.id}>
+                <CardHeader>
+                  <CardTitle>{item.content.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>{item.content.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )
+
+      case "list":
+        return (
+          <ul style={style} className={cn(baseClasses, "list-disc list-inside space-y-1")}>
+            {(content as ListContent).items.map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ul>
+        )
+
+      case "orderedList":
+        return (
+          <ol style={style} className={cn(baseClasses, "list-decimal list-inside space-y-1")}>
+            {(content as ListContent).items.map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ol>
+        )
+
+      case "taskList":
+        return (
+          <div style={style} className={cn(baseClasses, "space-y-2")}>
+            {(content as TaskListContent).items.map((item, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <Checkbox checked={item.checked} />
+                <span>{item.text}</span>
               </div>
             ))}
-            <div className="flex items-center justify-center border-2 border-dashed rounded-lg">
-              <UIButton
-                variant="ghost"
-                onClick={() =>
-                  updateArray("plans", [
-                    ...plans,
-                    { name: "New Plan", price: "$0", features: [], buttonText: "Sign Up" },
-                  ])
-                }
-              >
-                <Plus className="w-6 h-6" />
-              </UIButton>
+          </div>
+        )
+
+      case "blockquote":
+        const bqContent = content as BlockquoteContent
+        return (
+          <blockquote style={style} className={cn(baseClasses, "border-l-4 pl-4 italic")}>
+            <p>"{bqContent.text}"</p>
+            {bqContent.author && <footer className="mt-2 text-sm not-italic">- {bqContent.author}</footer>}
+          </blockquote>
+        )
+
+      case "alert":
+        const alertContent = content as AlertContent
+        const Icon = alertContent.type === "warning" ? AlertTriangle : Info
+        return (
+          <Alert
+            style={style}
+            className={baseClasses}
+            variant={alertContent.type === "warning" ? "destructive" : "default"}
+          >
+            <Icon className="h-4 w-4" />
+            <AlertTitle>{renderEditableText("title", alertContent.title, "Alert Title")}</AlertTitle>
+            <AlertDescription>{renderEditableText("text", alertContent.text, "Alert message")}</AlertDescription>
+          </Alert>
+        )
+
+      case "code":
+        return (
+          <pre style={style} className={cn(baseClasses, "bg-muted p-4 rounded-md overflow-x-auto")}>
+            <code className={`language-${(content as CodeContent).language}`}>{(content as CodeContent).code}</code>
+          </pre>
+        )
+
+      case "divider":
+        return <hr style={style} className={baseClasses} />
+
+      case "spacer":
+        return <div style={{ ...style, height: (content as SpacerContent).height }} className={baseClasses} />
+
+      case "columns":
+        const colContent = content as ColumnsContent
+        return (
+          <div style={style} className={cn(baseClasses, "flex gap-4")}>
+            <div className="flex-1">{colContent.column1Text}</div>
+            <div className="flex-1">{colContent.column2Text}</div>
+          </div>
+        )
+
+      case "htmlBlock":
+        return (
+          <div
+            style={style}
+            className={baseClasses}
+            dangerouslySetInnerHTML={{ __html: (content as HtmlBlockContent).htmlContent }}
+          />
+        )
+
+      case "hero":
+        const heroContent = content as HeroContent
+        return (
+          <div style={style} className={cn(baseClasses, "text-center p-16 rounded-lg")}>
+            <h1 className="text-5xl font-bold">{heroContent.title}</h1>
+            <p className="text-xl mt-4">{heroContent.subtitle}</p>
+            <p className="mt-2">{heroContent.description}</p>
+            <div className="mt-8 flex justify-center gap-4">
+              {heroContent.buttons?.map((btn, i) => (
+                <UIButton key={i} variant={btn.variant} size="lg">
+                  {btn.text}
+                </UIButton>
+              ))}
             </div>
           </div>
         )
-      }
-      case "chart": {
-        const chartContent = component.content as ChartContent
+
+      case "banner":
+        const bannerContent = content as BannerContent
+        return (
+          <div style={style} className={cn(baseClasses, "p-8 rounded-lg flex items-center justify-between")}>
+            <div>
+              <h2 className="text-2xl font-bold">{bannerContent.title}</h2>
+              <p>{bannerContent.description}</p>
+            </div>
+            <div>
+              {bannerContent.buttons?.map((btn, i) => (
+                <UIButton key={i} variant={btn.variant}>
+                  {btn.text}
+                </UIButton>
+              ))}
+            </div>
+          </div>
+        )
+
+      case "gallery":
+        return (
+          <div style={style} className={cn(baseClasses, "grid grid-cols-3 gap-4")}>
+            {(content as GalleryContent).images?.map((img, i) => (
+              <img
+                key={i}
+                src={img.src || "/placeholder.svg"}
+                alt={img.alt}
+                className="w-full h-40 object-cover rounded-md"
+              />
+            ))}
+          </div>
+        )
+
+      case "testimonial":
+        const testimonial = content as TestimonialContent
+        return (
+          <Card style={style} className={baseClasses}>
+            <CardContent className="pt-6">
+              <blockquote className="border-none p-0">
+                <p>"{testimonial.quote}"</p>
+                <footer className="mt-4 flex items-center gap-4">
+                  <Avatar>
+                    <AvatarImage src={testimonial.avatarUrl || "/placeholder.svg"} alt={testimonial.author} />
+                    <AvatarFallback>{testimonial.author.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold">{testimonial.author}</p>
+                    <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+                  </div>
+                </footer>
+              </blockquote>
+            </CardContent>
+          </Card>
+        )
+
+      case "pricing":
+        return (
+          <div style={style} className={cn(baseClasses, "grid md:grid-cols-3 gap-6")}>
+            {(content as PricingContent).plans?.map((plan, i) => (
+              <Card key={i} className={cn("flex flex-col", plan.popular ? "border-primary" : "")}>
+                {plan.popular && (
+                  <div className="text-center py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-t-lg">
+                    Most Popular
+                  </div>
+                )}
+                <CardHeader className="text-center">
+                  <CardTitle>{plan.name}</CardTitle>
+                  <p className="text-4xl font-bold">{plan.price}</p>
+                  <CardDescription>{plan.period}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <ul className="space-y-2">
+                    {plan.features.map((feat, j) => (
+                      <li key={j} className="flex items-center">
+                        <Check className="w-4 h-4 mr-2 text-green-500" />
+                        {feat}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <UIButton className="w-full" variant={plan.popular ? "default" : "outline"}>
+                    {plan.buttonText}
+                  </UIButton>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )
+
+      case "chart":
+        const chartContent = content as ChartContent
         return (
           <div style={style} className={baseClasses}>
             <SimpleChart
@@ -558,10 +510,17 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
             />
           </div>
         )
-      }
+
+      case "mermaid":
+        return (
+          <pre className={cn(baseClasses, "bg-muted p-4 rounded-md")}>
+            <code>{content.code}</code>
+          </pre>
+        )
+
       default:
         return (
-          <div style={style} className={cn(baseClasses, "p-4 border-2 border-dashed rounded-lg text-center")}>
+          <div className={cn(baseClasses, "p-4 border-2 border-dashed rounded-lg text-center text-red-500")}>
             Unsupported component type: {component.type}
           </div>
         )
@@ -571,7 +530,7 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
   return (
     <div className="relative" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
       {renderComponent()}
-      {(isHovered || isSelected) && !editingField && (
+      {(isHovered || isSelected) && (
         <div className="absolute -top-3 -right-3 z-10">
           <button className="bg-primary text-primary-foreground p-1.5 rounded-full shadow-lg hover:bg-primary/80">
             <Edit3 className="w-3 h-3" />

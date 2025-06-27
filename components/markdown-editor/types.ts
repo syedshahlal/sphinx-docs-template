@@ -1,4 +1,3 @@
-import type React from "react"
 export interface ComponentStyle {
   // Text styles
   color?: string
@@ -68,6 +67,15 @@ export interface ComponentStyle {
   className?: string
 }
 
+export interface HeadingContent {
+  text: string
+  level: 1 | 2 | 3 | 4 | 5 | 6
+}
+
+export interface ParagraphContent {
+  text: string
+}
+
 export interface ImageContent {
   src: string
   alt: string
@@ -76,12 +84,14 @@ export interface ImageContent {
   height?: string
   objectFit?: "cover" | "contain" | "fill" | "scale-down" | "none"
   borderRadius?: string
-  overlay?: {
-    enabled: boolean
-    color?: string
-    opacity?: number
-    text?: string
-  }
+}
+
+export interface ButtonContent {
+  text: string
+  variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+  size: "default" | "sm" | "lg" | "icon"
+  link?: string
+  icon?: string
 }
 
 export interface CardContent {
@@ -91,18 +101,8 @@ export interface CardContent {
   imagePosition?: "top" | "left" | "right" | "background"
   buttons?: Array<{
     text: string
-    variant: "primary" | "secondary" | "outline" | "ghost"
+    variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
     link?: string
-    icon?: string
-  }>
-  badge?: {
-    text: string
-    color: string
-    position: "top-left" | "top-right" | "bottom-left" | "bottom-right"
-  }
-  stats?: Array<{
-    label: string
-    value: string
     icon?: string
   }>
   layout?: "default" | "horizontal" | "minimal" | "feature" | "pricing"
@@ -110,45 +110,17 @@ export interface CardContent {
 
 export interface GridContent {
   columns: number
-  rows?: number
   gap: string
   items: Array<{
     id: string
     type: "card" | "image" | "text" | "chart"
     content: any
-    span?: {
-      columns?: number
-      rows?: number
-    }
   }>
-  responsive?: {
-    sm?: number
-    md?: number
-    lg?: number
-    xl?: number
-  }
 }
 
 export interface TableContent {
   headers: string[]
   rows: string[][]
-  sortable?: boolean
-  searchable?: boolean
-  pagination?: {
-    enabled: boolean
-    pageSize: number
-  }
-  styling?: {
-    headerStyle?: "default" | "dark" | "colored"
-    striped?: boolean
-    bordered?: boolean
-    hover?: boolean
-  }
-  actions?: Array<{
-    label: string
-    icon?: string
-    action: string
-  }>
 }
 
 export interface ChartContent {
@@ -179,34 +151,100 @@ export interface ChartContent {
   }
 }
 
-export interface InfographicContent {
-  type: "timeline" | "process" | "comparison" | "hierarchy" | "stats"
-  title?: string
-  items: Array<{
-    id: string
-    title: string
-    description?: string
-    value?: string | number
-    icon?: string
-    image?: string
-    color?: string
-    position?: { x: number; y: number }
-  }>
-  layout?: "horizontal" | "vertical" | "circular" | "grid"
-  animations?: {
-    enabled: boolean
-    type: "fade" | "slide" | "bounce" | "zoom"
-    duration: number
-    delay: number
-  }
-}
-
 export interface HtmlBlockContent {
   htmlContent: string
   name: string
-  category?: "custom" | "tailgrids" | "component"
-  editable?: boolean
-  responsive?: boolean
+}
+
+export interface ListContent {
+  items: string[]
+}
+
+export interface OrderedListContent extends ListContent {
+  start: number
+}
+
+export interface TaskListContent {
+  items: { text: string; checked: boolean }[]
+}
+
+export interface BlockquoteContent {
+  text: string
+  author?: string
+}
+
+export interface AlertContent {
+  type: "info" | "warning"
+  title: string
+  text: string
+}
+
+export interface CodeContent {
+  code: string
+  language: string
+  showLineNumbers: boolean
+  theme: "light" | "dark"
+}
+
+export interface DividerContent {
+  style: "solid" | "dashed" | "dotted"
+  color: string
+  thickness: string
+  margin: string
+}
+
+export interface SpacerContent {
+  height: string
+}
+
+export interface ColumnsContent {
+  column1Text: string
+  column2Text: string
+  columnRatio: "1:1" | "1:2" | "2:1"
+  gap: string
+}
+
+export interface MermaidContent {
+  code: string
+  theme: "default" | "dark" | "forest"
+}
+
+export interface BannerContent {
+  title: string
+  subtitle?: string
+  description: string
+  backgroundImage?: string
+  backgroundColor?: string
+  textColor?: string
+  buttons?: ButtonContent[]
+}
+
+export interface HeroContent extends BannerContent {
+  textAlign: "left" | "center" | "right"
+}
+
+export interface GalleryContent {
+  images: { src: string; alt: string; caption?: string }[]
+}
+
+export interface TestimonialContent {
+  quote: string
+  author: string
+  title: string
+  avatarUrl?: string
+}
+
+export interface PricingPlan {
+  name: string
+  price: string
+  period: string
+  features: string[]
+  buttonText: string
+  popular?: boolean
+}
+
+export interface PricingContent {
+  plans: PricingPlan[]
 }
 
 export interface MarkdownComponent {
@@ -245,62 +283,20 @@ export interface MarkdownComponent {
   order: number
   locked?: boolean
   hidden?: boolean
-  animations?: {
-    entrance?: string
-    hover?: string
-    scroll?: string
-  }
 }
 
 export interface EditorState {
   components: MarkdownComponent[]
   selectedComponent: string | null
   previewMode: "edit" | "preview" | "mobile" | "tablet"
-  layoutMode: "freeform" | "grid" | "flex"
-  canvasSettings: {
-    width: string
-    height: string
-    backgroundColor: string
-    backgroundImage?: string
-    padding: string
-    maxWidth?: string
-  }
-  globalStyles: {
-    fontFamily: string
-    primaryColor: string
-    secondaryColor: string
-    accentColor: string
-    borderRadius: string
-    spacing: string
-  }
   isDirty: boolean
   fileName?: string
   filePath?: string
-  fileVersion?: string
   history: {
     past: EditorState[]
     future: EditorState[]
   }
   clipboard?: MarkdownComponent
-}
-
-export interface FileState {
-  currentFile: string | null
-  files: Record<string, EditorState>
-  unsavedChanges: boolean
-  recentFiles: string[]
-}
-
-export interface ComponentItem {
-  id: string
-  type: MarkdownComponent["type"]
-  name: string
-  icon: React.ComponentType<{ className?: string }>
-  description: string
-  category: string
-  htmlBlockKey?: string
-  preview?: string
-  tags?: string[]
 }
 
 // Action types for useReducer
@@ -311,26 +307,15 @@ export type EditorAction =
       returnId?: (id: string) => void
     }
   | { type: "DELETE_COMPONENT"; payload: { id: string } }
-  | { type: "UPDATE_COMPONENT"; payload: { id: string; updates: Partial<MarkdownComponent> } }
   | { type: "UPDATE_COMPONENT_CONTENT"; payload: { id: string; contentUpdates: any } }
   | { type: "UPDATE_COMPONENT_STYLE"; payload: { id: string; styleUpdates: Partial<ComponentStyle> } }
   | { type: "REORDER_COMPONENTS"; payload: { components: MarkdownComponent[] } }
   | { type: "SELECT_COMPONENT"; payload: { id: string | null } }
   | { type: "SET_PREVIEW_MODE"; payload: { mode: EditorState["previewMode"] } }
-  | { type: "SET_LAYOUT_MODE"; payload: { mode: EditorState["layoutMode"] } }
-  | { type: "SET_CANVAS_SETTINGS"; payload: { settings: Partial<EditorState["canvasSettings"]> } }
-  | { type: "SET_GLOBAL_STYLES"; payload: { styles: Partial<EditorState["globalStyles"]> } }
-  | { type: "SET_FILE_DETAILS"; payload: { fileName?: string; filePath?: string; fileVersion?: string } }
   | {
       type: "LOAD_COMPONENTS"
-      payload: { components: MarkdownComponent[]; fileName: string; filePath: string; fileVersion: string }
+      payload: { components: MarkdownComponent[]; fileName: string; filePath: string }
     }
-  | { type: "SET_DIRTY"; payload: { isDirty: boolean } }
   | { type: "DUPLICATE_COMPONENT"; payload: { id: string } }
-  | { type: "COPY_COMPONENT"; payload: { id: string } }
-  | { type: "PASTE_COMPONENT"; payload: { index?: number } }
   | { type: "UNDO" }
   | { type: "REDO" }
-  | { type: "CLEAR_HISTORY" }
-  | { type: "LOCK_COMPONENT"; payload: { id: string; locked: boolean } }
-  | { type: "HIDE_COMPONENT"; payload: { id: string; hidden: boolean } }
