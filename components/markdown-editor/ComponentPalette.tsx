@@ -1,5 +1,7 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+
 import type React from "react"
 import { useState } from "react"
 import { useDraggable } from "@dnd-kit/core"
@@ -40,997 +42,1121 @@ import {
   Sparkles,
   Users,
   Mail,
-  Phone,
-  MessageCircle,
   File,
-  DollarSign,
+  BookOpen,
+  Terminal,
+  Play,
+  Download,
+  Info,
+  CheckCircle,
+  XCircle,
+  HelpCircle,
+  Clock,
+  Database,
+  Workflow,
+  Puzzle,
+  Bug,
+  Rocket,
+  Activity,
+  Timer,
+  FileText,
+  Building2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { MarkdownComponent, HtmlBlockContent } from "./types"
 
-// TailGrids component definitions with actual HTML content
+// Enhanced TailGrids component definitions with technical documentation focus
 const tailGridsComponents = {
-  // Hero Sections
-  heroGradient: `<section class="relative z-10 overflow-hidden bg-white pb-16 pt-[120px] dark:bg-gray-dark md:pb-[120px] md:pt-[150px] xl:pb-[160px] xl:pt-[180px] 2xl:pb-[200px] 2xl:pt-[210px]">
-    <div class="container">
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4">
-          <div class="mx-auto max-w-[800px] text-center">
-            <h1 class="mb-5 text-3xl font-bold leading-tight text-black dark:text-white sm:text-4xl sm:leading-tight md:text-5xl md:leading-tight">
-              Creative Digital Agency For Your Business
+  // Documentation Hero Sections
+  docsHero: `<section class="relative z-10 overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900 pb-16 pt-[120px] md:pb-[120px] md:pt-[150px] xl:pb-[160px] xl:pt-[180px]">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-wrap items-center -mx-4">
+        <div class="w-full px-4 lg:w-1/2">
+          <div class="hero-content">
+            <h1 class="mb-5 text-4xl font-bold !leading-[1.208] text-dark dark:text-white sm:text-[42px] lg:text-[40px] xl:text-5xl">
+              Complete Developer Documentation
             </h1>
-            <p class="mb-12 text-base !leading-relaxed text-body-color dark:text-body-color-dark sm:text-lg md:text-xl">
-              There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form.
+            <p class="mb-8 max-w-[480px] text-base text-body-color dark:text-dark-6">
+              Everything you need to integrate, build, and deploy with our platform. From quick start guides to advanced API references.
             </p>
-            <div class="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <a href="#" class="rounded-sm bg-primary px-8 py-4 text-base font-semibold text-white duration-300 ease-in-out hover:bg-primary/80">
-                🔥 Get Pro
+            <div class="flex flex-wrap items-center gap-4">
+              <a href="#" class="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-center text-base font-medium text-white hover:bg-blue-dark">
+                Get Started
               </a>
-              <a href="#" class="inline-block rounded-sm bg-black px-8 py-4 text-base font-semibold text-white duration-300 ease-in-out hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90">
-                Book a Demo
+              <a href="#" class="inline-flex items-center justify-center px-5 py-3 text-center text-base font-medium text-[#464646] hover:text-primary dark:text-white">
+                <span class="mr-2">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 5V19L19 12L8 5Z" fill="currentColor"/>
+                  </svg>
+                </span>
+                Watch Tutorial
               </a>
+            </div>
+          </div>
+        </div>
+        <div class="w-full px-4 lg:w-1/2">
+          <div class="lg:ml-auto lg:text-right">
+            <div class="relative z-10 inline-block pt-11 lg:pt-0">
+              <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 max-w-md">
+                <div class="flex items-center mb-4">
+                  <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                  <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                  <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <pre class="text-sm text-gray-800 dark:text-gray-200"><code>curl -X POST \\
+  https://api.example.com/v1/users \\
+  -H "Authorization: Bearer token" \\
+  -H "Content-Type: application/json" \\
+  -d '{"name": "John Doe"}'</code></pre>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="absolute right-0 top-0 z-[-1] opacity-30 lg:opacity-100">
-      <svg width="450" height="556" viewBox="0 0 450 556" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="277" cy="63" r="225" fill="url(#paint0_linear_25:217)"/>
-        <defs>
-          <linearGradient id="paint0_linear_25:217" x1="652.5" y1="711" x2="652.5" y2="1" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#3056D3" stopOpacity="0.07"/>
-            <stop offset="1" stopColor="#C4B5FD" stopOpacity="0"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
   </section>`,
 
-  heroMinimal: `<section class="bg-gray-1 pb-[110px] pt-[120px] dark:bg-dark lg:pt-[150px]">
-    <div class="container">
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4 lg:w-5/12">
-          <div class="hero-content">
-            <h1 class="mb-5 text-4xl font-bold !leading-[1.208] text-dark dark:text-white sm:text-[42px] lg:text-[40px] xl:text-5xl">
-              The Best Way to Showcase Your App.
-            </h1>
-            <p class="mb-8 max-w-[480px] text-base text-body-color dark:text-dark-6">
-              With TailGrids, business and students thrive together. Business can perfectly match their staffing to changing demand throughout the dayed.
-            </p>
-            <ul class="flex flex-wrap items-center">
-              <li>
-                <a href="#" class="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-center text-base font-medium text-white hover:bg-blue-dark lg:px-7">
-                  Get Started
-                </a>
-              </li>
-              <li>
-                <a href="#" class="inline-flex items-center justify-center px-5 py-3 text-center text-base font-medium text-[#464646] hover:text-primary dark:text-white">
-                  <span class="mr-2">
-                    <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="12" cy="12.6152" r="12" fill="#3758F9"/>
-                      <rect x="7.99893" y="8.61523" width="8.18182" height="8.18182" rx="4.09091" fill="white"/>
-                    </svg>
-                  </span>
-                  Watch Intro
-                </a>
-              </li>
+  // API Reference Card
+  apiReference: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+            GET
+          </span>
+          <code class="text-sm font-mono text-gray-900 dark:text-gray-100">/api/v1/users/{id}</code>
+        </div>
+        <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="p-6">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Get User by ID</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-4">Retrieve detailed information about a specific user by their unique identifier.</p>
+      
+      <div class="space-y-4">
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Parameters</h4>
+          <div class="bg-gray-50 dark:bg-gray-900 rounded-md p-3">
+            <div class="flex items-center justify-between">
+              <code class="text-sm font-mono text-blue-600 dark:text-blue-400">id</code>
+              <span class="text-xs text-gray-500 dark:text-gray-400">string</span>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">The unique identifier for the user</p>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Response</h4>
+          <div class="bg-gray-900 rounded-md p-4 overflow-x-auto">
+            <pre class="text-sm text-gray-300"><code>{
+  "id": "user_123",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "created_at": "2023-01-01T00:00:00Z"
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  // Code Example with Tabs
+  codeExample: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="border-b border-gray-200 dark:border-gray-700">
+      <nav class="flex space-x-8 px-6" aria-label="Tabs">
+        <button class="border-b-2 border-blue-500 py-4 px-1 text-sm font-medium text-blue-600 dark:text-blue-400">
+          cURL
+        </button>
+        <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+          JavaScript
+        </button>
+        <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+          Python
+        </button>
+        <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+          Node.js
+        </button>
+      </nav>
+    </div>
+    <div class="relative">
+      <div class="absolute top-4 right-4 z-10">
+        <button class="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+          </svg>
+          Copy
+        </button>
+      </div>
+      <div class="bg-gray-900 p-6 overflow-x-auto">
+        <pre class="text-sm text-gray-300"><code>curl -X POST https://api.example.com/v1/users \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "developer"
+  }'</code></pre>
+      </div>
+    </div>
+  </div>`,
+
+  // Step-by-Step Guide
+  stepGuide: `<div class="space-y-8">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <div class="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full">
+          <span class="text-sm font-medium text-white">1</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Install the SDK</h3>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          First, install our SDK using your preferred package manager.
+        </p>
+        <div class="mt-3 bg-gray-900 rounded-md p-3">
+          <code class="text-sm text-gray-300">npm install @example/sdk</code>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <div class="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full">
+          <span class="text-sm font-medium text-white">2</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Initialize the Client</h3>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          Create a new client instance with your API key.
+        </p>
+        <div class="mt-3 bg-gray-900 rounded-md p-3">
+          <code class="text-sm text-gray-300">const client = new ExampleSDK('your-api-key');</code>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <div class="flex items-center justify-center w-8 h-8 bg-blue-500 rounded-full">
+          <span class="text-sm font-medium text-white">3</span>
+        </div>
+      </div>
+      <div class="ml-4">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white">Make Your First Request</h3>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          Now you're ready to make your first API call.
+        </p>
+        <div class="mt-3 bg-gray-900 rounded-md p-3">
+          <code class="text-sm text-gray-300">const user = await client.users.get('user_123');</code>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  // Callout/Admonition
+  calloutInfo: `<div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 p-4 rounded-r-md">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">
+          Information
+        </h3>
+        <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+          <p>This is an informational callout that provides additional context or helpful tips to the reader.</p>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  calloutWarning: `<div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 rounded-r-md">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+          Warning
+        </h3>
+        <div class="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+          <p>This is a warning callout that alerts users to potential issues or important considerations.</p>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  calloutDanger: `<div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 p-4 rounded-r-md">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-red-800 dark:text-red-200">
+          Danger
+        </h3>
+        <div class="mt-2 text-sm text-red-700 dark:text-red-300">
+          <p>This is a danger callout that warns users about critical issues or destructive actions.</p>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  calloutSuccess: `<div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 p-4 rounded-r-md">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <h3 class="text-sm font-medium text-green-800 dark:text-green-200">
+          Success
+        </h3>
+        <div class="mt-2 text-sm text-green-700 dark:text-green-300">
+          <p>This is a success callout that confirms successful completion or positive outcomes.</p>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  // Interactive Demo
+  interactiveDemo: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white">Interactive API Demo</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Try our API directly in your browser</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Request</label>
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Endpoint</label>
+              <input type="text" value="/api/v1/users" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white" readonly>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Method</label>
+              <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                <option>GET</option>
+                <option>POST</option>
+                <option>PUT</option>
+                <option>DELETE</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Headers</label>
+              <textarea rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono" placeholder='{"Authorization": "Bearer token"}'></textarea>
+            </div>
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md text-sm transition-colors">
+              Send Request
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Response</label>
+          <div class="bg-gray-900 rounded-md p-4 h-64 overflow-auto">
+            <pre class="text-sm text-gray-300"><code>{
+  "users": [
+    {
+      "id": "user_123",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "created_at": "2023-01-01T00:00:00Z"
+    }
+  ],
+  "total": 1,
+  "page": 1
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  // SDK Installation Guide
+  sdkInstallation: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+      <h3 class="text-lg font-medium text-gray-900 dark:text-white">SDK Installation</h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Choose your preferred language and package manager</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors cursor-pointer">
+          <div class="flex items-center mb-3">
+            <div class="w-8 h-8 bg-yellow-400 rounded flex items-center justify-center mr-3">
+              <span class="text-xs font-bold text-black">JS</span>
+            </div>
+            <h4 class="font-medium text-gray-900 dark:text-white">JavaScript</h4>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-gray-900 rounded p-2">
+              <code class="text-xs text-gray-300">npm install @example/sdk</code>
+            </div>
+            <div class="bg-gray-900 rounded p-2">
+              <code class="text-xs text-gray-300">yarn add @example/sdk</code>
+            </div>
+          </div>
+        </div>
+        
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors cursor-pointer">
+          <div class="flex items-center mb-3">
+            <div class="w-8 h-8 bg-blue-500 rounded flex items-center justify-center mr-3">
+              <span class="text-xs font-bold text-white">PY</span>
+            </div>
+            <h4 class="font-medium text-gray-900 dark:text-white">Python</h4>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-gray-900 rounded p-2">
+              <code class="text-xs text-gray-300">pip install example-sdk</code>
+            </div>
+            <div class="bg-gray-900 rounded p-2">
+              <code class="text-xs text-gray-300">poetry add example-sdk</code>
+            </div>
+          </div>
+        </div>
+        
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-600 transition-colors cursor-pointer">
+          <div class="flex items-center mb-3">
+            <div class="w-8 h-8 bg-red-500 rounded flex items-center justify-center mr-3">
+              <span class="text-xs font-bold text-white">RB</span>
+            </div>
+            <h4 class="font-medium text-gray-900 dark:text-white">Ruby</h4>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-gray-900 rounded p-2">
+              <code class="text-xs text-gray-300">gem install example-sdk</code>
+            </div>
+            <div class="bg-gray-900 rounded p-2">
+              <code class="text-xs text-gray-300">bundle add example-sdk</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  // Changelog Entry
+  changelogEntry: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <div class="flex items-start space-x-4">
+      <div class="flex-shrink-0">
+        <div class="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+          <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center space-x-2 mb-2">
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white">v2.1.0</h3>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+            Latest
+          </span>
+          <span class="text-sm text-gray-500 dark:text-gray-400">March 15, 2024</span>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-1">✨ New Features</h4>
+            <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
+              <li>• Added support for webhook signatures</li>
+              <li>• New batch operations endpoint</li>
+              <li>• Enhanced error handling with detailed codes</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-1">🐛 Bug Fixes</h4>
+            <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
+              <li>• Fixed rate limiting edge case</li>
+              <li>• Resolved pagination issue with large datasets</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-1">⚠️ Breaking Changes</h4>
+            <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
+              <li>• Deprecated <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded">legacy_field</code> in favor of <code class="bg-gray-100 dark:bg-gray-700 px-1 rounded">new_field</code></li>
             </ul>
           </div>
         </div>
-        <div class="hidden px-4 lg:block lg:w-1/12"></div>
-        <div class="w-full px-4 lg:w-6/12">
-          <div class="lg:ml-auto lg:text-right">
-            <div class="relative z-10 inline-block pt-11 lg:pt-0">
-              <img src="https://cdn.tailgrids.com/1.0/assets/images/hero/hero-image-01.png" alt="hero" class="max-w-full lg:ml-auto"/>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
-  </section>`,
+  </div>`,
 
-  // Feature Sections
-  featuresGrid: `<section class="pb-[120px] pt-[120px]">
-    <div class="container">
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4">
-          <div class="mx-auto mb-12 max-w-[510px] text-center lg:mb-20">
-            <span class="mb-2 block text-lg font-semibold text-primary">
-              Our Services
-            </span>
-            <h2 class="mb-3 text-3xl font-bold leading-[1.2] text-dark dark:text-white sm:text-4xl md:text-[40px]">
-              What We Offer
-            </h2>
-            <p class="text-base text-body-color dark:text-dark-6">
-              There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4 md:w-1/2 lg:w-1/3">
-          <div class="mb-9 rounded-[20px] bg-white p-10 shadow-2 hover:shadow-lg dark:bg-dark-2 md:px-7 xl:px-10">
-            <div class="mb-8 flex h-[70px] w-[70px] items-center justify-center rounded-2xl bg-primary">
-              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21.0375 1.2374C11.8125 -0.393851 2.92503 5.7374 1.29378 14.9624C0.450029 19.4061 1.46253 23.9624 4.05003 27.5624L1.23753 35.3249C1.01253 35.9999 1.57503 36.5624 2.25003 36.3374L10.0125 33.5249C13.6125 36.1124 18.1688 37.1249 22.6125 36.2811C31.8375 34.6499 37.9688 25.7624 36.3375 16.5374C34.7063 7.31239 25.8188 1.18114 16.5938 2.81239L21.0375 1.2374Z" fill="white"/>
-              </svg>
-            </div>
-            <h4 class="mb-[14px] text-2xl font-semibold text-dark dark:text-white">
-              Refreshing Design
-            </h4>
-            <p class="text-body-color dark:text-dark-6">
-              We dejoy working with discerning clients, people for whom qualuty, service, integrity & aesthetics.
-            </p>
-          </div>
-        </div>
-        <div class="w-full px-4 md:w-1/2 lg:w-1/3">
-          <div class="mb-9 rounded-[20px] bg-white p-10 shadow-2 hover:shadow-lg dark:bg-dark-2 md:px-7 xl:px-10">
-            <div class="mb-8 flex h-[70px] w-[70px] items-center justify-center rounded-2xl bg-primary">
-              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M30.8437 15.75H26.25V11.1562C26.25 10.4062 25.6875 9.84375 24.9375 9.84375H11.0625C10.3125 9.84375 9.75 10.4062 9.75 11.1562V15.75H5.15625C4.40625 15.75 3.84375 16.3125 3.84375 17.0625V24.8437C3.84375 25.5937 4.40625 26.1562 5.15625 26.1562H9.75V30.75C9.75 31.5 10.3125 32.0625 11.0625 32.0625H24.9375C25.6875 32.0625 26.25 31.5 26.25 30.75V26.1562H30.8437C31.5937 26.1562 32.1562 25.5937 32.1562 24.8437V17.0625C32.1562 16.3125 31.5937 15.75 30.8437 15.75Z" fill="white"/>
-              </svg>
-            </div>
-            <h4 class="mb-[14px] text-2xl font-semibold text-dark dark:text-white">
-              Based on Tailwind CSS
-            </h4>
-            <p class="text-body-color dark:text-dark-6">
-              We dejoy working with discerning clients, people for whom qualuty, service, integrity & aesthetics.
-            </p>
-          </div>
-        </div>
-        <div class="w-full px-4 md:w-1/2 lg:w-1/3">
-          <div class="mb-9 rounded-[20px] bg-white p-10 shadow-2 hover:shadow-lg dark:bg-dark-2 md:px-7 xl:px-10">
-            <div class="mb-8 flex h-[70px] w-[70px] items-center justify-center rounded-2xl bg-primary">
-              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 0.5625C8.15625 0.5625 0.5625 8.15625 0.5625 18C0.5625 27.8437 8.15625 35.4375 18 35.4375C27.8437 35.4375 35.4375 27.8437 35.4375 18C35.4375 8.15625 27.8437 0.5625 18 0.5625ZM18 32.0625C10.0312 32.0625 3.9375 25.9687 3.9375 18C3.9375 10.0312 10.0312 3.9375 18 3.9375C25.9687 3.9375 32.0625 10.0312 32.0625 18C32.0625 25.9687 25.9687 32.0625 18 32.0625Z" fill="white"/>
-                <path d="M18 7.3125C17.1562 7.3125 16.3125 8.15625 16.3125 9V18C16.3125 18.8437 17.1562 19.6875 18 19.6875H25.3125C26.1562 19.6875 27 18.8437 27 18C27 17.1562 26.1562 16.3125 25.3125 16.3125H19.6875V9C19.6875 8.15625 18.8437 7.3125 18 7.3125Z" fill="white"/>
-              </svg>
-            </div>
-            <h4 class="mb-[14px] text-2xl font-semibold text-dark dark:text-white">
-              Speed Optimized
-            </h4>
-            <p class="text-body-color dark:text-dark-6">
-              We dejoy working with discerning clients, people for whom qualuty, service, integrity & aesthetics.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>`,
-
-  // Pricing Tables
-  pricingCards: `<section class="relative z-10 overflow-hidden bg-white pb-12 pt-20 dark:bg-dark lg:pb-[90px] lg:pt-[120px]">
-    <div class="container mx-auto">
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4">
-          <div class="mx-auto mb-[60px] max-w-[510px] text-center">
-            <span class="mb-2 block text-lg font-semibold text-primary">
-              Pricing Table
-            </span>
-            <h2 class="mb-3 text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px] md:leading-[1.2]">
-              Our Pricing Plan
-            </h2>
-            <p class="text-base text-body-color dark:text-dark-6">
-              There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="-mx-4 flex flex-wrap justify-center">
-        <div class="w-full px-4 md:w-1/2 lg:w-1/3">
-          <div class="relative z-10 mb-10 overflow-hidden rounded-[10px] border-2 border-stroke bg-white px-8 py-10 shadow-pricing dark:border-dark-3 dark:bg-dark-2 sm:p-12 lg:px-6 lg:py-10 xl:p-[50px]">
-            <span class="mb-3 block text-lg font-semibold text-primary">Personal</span>
-            <h2 class="mb-5 text-[42px] font-bold text-dark dark:text-white">
-              $59
-              <span class="text-base font-medium text-body-color dark:text-dark-6">/ year</span>
-            </h2>
-            <p class="mb-8 border-b border-stroke pb-8 text-base text-body-color dark:border-dark-3 dark:text-dark-6">
-              Perfect for using in a personal website or a client project.
-            </p>
-            <div class="mb-9 flex flex-col gap-[14px]">
-              <p class="text-base text-body-color dark:text-dark-6">1 User</p>
-              <p class="text-base text-body-color dark:text-dark-6">All UI components</p>
-              <p class="text-base text-body-color dark:text-dark-6">Lifetime access</p>
-              <p class="text-base text-body-color dark:text-dark-6">Free updates</p>
-              <p class="text-base text-body-color dark:text-dark-6">Use on 1 (one) project</p>
-              <p class="text-base text-body-color dark:text-dark-6">3 Months support</p>
-            </div>
-            <a href="#" class="block w-full rounded-md border border-primary bg-transparent p-3 text-center text-base font-medium text-primary transition hover:bg-primary hover:text-white">
-              Choose Personal
-            </a>
-          </div>
-        </div>
-        <div class="w-full px-4 md:w-1/2 lg:w-1/3">
-          <div class="relative z-10 mb-10 overflow-hidden rounded-[10px] border-2 border-primary bg-white px-8 py-10 shadow-pricing dark:bg-dark-2 sm:p-12 lg:px-6 lg:py-10 xl:p-[50px]">
-            <div class="absolute right-[-50px] top-[-50px] h-[120px] w-[120px] rounded-full bg-primary"></div>
-            <span class="relative z-20 mb-3 block text-lg font-semibold text-white">Commercial</span>
-            <h2 class="relative z-20 mb-5 text-[42px] font-bold text-dark dark:text-white">
-              $199
-              <span class="text-base font-medium text-body-color dark:text-dark-6">/ year</span>
-            </h2>
-            <p class="relative z-20 mb-8 border-b border-stroke pb-8 text-base text-body-color dark:border-dark-3 dark:text-dark-6">
-              Perfect for using in a commercial website or a client project.
-            </p>
-            <div class="relative z-20 mb-9 flex flex-col gap-[14px]">
-              <p class="text-base text-body-color dark:text-dark-6">5 Users</p>
-              <p class="text-base text-body-color dark:text-dark-6">All UI components</p>
-              <p class="text-base text-body-color dark:text-dark-6">Lifetime access</p>
-              <p class="text-base text-body-color dark:text-dark-6">Free updates</p>
-              <p class="text-base text-body-color dark:text-dark-6">Use on 3 (Three) project</p>
-              <p class="text-base text-body-color dark:text-dark-6">4 Months support</p>
-            </div>
-            <a href="#" class="relative z-20 block w-full rounded-md border border-primary bg-primary p-3 text-center text-base font-medium text-white transition hover:bg-opacity-90">
-              Choose Commercial
-            </a>
-          </div>
-        </div>
-        <div class="w-full px-4 md:w-1/2 lg:w-1/3">
-          <div class="relative z-10 mb-10 overflow-hidden rounded-[10px] border-2 border-stroke bg-white px-8 py-10 shadow-pricing dark:border-dark-3 dark:bg-dark-2 sm:p-12 lg:px-6 lg:py-10 xl:p-[50px]">
-            <span class="mb-3 block text-lg font-semibold text-primary">Extended</span>
-            <h2 class="mb-5 text-[42px] font-bold text-dark dark:text-white">
-              $399
-              <span class="text-base font-medium text-body-color dark:text-dark-6">/ year</span>
-            </h2>
-            <p class="mb-8 border-b border-stroke pb-8 text-base text-body-color dark:border-dark-3 dark:text-dark-6">
-              Perfect for using in a commercial website or a client project.
-            </p>
-            <div class="mb-9 flex flex-col gap-[14px]">
-              <p class="text-base text-body-color dark:text-dark-6">Unlimited Users</p>
-              <p class="text-base text-body-color dark:text-dark-6">All UI components</p>
-              <p class="text-base text-body-color dark:text-dark-6">Lifetime access</p>
-              <p class="text-base text-body-color dark:text-dark-6">Free updates</p>
-              <p class="text-base text-body-color dark:text-dark-6">Unlimited projects</p>
-              <p class="text-base text-body-color dark:text-dark-6">12 Months support</p>
-            </div>
-            <a href="#" class="block w-full rounded-md border border-primary bg-transparent p-3 text-center text-base font-medium text-primary transition hover:bg-primary hover:text-white">
-              Choose Extended
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>`,
-
-  // Contact Forms
-  contactForm: `<section class="relative z-10 overflow-hidden bg-white py-20 dark:bg-dark lg:py-[120px]">
-    <div class="container">
-      <div class="-mx-4 flex flex-wrap lg:justify-between">
-        <div class="w-full px-4 lg:w-1/2 xl:w-6/12">
-          <div class="mb-12 max-w-[570px] lg:mb-0">
-            <span class="mb-4 block text-base font-semibold text-primary">
-              Contact Us
-            </span>
-            <h2 class="mb-6 text-[32px] font-bold uppercase text-dark dark:text-white sm:text-[40px] lg:text-[36px] xl:text-[40px]">
-              GET IN TOUCH WITH US
-            </h2>
-            <p class="mb-9 text-base leading-relaxed text-body-color dark:text-dark-6">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eius tempor incididunt ut labore et dolore magna aliqua. Ut enim adiqua minim veniam quis nostrud exercitation ullamco
-            </p>
-            <div class="mb-8 flex w-full max-w-[370px]">
-              <div class="mr-6 flex h-[60px] w-[60px] items-center justify-center overflow-hidden rounded bg-primary bg-opacity-5 text-primary sm:h-[70px] sm:w-[70px]">
-                <svg width="24" height="24" viewBox="0 0 24 24" class="fill-current">
-                  <path d="M21.8182 24H16.5584C15.3896 24 14.4156 23.0649 14.4156 21.9481V17.7922C14.4156 17.2338 13.9351 16.7792 13.3377 16.7792H10.6623C10.0649 16.7792 9.58441 17.2338 9.58441 17.7922V21.9481C9.58441 23.0649 8.61039 24 7.44156 24H2.18182C0.974026 24 0 23.0649 0 21.9481V8.90909C0 8.23377 0.337662 7.59740 0.909091 7.18182L10.9091 0.272727C11.5195 -0.090909 12.4805 -0.090909 13.0909 0.272727L23.0909 7.18182C23.6623 7.59740 24 8.23377 24 8.90909V21.9481C24 23.0649 23.0260 24 21.8182 24Z"/>
-                </svg>
-              </div>
-              <div class="w-full">
-                <h4 class="mb-1 text-xl font-bold text-dark dark:text-white">Our Location</h4>
-                <p class="text-base text-body-color dark:text-dark-6">99 S.t Jomblo Park Pekanbaru 28292. Indonesia</p>
-              </div>
-            </div>
-            <div class="mb-8 flex w-full max-w-[370px]">
-              <div class="mr-6 flex h-[60px] w-[60px] items-center justify-center overflow-hidden rounded bg-primary bg-opacity-5 text-primary sm:h-[70px] sm:w-[70px]">
-                <svg width="24" height="26" viewBox="0 0 24 26" class="fill-current">
-                  <path d="M22.6149 15.1386C22.5307 14.6431 22.1737 14.2861 21.6782 14.2861H21.1827L20.8257 11.8119C20.8257 11.8119 20.8257 11.7277 20.8257 11.6436C20.8257 5.18812 15.5544 0 9.09901 0C2.64356 0 -2.62772 5.18812 -2.62772 11.6436C-2.62772 11.7277 -2.62772 11.8119 -2.62772 11.8119L-2.9703 14.2861H-3.46535C-3.96040 14.2861 -4.31683 14.6431 -4.40099 15.1386L-4.90099 18.0297C-4.98515 18.5252 -4.62871 18.9663 -4.13366 18.9663H-3.63861L-4.13366 25.0891C-4.13366 25.5 -3.80198 25.8317 -3.39109 25.8317H-2.31683C-1.90594 25.8317 -1.57426 25.5 -1.57426 25.0891L-1.07921 18.9663H20.4901L20.9851 25.0891C20.9851 25.5 21.3168 25.8317 21.7277 25.8317H22.8020C23.2129 25.8317 23.5446 25.5 23.5446 25.0891L23.0495 18.9663H23.5446C24.0396 18.9663 24.3960 18.5252 24.3119 18.0297L23.8119 15.1386H22.6149ZM9.09901 2.0297C14.4653 2.0297 18.7921 6.35644 18.7921 11.7228C18.7921 11.8069 18.7921 11.8911 18.7921 11.8911L18.4495 14.2861H-0.252475L-0.594059 11.8911C-0.594059 11.8911 -0.594059 11.8069 -0.594059 11.7228C-0.594059 6.35644 3.73267 2.0297 9.09901 2.0297Z"/>
-                </svg>
-              </div>
-              <div class="w-full">
-                <h4 class="mb-1 text-xl font-bold text-dark dark:text-white">Email Address</h4>
-                <p class="text-base text-body-color dark:text-dark-6">info@yourdomain.com</p>
-              </div>
-            </div>
-            <div class="mb-8 flex w-full max-w-[370px]">
-              <div class="mr-6 flex h-[60px] w-[60px] items-center justify-center overflow-hidden rounded bg-primary bg-opacity-5 text-primary sm:h-[70px] sm:w-[70px]">
-                <svg width="22" height="22" viewBox="0 0 22 22" class="fill-current">
-                  <path d="M21.2532 15.4286C21.2532 15.4286 19.8852 16.8807 19.4736 17.2923C18.9787 17.8713 18.3997 18.1128 17.6514 18.1128C17.5673 18.1128 17.4832 18.1128 17.3991 18.0287C15.3624 17.7872 13.4098 16.9548 11.7094 15.5868C9.50746 13.8023 7.72299 11.5163 6.52239 8.89552C5.73507 7.27761 5.40597 6.02985 5.57015 4.86567C5.65433 4.11741 5.98343 3.53731 6.60746 2.91328L8.31343 1.20731C8.56493 0.955821 8.81642 0.871642 9.06791 0.871642C9.40537 0.871642 9.65686 1.04478 9.82104 1.20896C9.82104 1.20896 11.1049 2.49254 11.1049 2.49254C11.2691 2.65672 11.4333 2.82090 11.5975 2.98507C12.0924 3.56517 12.0924 4.06015 11.5975 4.64025C11.4333 4.80443 11.2691 4.96861 11.1049 5.13279C10.6941 5.54358 10.3666 5.87269 10.0391 6.20179C10.0391 6.20179 10.0391 6.20179 10.0391 6.20179C9.71164 6.52836 9.79582 6.85746 9.87999 7.10896C9.87999 7.10896 9.87999 7.10896 9.87999 7.10896C10.4591 8.39254 11.2691 9.59313 12.4697 10.7937C13.6703 11.9943 14.8709 12.8043 16.1545 13.3834C16.1545 13.3834 16.1545 13.3834 16.1545 13.3834C16.406 13.4676 16.7351 13.5517 17.0642 13.2243C17.3933 12.8968 17.7224 12.5693 18.1332 12.1585C18.2974 11.9943 18.4616 11.8301 18.6258 11.6659C19.2059 11.171 19.7009 11.171 20.1958 11.6659C20.36 11.8301 20.5242 11.9943 20.6884 12.1585L21.9719 13.442C22.2234 13.6935 22.2234 14.0226 21.2532 15.4286Z"/>
-                </svg>
-              </div>
-              <div class="w-full">
-                <h4 class="mb-1 text-xl font-bold text-dark dark:text-white">Phone Number</h4>
-                <p class="text-base text-body-color dark:text-dark-6">(+62)81 414 257 9980</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="w-full px-4 lg:w-1/2 xl:w-5/12">
-          <div class="relative rounded-lg bg-white p-8 shadow-lg dark:bg-dark-2 sm:p-12">
-            <form>
-              <div class="mb-6">
-                <input type="text" placeholder="Your Name" class="w-full rounded border border-stroke px-[14px] py-3 text-base text-body-color outline-none focus:border-primary dark:border-dark-3 dark:bg-dark dark:text-dark-6"/>
-              </div>
-              <div class="mb-6">
-                <input type="email" placeholder="Your Email" class="w-full rounded border border-stroke px-[14px] py-3 text-base text-body-color outline-none focus:border-primary dark:border-dark-3 dark:bg-dark dark:text-dark-6"/>
-              </div>
-              <div class="mb-6">
-                <input type="text" placeholder="Your Phone" class="w-full rounded border border-stroke px-[14px] py-3 text-base text-body-color outline-none focus:border-primary dark:border-dark-3 dark:bg-dark dark:text-dark-6"/>
-              </div>
-              <div class="mb-6">
-                <textarea rows="6" placeholder="Your Message" class="w-full resize-none rounded border border-stroke px-[14px] py-3 text-base text-body-color outline-none focus:border-primary dark:border-dark-3 dark:bg-dark dark:text-dark-6"></textarea>
-              </div>
-              <div>
-                <button type="submit" class="w-full rounded border border-primary bg-primary p-3 text-white transition hover:bg-opacity-90">
-                  Send Message
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>`,
-
-  // Team Sections
-  teamGrid: `<section class="bg-gray-1 pb-20 pt-20 dark:bg-dark-2 lg:pb-[120px] lg:pt-[120px]">
-    <div class="container">
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4">
-          <div class="mx-auto mb-[60px] max-w-[510px] text-center">
-            <span class="mb-2 block text-lg font-semibold text-primary">
-              Our Team
-            </span>
-            <h2 class="mb-3 text-3xl font-bold leading-[1.2] text-dark dark:text-white sm:text-4xl md:text-[40px]">
-              Our Awesome Team
-            </h2>
-            <p class="text-base text-body-color dark:text-dark-6">
-              There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="-mx-4 flex flex-wrap justify-center">
-        <div class="w-full px-4 md:w-1/2 xl:w-1/4">
-          <div class="mx-auto mb-10 w-full max-w-[370px]">
-            <div class="relative overflow-hidden rounded-lg">
-              <img src="https://cdn.tailgrids.com/2.0/image/marketing/images/team/team-01/image-01.jpg" alt="image" class="w-full"/>
-              <div class="absolute bottom-5 left-0 w-full text-center">
-                <div class="relative mx-5 overflow-hidden rounded-lg bg-white px-3 py-5 dark:bg-dark-2">
-                  <h3 class="text-base font-semibold text-dark dark:text-white">
-                    Coriss Ambady
-                  </h3>
-                  <p class="text-xs text-body-color dark:text-dark-6">
-                    Web Developer
-                  </p>
-                  <div>
-                    <span class="absolute bottom-0 left-0">
-                      <svg width="61" height="30" viewBox="0 0 61 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="16" cy="45" r="45" fill="#13C296" fillOpacity="0.11"/>
-                      </svg>
-                    </span>
-                    <span class="absolute right-0 top-0">
-                      <svg width="20" height="25" viewBox="0 0 20 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="0.706257" cy="24.3533" r="0.646687" transform="rotate(-90 0.706257 24.3533)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="24.3533" r="0.646687" transform="rotate(-90 6.39669 24.3533)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="24.3533" r="0.646687" transform="rotate(-90 12.0881 24.3533)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="24.3533" r="0.646687" transform="rotate(-90 17.7785 24.3533)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="18.6624" r="0.646687" transform="rotate(-90 0.706257 18.6624)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="18.6624" r="0.646687" transform="rotate(-90 6.39669 18.6624)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="18.6624" r="0.646687" transform="rotate(-90 12.0881 18.6624)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="18.6624" r="0.646687" transform="rotate(-90 17.7785 18.6624)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="12.9717" r="0.646687" transform="rotate(-90 0.706257 12.9717)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="12.9717" r="0.646687" transform="rotate(-90 6.39669 12.9717)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="12.9717" r="0.646687" transform="rotate(-90 12.0881 12.9717)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="12.9717" r="0.646687" transform="rotate(-90 17.7785 12.9717)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="7.28077" r="0.646687" transform="rotate(-90 0.706257 7.28077)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="7.28077" r="0.646687" transform="rotate(-90 6.39669 7.28077)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="7.28077" r="0.646687" transform="rotate(-90 12.0881 7.28077)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="7.28077" r="0.646687" transform="rotate(-90 17.7785 7.28077)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="1.58989" r="0.646687" transform="rotate(-90 0.706257 1.58989)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="1.58989" r="0.646687" transform="rotate(-90 6.39669 1.58989)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="1.58989" r="0.646687" transform="rotate(-90 12.0881 1.58989)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="1.58989" r="0.646687" transform="rotate(-90 17.7785 1.58989)" fill="#3056D3"/>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="w-full px-4 md:w-1/2 xl:w-1/4">
-          <div class="mx-auto mb-10 w-full max-w-[370px]">
-            <div class="relative overflow-hidden rounded-lg">
-              <img src="https://cdn.tailgrids.com/2.0/image/marketing/images/team/team-01/image-02.jpg" alt="image" class="w-full"/>
-              <div class="absolute bottom-5 left-0 w-full text-center">
-                <div class="relative mx-5 overflow-hidden rounded-lg bg-white px-3 py-5 dark:bg-dark-2">
-                  <h3 class="text-base font-semibold text-dark dark:text-white">
-                    Glorius Cristian
-                  </h3>
-                  <p class="text-xs text-body-color dark:text-dark-6">
-                    App Developer
-                  </p>
-                  <div>
-                    <span class="absolute bottom-0 left-0">
-                      <svg width="61" height="30" viewBox="0 0 61 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="16" cy="45" r="45" fill="#13C296" fillOpacity="0.11"/>
-                      </svg>
-                    </span>
-                    <span class="absolute right-0 top-0">
-                      <svg width="20" height="25" viewBox="0 0 20 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="0.706257" cy="24.3533" r="0.646687" transform="rotate(-90 0.706257 24.3533)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="24.3533" r="0.646687" transform="rotate(-90 6.39669 24.3533)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="24.3533" r="0.646687" transform="rotate(-90 12.0881 24.3533)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="24.3533" r="0.646687" transform="rotate(-90 17.7785 24.3533)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="18.6624" r="0.646687" transform="rotate(-90 0.706257 18.6624)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="18.6624" r="0.646687" transform="rotate(-90 6.39669 18.6624)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="18.6624" r="0.646687" transform="rotate(-90 12.0881 18.6624)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="18.6624" r="0.646687" transform="rotate(-90 17.7785 18.6624)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="12.9717" r="0.646687" transform="rotate(-90 0.706257 12.9717)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="12.9717" r="0.646687" transform="rotate(-90 6.39669 12.9717)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="12.9717" r="0.646687" transform="rotate(-90 12.0881 12.9717)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="12.9717" r="0.646687" transform="rotate(-90 17.7785 12.9717)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="7.28077" r="0.646687" transform="rotate(-90 0.706257 7.28077)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="7.28077" r="0.646687" transform="rotate(-90 6.39669 7.28077)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="7.28077" r="0.646687" transform="rotate(-90 12.0881 7.28077)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="7.28077" r="0.646687" transform="rotate(-90 17.7785 7.28077)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="1.58989" r="0.646687" transform="rotate(-90 0.706257 1.58989)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="1.58989" r="0.646687" transform="rotate(-90 6.39669 1.58989)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="1.58989" r="0.646687" transform="rotate(-90 12.0881 1.58989)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="1.58989" r="0.646687" transform="rotate(-90 17.7785 1.58989)" fill="#3056D3"/>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="w-full px-4 md:w-1/2 xl:w-1/4">
-          <div class="mx-auto mb-10 w-full max-w-[370px]">
-            <div class="relative overflow-hidden rounded-lg">
-              <img src="https://cdn.tailgrids.com/2.0/image/marketing/images/team/team-01/image-03.jpg" alt="image" class="w-full"/>
-              <div class="absolute bottom-5 left-0 w-full text-center">
-                <div class="relative mx-5 overflow-hidden rounded-lg bg-white px-3 py-5 dark:bg-dark-2">
-                  <h3 class="text-base font-semibold text-dark dark:text-white">
-                    Jackie Sanders
-                  </h3>
-                  <p class="text-xs text-body-color dark:text-dark-6">
-                    Content Writer
-                  </p>
-                  <div>
-                    <span class="absolute bottom-0 left-0">
-                      <svg width="61" height="30" viewBox="0 0 61 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="16" cy="45" r="45" fill="#13C296" fillOpacity="0.11"/>
-                      </svg>
-                    </span>
-                    <span class="absolute right-0 top-0">
-                      <svg width="20" height="25" viewBox="0 0 20 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="0.706257" cy="24.3533" r="0.646687" transform="rotate(-90 0.706257 24.3533)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="24.3533" r="0.646687" transform="rotate(-90 6.39669 24.3533)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="24.3533" r="0.646687" transform="rotate(-90 12.0881 24.3533)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="24.3533" r="0.646687" transform="rotate(-90 17.7785 24.3533)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="18.6624" r="0.646687" transform="rotate(-90 0.706257 18.6624)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="18.6624" r="0.646687" transform="rotate(-90 6.39669 18.6624)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="18.6624" r="0.646687" transform="rotate(-90 12.0881 18.6624)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="18.6624" r="0.646687" transform="rotate(-90 17.7785 18.6624)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="12.9717" r="0.646687" transform="rotate(-90 0.706257 12.9717)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="12.9717" r="0.646687" transform="rotate(-90 6.39669 12.9717)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="12.9717" r="0.646687" transform="rotate(-90 12.0881 12.9717)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="12.9717" r="0.646687" transform="rotate(-90 17.7785 12.9717)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="7.28077" r="0.646687" transform="rotate(-90 0.706257 7.28077)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="7.28077" r="0.646687" transform="rotate(-90 6.39669 7.28077)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="7.28077" r="0.646687" transform="rotate(-90 12.0881 7.28077)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="7.28077" r="0.646687" transform="rotate(-90 17.7785 7.28077)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="1.58989" r="0.646687" transform="rotate(-90 0.706257 1.58989)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="1.58989" r="0.646687" transform="rotate(-90 6.39669 1.58989)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="1.58989" r="0.646687" transform="rotate(-90 12.0881 1.58989)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="1.58989" r="0.646687" transform="rotate(-90 17.7785 1.58989)" fill="#3056D3"/>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="w-full px-4 md:w-1/2 xl:w-1/4">
-          <div class="mx-auto mb-10 w-full max-w-[370px]">
-            <div class="relative overflow-hidden rounded-lg">
-              <img src="https://cdn.tailgrids.com/2.0/image/marketing/images/team/team-01/image-04.jpg" alt="image" class="w-full"/>
-              <div class="absolute bottom-5 left-0 w-full text-center">
-                <div class="relative mx-5 overflow-hidden rounded-lg bg-white px-3 py-5 dark:bg-dark-2">
-                  <h3 class="text-base font-semibold text-dark dark:text-white">
-                    Nikolas Brooten
-                  </h3>
-                  <p class="text-xs text-body-color dark:text-dark-6">
-                    UI/UX Designer
-                  </p>
-                  <div>
-                    <span class="absolute bottom-0 left-0">
-                      <svg width="61" height="30" viewBox="0 0 61 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="16" cy="45" r="45" fill="#13C296" fillOpacity="0.11"/>
-                      </svg>
-                    </span>
-                    <span class="absolute right-0 top-0">
-                      <svg width="20" height="25" viewBox="0 0 20 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="0.706257" cy="24.3533" r="0.646687" transform="rotate(-90 0.706257 24.3533)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="24.3533" r="0.646687" transform="rotate(-90 6.39669 24.3533)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="24.3533" r="0.646687" transform="rotate(-90 12.0881 24.3533)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="24.3533" r="0.646687" transform="rotate(-90 17.7785 24.3533)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="18.6624" r="0.646687" transform="rotate(-90 0.706257 18.6624)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="18.6624" r="0.646687" transform="rotate(-90 6.39669 18.6624)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="18.6624" r="0.646687" transform="rotate(-90 12.0881 18.6624)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="18.6624" r="0.646687" transform="rotate(-90 17.7785 18.6624)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="12.9717" r="0.646687" transform="rotate(-90 0.706257 12.9717)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="12.9717" r="0.646687" transform="rotate(-90 6.39669 12.9717)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="12.9717" r="0.646687" transform="rotate(-90 12.0881 12.9717)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="12.9717" r="0.646687" transform="rotate(-90 17.7785 12.9717)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="7.28077" r="0.646687" transform="rotate(-90 0.706257 7.28077)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="7.28077" r="0.646687" transform="rotate(-90 6.39669 7.28077)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="7.28077" r="0.646687" transform="rotate(-90 12.0881 7.28077)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="7.28077" r="0.646687" transform="rotate(-90 17.7785 7.28077)" fill="#3056D3"/>
-                        <circle cx="0.706257" cy="1.58989" r="0.646687" transform="rotate(-90 0.706257 1.58989)" fill="#3056D3"/>
-                        <circle cx="6.39669" cy="1.58989" r="0.646687" transform="rotate(-90 6.39669 1.58989)" fill="#3056D3"/>
-                        <circle cx="12.0881" cy="1.58989" r="0.646687" transform="rotate(-90 12.0881 1.58989)" fill="#3056D3"/>
-                        <circle cx="17.7785" cy="1.58989" r="0.646687" transform="rotate(-90 17.7785 1.58989)" fill="#3056D3"/>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>`,
-
-  // CTA Sections
-  ctaGradient: `<section class="relative z-10 overflow-hidden bg-primary py-20 lg:py-[115px]">
-    <div class="container mx-auto">
-      <div class="relative overflow-hidden">
-        <div class="-mx-4 flex flex-wrap items-stretch">
-          <div class="w-full px-4">
-            <div class="mx-auto max-w-[570px] text-center">
-              <h2 class="mb-2.5 text-3xl font-bold text-white md:text-[38px] md:leading-[1.44]">
-                <span>What Are You Looking For?</span>
-                <span class="text-3xl font-normal md:text-[40px]"> Get Started Now </span>
-              </h2>
-              <p class="mx-auto mb-6 max-w-[515px] text-base leading-[1.5] text-white">
-                There are many variations of passages of Lorem Ipsum but the majority have suffered in some form.
-              </p>
-              <a href="#" class="inline-block rounded-md border border-transparent bg-secondary px-7 py-3 text-base font-medium text-white transition hover:bg-[#0BB489]">
-                Let's have a meeting
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <span class="absolute left-0 top-0">
-        <svg width="495" height="470" viewBox="0 0 495 470" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="55" cy="442" r="138" stroke="white" strokeOpacity="0.04" strokeWidth="50"/>
-          <circle cx="446" r="39" stroke="white" strokeOpacity="0.04" strokeWidth="20"/>
-          <path d="M245.406 137.609L233.985 94.9852L276.609 106.406L245.406 137.609Z" stroke="white" strokeOpacity="0.08" strokeWidth="12"/>
+  // Error Reference
+  errorReference: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-red-50 dark:bg-red-900/20 px-6 py-4 border-b border-red-200 dark:border-red-800">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
-      </span>
-      <span class="absolute bottom-0 right-0">
-        <svg width="493" height="470" viewBox="0 0 493 470" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="462" cy="5" r="138" stroke="white" strokeOpacity="0.04" strokeWidth="50"/>
-          <circle cx="49" cy="470" r="39" stroke="white" strokeOpacity="0.04" strokeWidth="20"/>
-          <path d="M222.393 226.701L272.808 213.192L259.299 263.607L222.393 226.701Z" stroke="white" strokeOpacity="0.06" strokeWidth="13"/>
-        </svg>
-      </span>
+        <h3 class="text-lg font-medium text-red-800 dark:text-red-200">Error 400: Bad Request</h3>
+      </div>
     </div>
-  </section>`,
+    <div class="p-6">
+      <div class="space-y-4">
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Description</h4>
+          <p class="text-sm text-gray-600 dark:text-gray-400">
+            The request was invalid or cannot be served. This usually indicates a problem with the request syntax, size, or content.
+          </p>
+        </div>
+        
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Common Causes</h4>
+          <ul class="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
+            <li>• Missing required parameters</li>
+            <li>• Invalid parameter values</li>
+            <li>• Malformed JSON in request body</li>
+            <li>• Incorrect Content-Type header</li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Example Response</h4>
+          <div class="bg-gray-900 rounded-md p-4">
+            <pre class="text-sm text-gray-300"><code>{
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "Missing required parameter: email",
+    "details": {
+      "field": "email",
+      "reason": "required"
+    }
+  }
+}</code></pre>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">How to Fix</h4>
+          <ol class="text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-4">
+            <li>1. Check that all required parameters are included</li>
+            <li>2. Verify parameter values match expected formats</li>
+            <li>3. Ensure JSON syntax is valid</li>
+            <li>4. Set Content-Type header to application/json</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>`,
 
-  // Blog Sections
-  blogGrid: `<section class="bg-gray-1 pb-[120px] pt-[120px] dark:bg-dark">
-    <div class="container">
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4">
-          <div class="mx-auto mb-[60px] max-w-[510px] text-center lg:mb-20">
-            <span class="mb-2 block text-lg font-semibold text-primary">
-              Our Blogs
-            </span>
-            <h2 class="mb-4 text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px]">
-              Our Recent News
-            </h2>
-            <p class="text-base text-body-color dark:text-dark-6">
-              There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4 md:w-1/2 lg:w-1/3">
-          <div class="mx-auto mb-10 max-w-[370px]">
-            <div class="mb-8 overflow-hidden rounded">
-              <img src="https://cdn.tailgrids.com/2.0/image/marketing/images/blogs/blog-01/image-01.jpg" alt="image" class="w-full"/>
-            </div>
-            <div>
-              <span class="mb-5 inline-block rounded bg-primary px-4 py-1 text-center text-xs font-semibold leading-loose text-white">
-                Dec 22, 2023
-              </span>
-              <h3>
-                <a href="#" class="mb-4 inline-block text-xl font-semibold text-dark hover:text-primary dark:text-white sm:text-2xl lg:text-xl xl:text-2xl">
-                  Meet AutoManage, the best AI management tools
-                </a>
-              </h3>
-              <p class="text-base text-body-color dark:text-dark-6">
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="w-full px-4 md:w-1/2 lg:w-1/3">
-          <div class="mx-auto mb-10 max-w-[370px]">
-            <div class="mb-8 overflow-hidden rounded">
-              <img src="https://cdn.tailgrids.com/2.0/image/marketing/images/blogs/blog-01/image-02.jpg" alt="image" class="w-full"/>
-            </div>
-            <div>
-              <span class="mb-5 inline-block rounded bg-primary px-4 py-1 text-center text-xs font-semibold leading-loose text-white">
-                Mar 15, 2023
-              </span>
-              <h3>
-                <a href="#" class="mb-4 inline-block text-xl font-semibold text-dark hover:text-primary dark:text-white sm:text-2xl lg:text-xl xl:text-2xl">
-                  How to earn more money as a wellness coach
-                </a>
-              </h3>
-              <p class="text-base text-body-color dark:text-dark-6">
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="w-full px-4 md:w-1/2 lg:w-1/3">
-          <div class="mx-auto mb-10 max-w-[370px]">
-            <div class="mb-8 overflow-hidden rounded">
-              <img src="https://cdn.tailgrids.com/2.0/image/marketing/images/blogs/blog-01/image-03.jpg" alt="image" class="w-full"/>
-            </div>
-            <div>
-              <span class="mb-5 inline-block rounded bg-primary px-4 py-1 text-center text-xs font-semibold leading-loose text-white">
-                Jan 05, 2023
-              </span>
-              <h3>
-                <a href="#" class="mb-4 inline-block text-xl font-semibold text-dark hover:text-primary dark:text-white sm:text-2xl lg:text-xl xl:text-2xl">
-                  The no-fuss guide to upselling and cross selling
-                </a>
-              </h3>
-              <p class="text-base text-body-color dark:text-dark-6">
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+  // Architecture Diagram
+  architectureDiagram: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">System Architecture</h3>
+    <div class="relative">
+      <svg viewBox="0 0 800 400" class="w-full h-auto">
+        <!-- Client -->
+        <rect x="50" y="50" width="120" height="80" rx="8" fill="#3B82F6" stroke="#1E40AF" strokeWidth="2"/>
+        <text x="110" y="95" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Client App</text>
+        
+        <!-- API Gateway -->
+        <rect x="250" y="50" width="120" height="80" rx="8" fill="#10B981" stroke="#047857" strokeWidth="2"/>
+        <text x="310" y="95" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">API Gateway</text>
+        
+        <!-- Microservices -->
+        <rect x="450" y="20" width="100" height="60" rx="8" fill="#F59E0B" stroke="#D97706" strokeWidth="2"/>
+        <text x="500" y="55" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Auth Service</text>
+        
+        <rect x="450" y="100" width="100" height="60" rx="8" fill="#F59E0B" stroke="#D97706" strokeWidth="2"/>
+        <text x="500" y="135" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">User Service</text>
+        
+        <rect x="450" y="180" width="100" height="60" rx="8" fill="#F59E0B" stroke="#D97706" strokeWidth="2"/>
+        <text x="500" y="215" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">Data Service</text>
+        
+        <!-- Database -->
+        <rect x="650" y="120" width="100" height="80" rx="8" fill="#8B5CF6" stroke="#7C3AED" strokeWidth="2"/>
+        <text x="700" y="165" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">Database</text>
+        
+        <!-- Arrows -->
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#6B7280"/>
+          </marker>
+        </defs>
+        
+        <!-- Client to API Gateway -->
+        <line x1="170" y1="90" x2="250" y2="90" stroke="#6B7280" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+        
+        <!-- API Gateway to Services -->
+        <line x1="370" y1="70" x2="450" y2="50" stroke="#6B7280" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+        <line x1="370" y1="90" x2="450" y2="130" stroke="#6B7280" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+        <line x1="370" y1="110" x2="450" y2="210" stroke="#6B7280" strokeEnd="url(#arrowhead)"/>
+        
+        <!-- Services to Database -->
+        <line x1="550" y1="130" x2="650" y2="150" stroke="#6B7280" strokeWidth="2" markerEnd="url(#arrowhead)"/>
+        <line x1="550" y1="160" x2="650" y2="160" stroke="#6B7280" strokeEnd="url(#arrowhead)"/>
+        <line x1="550" y1="210" x2="650" y2="170" stroke="#6B7280" strokeEnd="url(#arrowhead)"/>
+      </svg>
     </div>
-  </section>`,
+    <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+      <p>The system follows a microservices architecture with an API Gateway handling client requests and routing them to appropriate services.</p>
+    </div>
+  </div>`,
 
-  // Testimonial Sections
-  testimonialSlider: `<section class="bg-gray-1 py-20 dark:bg-dark-2 lg:py-[120px]">
-    <div class="container">
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4">
-          <div class="mx-auto mb-[60px] max-w-[510px] text-center lg:mb-20">
-            <span class="mb-2 block text-lg font-semibold text-primary">
-              Testimonials
-            </span>
-            <h2 class="mb-4 text-3xl font-bold text-dark dark:text-white sm:text-4xl md:text-[40px]">
-              What our Clients Say
-            </h2>
-            <p class="text-base text-body-color dark:text-dark-6">
-              There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form.
-            </p>
+  // Performance Metrics
+  performanceMetrics: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Performance Metrics</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400">99.9%</p>
+            <p class="text-sm text-green-700 dark:text-green-300">Uptime</p>
           </div>
         </div>
       </div>
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4 lg:w-1/2">
-          <div class="mb-10">
-            <div class="w-full">
-              <div class="rounded-xl bg-white px-8 py-[30px] shadow-testimonial dark:bg-dark sm:px-10 sm:py-12">
-                <div class="mb-[18px] flex items-center gap-[2px]">
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                </div>
-                <p class="mb-6 text-base text-body-color dark:text-dark-6">
-                  "Our members are so impressed. It's intuitive. It's clean. It's distraction free. If you're building a community.
-                </p>
-                <a href="#" class="flex items-center gap-4">
-                  <div class="h-[50px] w-[50px] overflow-hidden rounded-full">
-                    <img src="https://cdn.tailgrids.com/2.0/image/marketing/images/testimonials/testimonial-01/image-01.jpg" alt="image" class="h-[50px] w-[50px] object-cover"/>
-                  </div>
-                  <div class="w-full">
-                    <h5 class="text-base font-semibold text-dark dark:text-white">
-                      Sabo Masties
-                    </h5>
-                    <p class="text-sm text-body-color dark:text-dark-6">Founder @ Rolex</p>
-                  </div>
-                </a>
-              </div>
-            </div>
+      
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">45ms</p>
+            <p class="text-sm text-blue-700 dark:text-blue-300">Avg Response</p>
           </div>
         </div>
-        <div class="w-full px-4 lg:w-1/2">
-          <div class="mb-10">
-            <div class="w-full">
-              <div class="rounded-xl bg-white px-8 py-[30px] shadow-testimonial dark:bg-dark sm:px-10 sm:py-12">
-                <div class="mb-[18px] flex items-center gap-[2px]">
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                  <img src="https://cdn.tailgrids.com/2.0/image/assets/images/star.svg" alt="star"/>
-                </div>
-                <p class="mb-6 text-base text-body-color dark:text-dark-6">
-                  "Our members are so impressed. It's intuitive. It's clean. It's distraction free. If you're building a community.
-                </p>
-                <a href="#" class="flex items-center gap-4">
-                  <div class="h-[50px] w-[50px] overflow-hidden rounded-full">
-                    <img src="https://cdn.tailgrids.com/2.0/image/marketing/images/testimonials/testimonial-01/image-02.jpg" alt="image" class="h-[50px] w-[50px] object-cover"/>
-                  </div>
-                  <div class="w-full">
-                    <h5 class="text-base font-semibold text-dark dark:text-white">
-                      Margin Gesmu
-                    </h5>
-                    <p class="text-sm text-body-color dark:text-dark-6">Founder @ UI Hunter</p>
-                  </div>
-                </a>
-              </div>
-            </div>
+      </div>
+      
+      <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mr-3">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+          <div>
+            <p class="text-2xl font-bold text-purple-600 dark:text-purple-400">10K</p>
+            <p class="text-sm text-purple-700 dark:text-purple-300">Requests/min</p>
           </div>
         </div>
       </div>
     </div>
-  </section>`,
+    
+    <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+      <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-3">Response Time Trend (Last 24h)</h4>
+      <div class="h-32 bg-white dark:bg-gray-800 rounded border flex items-end justify-between p-2">
+        <div class="w-2 bg-green-500 h-16"></div>
+        <div class="w-2 bg-green-500 h-20"></div>
+        <div class="w-2 bg-green-500 h-12"></div>
+        <div class="w-2 bg-yellow-500 h-24"></div>
+        <div class="w-2 bg-green-500 h-18"></div>
+        <div class="w-2 bg-green-500 h-22"></div>
+        <div class="w-2 bg-green-500 h-14"></div>
+        <div class="w-2 bg-green-500 h-16"></div>
+        <div class="w-2 bg-green-500 h-20"></div>
+        <div class="w-2 bg-green-500 h-18"></div>
+        <div class="w-2 bg-green-500 h-16"></div>
+        <div class="w-2 bg-green-500 h-14"></div>
+      </div>
+    </div>
+  </div>`,
 
-  // FAQ Sections
-  faqAccordion: `<section class="relative z-20 overflow-hidden bg-white pb-12 pt-20 dark:bg-dark lg:pb-[90px] lg:pt-[120px]">
-    <div class="container">
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4">
-          <div class="mx-auto mb-[60px] max-w-[520px] text-center lg:mb-20">
-            <span class="mb-2 block text-lg font-semibold text-primary">
-              FAQ
-            </span>
-            <h2 class="mb-4 text-3xl font-bold text-dark dark:text-white sm:text-[40px]/[48px]">
-              Any Questions? Look Here
-            </h2>
-            <p class="text-base text-body-color dark:text-dark-6">
-              There are many variations of passages of Lorem Ipsum available but the majority have suffered alteration in some form.
-            </p>
+  // Rate Limiting Info
+  rateLimiting: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Rate Limiting</h3>
+    <div class="space-y-4">
+      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <h4 class="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Current Limits</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p class="text-sm text-blue-700 dark:text-blue-300">Free Tier</p>
+            <p class="text-lg font-semibold text-blue-800 dark:text-blue-200">1,000 requests/hour</p>
+          </div>
+          <div>
+            <p class="text-sm text-blue-700 dark:text-blue-300">Pro Tier</p>
+            <p class="text-lg font-semibold text-blue-800 dark:text-blue-200">10,000 requests/hour</p>
           </div>
         </div>
       </div>
-      <div class="-mx-4 flex flex-wrap">
-        <div class="w-full px-4 lg:w-1/2">
-          <div class="mb-8 w-full rounded-lg bg-white p-4 shadow-[0px_20px_95px_0px_rgba(201,203,204,0.30)] dark:bg-dark-2 dark:shadow-[0px_20px_95px_0px_rgba(0,0,0,0.30)] sm:p-8 lg:px-6 xl:px-8">
-            <button class="faq-btn flex w-full text-left">
-              <div class="mr-5 flex h-10 w-full max-w-[40px] items-center justify-center rounded-lg bg-primary/5 text-primary dark:bg-white/5">
-                <svg class="fill-primary stroke-primary duration-200 ease-in-out" width="17" height="10" viewBox="0 0 17 10" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"/>
-                </svg>
-              </div>
-              <div class="w-full">
-                <h4 class="mt-1 text-lg font-semibold text-dark dark:text-white">
-                  How long we deliver your first blog post?
-                </h4>
-              </div>
-            </button>
-            <div class="faq-content pl-[62px]">
-              <p class="py-3 text-base leading-relaxed text-body-color dark:text-dark-6">
-                It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available .
-              </p>
-            </div>
-          </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Response Headers</h4>
+        <div class="bg-gray-900 rounded-md p-4">
+          <pre class="text-sm text-gray-300"><code>X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1640995200</code></pre>
         </div>
-        <div class="w-full px-4 lg:w-1/2">
-          <div class="mb-8 w-full rounded-lg bg-white p-4 shadow-[0px_20px_95px_0px_rgba(201,203,204,0.30)] dark:bg-dark-2 dark:shadow-[0px_20px_95px_0px_rgba(0,0,0,0.30)] sm:p-8 lg:px-6 xl:px-8">
-            <button class="faq-btn flex w-full text-left">
-              <div class="mr-5 flex h-10 w-full max-w-[40px] items-center justify-center rounded-lg bg-primary/5 text-primary dark:bg-white/5">
-                <svg class="fill-primary stroke-primary duration-200 ease-in-out" width="17" height="10" viewBox="0 0 17 10" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M7.28687 8.43257L7.28679 8.43265L7.29496 8.43985C7.62576 8.73124 8.02464 8.86001 8.41472 8.86001C8.83092 8.86001 9.22376 8.69083 9.53447 8.41713L9.53454 8.41721L9.54184 8.41052L15.7631 2.70784L15.7691 2.70231L15.7749 2.69659C16.0981 2.38028 16.1985 1.80579 15.7981 1.41393C15.4803 1.1028 14.9167 1.00854 14.5249 1.38489L8.41472 7.00806L2.29995 1.38063L2.29151 1.37286L2.28271 1.36548C1.93092 1.07036 1.38469 1.06804 1.03129 1.41393L1.01755 1.42738L1.00488 1.44184C0.69687 1.79355 0.695778 2.34549 1.0545 2.69659L1.05999 2.70196L1.06565 2.70717L7.28687 8.43257Z"/>
-                </svg>
-              </div>
-              <div class="w-full">
-                <h4 class="mt-1 text-lg font-semibold text-dark dark:text-white">
-                  How long we deliver your first blog post?
-                </h4>
-              </div>
-            </button>
-            <div class="faq-content pl-[62px]">
-              <p class="py-3 text-base leading-relaxed text-body-color dark:text-dark-6">
-                It takes 2-3 weeks to get your first blog post ready. That includes the in-depth research & creation of your monthly content marketing strategy that we do before writing your first blog post, Ipsum available .
-              </p>
-            </div>
-          </div>
+      </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Rate Limit Exceeded Response</h4>
+        <div class="bg-gray-900 rounded-md p-4">
+          <pre class="text-sm text-gray-300"><code>{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Rate limit exceeded. Try again in 3600 seconds.",
+    "retry_after": 3600
+  }
+}</code></pre>
         </div>
       </div>
     </div>
-  </section>`,
+  </div>`,
+
+  // Webhook Documentation
+  webhookDocs: `<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Webhook Configuration</h3>
+    <div class="space-y-6">
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Setup</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Configure your webhook endpoint to receive real-time notifications when events occur.
+        </p>
+        <div class="bg-gray-900 rounded-md p-4">
+          <pre class="text-sm text-gray-300"><code>POST /api/v1/webhooks
+{
+  "url": "https://your-app.com/webhooks",
+  "events": ["user.created", "user.updated"],
+  "secret": "your-webhook-secret"
+}</code></pre>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Event Types</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+            <code class="text-sm font-mono text-blue-600 dark:text-blue-400">user.created</code>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Triggered when a new user is created</p>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+            <code class="text-sm font-mono text-blue-600 dark:text-blue-400">user.updated</code>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Triggered when user data is modified</p>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+            <code class="text-sm font-mono text-blue-600 dark:text-blue-400">user.deleted</code>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Triggered when a user is deleted</p>
+          </div>
+          <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+            <code class="text-sm font-mono text-blue-600 dark:text-blue-400">payment.completed</code>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Triggered when payment is processed</p>
+          </div>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Payload Example</h4>
+        <div class="bg-gray-900 rounded-md p-4">
+          <pre class="text-sm text-gray-300"><code>{
+  "id": "evt_1234567890",
+  "type": "user.created",
+  "created": 1640995200,
+  "data": {
+    "object": {
+      "id": "user_123",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "created_at": "2023-01-01T00:00:00Z"
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-sm font-medium text-gray-900 dark:text-white mb-2">Signature Verification</h4>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+          Verify webhook signatures to ensure requests are from our servers.
+        </p>
+        <div class="bg-gray-900 rounded-md p-4">
+          <pre class="text-sm text-gray-300"><code>const crypto = require('crypto');
+
+function verifySignature(payload, signature, secret) {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex');
+  
+  return signature === \`sha256=${expectedSignature}\`;
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>`,
 }
 
-// Enhanced component categories with TailGrids components
+// Enhanced component categories with comprehensive technical documentation components
 export const componentCategories = [
   {
-    name: "Basic Components",
+    name: "Basic Text & Content",
     icon: Type,
     color: "blue",
     components: [
-      { type: "heading", name: "Heading", icon: Type, description: "Add headings (H1-H6)", tags: ["text", "title"] },
+      {
+        type: "heading",
+        name: "Heading",
+        icon: Type,
+        description: "Add headings (H1-H6)",
+        tags: ["text", "title", "structure"],
+      },
       {
         type: "paragraph",
         name: "Paragraph",
         icon: Type,
         description: "Add text paragraphs",
-        tags: ["text", "content"],
+        tags: ["text", "content", "body"],
       },
       {
-        type: "image",
-        name: "Image",
-        icon: ImageIcon,
-        description: "Add images with captions",
-        tags: ["media", "visual"],
+        type: "blockquote",
+        name: "Quote",
+        icon: Quote,
+        description: "Add blockquotes and citations",
+        tags: ["text", "emphasis", "citation"],
       },
       {
-        type: "button",
-        name: "Button",
-        icon: MousePointer,
-        description: "Add interactive buttons",
-        tags: ["interactive", "cta"],
+        type: "list",
+        name: "Bullet List",
+        icon: List,
+        description: "Add unordered lists",
+        tags: ["text", "list", "bullets"],
       },
-      {
-        type: "divider",
-        name: "Divider",
-        icon: Minus,
-        description: "Add horizontal dividers",
-        tags: ["layout", "separator"],
-      },
-      { type: "spacer", name: "Spacer", icon: Space, description: "Add vertical spacing", tags: ["layout", "spacing"] },
-    ],
-  },
-  {
-    name: "Layout & Structure",
-    icon: Layout,
-    color: "purple",
-    components: [
-      {
-        type: "grid",
-        name: "Grid Layout",
-        icon: Grid3X3,
-        description: "Create responsive grid layouts",
-        tags: ["layout", "responsive"],
-      },
-      {
-        type: "columns",
-        name: "Columns",
-        icon: Columns,
-        description: "Add multi-column layouts",
-        tags: ["layout", "columns"],
-      },
-      {
-        type: "card",
-        name: "Card",
-        icon: CreditCard,
-        description: "Add content cards",
-        tags: ["container", "content"],
-      },
-      {
-        type: "banner",
-        name: "Banner",
-        icon: Layers,
-        description: "Add promotional banners",
-        tags: ["marketing", "promotion"],
-      },
-      {
-        type: "hero",
-        name: "Hero Section",
-        icon: Target,
-        description: "Add hero sections",
-        tags: ["marketing", "landing"],
-      },
-    ],
-  },
-  {
-    name: "Data & Charts",
-    icon: BarChart3,
-    color: "green",
-    components: [
-      { type: "table", name: "Table", icon: Table, description: "Add data tables", tags: ["data", "tabular"] },
-      {
-        type: "chart",
-        name: "Chart",
-        icon: BarChart3,
-        description: "Add interactive charts",
-        tags: ["data", "visualization"],
-      },
-    ],
-  },
-  {
-    name: "Content Components",
-    icon: FileCode,
-    color: "orange",
-    components: [
-      {
-        type: "code",
-        name: "Code Block",
-        icon: Code,
-        description: "Add syntax-highlighted code",
-        tags: ["code", "technical"],
-      },
-      { type: "blockquote", name: "Quote", icon: Quote, description: "Add blockquotes", tags: ["text", "emphasis"] },
-      { type: "list", name: "Bullet List", icon: List, description: "Add unordered lists", tags: ["text", "list"] },
       {
         type: "orderedList",
         name: "Numbered List",
         icon: ListOrdered,
         description: "Add ordered lists",
-        tags: ["text", "list"],
+        tags: ["text", "list", "numbers"],
       },
       {
         type: "taskList",
         name: "Task List",
         icon: CheckSquare,
         description: "Add task/todo lists",
-        tags: ["interactive", "tasks"],
+        tags: ["interactive", "tasks", "checklist"],
+      },
+    ],
+  },
+  {
+    name: "Code & Technical",
+    icon: Code,
+    color: "green",
+    components: [
+      {
+        type: "code",
+        name: "Code Block",
+        icon: Code,
+        description: "Add syntax-highlighted code",
+        tags: ["code", "technical", "syntax"],
+      },
+      {
+        type: "mermaid",
+        name: "Mermaid Diagram",
+        icon: GitBranch,
+        description: "Add flowcharts and diagrams",
+        tags: ["diagram", "flowchart", "technical"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Terminal Output",
+        icon: Terminal,
+        description: "Show command line output",
+        htmlBlockKey: "terminalOutput",
+        tags: ["terminal", "cli", "output"],
+      },
+      {
+        type: "htmlBlock",
+        name: "API Reference",
+        icon: Database,
+        description: "Document API endpoints",
+        htmlBlockKey: "apiReference",
+        tags: ["api", "reference", "documentation"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Code Example",
+        icon: FileCode,
+        description: "Multi-language code examples",
+        htmlBlockKey: "codeExample",
+        tags: ["code", "example", "multi-language"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Interactive Demo",
+        icon: Play,
+        description: "Interactive API testing",
+        htmlBlockKey: "interactiveDemo",
+        tags: ["interactive", "demo", "api"],
+      },
+      {
+        type: "htmlBlock",
+        name: "SDK Installation",
+        icon: Download,
+        description: "SDK installation guide",
+        htmlBlockKey: "sdkInstallation",
+        tags: ["sdk", "installation", "setup"],
+      },
+    ],
+  },
+  {
+    name: "Documentation Helpers",
+    icon: BookOpen,
+    color: "purple",
+    components: [
+      {
+        type: "htmlBlock",
+        name: "Step Guide",
+        icon: ListOrdered,
+        description: "Step-by-step instructions",
+        htmlBlockKey: "stepGuide",
+        tags: ["guide", "steps", "tutorial"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Info Callout",
+        icon: Info,
+        description: "Information callout box",
+        htmlBlockKey: "calloutInfo",
+        tags: ["callout", "info", "note"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Warning Callout",
+        icon: AlertTriangle,
+        description: "Warning callout box",
+        htmlBlockKey: "calloutWarning",
+        tags: ["callout", "warning", "caution"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Danger Callout",
+        icon: XCircle,
+        description: "Danger callout box",
+        htmlBlockKey: "calloutDanger",
+        tags: ["callout", "danger", "error"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Success Callout",
+        icon: CheckCircle,
+        description: "Success callout box",
+        htmlBlockKey: "calloutSuccess",
+        tags: ["callout", "success", "tip"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Changelog Entry",
+        icon: Clock,
+        description: "Version changelog entry",
+        htmlBlockKey: "changelogEntry",
+        tags: ["changelog", "version", "release"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Error Reference",
+        icon: Bug,
+        description: "Error code documentation",
+        htmlBlockKey: "errorReference",
+        tags: ["error", "reference", "troubleshooting"],
+      },
+    ],
+  },
+  {
+    name: "Media & Visual",
+    icon: ImageIcon,
+    color: "orange",
+    components: [
+      {
+        type: "image",
+        name: "Image",
+        icon: ImageIcon,
+        description: "Add images with captions",
+        tags: ["media", "visual", "photo"],
+      },
+      {
+        type: "gallery",
+        name: "Image Gallery",
+        icon: Grid3X3,
+        description: "Add image galleries",
+        tags: ["media", "gallery", "collection"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Architecture Diagram",
+        icon: Workflow,
+        description: "System architecture diagram",
+        htmlBlockKey: "architectureDiagram",
+        tags: ["diagram", "architecture", "system"],
+      },
+      {
+        type: "chart",
+        name: "Chart",
+        icon: BarChart3,
+        description: "Add interactive charts",
+        tags: ["data", "visualization", "chart"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Performance Metrics",
+        icon: Activity,
+        description: "Performance dashboard",
+        htmlBlockKey: "performanceMetrics",
+        tags: ["metrics", "performance", "dashboard"],
+      },
+    ],
+  },
+  {
+    name: "Layout & Structure",
+    icon: Layout,
+    color: "indigo",
+    components: [
+      {
+        type: "grid",
+        name: "Grid Layout",
+        icon: Grid3X3,
+        description: "Create responsive grid layouts",
+        tags: ["layout", "responsive", "grid"],
+      },
+      {
+        type: "columns",
+        name: "Columns",
+        icon: Columns,
+        description: "Add multi-column layouts",
+        tags: ["layout", "columns", "split"],
+      },
+      {
+        type: "card",
+        name: "Card",
+        icon: CreditCard,
+        description: "Add content cards",
+        tags: ["container", "content", "card"],
+      },
+      {
+        type: "divider",
+        name: "Divider",
+        icon: Minus,
+        description: "Add horizontal dividers",
+        tags: ["layout", "separator", "break"],
+      },
+      {
+        type: "spacer",
+        name: "Spacer",
+        icon: Space,
+        description: "Add vertical spacing",
+        tags: ["layout", "spacing", "gap"],
+      },
+      {
+        type: "table",
+        name: "Table",
+        icon: Table,
+        description: "Add data tables",
+        tags: ["data", "tabular", "structured"],
+      },
+    ],
+  },
+  {
+    name: "Interactive Elements",
+    icon: MousePointer,
+    color: "teal",
+    components: [
+      {
+        type: "button",
+        name: "Button",
+        icon: MousePointer,
+        description: "Add interactive buttons",
+        tags: ["interactive", "cta", "action"],
       },
       {
         type: "alert",
         name: "Alert",
         icon: AlertTriangle,
         description: "Add alert messages",
-        tags: ["notification", "message"],
+        tags: ["notification", "message", "alert"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Rate Limiting",
+        icon: Timer,
+        description: "Rate limiting documentation",
+        htmlBlockKey: "rateLimiting",
+        tags: ["rate-limit", "api", "limits"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Webhook Docs",
+        icon: Zap,
+        description: "Webhook configuration guide",
+        htmlBlockKey: "webhookDocs",
+        tags: ["webhook", "events", "integration"],
       },
     ],
   },
   {
-    name: "Advanced Components",
-    icon: Sparkles,
-    color: "indigo",
+    name: "Documentation Templates",
+    icon: FileText,
+    color: "pink",
     components: [
       {
-        type: "mermaid",
-        name: "Mermaid Diagram",
-        icon: GitBranch,
-        description: "Add flowcharts and diagrams",
-        tags: ["diagram", "flowchart"],
-      },
-      {
-        type: "gallery",
-        name: "Image Gallery",
-        icon: ImageIcon,
-        description: "Add image galleries",
-        tags: ["media", "gallery"],
+        type: "htmlBlock",
+        name: "Docs Hero",
+        icon: Target,
+        description: "Documentation hero section",
+        htmlBlockKey: "docsHero",
+        tags: ["hero", "documentation", "landing"],
       },
       {
         type: "testimonial",
         name: "Testimonial",
         icon: Star,
         description: "Add customer testimonials",
-        tags: ["social", "review"],
+        tags: ["social", "review", "feedback"],
       },
       {
         type: "pricing",
         name: "Pricing Table",
         icon: Award,
         description: "Add pricing tables",
-        tags: ["pricing", "comparison"],
+        tags: ["pricing", "comparison", "plans"],
+      },
+    ],
+  },
+  {
+    name: "Advanced Components",
+    icon: Sparkles,
+    color: "red",
+    components: [
+      {
+        type: "banner",
+        name: "Banner",
+        icon: Layers,
+        description: "Add promotional banners",
+        tags: ["marketing", "promotion", "announcement"],
+      },
+      {
+        type: "hero",
+        name: "Hero Section",
+        icon: Target,
+        description: "Add hero sections",
+        tags: ["marketing", "landing", "header"],
       },
       {
         type: "htmlBlock",
         name: "HTML Block",
         icon: FileCode,
         description: "Add custom HTML content",
-        tags: ["custom", "html"],
+        tags: ["custom", "html", "advanced"],
       },
     ],
   },
   {
-    name: "TailGrids - Hero Sections",
+    name: "TailGrids - Marketing",
     icon: Target,
     color: "blue",
     components: [
@@ -1038,7 +1164,7 @@ export const componentCategories = [
         type: "htmlBlock",
         name: "Hero Gradient",
         icon: Zap,
-        description: "Modern gradient hero section with CTA buttons",
+        description: "Modern gradient hero section",
         htmlBlockKey: "heroGradient",
         tags: ["hero", "gradient", "cta"],
       },
@@ -1050,58 +1176,37 @@ export const componentCategories = [
         htmlBlockKey: "heroMinimal",
         tags: ["hero", "minimal", "image"],
       },
-    ],
-  },
-  {
-    name: "TailGrids - Features",
-    icon: Star,
-    color: "green",
-    components: [
       {
         type: "htmlBlock",
         name: "Features Grid",
         icon: Grid3X3,
-        description: "Professional features grid with icons",
+        description: "Professional features grid",
         htmlBlockKey: "featuresGrid",
         tags: ["features", "grid", "icons"],
+      },
+      {
+        type: "htmlBlock",
+        name: "CTA Gradient",
+        icon: Target,
+        description: "Eye-catching call-to-action",
+        htmlBlockKey: "ctaGradient",
+        tags: ["cta", "gradient", "action"],
       },
     ],
   },
   {
-    name: "TailGrids - Pricing",
-    icon: DollarSign,
-    color: "purple",
+    name: "TailGrids - Business",
+    icon: Building2,
+    color: "green",
     components: [
       {
         type: "htmlBlock",
         name: "Pricing Cards",
         icon: CreditCard,
-        description: "Professional pricing table with popular badge",
+        description: "Professional pricing table",
         htmlBlockKey: "pricingCards",
         tags: ["pricing", "cards", "popular"],
       },
-    ],
-  },
-  {
-    name: "TailGrids - Contact",
-    icon: Mail,
-    color: "orange",
-    components: [
-      {
-        type: "htmlBlock",
-        name: "Contact Form",
-        icon: Phone,
-        description: "Complete contact section with form and info",
-        htmlBlockKey: "contactForm",
-        tags: ["contact", "form", "info"],
-      },
-    ],
-  },
-  {
-    name: "TailGrids - Team",
-    icon: Users,
-    color: "teal",
-    components: [
       {
         type: "htmlBlock",
         name: "Team Grid",
@@ -1110,43 +1215,6 @@ export const componentCategories = [
         htmlBlockKey: "teamGrid",
         tags: ["team", "grid", "members"],
       },
-    ],
-  },
-  {
-    name: "TailGrids - CTA",
-    icon: Zap,
-    color: "red",
-    components: [
-      {
-        type: "htmlBlock",
-        name: "CTA Gradient",
-        icon: Target,
-        description: "Eye-catching gradient call-to-action",
-        htmlBlockKey: "ctaGradient",
-        tags: ["cta", "gradient", "action"],
-      },
-    ],
-  },
-  {
-    name: "TailGrids - Blog",
-    icon: FileCode,
-    color: "indigo",
-    components: [
-      {
-        type: "htmlBlock",
-        name: "Blog Grid",
-        icon: File,
-        description: "Modern blog posts grid layout",
-        htmlBlockKey: "blogGrid",
-        tags: ["blog", "grid", "posts"],
-      },
-    ],
-  },
-  {
-    name: "TailGrids - Testimonials",
-    icon: MessageCircle,
-    color: "pink",
-    components: [
       {
         type: "htmlBlock",
         name: "Testimonial Slider",
@@ -1158,23 +1226,39 @@ export const componentCategories = [
     ],
   },
   {
-    name: "TailGrids - FAQ",
-    icon: MessageCircle,
-    color: "yellow",
+    name: "TailGrids - Content",
+    icon: FileText,
+    color: "purple",
     components: [
       {
         type: "htmlBlock",
+        name: "Blog Grid",
+        icon: File,
+        description: "Modern blog posts grid layout",
+        htmlBlockKey: "blogGrid",
+        tags: ["blog", "grid", "posts"],
+      },
+      {
+        type: "htmlBlock",
         name: "FAQ Accordion",
-        icon: List,
-        description: "Expandable FAQ accordion section",
+        icon: HelpCircle,
+        description: "Expandable FAQ accordion",
         htmlBlockKey: "faqAccordion",
         tags: ["faq", "accordion", "questions"],
+      },
+      {
+        type: "htmlBlock",
+        name: "Contact Form",
+        icon: Mail,
+        description: "Complete contact section",
+        htmlBlockKey: "contactForm",
+        tags: ["contact", "form", "info"],
       },
     ],
   },
 ]
 
-// Get default content for each component type
+// Get default content for each component type (enhanced)
 export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?: string): any {
   switch (type) {
     case "heading":
@@ -1221,34 +1305,36 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
       }
     case "banner":
       return {
-        title: "Special Offer",
-        subtitle: "Limited time only",
-        description: "Get 50% off on all premium features",
+        title: "Special Announcement",
+        subtitle: "Important Update",
+        description: "We've released new features to improve your documentation experience",
         backgroundImage: "",
         backgroundColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         textColor: "white",
-        buttons: [{ text: "Get Started", variant: "default", link: "#" }],
+        buttons: [{ text: "Learn More", variant: "default", link: "#" }],
       }
     case "hero":
       return {
-        title: "Welcome to Our Platform",
-        subtitle: "Build Amazing Things",
-        description: "Create stunning websites and applications with our powerful tools and intuitive interface.",
+        title: "Welcome to Our Documentation",
+        subtitle: "Everything You Need to Get Started",
+        description:
+          "Comprehensive guides, API references, and tutorials to help you integrate and build amazing applications.",
         backgroundImage: "",
         backgroundColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         textAlign: "center",
         buttons: [
           { text: "Get Started", variant: "default", link: "#" },
-          { text: "Learn More", variant: "outline", link: "#" },
+          { text: "View API Docs", variant: "outline", link: "#" },
         ],
       }
     case "table":
       return {
-        headers: ["Name", "Email", "Role", "Status"],
+        headers: ["Property", "Type", "Required", "Description"],
         rows: [
-          ["John Doe", "john@example.com", "Admin", "Active"],
-          ["Jane Smith", "jane@example.com", "User", "Active"],
-          ["Bob Johnson", "bob@example.com", "User", "Inactive"],
+          ["id", "string", "Yes", "Unique identifier"],
+          ["name", "string", "Yes", "Display name"],
+          ["email", "string", "No", "Email address"],
+          ["created_at", "datetime", "No", "Creation timestamp"],
         ],
       }
     case "divider":
@@ -1256,22 +1342,37 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
     case "list":
       return { items: ["First item", "Second item", "Third item"] }
     case "orderedList":
-      return { items: ["First item", "Second item", "Third item"], start: 1 }
+      return { items: ["First step", "Second step", "Third step"], start: 1 }
     case "taskList":
       return {
         items: [
-          { text: "Complete this task", checked: false },
-          { text: "This task is done", checked: true },
-          { text: "Another pending task", checked: false },
+          { text: "Set up development environment", checked: true },
+          { text: "Install required dependencies", checked: true },
+          { text: "Configure API credentials", checked: false },
+          { text: "Run first test", checked: false },
         ],
       }
     case "blockquote":
-      return { text: "This is a quote that provides insight or emphasis to your content.", author: "" }
+      return { text: "Documentation is a love letter that you write to your future self.", author: "Damian Conway" }
     case "alert":
-      return { type: "info", title: "Information", text: "This is an informational alert message." }
+      return {
+        type: "info",
+        title: "Information",
+        text: "This is an informational alert message for your documentation.",
+      }
     case "code":
       return {
-        code: "// Your code here\nconsole.log('Hello, World!');",
+        code: `// Example API call
+const response = await fetch('/api/v1/users', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  }
+});
+
+const users = await response.json();
+console.log(users);`,
         language: "javascript",
         showLineNumbers: true,
         theme: "dark",
@@ -1280,26 +1381,32 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
       return { height: "40px" }
     case "columns":
       return {
-        column1Text: "This is the content for the first column. You can add any text or information here.",
-        column2Text: "This is the content for the second column. You can add different content here.",
+        column1Text: "This column contains the main content or instructions for your documentation.",
+        column2Text: "This column can contain additional information, examples, or related content.",
         columnRatio: "1:1",
         gap: "2rem",
       }
     case "mermaid":
       return {
-        code: "graph TD;\n    A[Start] --> B[Process];\n    B --> C[Decision];\n    C -->|Yes| D[End];\n    C -->|No| B;",
+        code: `graph TD
+    A[User Request] --> B{Authentication}
+    B -->|Valid| C[Process Request]
+    B -->|Invalid| D[Return Error]
+    C --> E[Database Query]
+    E --> F[Return Response]
+    D --> G[Log Error]`,
         theme: "default",
       }
     case "chart":
       return {
         type: "bar",
         data: {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+          labels: ["API Calls", "Response Time", "Error Rate", "Uptime", "Throughput"],
           datasets: [
             {
-              label: "Sales",
-              data: [12, 19, 3, 5, 2],
-              backgroundColor: "#3b82f6",
+              label: "Performance Metrics",
+              data: [95, 87, 2, 99.9, 92],
+              backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"],
             },
           ],
         },
@@ -1308,7 +1415,7 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
           plugins: {
             title: {
               display: true,
-              text: "Monthly Sales",
+              text: "API Performance Dashboard",
             },
           },
         },
@@ -1316,26 +1423,30 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
     case "gallery":
       return {
         images: [
-          { src: "/placeholder.svg?height=300&width=400", alt: "Gallery image 1", caption: "" },
-          { src: "/placeholder.svg?height=300&width=400", alt: "Gallery image 2", caption: "" },
-          { src: "/placeholder.svg?height=300&width=400", alt: "Gallery image 3", caption: "" },
+          {
+            src: "/placeholder.svg?height=300&width=400",
+            alt: "API Dashboard Screenshot",
+            caption: "Main dashboard view",
+          },
+          { src: "/placeholder.svg?height=300&width=400", alt: "Settings Panel", caption: "Configuration settings" },
+          { src: "/placeholder.svg?height=300&width=400", alt: "Analytics View", caption: "Usage analytics" },
         ],
       }
     case "testimonial":
       return {
-        quote: "This product has completely transformed our workflow. Highly recommended!",
-        author: "John Smith",
-        title: "CEO, Tech Company",
+        quote: "This API documentation is incredibly clear and comprehensive. It made integration a breeze!",
+        author: "Sarah Johnson",
+        title: "Senior Developer, TechCorp",
         avatarUrl: "/placeholder.svg?height=60&width=60",
       }
     case "pricing":
       return {
         plans: [
           {
-            name: "Basic",
-            price: "$9",
+            name: "Free",
+            price: "$0",
             period: "/ month",
-            features: ["Feature 1", "Feature 2", "Feature 3"],
+            features: ["1,000 API calls", "Basic support", "Standard rate limits", "Community access"],
             buttonText: "Get Started",
             popular: false,
           },
@@ -1343,15 +1454,27 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
             name: "Pro",
             price: "$29",
             period: "/ month",
-            features: ["All Basic features", "Feature 4", "Feature 5", "Priority support"],
-            buttonText: "Get Started",
+            features: [
+              "50,000 API calls",
+              "Priority support",
+              "Higher rate limits",
+              "Advanced analytics",
+              "Webhook support",
+            ],
+            buttonText: "Start Free Trial",
             popular: true,
           },
           {
             name: "Enterprise",
-            price: "$99",
-            period: "/ month",
-            features: ["All Pro features", "Custom integrations", "Dedicated support"],
+            price: "Custom",
+            period: "",
+            features: [
+              "Unlimited API calls",
+              "24/7 dedicated support",
+              "Custom rate limits",
+              "SLA guarantee",
+              "On-premise deployment",
+            ],
             buttonText: "Contact Sales",
             popular: false,
           },
@@ -1368,8 +1491,10 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
         } as HtmlBlockContent
       }
       return {
-        htmlContent:
-          "<div class='p-8 border-2 border-dashed border-gray-300 rounded-xl text-center bg-gray-50'><h3 class='text-lg font-semibold text-gray-700 mb-2'>Custom HTML Block</h3><p class='text-gray-500'>Add your custom HTML content here</p></div>",
+        htmlContent: `<div class='p-8 border-2 border-dashed border-gray-300 rounded-xl text-center bg-gray-50 dark:bg-gray-900 dark:border-gray-700'>
+          <h3 class='text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2'>Custom HTML Block</h3>
+          <p class='text-gray-500 dark:text-gray-400'>Add your custom HTML content here</p>
+        </div>`,
         name: "Custom HTML Block",
         category: "custom",
         editable: true,
@@ -1380,7 +1505,7 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
   }
 }
 
-// Draggable component item with enhanced styling
+// Enhanced draggable component with better accessibility
 interface DraggableComponentProps {
   component: {
     type: MarkdownComponent["type"]
@@ -1415,10 +1540,19 @@ function DraggableComponent({ component }: DraggableComponentProps) {
       style={style}
       {...listeners}
       {...attributes}
+      role="button"
+      tabIndex={0}
+      aria-label={`Drag ${component.name} component`}
       className={cn(
-        "group flex items-start space-x-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-lg cursor-grab active:cursor-grabbing",
-        isDragging && "opacity-50 shadow-2xl scale-105 rotate-2",
+        "group flex items-start space-x-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-200 hover:border-border/80 hover:shadow-lg cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+        isDragging && "opacity-50 shadow-2xl scale-105 rotate-2 z-50",
       )}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          // Handle keyboard activation
+        }
+      }}
     >
       <div className="flex-shrink-0 p-2 rounded-lg bg-muted group-hover:bg-primary/10 transition-all duration-200">
         <IconComponent className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
@@ -1432,7 +1566,7 @@ function DraggableComponent({ component }: DraggableComponentProps) {
         </p>
         {component.tags && component.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
-            {component.tags.slice(0, 2).map((tag) => (
+            {component.tags.slice(0, 3).map((tag) => (
               <Badge key={tag} variant="secondary" className="text-xs px-2 py-0.5">
                 {tag}
               </Badge>
@@ -1444,9 +1578,9 @@ function DraggableComponent({ component }: DraggableComponentProps) {
   )
 }
 
-// Main component palette with enhanced features
+// Enhanced main component palette
 export function ComponentPalette() {
-  const [expandedCategories, setExpandedCategories] = useState<string[]>(["Basic Components"])
+  const [expandedCategories, setExpandedCategories] = useState<string[]>(["Basic Text & Content", "Code & Technical"])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedTags, setSelectedTags] = useState<string[]>([])
 
@@ -1486,6 +1620,11 @@ export function ComponentPalette() {
     setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]))
   }
 
+  const clearFilters = () => {
+    setSearchQuery("")
+    setSelectedTags([])
+  }
+
   return (
     <div className="h-full flex flex-col bg-card">
       <div className="p-4 border-b border-border bg-card">
@@ -1507,33 +1646,46 @@ export function ComponentPalette() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 h-10"
+            aria-label="Search components"
           />
         </div>
 
-        {/* Tag filters */}
-        <div className="flex flex-wrap gap-1">
-          {allTags.slice(0, 6).map((tag) => (
-            <Badge
-              key={tag}
-              variant={selectedTags.includes(tag) ? "default" : "secondary"}
-              className={cn(
-                "text-xs cursor-pointer transition-all duration-200 hover:scale-105",
-                selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "hover:bg-secondary",
-              )}
-              onClick={() => toggleTag(tag)}
-            >
-              {tag}
-            </Badge>
-          ))}
+        {/* Enhanced tag filters */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-muted-foreground">Filter by tags:</span>
+            {(selectedTags.length > 0 || searchQuery) && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-6 px-2 text-xs">
+                Clear
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {allTags.slice(0, 8).map((tag) => (
+              <Badge
+                key={tag}
+                variant={selectedTags.includes(tag) ? "default" : "secondary"}
+                className={cn(
+                  "text-xs cursor-pointer transition-all duration-200 hover:scale-105",
+                  selectedTags.includes(tag) ? "bg-primary text-primary-foreground" : "hover:bg-secondary",
+                )}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
 
       <Tabs defaultValue="components" className="flex-1 flex flex-col">
         <TabsList className="mx-4 mt-4 grid w-auto grid-cols-2">
           <TabsTrigger value="components" className="text-sm">
+            <Puzzle className="h-4 w-4 mr-2" />
             Components
           </TabsTrigger>
           <TabsTrigger value="templates" className="text-sm">
+            <FileText className="h-4 w-4 mr-2" />
             Templates
           </TabsTrigger>
         </TabsList>
@@ -1547,7 +1699,11 @@ export function ComponentPalette() {
 
                 return (
                   <Collapsible key={category.name} open={isExpanded} onOpenChange={() => toggleCategory(category.name)}>
-                    <CollapsibleTrigger className="flex w-full items-center justify-between rounded-xl p-4 text-left hover:bg-muted/70 transition-all duration-200 bg-card border border-border shadow-sm">
+                    <CollapsibleTrigger
+                      className="flex w-full items-center justify-between rounded-xl p-4 text-left hover:bg-muted/70 transition-all duration-200 bg-card border border-border shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                      aria-expanded={isExpanded}
+                      aria-controls={`category-${category.name.replace(/\s+/g, "-")}`}
+                    >
                       <div className="flex items-center space-x-3">
                         <div
                           className={cn(
@@ -1587,7 +1743,10 @@ export function ComponentPalette() {
                       )}
                     </CollapsibleTrigger>
 
-                    <CollapsibleContent className="mt-3 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                    <CollapsibleContent
+                      className="mt-3 space-y-3 animate-in slide-in-from-top-2 duration-200"
+                      id={`category-${category.name.replace(/\s+/g, "-")}`}
+                    >
                       {category.components.map((component) => (
                         <DraggableComponent key={`${category.name}-${component.name}`} component={component} />
                       ))}
@@ -1605,6 +1764,9 @@ export function ComponentPalette() {
                   <p className="text-muted-foreground max-w-sm mx-auto">
                     Try adjusting your search terms or removing some tag filters to see more components.
                   </p>
+                  <Button variant="outline" onClick={clearFilters} className="mt-4 bg-transparent">
+                    Clear Filters
+                  </Button>
                 </div>
               )}
             </div>
@@ -1613,14 +1775,80 @@ export function ComponentPalette() {
 
         <TabsContent value="templates" className="flex-1">
           <ScrollArea className="flex-1">
-            <div className="p-4">
-              <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                  <Layout className="h-8 w-8 text-muted-foreground" />
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                {/* Template previews */}
+                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3 mb-2">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold text-foreground">API Documentation</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Complete API documentation template with endpoints, examples, and guides.
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    <Badge variant="secondary" className="text-xs">
+                      API
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      Reference
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      Examples
+                    </Badge>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Templates Coming Soon</h3>
+
+                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Rocket className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold text-foreground">Getting Started Guide</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Step-by-step onboarding guide with installation, setup, and first steps.
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    <Badge variant="secondary" className="text-xs">
+                      Tutorial
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      Setup
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      Onboarding
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="border border-border rounded-lg p-4 hover:border-primary/50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Bug className="h-5 w-5 text-primary" />
+                    <h3 className="font-semibold text-foreground">Troubleshooting Guide</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Common issues, error codes, and solutions for debugging problems.
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    <Badge variant="secondary" className="text-xs">
+                      Troubleshooting
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      Errors
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      Solutions
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center py-8 border-t border-border">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <Sparkles className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">More Templates Coming Soon</h3>
                 <p className="text-muted-foreground max-w-sm mx-auto">
-                  Pre-built page templates and component combinations will be available here soon.
+                  We're working on more pre-built templates to help you create documentation faster.
                 </p>
               </div>
             </div>
