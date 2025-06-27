@@ -2,250 +2,453 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Variables for Theme System */
+/* CSS Variables for comprehensive theming */
 :root {
-  /* Light theme (default) */
+  /* Light mode colors (default) */
   --background: 255 255 255;
   --foreground: 15 23 42;
   --card: 255 255 255;
   --card-foreground: 15 23 42;
   --popover: 255 255 255;
   --popover-foreground: 15 23 42;
-  --primary: 227 24 55;
-  --primary-foreground: 255 255 255;
+  --primary: 37 99 235;
+  --primary-foreground: 248 250 252;
   --secondary: 241 245 249;
   --secondary-foreground: 15 23 42;
-  --muted: 241 245 249;
+  --muted: 248 250 252;
   --muted-foreground: 100 116 139;
   --accent: 241 245 249;
   --accent-foreground: 15 23 42;
   --destructive: 239 68 68;
-  --destructive-foreground: 255 255 255;
+  --destructive-foreground: 248 250 252;
   --border: 226 232 240;
   --input: 226 232 240;
-  --ring: 227 24 55;
+  --ring: 37 99 235;
   --radius: 0.5rem;
+
+  /* Custom theme colors */
+  --hero-gradient-from: 59 130 246;
+  --hero-gradient-to: 147 51 234;
+  --glass-bg: 255 255 255;
+  --glass-border: 226 232 240;
+  --shadow-color: 15 23 42;
+  --text-primary: 15 23 42;
+  --text-secondary: 71 85 105;
+  --text-muted: 148 163 184;
 }
 
-/* Dark theme - Enhanced UI Colors */
 [data-theme="dark"] {
-  --background: 15 23 42;
+  /* Dark mode colors */
+  --background: 2 6 23;
   --foreground: 248 250 252;
-  --card: 30 41 59;
+  --card: 15 23 42;
   --card-foreground: 248 250 252;
-  --popover: 30 41 59;
+  --popover: 15 23 42;
   --popover-foreground: 248 250 252;
   --primary: 59 130 246;
-  --primary-foreground: 255 255 255;
-  --secondary: 51 65 85;
-  --secondary-foreground: 203 213 225;
-  --muted: 51 65 85;
+  --primary-foreground: 15 23 42;
+  --secondary: 30 41 59;
+  --secondary-foreground: 248 250 252;
+  --muted: 30 41 59;
   --muted-foreground: 148 163 184;
-  --accent: 79 70 229;
-  --accent-foreground: 255 255 255;
+  --accent: 30 41 59;
+  --accent-foreground: 248 250 252;
   --destructive: 239 68 68;
-  --destructive-foreground: 255 255 255;
-  --border: 71 85 105;
-  --input: 71 85 105;
+  --destructive-foreground: 248 250 252;
+  --border: 51 65 85;
+  --input: 51 65 85;
   --ring: 59 130 246;
+
+  /* Custom dark theme colors */
+  --hero-gradient-from: 79 70 229;
+  --hero-gradient-to: 168 85 247;
+  --glass-bg: 15 23 42;
+  --glass-border: 51 65 85;
+  --shadow-color: 0 0 0;
+  --text-primary: 248 250 252;
+  --text-secondary: 203 213 225;
+  --text-muted: 148 163 184;
 }
 
-/* Apply theme variables to body and html */
+/* Base styles */
+* {
+  box-sizing: border-box;
+  border-color: rgb(var(--border));
+}
+
 html {
-  background-color: rgb(var(--background));
-  color: rgb(var(--foreground));
-  min-height: 100vh;
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: rgb(var(--background));
-  color: rgb(var(--foreground));
-  transition: background-color 0.3s ease, color 0.3s ease;
-  font-family: Arial, Helvetica, sans-serif;
-  min-height: 100vh;
-}
-
-/* Ensure all main containers inherit the theme */
-#__next,
-.min-h-screen {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   background-color: rgb(var(--background));
   color: rgb(var(--foreground));
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-    border-color: rgb(var(--border));
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* Theme-aware components */
+/* Utility classes for theming */
 .bg-background {
   background-color: rgb(var(--background));
 }
-
-.text-foreground {
-  color: rgb(var(--foreground));
+.bg-foreground {
+  background-color: rgb(var(--foreground));
 }
-
 .bg-card {
   background-color: rgb(var(--card));
 }
-
-.text-card-foreground {
-  color: rgb(var(--card-foreground));
+.bg-popover {
+  background-color: rgb(var(--popover));
 }
-
+.bg-primary {
+  background-color: rgb(var(--primary));
+}
+.bg-secondary {
+  background-color: rgb(var(--secondary));
+}
 .bg-muted {
   background-color: rgb(var(--muted));
 }
+.bg-accent {
+  background-color: rgb(var(--accent));
+}
+.bg-destructive {
+  background-color: rgb(var(--destructive));
+}
 
+.text-background {
+  color: rgb(var(--background));
+}
+.text-foreground {
+  color: rgb(var(--foreground));
+}
+.text-card-foreground {
+  color: rgb(var(--card-foreground));
+}
+.text-popover-foreground {
+  color: rgb(var(--popover-foreground));
+}
+.text-primary {
+  color: rgb(var(--primary));
+}
+.text-primary-foreground {
+  color: rgb(var(--primary-foreground));
+}
+.text-secondary-foreground {
+  color: rgb(var(--secondary-foreground));
+}
 .text-muted-foreground {
   color: rgb(var(--muted-foreground));
+}
+.text-accent-foreground {
+  color: rgb(var(--accent-foreground));
+}
+.text-destructive {
+  color: rgb(var(--destructive));
+}
+.text-destructive-foreground {
+  color: rgb(var(--destructive-foreground));
 }
 
 .border-border {
   border-color: rgb(var(--border));
 }
-
-/* Enhanced Dark Theme Components */
-[data-theme="dark"] .bg-background {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+.border-input {
+  border-color: rgb(var(--input));
 }
 
-[data-theme="dark"] .bg-card {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border: 1px solid rgb(71 85 105 / 0.3);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -1px rgb(0 0 0 / 0.2);
+/* Glass morphism effects */
+.glass {
+  background: rgba(var(--glass-bg), 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(var(--glass-border), 0.2);
 }
 
-[data-theme="dark"] .bg-muted {
-  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+.glass-strong {
+  background: rgba(var(--glass-bg), 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(var(--glass-border), 0.3);
 }
 
-/* Enhanced button styles for dark theme */
-[data-theme="dark"] .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+/* Gradient backgrounds */
+.gradient-hero {
+  background: linear-gradient(135deg, rgb(var(--hero-gradient-from)), rgb(var(--hero-gradient-to)));
 }
 
-[data-theme="dark"] .btn-primary:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+.gradient-card {
+  background: linear-gradient(145deg, rgba(var(--card), 0.8), rgba(var(--muted), 0.4));
+}
+
+/* Shadow utilities */
+.shadow-themed {
+  box-shadow: 0 4px 6px -1px rgba(var(--shadow-color), 0.1), 0 2px 4px -1px rgba(var(--shadow-color), 0.06);
+}
+
+.shadow-themed-lg {
+  box-shadow: 0 10px 15px -3px rgba(var(--shadow-color), 0.1), 0 4px 6px -2px rgba(var(--shadow-color), 0.05);
+}
+
+.shadow-themed-xl {
+  box-shadow: 0 20px 25px -5px rgba(var(--shadow-color), 0.1), 0 10px 10px -5px rgba(var(--shadow-color), 0.04);
+}
+
+/* Interactive states */
+.interactive {
+  transition: all 0.2s ease;
+}
+
+.interactive:hover {
   transform: translateY(-1px);
+  box-shadow: 0 10px 25px -5px rgba(var(--shadow-color), 0.15);
 }
 
-/* Enhanced input styles for dark theme */
-[data-theme="dark"] input,
-[data-theme="dark"] textarea {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border: 1px solid rgb(71 85 105 / 0.5);
-  color: rgb(248 250 252);
+/* Sphinx content styling with theming */
+.sphinx-content {
+  color: rgb(var(--text-primary));
 }
 
-[data-theme="dark"] input:focus,
-[data-theme="dark"] textarea:focus {
-  border-color: rgb(59 130 246);
-  box-shadow: 0 0 0 3px rgba(59 130 246, 0.2);
-  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+.sphinx-content h1,
+.sphinx-content h2,
+.sphinx-content h3,
+.sphinx-content h4,
+.sphinx-content h5,
+.sphinx-content h6 {
+  color: rgb(var(--text-primary));
+  font-weight: 600;
+  scroll-margin-top: 6rem;
 }
 
-/* Enhanced text colors for dark theme */
-[data-theme="dark"] .text-primary {
-  color: rgb(96 165 250);
+.sphinx-content h1 {
+  font-size: 1.875rem;
+  margin-bottom: 1.5rem;
+}
+.sphinx-content h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}
+.sphinx-content h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+.sphinx-content h4 {
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+  margin-top: 1rem;
 }
 
-[data-theme="dark"] .text-secondary {
-  color: rgb(203 213 225);
+.sphinx-content p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  color: rgb(var(--text-secondary));
 }
 
-[data-theme="dark"] .text-accent {
-  color: rgb(167 139 250);
+.sphinx-content ul,
+.sphinx-content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  color: rgb(var(--text-secondary));
 }
 
-/* Enhanced border colors for dark theme */
-[data-theme="dark"] .border-primary {
-  border-color: rgb(59 130 246 / 0.5);
+.sphinx-content li {
+  margin-bottom: 0.25rem;
 }
 
-[data-theme="dark"] .border-secondary {
-  border-color: rgb(71 85 105 / 0.5);
+.sphinx-content a {
+  color: rgb(var(--primary));
+  text-decoration: underline;
+  transition: color 0.2s ease;
 }
 
-/* Bank of America specific styles */
-.boa-header {
-  background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+.sphinx-content a:hover {
+  color: rgb(var(--primary));
+  opacity: 0.8;
 }
 
-.boa-card {
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+.sphinx-content code {
+  background-color: rgb(var(--muted));
+  color: rgb(var(--text-primary));
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
-.boa-button {
-  background: #0066cc;
-  color: white;
-  transition: all 0.2s ease-in-out;
+.sphinx-content pre {
+  background-color: rgb(var(--muted));
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  border: 1px solid rgb(var(--border));
 }
 
-.boa-button:hover {
-  background: #004499;
-  transform: translateY(-1px);
+.sphinx-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.sphinx-content blockquote {
+  border-left: 4px solid rgb(var(--primary));
+  padding-left: 1rem;
+  font-style: italic;
+  color: rgb(var(--text-muted));
+  margin-bottom: 1rem;
+}
+
+.sphinx-content table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid rgb(var(--border));
+  margin-bottom: 1rem;
+}
+
+.sphinx-content th,
+.sphinx-content td {
+  border: 1px solid rgb(var(--border));
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.sphinx-content th {
+  background-color: rgb(var(--muted));
+  font-weight: 600;
+  color: rgb(var(--text-primary));
+}
+
+.sphinx-content td {
+  color: rgb(var(--text-secondary));
+}
+
+/* React component mounting containers */
+.react-mount {
+  margin: 2rem 0;
+}
+
+/* Custom scrollbar with theming */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--muted-foreground));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--accent-foreground));
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgb(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .sphinx-content {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sphinx-content h1 {
+    font-size: 1.5rem;
+  }
+  .sphinx-content h2 {
+    font-size: 1.25rem;
+  }
+  .sphinx-content h3 {
+    font-size: 1.125rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .sphinx-content {
+    color: rgb(var(--foreground));
+  }
+
+  .sphinx-content a {
+    color: rgb(var(--primary));
+    font-weight: 600;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sidebar,
+  .header,
+  .table-of-contents {
+    display: none !important;
+  }
+
+  .sphinx-content {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
 }
