@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Settings, Palette, Layout, Type, ChevronDown, ChevronRight, Sliders, Save, Check } from "lucide-react"
+import { Settings, Palette, Layout, Type, ChevronDown, ChevronRight, Sliders, Save, Check } from 'lucide-react'
 import { useEditor } from "./EditorContext"
 import type { MarkdownComponent, ComponentStyle } from "./types"
 
@@ -21,7 +21,7 @@ interface PropertiesPanelProps {
   onSave: (title: string, description: string) => void
 }
 
-export function PropertiesPanel({
+export default function PropertiesPanel({
   selectedComponent,
   onUpdateComponent,
   onUpdateStyle,
@@ -31,9 +31,9 @@ export function PropertiesPanel({
 }: PropertiesPanelProps) {
   const { updateComponentContent, updateComponentStyle } = useEditor()
   const [expandedSections, setExpandedSections] = useState<string[]>(["content", "style"])
-  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle")
   const [title, setTitle] = useState(initialTitle)
   const [description, setDescription] = useState(initialDescription)
+  const [saving, setSaving] = useState<"idle" | "saving" | "saved">("idle")
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]))
@@ -50,11 +50,12 @@ export function PropertiesPanel({
   }
 
   const handleSave = async () => {
-    setSaveStatus("saving")
+    setSaving("saving")
     // Simulate save operation
     await new Promise((resolve) => setTimeout(resolve, 500))
-    setSaveStatus("saved")
-    setTimeout(() => setSaveStatus("idle"), 2000)
+    setSaving("saved")
+    setTimeout(() => setSaving("idle"), 2000)
+    onSave(title, description)
   }
 
   const renderContentEditor = () => {
@@ -637,86 +638,38 @@ export function PropertiesPanel({
     )
   }
 
-  if (!selectedComponent) {
-    return (
-      <div className="h-full flex flex-col bg-card">
-        <div className="p-4 border-b border-border bg-muted/50">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary">
-              <Settings className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-foreground">Properties</h2>
-              <p className="text-sm text-muted-foreground">No component selected</p>
-            </div>
-          </div>
-        </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            onSave(title, description)
-          }}
-          className="space-y-4 flex-1 p-4"
-        >
-          <div className="space-y-1">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="description">Description</Label>
-            <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
-          </div>
-
-          <Button type="submit" className="mt-2">
-            Save Metadata
-          </Button>
-        </form>
-      </div>
-    )
-  }
-
   return (
     <div className="h-full flex flex-col bg-card">
-      <div className="p-4 border-b border-border bg-muted/50">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary">
-            <Settings className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-foreground">Properties</h2>
-            <p className="text-sm text-muted-foreground">Edit component properties</p>
-          </div>
-        </div>
+      <div className="p-4 border-b border-border">
+        <h2 className="font-semibold">Properties</h2>
       </div>
-      <ScrollArea className="flex-1 p-4">
-        <Tabs defaultValue="content" className="space-y-4">
+
+      <ScrollArea className="flex-1 p-4 space-y-4">
+        <Tabs defaultValue="content">
           <TabsList>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="style">Style</TabsTrigger>
           </TabsList>
+
           <TabsContent value="content">{renderContentEditor()}</TabsContent>
+
           <TabsContent value="style">{renderStyleEditor()}</TabsContent>
         </Tabs>
       </ScrollArea>
+
       <div className="p-4 border-t border-border bg-muted/50">
         <Button onClick={handleSave} className="w-full">
-          {saveStatus === "saving" ? (
-            <span className="flex items-center justify-center gap-2">
-              Saving...
-              <Sliders className="w-4 h-4 animate-spin" />
-            </span>
-          ) : saveStatus === "saved" ? (
-            <span className="flex items-center justify-center gap-2">
-              Saved
-              <Check className="w-4 h-4" />
-            </span>
-          ) : (
-            <span className="flex items-center justify-center gap-2">
-              Save
-              <Save className="w-4 h-4" />
+          {saving === "saving" && (
+            <span className="flex items-center gap-2">
+              Saving <Sliders className="w-4 h-4 animate-spin" />
             </span>
           )}
+          {saving === "saved" && (
+            <span className="flex items-center gap-2">
+              Saved <Check className="w-4 h-4" />
+            </span>
+          )}
+          {saving === "idle" && "Save"}
         </Button>
       </div>
     </div>
