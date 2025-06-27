@@ -1,73 +1,56 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { type NavItem } from './docs-navigation';
+import fs from "fs/promises"
+import path from "path"
+import type { NavItem } from "./docs-navigation"
 
-const docsRoot = path.join(process.cwd(), 'docs');
+const DOCS_ROOT = path.join(process.cwd(), "docs")
 
-// Converts a filename like 'api-reference' or 'platform-overview' to 'API Reference' or 'Platform Overview'
-function formatTitle(name: string): string {
-  return name
-    .replace(/-/g, ' ')
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
+const isContentFile = (name: string) => name.endsWith(".md") || name.endsWith(".rst")
 
-export async function generateNavFromFileSystem(version: string): Promise<NavItem[]> {
-  const versionPath = path.join(docsRoot, version);
+const niceTitle = (raw: string) => raw.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) // capitalise every word
 
-  async function readDir(currentPath: string): Promise<NavItem[]> {
-    try {
-      const entries = await fs.readdir(currentPath, { withFileTypes: true });
-      const navItems: NavItem[] = [];
+/**
+ * Recursively walk docs/{version} and build a navigation tree.
+ */
+export async function buildNav(version: string): Promise<NavItem[]> {
+  const baseDir = path.join(DOCS_ROOT, version)
 
-      for (const entry of entries) {
-        const entryPath = path.join(currentPath, entry.name);
-        const baseName = path.basename(entry.name, path.extname(entry.name));
-        
-        // Skip config files, hidden files, or other non-content files
-        if (entry.name.startsWith('conf') || entry.name.startsWith('.')) {
-            continue;
+  async function walk(dir: string): Promise<NavItem[]> {
+    const entries = await fs.readdir(dir, { withFileTypes: true })
+    const nav: NavItem[] = []
+
+    for (const e of entries) {
+      if (e.name.startsWith(".")) continue
+
+      const fullPath = path.join(dir, e.name)
+      const rel = path.relative(baseDir, fullPath).replace(/\\/g, "/")
+
+      if (e.isDirectory()) {
+        const children = await walk(fullPath)
+        const hasIndex = (await fs.readdir(fullPath)).some((f) => f.startsWith("index."))
+        if (children.length || hasIndex) {
+          nav.push({
+            title: niceTitle(e.name),
+            href: `/docs/${version}/${rel}`,
+            items: children,
+          })
         }
-
-        // Don't create a nav item for the index file itself, it's used for the parent link
-        if (baseName === 'index') {
-            continue;
-        }
-
-        if (entry.isDirectory()) {
-          const children = await readDir(entryPath);
-          // The link for a directory points to its path. If an index file exists, it will be served.
-          const dirHref = `/docs/${version}/${path.relative(versionPath, entryPath).replace(/\\/g, '/')}`;
-          
-          const hasIndex = (await fs.readdir(entryPath)).some(f => f.startsWith('index.'));
-          // Only add the directory to nav if it contains child pages or an index page.
-          if (children.length > 0 || hasIndex) {
-             navItems.push({
-                title: formatTitle(entry.name),
-                href: dirHref,
-                items: children,
-             });
-          }
-        } else if (entry.isFile() && (entry.name.endsWith('.rst') || entry.name.endsWith('.md'))) {
-          const href = `/docs/${version}/${path.relative(versionPath, entryPath).replace(/\\/g, '/').replace(/\.(rst|md)$/, '')}`;
-          navItems.push({
-            title: formatTitle(baseName),
-            href,
-          });
-        }
+      } else if (e.isFile() && isContentFile(e.name)) {
+        // skip "index" → the directory link already covers it
+        const base = path.parse(e.name).name
+        if (base === "index") continue
+        nav.push({
+          title: niceTitle(base),
+          href: `/docs/${version}/${rel.replace(/\.(md|rst)$/, "")}`,
+        })
       }
-      // Sort items alphabetically, with directories appearing before files if desired (current is pure alpha)
-      return navItems.sort((a, b) => a.title.localeCompare(b.title));
-    } catch (error) {
-      // If a directory for the version doesn't exist, return an empty array.
-      if (error.code === 'ENOENT') {
-        console.warn(`Directory not found: ${currentPath}`);
-        return [];
-      }
-      throw error;
     }
+    // alpha sort
+    return nav.sort((a, b) => a.title.localeCompare(b.title))
   }
 
-  return await readDir(versionPath);
+  try {
+    return await walk(baseDir)
+  } catch {
+    return [] // version folder missing
+  }
 }

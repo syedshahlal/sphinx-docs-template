@@ -1,18 +1,33 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Home } from 'lucide-react'
-import { generateNavFromFileSystem } from "@/lib/docs-utils"
+import { Home } from "lucide-react"
+import type { NavItem } from "@/lib/docs-navigation"
 import { CollapsibleNavItem } from "./collapsible-nav-item"
 
 interface SidebarProps {
   version?: string
 }
 
-export async function Sidebar({ version = "v5.7" }: SidebarProps) {
-  const navigation = await generateNavFromFileSystem(version)
+export function Sidebar({ version = "v5.7" }: SidebarProps) {
+  const [nav, setNav] = useState<NavItem[] | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    fetch(`/api/docs-nav?version=${version}`)
+      .then((r) => r.json())
+      .then((data: NavItem[]) => mounted && setNav(data))
+      .catch(() => mounted && setNav([]))
+    return () => {
+      mounted = false
+    }
+  }, [version])
 
   return (
     <aside className="w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 hidden lg:block">
-      <div className="h-full py-6 px-4">
+      <div className="h-full py-6 px-4 overflow-y-auto">
+        {/* HOME LINK */}
         <div className="mb-6">
           <Link
             href="/"
@@ -22,13 +37,19 @@ export async function Sidebar({ version = "v5.7" }: SidebarProps) {
             Home
           </Link>
         </div>
+
         <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-2">
           Documentation
         </h3>
+
         <nav className="space-y-1">
-          {navigation.map((item) => (
-            <CollapsibleNavItem key={item.href} item={item} />
-          ))}
+          {nav === null ? (
+            <p className="px-3 text-sm text-gray-400">Loading…</p>
+          ) : nav.length === 0 ? (
+            <p className="px-3 text-sm text-gray-400">No docs found.</p>
+          ) : (
+            nav.map((item) => <CollapsibleNavItem key={item.href} item={item} />)
+          )}
         </nav>
       </div>
     </aside>
