@@ -7,31 +7,31 @@
 
 @layer base {
   :root {
-    /* Color System */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* PyData Sphinx Theme - Light Mode */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 210 10% 23%; /* #2f353a */
+    --card: 210 17% 98%; /* #F8F9FA */
+    --card-foreground: 210 10% 23%; /* #2f353a */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --popover-foreground: 210 10% 23%;
+    --primary: 220 57% 42%; /* #3259A8 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 16% 93%; /* #E9ECEF */
+    --secondary-foreground: 210 10% 23%;
+    --muted: 210 16% 93%;
+    --muted-foreground: 208 7% 49%; /* #6C757D */
+    --accent: 210 17% 95%;
+    --accent-foreground: 220 57% 42%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 16% 90%;
+    --input: 210 16% 93%;
+    --ring: 220 57% 42%;
     --radius: 0.5rem;
 
     /* Component-specific variables */
-    --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --card-shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --card-shadow-hover: 0 2px 4px -1px rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.04);
     --card-border-radius: 0.75rem;
     --grid-gap: 1.5rem;
     --transition-duration: 200ms;
@@ -39,30 +39,30 @@
   }
 
   .dark {
-    /* Dark theme colors */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    /* PyData Sphinx Theme - Dark Mode */
+    --background: 220 8% 10%; /* #181a1f */
+    --foreground: 210 16% 93%; /* #E9ECEF */
+    --card: 210 10% 15%; /* #212529 */
+    --card-foreground: 210 16% 93%;
+    --popover: 220 8% 10%;
+    --popover-foreground: 210 16% 93%;
+    --primary: 217 76% 58%; /* #4582E3 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 10% 23%; /* #343A40 */
+    --secondary-foreground: 210 16% 93%;
+    --muted: 210 10% 23%;
+    --muted-foreground: 212 9% 62%; /* #98A2AC */
+    --accent: 210 10% 23%;
+    --accent-foreground: 210 16% 93%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 10% 23%;
+    --input: 210 10% 23%;
+    --ring: 217 76% 58%;
 
     /* Dark theme component variables */
-    --card-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
-    --card-shadow-hover: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    --card-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+    --card-shadow-hover: 0 2px 4px -1px rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
   }
 }
 
@@ -88,7 +88,7 @@
 @layer components {
   /* Universal Card Component Styles */
   .card-base {
-    @apply bg-card text-card-foreground border border-border;
+    @apply bg-card text-card-foreground border;
     border-radius: var(--card-border-radius);
     box-shadow: var(--card-shadow);
     transition: all var(--transition-duration) var(--transition-timing);
@@ -214,7 +214,7 @@
 
   /* Form Elements */
   .form-input {
-    @apply bg-background border border-input px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent;
+    @apply bg-input border-border px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent;
   }
 
   .form-label {
