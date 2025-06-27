@@ -54,8 +54,3 @@ export function SeeAlsoSection() {
   )
 
   return (
-    
-  )
-}
-
-export default SeeAlsoSection
