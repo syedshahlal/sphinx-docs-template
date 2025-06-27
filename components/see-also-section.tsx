@@ -37,7 +37,7 @@ const links = [
   },
 ]
 
-export default function SeeAlsoSection() {
+function SeeAlsoSection() {
   return (
     <section className="relative isolate overflow-hidden py-24 sm:py-32">
       {/* Decorative radial gradient */}
@@ -81,3 +81,6 @@ export default function SeeAlsoSection() {
     </section>
   )
 }
+
+export { SeeAlsoSection }
+export default SeeAlsoSection
