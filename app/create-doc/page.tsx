@@ -1,24 +1,14 @@
 "use client"
-import dynamic from "next/dynamic"
 
-const Editor = dynamic(() => import("@/components/Editor"), {
-  ssr: false,
-})
+import { MarkdownEditor } from "@/components/markdown-editor/MarkdownEditor"
+import { EditorProvider } from "@/components/markdown-editor/EditorContext"
 
-const CreateDocPage = () => {
+export default function CreateDocPage() {
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex-grow flex">
-        <div className="w-1/2 p-4">
-          <Editor />
-        </div>
-        <div className="w-1/2 p-4">
-          {/* Preview or other content can go here */}
-          Preview Area
-        </div>
+    <EditorProvider>
+      <div className="h-screen bg-background">
+        <MarkdownEditor />
       </div>
-    </div>
+    </EditorProvider>
   )
 }
-
-export default CreateDocPage
