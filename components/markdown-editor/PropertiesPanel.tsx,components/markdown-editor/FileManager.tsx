@@ -1,13 +1,17 @@
 "use client"
 
 import type React from "react"
-
-
-// components/markdown-editor/PropertiesPanel.tsx
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
 
 interface PropertiesPanelProps {
   title: string
@@ -32,11 +36,20 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     <div className="space-y-4">
       <div>
         <Label htmlFor="title">Title</Label>
-        <Input type="text" id="title" value={title} onChange={(e) => onTitleChange(e.target.value)} />
+        <Input
+          type="text"
+          id="title"
+          value={title}
+          onChange={(e) => onTitleChange(e.target.value)}
+        />
       </div>
       <div>
         <Label htmlFor="content">Content</Label>
-        <Textarea id="content" value={content} onChange={(e) => onContentChange(e.target.value)} />
+        <Textarea
+          id="content"
+          value={content}
+          onChange={(e) => onContentChange(e.target.value)}
+        />
       </div>
       <div>
         <Label htmlFor="category">Category</Label>
@@ -57,11 +70,6 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   )
 }
 
-export default PropertiesPanel
-
-// components/markdown-editor/FileManager.tsx
-import { Button } from "@/components/ui/button"
-
 interface FileManagerProps {
   onSave: () => void
   onLoad: () => void
@@ -76,4 +84,5 @@ const FileManager: React.FC<FileManagerProps> = ({ onSave, onLoad }) => {
   )
 }
 
-export default FileManager;
+export default PropertiesPanel
+export { FileManager }
