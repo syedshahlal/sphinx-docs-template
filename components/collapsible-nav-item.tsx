@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ChevronRight } from "lucide-react"
@@ -9,26 +9,30 @@ import { cn } from "@/lib/utils"
 
 interface CollapsibleNavItemProps {
   item: NavItem
-  level?: number
 }
 
-export function CollapsibleNavItem({ item, level = 0 }: CollapsibleNavItemProps) {
+export function CollapsibleNavItem({ item }: CollapsibleNavItemProps) {
   const pathname = usePathname()
-  const [isOpen, setIsOpen] = useState(pathname.startsWith(item.href))
+  const [isCollapsed, setIsCollapsed] = useState(true)
 
-  const isActive = pathname === item.href
+  const isActive = item.href === pathname || (item.children && item.children.some((child) => child.href === pathname))
 
-  if (!item.items || item.items.length === 0) {
+  useEffect(() => {
+    if (isActive) {
+      setIsCollapsed(false)
+    }
+  }, [isActive])
+
+  if (!item.children) {
     return (
       <Link
         href={item.href}
         className={cn(
-          "flex items-center py-2 text-sm rounded-md transition-colors",
-          isActive
-            ? "font-semibold text-blue-600 dark:text-blue-400"
-            : "text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800",
+          "flex items-center w-full text-sm font-medium rounded-md px-3 py-2 transition-colors duration-150",
+          pathname === item.href
+            ? "bg-gray-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            : "text-slate-700 dark:text-slate-300 hover:bg-gray-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100",
         )}
-        style={{ paddingLeft: `${0.75 + level * 1}rem` }}
       >
         {item.title}
       </Link>
@@ -38,22 +42,25 @@ export function CollapsibleNavItem({ item, level = 0 }: CollapsibleNavItemProps)
   return (
     <div>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsCollapsed(!isCollapsed)}
         className={cn(
-          "flex items-center justify-between w-full py-2 text-sm rounded-md transition-colors",
-          "text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800",
+          "flex items-center justify-between w-full text-sm font-medium rounded-md px-3 py-2 transition-colors duration-150",
+          isActive
+            ? "bg-gray-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+            : "text-slate-700 dark:text-slate-300 hover:bg-gray-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-100",
         )}
-        style={{ paddingLeft: `${0.75 + level * 1}rem` }}
       >
-        <span className={cn("font-medium", pathname.startsWith(item.href) && "text-blue-600 dark:text-blue-400")}>
-          {item.title}
-        </span>
-        <ChevronRight className={cn("h-4 w-4 text-gray-500 transition-transform", isOpen && "rotate-90")} />
+        <span>{item.title}</span>
+        <ChevronRight
+          className={cn("h-4 w-4 transition-transform duration-200", {
+            "rotate-90": !isCollapsed,
+          })}
+        />
       </button>
-      {isOpen && (
-        <div className="mt-1 space-y-1">
-          {item.items.map((child) => (
-            <CollapsibleNavItem key={child.href} item={child} level={level + 1} />
+      {!isCollapsed && (
+        <div className="pl-4 mt-1 space-y-1 border-l border-gray-200 dark:border-slate-700 ml-3">
+          {item.children.map((child) => (
+            <CollapsibleNavItem key={child.href} item={child} />
           ))}
         </div>
       )}
