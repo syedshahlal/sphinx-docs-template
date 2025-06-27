@@ -1,106 +1,73 @@
-import { docsConfig, getFullDocUrl } from "./docs-config"
+import fs from 'fs/promises';
+import path from 'path';
+import { type NavItem } from './docs-navigation';
 
-export interface DocLinkOptions {
-  openInNewTab?: boolean
-  trackClick?: boolean
-  fallbackUrl?: string
+const docsRoot = path.join(process.cwd(), 'docs');
+
+// Converts a filename like 'api-reference' or 'platform-overview' to 'API Reference' or 'Platform Overview'
+function formatTitle(name: string): string {
+  return name
+    .replace(/-/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
-/**
- * Create a proper link to documentation with fallback handling
- */
-export const createDocLink = (sectionId: string, options: DocLinkOptions = {}): string => {
-  const { fallbackUrl = "#" } = options
+export async function generateNavFromFileSystem(version: string): Promise<NavItem[]> {
+  const versionPath = path.join(docsRoot, version);
 
-  const section = docsConfig.sections.find((s) => s.id === sectionId)
-  if (!section) {
-    console.warn(`Documentation section '${sectionId}' not found`)
-    return fallbackUrl
-  }
+  async function readDir(currentPath: string): Promise<NavItem[]> {
+    try {
+      const entries = await fs.readdir(currentPath, { withFileTypes: true });
+      const navItems: NavItem[] = [];
 
-  return getFullDocUrl(section.path)
-}
+      for (const entry of entries) {
+        const entryPath = path.join(currentPath, entry.name);
+        const baseName = path.basename(entry.name, path.extname(entry.name));
+        
+        // Skip config files, hidden files, or other non-content files
+        if (entry.name.startsWith('conf') || entry.name.startsWith('.')) {
+            continue;
+        }
 
-/**
- * Check if documentation file exists (client-side)
- */
-export const checkDocExists = async (path: string): Promise<boolean> => {
-  try {
-    const response = await fetch(path, { method: "HEAD" })
-    return response.ok
-  } catch {
-    return false
-  }
-}
+        // Don't create a nav item for the index file itself, it's used for the parent link
+        if (baseName === 'index') {
+            continue;
+        }
 
-/**
- * Handle documentation link click with analytics and fallback
- */
-export const handleDocClick = async (sectionId: string, options: DocLinkOptions = {}) => {
-  const { openInNewTab = true, trackClick = true, fallbackUrl } = options
-
-  const link = createDocLink(sectionId, { fallbackUrl })
-
-  // Track click if analytics is available
-  if (trackClick && typeof window !== "undefined" && (window as any).gtag) {
-    ;(window as any).gtag("event", "doc_click", {
-      section_id: sectionId,
-      doc_path: link,
-    })
-  }
-
-  // Check if doc exists before navigating
-  const exists = await checkDocExists(link)
-  if (!exists && fallbackUrl) {
-    console.warn(`Documentation not found: ${link}, using fallback`)
-    window.open(fallbackUrl, openInNewTab ? "_blank" : "_self")
-    return
-  }
-
-  // Navigate to documentation
-  if (openInNewTab) {
-    window.open(link, "_blank", "noopener,noreferrer")
-  } else {
-    window.location.href = link
-  }
-}
-
-/**
- * Get documentation status for UI display
- */
-export const getDocStatus = (
-  sectionId: string,
-): {
-  available: boolean
-  status: string
-  message?: string
-} => {
-  const section = docsConfig.sections.find((s) => s.id === sectionId)
-
-  if (!section) {
-    return {
-      available: false,
-      status: "not-found",
-      message: "Documentation section not configured",
+        if (entry.isDirectory()) {
+          const children = await readDir(entryPath);
+          // The link for a directory points to its path. If an index file exists, it will be served.
+          const dirHref = `/docs/${version}/${path.relative(versionPath, entryPath).replace(/\\/g, '/')}`;
+          
+          const hasIndex = (await fs.readdir(entryPath)).some(f => f.startsWith('index.'));
+          // Only add the directory to nav if it contains child pages or an index page.
+          if (children.length > 0 || hasIndex) {
+             navItems.push({
+                title: formatTitle(entry.name),
+                href: dirHref,
+                items: children,
+             });
+          }
+        } else if (entry.isFile() && (entry.name.endsWith('.rst') || entry.name.endsWith('.md'))) {
+          const href = `/docs/${version}/${path.relative(versionPath, entryPath).replace(/\\/g, '/').replace(/\.(rst|md)$/, '')}`;
+          navItems.push({
+            title: formatTitle(baseName),
+            href,
+          });
+        }
+      }
+      // Sort items alphabetically, with directories appearing before files if desired (current is pure alpha)
+      return navItems.sort((a, b) => a.title.localeCompare(b.title));
+    } catch (error) {
+      // If a directory for the version doesn't exist, return an empty array.
+      if (error.code === 'ENOENT') {
+        console.warn(`Directory not found: ${currentPath}`);
+        return [];
+      }
+      throw error;
     }
   }
 
-  switch (section.status) {
-    case "available":
-      return { available: true, status: "available" }
-    case "coming-soon":
-      return {
-        available: false,
-        status: "coming-soon",
-        message: "Documentation coming soon",
-      }
-    case "beta":
-      return {
-        available: true,
-        status: "beta",
-        message: "Beta documentation - may contain incomplete information",
-      }
-    default:
-      return { available: false, status: "unknown" }
-  }
+  return await readDir(versionPath);
 }

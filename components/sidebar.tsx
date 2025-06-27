@@ -1,16 +1,14 @@
 import Link from "next/link"
-import { Home } from "lucide-react"
-import { navigationV5_7 } from "@/lib/docs-navigation"
+import { Home } from 'lucide-react'
+import { generateNavFromFileSystem } from "@/lib/docs-utils"
 import { CollapsibleNavItem } from "./collapsible-nav-item"
 
 interface SidebarProps {
   version?: string
 }
 
-export function Sidebar({ version = "v5.7" }: SidebarProps) {
-  // In a real app, you might have a map of versions to navigation data
-  // or fetch it based on the version prop.
-  const navigation = version === "v5.7" ? navigationV5_7 : []
+export async function Sidebar({ version = "v5.7" }: SidebarProps) {
+  const navigation = await generateNavFromFileSystem(version)
 
   return (
     <aside className="w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 hidden lg:block">
