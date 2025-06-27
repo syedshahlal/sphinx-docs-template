@@ -223,7 +223,7 @@ export function Header() {
               : "bg-white border-b border-gray-100 dark:border-slate-800"
         }`}
       >
-        <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           {" "}
           {/* Changed max-w-7xl to screen-xl for wider layout */}
           <div className="flex items-center justify-between h-16">
