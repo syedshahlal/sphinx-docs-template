@@ -34,6 +34,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 
 export function Header() {
@@ -44,25 +45,37 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const theme = isDarkMode ? "dark" : "light"
 
-  // Available versions - gcp-5.7 as stable (default), gcp-5.8 as beta
+  // Available versions matching the image structure
   const [availableVersions] = useState([
-    { version: "5.7", label: "v5.7", url: "/docs/gcp-5.7", isLatest: false, status: "stable" },
-    { version: "5.8", label: "v5.8", url: "/docs/gcp-5.8", isLatest: true, status: "beta" },
+    // Current stable version
+    { version: "5.7.0", label: "v5.7.0", url: "/docs/gcp-5.7", category: "current", status: "stable" },
+
+    // Previous versions
+    { version: "5.6.2", label: "v5.6.2", url: "/docs/gcp-5.6.2", category: "previous", status: "legacy" },
+    { version: "5.5.4", label: "v5.5.4", url: "/docs/gcp-5.5.4", category: "previous", status: "legacy" },
+    { version: "5.4.8", label: "v5.4.8", url: "/docs/gcp-5.4.8", category: "previous", status: "legacy" },
+    { version: "5.3.6", label: "v5.3.6", url: "/docs/gcp-5.3.6", category: "previous", status: "legacy" },
+    { version: "5.2.3", label: "v5.2.3", url: "/docs/gcp-5.2.3", category: "previous", status: "legacy" },
+    { version: "5.1.9", label: "v5.1.9", url: "/docs/gcp-5.1.9", category: "previous", status: "legacy" },
+
+    // Development versions
+    { version: "5.8.0-beta", label: "v5.8.0-beta", url: "/docs/gcp-5.8", category: "development", status: "beta" },
+    { version: "6.0.0-alpha", label: "v6.0.0-alpha", url: "/docs/gcp-6.0", category: "development", status: "alpha" },
   ])
 
-  // Default to stable version (5.7)
+  // Default to stable version (5.7.0)
   const [currentVersion, setCurrentVersion] = useState(() => {
-    return "5.7" // Default to stable version
+    return "5.7.0" // Default to stable version
   })
 
   // Extract version from URL path
   const extractVersionFromPath = (path: string): string => {
-    const match = path.match(/\/docs\/gcp-(\d+\.\d+)/)
+    const match = path.match(/\/docs\/gcp-(\d+\.\d+(?:-\w+)?|\d+\.\d+\.\d+(?:-\w+)?)/)
     if (match) {
       return match[1]
     }
     // If no version found in path, return stable version as default
-    return "5.7"
+    return "5.7.0"
   }
 
   // Update current version based on pathname
@@ -89,7 +102,7 @@ export function Header() {
 
     // Get current page path without version
     const currentPath = pathname
-    const pathWithoutVersion = currentPath.replace(/\/docs\/gcp-\d+\.\d+/, "")
+    const pathWithoutVersion = currentPath.replace(/\/docs\/gcp-[\d.\-\w]+/, "")
 
     // Find the selected version URL
     const selectedVersion = availableVersions.find((v) => v.version === version)
@@ -157,6 +170,29 @@ export function Header() {
 
   const getCurrentVersionInfo = () => {
     return availableVersions.find((v) => v.version === currentVersion)
+  }
+
+  const getVersionsByCategory = () => {
+    const current = availableVersions.filter((v) => v.category === "current")
+    const previous = availableVersions.filter((v) => v.category === "previous")
+    const development = availableVersions.filter((v) => v.category === "development")
+
+    return { current, previous, development }
+  }
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case "stable":
+        return "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+      case "beta":
+        return "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400"
+      case "alpha":
+        return "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400"
+      case "legacy":
+        return "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400"
+      default:
+        return "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400"
+    }
   }
 
   return (
@@ -268,15 +304,14 @@ export function Header() {
                   } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">v{currentVersion}</span>
-                    {getCurrentVersionInfo()?.status === "stable" && (
-                      <span className="px-1.5 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
-                        Stable
-                      </span>
-                    )}
-                    {getCurrentVersionInfo()?.status === "beta" && (
-                      <span className="px-1.5 py-0.5 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded">
-                        Beta
+                    <span className="text-sm font-medium">
+                      {getCurrentVersionInfo()?.label || `v${currentVersion}`}
+                    </span>
+                    {getCurrentVersionInfo()?.status && (
+                      <span
+                        className={`px-1.5 py-0.5 text-xs rounded ${getStatusBadgeColor(getCurrentVersionInfo()?.status || "")}`}
+                      >
+                        {getCurrentVersionInfo()?.status}
                       </span>
                     )}
                   </div>
@@ -285,53 +320,129 @@ export function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className={`w-56 ${theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}
+                className={`w-64 max-h-96 overflow-y-auto ${theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}
               >
-                <div className="px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                  Available Versions
-                </div>
-                <DropdownMenuSeparator className={theme === "dark" ? "bg-slate-700" : "bg-slate-200"} />
-                {availableVersions.map((version) => (
-                  <DropdownMenuItem
-                    key={version.version}
-                    onClick={() => switchVersion(version.version)}
-                    className={`flex items-center justify-between px-3 py-2 text-sm cursor-pointer ${
-                      version.version === currentVersion
-                        ? theme === "dark"
-                          ? "bg-slate-700 text-slate-100"
-                          : "bg-slate-100 text-slate-900"
-                        : theme === "dark"
-                          ? "text-slate-300 hover:bg-slate-700/50 hover:text-slate-100"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{version.label}</span>
-                      {version.status === "stable" && (
-                        <span className="px-1.5 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
-                          Stable
-                        </span>
+                {(() => {
+                  const { current, previous, development } = getVersionsByCategory()
+
+                  return (
+                    <>
+                      {/* Current Version */}
+                      <DropdownMenuLabel className="px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                        Current
+                      </DropdownMenuLabel>
+                      {current.map((version) => (
+                        <DropdownMenuItem
+                          key={version.version}
+                          onClick={() => switchVersion(version.version)}
+                          className={`flex items-center justify-between px-3 py-2 text-sm cursor-pointer ${
+                            version.version === currentVersion
+                              ? theme === "dark"
+                                ? "bg-slate-700 text-slate-100"
+                                : "bg-slate-100 text-slate-900"
+                              : theme === "dark"
+                                ? "text-slate-300 hover:bg-slate-700/50 hover:text-slate-100"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{version.label}</span>
+                            <span className={`px-1.5 py-0.5 text-xs rounded ${getStatusBadgeColor(version.status)}`}>
+                              {version.status}
+                            </span>
+                          </div>
+                          {version.version === currentVersion && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
+                        </DropdownMenuItem>
+                      ))}
+
+                      {/* Previous Versions */}
+                      {previous.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator className={theme === "dark" ? "bg-slate-700" : "bg-slate-200"} />
+                          <DropdownMenuLabel className="px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                            Previous Versions
+                          </DropdownMenuLabel>
+                          {previous.map((version) => (
+                            <DropdownMenuItem
+                              key={version.version}
+                              onClick={() => switchVersion(version.version)}
+                              className={`flex items-center justify-between px-3 py-2 text-sm cursor-pointer ${
+                                version.version === currentVersion
+                                  ? theme === "dark"
+                                    ? "bg-slate-700 text-slate-100"
+                                    : "bg-slate-100 text-slate-900"
+                                  : theme === "dark"
+                                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-slate-100"
+                                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{version.label}</span>
+                                <span
+                                  className={`px-1.5 py-0.5 text-xs rounded ${getStatusBadgeColor(version.status)}`}
+                                >
+                                  {version.status}
+                                </span>
+                              </div>
+                              {version.version === currentVersion && (
+                                <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                              )}
+                            </DropdownMenuItem>
+                          ))}
+                        </>
                       )}
-                      {version.status === "beta" && (
-                        <span className="px-1.5 py-0.5 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded">
-                          Beta
-                        </span>
+
+                      {/* Development Versions */}
+                      {development.length > 0 && (
+                        <>
+                          <DropdownMenuSeparator className={theme === "dark" ? "bg-slate-700" : "bg-slate-200"} />
+                          <DropdownMenuLabel className="px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                            Development
+                          </DropdownMenuLabel>
+                          {development.map((version) => (
+                            <DropdownMenuItem
+                              key={version.version}
+                              onClick={() => switchVersion(version.version)}
+                              className={`flex items-center justify-between px-3 py-2 text-sm cursor-pointer ${
+                                version.version === currentVersion
+                                  ? theme === "dark"
+                                    ? "bg-slate-700 text-slate-100"
+                                    : "bg-slate-100 text-slate-900"
+                                  : theme === "dark"
+                                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-slate-100"
+                                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{version.label}</span>
+                                <span
+                                  className={`px-1.5 py-0.5 text-xs rounded ${getStatusBadgeColor(version.status)}`}
+                                >
+                                  {version.status}
+                                </span>
+                              </div>
+                              {version.version === currentVersion && (
+                                <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                              )}
+                            </DropdownMenuItem>
+                          ))}
+                        </>
                       )}
-                    </div>
-                    {version.version === currentVersion && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
-                  </DropdownMenuItem>
-                ))}
-                <DropdownMenuSeparator className={theme === "dark" ? "bg-slate-700" : "bg-slate-200"} />
-                <DropdownMenuItem
-                  className={`flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${
-                    theme === "dark"
-                      ? "text-slate-300 hover:bg-slate-700/50 hover:text-slate-100"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                  }`}
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>Compare Versions</span>
-                </DropdownMenuItem>
+
+                      <DropdownMenuSeparator className={theme === "dark" ? "bg-slate-700" : "bg-slate-200"} />
+                      <DropdownMenuItem
+                        className={`flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${
+                          theme === "dark"
+                            ? "text-slate-300 hover:bg-slate-700/50 hover:text-slate-100"
+                            : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        }`}
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        <span>Compare Versions</span>
+                      </DropdownMenuItem>
+                    </>
+                  )
+                })()}
               </DropdownMenuContent>
             </DropdownMenu>
 

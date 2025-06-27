@@ -1,261 +1,176 @@
-Getting Started with GRA Core Platform v5.8
-============================================
+Getting Started with GRA Core Platform v5.8 Beta
+=================================================
 
-Welcome to GRA Core Platform v5.8 Beta! This guide will help you get up and running quickly with the latest features and improvements.
+.. warning::
+   This is **BETA** software. Please test thoroughly before production use.
 
-.. note::
-   v5.8 is currently in **Beta**. For production deployments, consider using `v5.7 (Stable) <../../gcp-5.7/getting-started/index.html>`_.
-
-.. toctree::
-   :maxdepth: 2
-
-   quickstart
+Welcome to GRA Core Platform v5.8 Beta! This guide will help you get up and 
+running with the latest features and improvements.
 
 Prerequisites
 -------------
 
-Before installing GRA Core Platform v5.8, ensure you have:
+Before installing GRA Core Platform v5.8 Beta, ensure you have:
 
-System Requirements
-~~~~~~~~~~~~~~~~~~
+**System Requirements**
+   - **OS**: Linux (Ubuntu 20.04+, RHEL 8+, CentOS 8+) or macOS 11+
+   - **Memory**: Minimum 8GB RAM (16GB recommended)
+   - **Storage**: 50GB available disk space
+   - **CPU**: 4+ cores recommended
+   - **Network**: Stable internet connection
 
-* **Operating System**: Linux (Ubuntu 20.04+, RHEL 8+, CentOS 8+)
-* **Memory**: Minimum 8GB RAM (16GB recommended)
-* **Storage**: 50GB available disk space
-* **Network**: Outbound internet access for package downloads
+**Software Dependencies**
+   - **Docker**: v20.10+ and Docker Compose v2.0+
+   - **Kubernetes**: v1.24+ (for container deployments)
+   - **Node.js**: v18+ (for SDK development)
+   - **Python**: v3.9+ (for Python SDK)
+   - **Java**: OpenJDK 11+ (for Java SDK)
 
-Software Dependencies
-~~~~~~~~~~~~~~~~~~~~
+**Database Support**
+   - **PostgreSQL**: v13+ (recommended)
+   - **MySQL**: v8.0+
+   - **MongoDB**: v5.0+
+   - **Redis**: v6.0+ (for caching)
 
-* **Docker**: Version 20.10 or higher
-* **Kubernetes**: Version 1.21+ (for container deployments)
-* **Node.js**: Version 16+ (for SDK development)
-* **Python**: Version 3.8+ (for automation scripts)
-
-Installation
-------------
-
-Quick Installation
-~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   # Install via pip
-   pip install gra-core-platform==5.8.0-beta
-   
-   # Verify installation
-   gra --version
-
-Docker Installation (Recommended)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   # Pull the latest v5.8 beta image
-   docker pull bankofamerica/gra-core-platform:5.8-beta
-
-   # Run with default configuration
-   docker run -d \
-     --name gra-core-v58 \
-     -p 8080:8080 \
-     -p 8443:8443 \
-     bankofamerica/gra-core-platform:5.8-beta
-
-Kubernetes Installation
-~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   # Add our Helm repository
-   helm repo add gra-core https://charts.gra-core.bankofamerica.com
-   helm repo update
-
-   # Install v5.8 beta
-   helm install gra-core-v58 gra-core/gra-core-platform \
-     --version 5.8.0-beta \
-     --namespace gra-core \
-     --create-namespace
-
-Native Installation
-~~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   # Download the v5.8 beta installer
-   wget https://releases.gra-core.bankofamerica.com/v5.8/gra-core-platform-5.8.0-beta.tar.gz
-
-   # Extract and install
-   tar -xzf gra-core-platform-5.8.0-beta.tar.gz
-   cd gra-core-platform-5.8.0-beta
-   sudo ./install.sh
-
-Configuration
-=============
-
-Initial Configuration
+Installation Methods
 --------------------
 
-After installation, configure your instance:
+Choose your preferred installation method:
 
-Basic Configuration
-~~~~~~~~~~~~~~~~~~
+1. **Docker Compose** (Recommended for development)
+   
+   .. code-block:: bash
+   
+      # Download the beta compose file
+      curl -O https://releases.gra-core.com/v5.8-beta/docker-compose.yml
+      
+      # Start the platform
+      docker-compose up -d
+      
+      # Verify installation
+      curl http://localhost:8080/health
+
+2. **Kubernetes Deployment**
+   
+   .. code-block:: bash
+   
+      # Add the Helm repository
+      helm repo add gra-core https://charts.gra-core.com
+      helm repo update
+      
+      # Install v5.8 beta
+      helm install gra-core gra-core/platform \
+        --version 5.8.0-beta \
+        --namespace gra-core \
+        --create-namespace
+
+3. **Binary Installation**
+   
+   .. code-block:: bash
+   
+      # Download the binary
+      wget https://releases.gra-core.com/v5.8-beta/gra-core-linux-amd64.tar.gz
+      
+      # Extract and install
+      tar -xzf gra-core-linux-amd64.tar.gz
+      sudo mv gra-core /usr/local/bin/
+      
+      # Initialize configuration
+      gra-core init --version=5.8-beta
+
+Quick Start Tutorial
+--------------------
+
+Once installed, follow these steps to get started:
+
+**Step 1: Initialize Your Workspace**
+
+.. code-block:: bash
+
+   # Create a new project
+   gra-core create-project my-first-app
+   cd my-first-app
+   
+   # Initialize with beta features
+   gra-core init --enable-beta-features
+
+**Step 2: Configure Authentication**
 
 .. code-block:: yaml
 
-   # config/gra-core.yaml
-   version: "5.8"
-   environment: "development"
-   
-   server:
-     host: "0.0.0.0"
-     port: 8080
-     ssl_port: 8443
-   
-   database:
-     type: "postgresql"
-     host: "localhost"
-     port: 5432
-     name: "gra_core_v58"
-   
-   security:
-     encryption: "aes-256"
-     mfa_enabled: true
+   # config/auth.yml
+   authentication:
+     provider: "oauth2"
+     mfa_enabled: true  # New in v5.8
+     session_timeout: 3600
      jwt_secret: "your-secret-key"
+
+**Step 3: Set Up Your First API Endpoint**
+
+.. code-block:: javascript
+
+   // Using the new GraphQL API (Beta feature)
+   const { GraphQLServer } = require('@gra-core/graphql-beta');
    
-   features:
-     graphql_api: true
-     realtime_analytics: true
-     websocket_support: true
-
-Advanced Configuration
-~~~~~~~~~~~~~~~~~~~~~
-
-For production deployments, configure additional settings:
-
-.. code-block:: yaml
-
-   # Advanced settings for v5.8
-   performance:
-     worker_processes: 4
-     max_connections: 1000
-     cache_size: "512MB"
+   const server = new GraphQLServer({
+     typeDefs: `
+       type Query {
+         hello(name: String!): String
+       }
+     `,
+     resolvers: {
+       Query: {
+         hello: (_, { name }) => `Hello, ${name}! Welcome to GRA Core v5.8 Beta`
+       }
+     }
+   });
    
-   monitoring:
-     metrics_enabled: true
-     logging_level: "INFO"
-     health_check_interval: 30
+   server.start({ port: 4000 });
+
+**Step 4: Test Your Setup**
+
+.. code-block:: bash
+
+   # Test REST API
+   curl http://localhost:8080/api/v1/health
    
-   integrations:
-     kubernetes:
-       enabled: true
-       namespace: "gra-core"
-     
-     external_apis:
-       timeout: 30
-       retry_attempts: 3
+   # Test GraphQL API (New in v5.8)
+   curl -X POST http://localhost:4000/graphql \
+     -H "Content-Type: application/json" \
+     -d '{"query": "{ hello(name: \"World\") }"}'
 
-First Steps
------------
+Beta Features to Explore
+-------------------------
 
-1. **Initialize Your Project**
+**1. Enhanced Analytics Dashboard**
+   Access the new real-time dashboard at ``http://localhost:8080/dashboard``
 
-   .. code-block:: bash
+**2. GraphQL Playground**
+   Interactive GraphQL explorer at ``http://localhost:4000/playground``
 
-      gra init my-project --version=5.8
-      cd my-project
+**3. WebSocket Connections**
+   Real-time data streaming capabilities
 
-2. **Configure Your Environment**
-
-   .. code-block:: yaml
-
-      # config.yaml
-      version: "5.8"
-      environment: "development"
-      database:
-        type: "postgresql"
-        host: "localhost"
-        port: 5432
-      security:
-        encryption: "aes-256"
-        mfa_enabled: true
-
-3. **Start the Development Server**
-
-   .. code-block:: bash
-
-      gra serve --port=8080 --debug
-
-4. **Access the Dashboard**
-
-   Open your browser and navigate to:
-   
-   * **HTTP**: http://localhost:8080/dashboard
-   * **HTTPS**: https://localhost:8443/dashboard
-
-5. **API Testing**
-
-   Test the new GraphQL API:
-
-   .. code-block:: bash
-
-      curl -X POST http://localhost:8080/graphql \
-        -H "Content-Type: application/json" \
-        -d '{"query": "{ version platform { name status } }"}'
-
-What's New in v5.8
-------------------
-
-Enhanced Security
-~~~~~~~~~~~~~~~~~
-
-* AES-256 encryption for all data at rest
-* Multi-factor authentication (MFA) support
-* OAuth 2.0 and SAML integration
-* Role-based access control (RBAC) improvements
-
-Performance Improvements
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-* 40% faster processing compared to v5.7
-* Optimized database queries
-* Improved caching mechanisms
-* Reduced memory footprint
-
-New GraphQL API
-~~~~~~~~~~~~~~~
-
-* Complete GraphQL schema alongside REST APIs
-* Real-time subscriptions
-* Advanced filtering and pagination
-* Type-safe queries
-
-Real-time Analytics
-~~~~~~~~~~~~~~~~~~~
-
-* Live dashboard with streaming data
-* Custom metrics and KPIs
-* Alert notifications
-* Historical data analysis
+**4. Advanced Monitoring**
+   Comprehensive metrics and alerting system
 
 Next Steps
-==========
+----------
 
-* :doc:`quickstart` - Complete a full tutorial
-* :doc:`../api-reference/index` - Explore the API documentation
-* :doc:`../user-guide/index` - Learn advanced features
-* :doc:`../migration-guides/index` - Upgrade from v5.7
+- :doc:`quickstart` - Complete tutorial with examples
+- :doc:`../api-reference/index` - Explore the new APIs
+- :doc:`../user-guide/configuration` - Advanced configuration options
+- :doc:`../migration-guides/index` - Migrating from v5.7
 
-Beta Feedback
-------------
+Need Help?
+----------
 
-As a beta user, your feedback is valuable:
+- **Documentation**: Continue reading this guide
+- **Community**: Join our `Discord server <https://discord.gg/gra-core>`_
+- **Support**: Email beta-feedback@gra-core.com
+- **Issues**: Report bugs on `GitHub <https://github.com/gra-core/platform/issues>`_
 
-* **Bug Reports**: `GitHub Issues <https://github.com/bank-of-america/gra-core-platform/issues>`_
-* **Feature Requests**: `Feature Request Form <https://forms.gra-core.bankofamerica.com/features>`_
-* **Community**: `Developer Forum <https://community.gra-core.bankofamerica.com>`_
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   quickstart
+.. note::
+   **Beta Limitations**: Some features may have limited functionality or 
+   require additional configuration. Please refer to the 
+   :doc:`../troubleshooting/index` section for known issues.
