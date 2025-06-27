@@ -94,10 +94,10 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? "bg-white/80 backdrop-blur-md border-b border-gray-200 dark:bg-slate-900/80 dark:border-slate-700"
-          : "bg-white border-b border-gray-100 dark:border-slate-800"
+          ? "bg-white/85 backdrop-blur-xl border-b border-slate-200/60 shadow-lg shadow-slate-900/5 dark:bg-slate-900/85 dark:border-slate-700/60 dark:shadow-slate-900/20"
+          : "bg-white/95 border-b border-slate-200/40 dark:bg-slate-900/95 dark:border-slate-700/40"
       }`}
     >
       <div className="w-full px-2 sm:px-4">
@@ -169,16 +169,16 @@ export function Header() {
                 placeholder="Search docs..."
                 className={`pl-10 pr-12 w-72 h-10 text-sm transition-all duration-300 rounded-lg border-2 ${
                   theme === "dark"
-                    ? "bg-slate-800/50 border-slate-700 text-white placeholder-slate-400 focus:bg-slate-800 focus:border-blue-500 hover:border-slate-600"
-                    : "bg-gray-50/80 border-gray-200 text-slate-900 placeholder-slate-500 focus:bg-white focus:border-blue-500 hover:border-gray-300"
-                } backdrop-blur-sm focus:shadow-lg focus:shadow-blue-500/10`}
+                    ? "bg-slate-900/80 border-slate-600 text-slate-100 placeholder-slate-400 focus:bg-slate-800 focus:border-blue-400 hover:border-slate-500 focus:ring-2 focus:ring-blue-400/20"
+                    : "bg-white/90 border-slate-200 text-slate-900 placeholder-slate-500 focus:bg-white focus:border-blue-500 hover:border-slate-300 focus:ring-2 focus:ring-blue-500/20"
+                } backdrop-blur-sm shadow-sm focus:shadow-lg`}
               />
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
                 <kbd
                   className={`px-2 py-1 text-xs font-medium rounded border transition-colors ${
                     theme === "dark"
-                      ? "text-slate-400 bg-slate-700/80 border-slate-600"
-                      : "text-slate-500 bg-white/80 border-slate-300"
+                      ? "text-slate-300 bg-slate-700/90 border-slate-500 shadow-sm"
+                      : "text-slate-600 bg-slate-50 border-slate-300 shadow-sm"
                   }`}
                 >
                   ⌘K
@@ -194,9 +194,9 @@ export function Header() {
                 size="icon"
                 className={`relative h-10 w-10 rounded-lg transition-all duration-200 ${
                   theme === "dark"
-                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-lg"
-                    : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 hover:shadow-md"
-                }`}
+                    ? "text-slate-300 hover:bg-slate-700/70 hover:text-slate-100 hover:shadow-lg hover:shadow-slate-900/20 active:bg-slate-600"
+                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 hover:shadow-md hover:shadow-slate-200/50 active:bg-slate-200"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
                 aria-label="Notifications"
               >
                 <Bell className="h-5 w-5" />
@@ -208,11 +208,11 @@ export function Header() {
                 variant="ghost"
                 size="icon"
                 onClick={toggleTheme}
-                className={`h-10 w-10 rounded-lg transition-all duration-200 ${
+                className={`relative h-10 w-10 rounded-lg transition-all duration-200 ${
                   theme === "dark"
-                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-lg"
-                    : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 hover:shadow-md"
-                }`}
+                    ? "text-slate-300 hover:bg-slate-700/70 hover:text-slate-100 hover:shadow-lg hover:shadow-slate-900/20 active:bg-slate-600"
+                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 hover:shadow-md hover:shadow-slate-200/50 active:bg-slate-200"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
                 aria-label="Toggle theme"
               >
                 <div className="relative">
@@ -229,11 +229,11 @@ export function Header() {
                 variant="ghost"
                 size="icon"
                 asChild
-                className={`h-10 w-10 rounded-lg transition-all duration-200 ${
+                className={`relative h-10 w-10 rounded-lg transition-all duration-200 ${
                   theme === "dark"
-                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-lg"
-                    : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 hover:shadow-md"
-                }`}
+                    ? "text-slate-300 hover:bg-slate-700/70 hover:text-slate-100 hover:shadow-lg hover:shadow-slate-900/20 active:bg-slate-600"
+                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 hover:shadow-md hover:shadow-slate-200/50 active:bg-slate-200"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
                 aria-label="Repository"
               >
                 <Link href="https://github.com/your-repo" target="_blank" rel="noopener noreferrer">
@@ -242,7 +242,7 @@ export function Header() {
               </Button>
 
               {/* Divider */}
-              <div className={`w-px h-6 mx-1 ${theme === "dark" ? "bg-slate-700" : "bg-slate-200"}`} />
+              <div className={`w-px h-6 mx-1 ${theme === "dark" ? "bg-slate-600/60" : "bg-slate-300/60"}`} />
 
               {/* User Avatar/Profile */}
               <Button
@@ -250,9 +250,9 @@ export function Header() {
                 size="sm"
                 className={`h-10 px-3 rounded-lg transition-all duration-200 ${
                   theme === "dark"
-                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-lg"
-                    : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 hover:shadow-md"
-                }`}
+                    ? "text-slate-300 hover:bg-slate-700/70 hover:text-slate-100 hover:shadow-lg hover:shadow-slate-900/20"
+                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 hover:shadow-md hover:shadow-slate-200/50"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
               >
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
