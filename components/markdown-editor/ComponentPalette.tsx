@@ -44,128 +44,128 @@ import type { MarkdownComponent, HtmlBlockContent } from "./types"
 // Confluence-style macro definitions
 const confluenceMacros = {
   infoMacro: `<div class="confluence-macro info-macro bg-[#e3fcef] border border-[#00875a] rounded-lg p-4 my-4">
-    <div class="flex items-start space-x-3">
-      <div class="flex-shrink-0 w-6 h-6 bg-[#00875a] rounded-full flex items-center justify-center">
-        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <h4 class="text-[#00875a] font-semibold text-sm mb-1">Info</h4>
-        <p class="text-[#172b4d] text-sm">This is an info macro. Use it to highlight important information for your readers.</p>
-      </div>
+  <div class="flex items-start space-x-3">
+    <div class="flex-shrink-0 w-6 h-6 bg-[#00875a] rounded-full flex items-center justify-center">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
     </div>
-  </div>`,
+    <div class="flex-1">
+      <h4 class="text-[#00875a] font-semibold text-sm mb-1">Info</h4>
+      <p class="text-[#172b4d] text-sm">This is an info macro. Use it to highlight important information for your readers.</p>
+    </div>
+  </div>
+</div>`,
 
   warningMacro: `<div class="confluence-macro warning-macro bg-[#fff4e6] border border-[#ff8b00] rounded-lg p-4 my-4">
-    <div class="flex items-start space-x-3">
-      <div class="flex-shrink-0 w-6 h-6 bg-[#ff8b00] rounded-full flex items-center justify-center">
-        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <h4 class="text-[#ff8b00] font-semibold text-sm mb-1">Warning</h4>
-        <p class="text-[#172b4d] text-sm">This is a warning macro. Use it to alert readers about potential issues or important considerations.</p>
-      </div>
+  <div class="flex items-start space-x-3">
+    <div class="flex-shrink-0 w-6 h-6 bg-[#ff8b00] rounded-full flex items-center justify-center">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+      </svg>
     </div>
-  </div>`,
+    <div class="flex-1">
+      <h4 class="text-[#ff8b00] font-semibold text-sm mb-1">Warning</h4>
+      <p class="text-[#172b4d] text-sm">This is a warning macro. Use it to alert readers about potential issues or important considerations.</p>
+    </div>
+  </div>
+</div>`,
 
   noteMacro: `<div class="confluence-macro note-macro bg-[#f4f5f7] border border-[#dfe1e6] rounded-lg p-4 my-4">
-    <div class="flex items-start space-x-3">
-      <div class="flex-shrink-0 w-6 h-6 bg-[#6b778c] rounded-full flex items-center justify-center">
-        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <h4 class="text-[#6b778c] font-semibold text-sm mb-1">Note</h4>
-        <p class="text-[#172b4d] text-sm">This is a note macro. Use it to add additional context or explanatory information.</p>
-      </div>
+  <div class="flex items-start space-x-3">
+    <div class="flex-shrink-0 w-6 h-6 bg-[#6b778c] rounded-full flex items-center justify-center">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+      </svg>
     </div>
-  </div>`,
+    <div class="flex-1">
+      <h4 class="text-[#6b778c] font-semibold text-sm mb-1">Note</h4>
+      <p class="text-[#172b4d] text-sm">This is a note macro. Use it to add additional context or explanatory information.</p>
+    </div>
+  </div>
+</div>`,
 
   tipMacro: `<div class="confluence-macro tip-macro bg-[#e3fcef] border border-[#00875a] rounded-lg p-4 my-4">
-    <div class="flex items-start space-x-3">
-      <div class="flex-shrink-0 w-6 h-6 bg-[#00875a] rounded-full flex items-center justify-center">
-        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-        </svg>
-      </div>
-      <div class="flex-1">
-        <h4 class="text-[#00875a] font-semibold text-sm mb-1">Tip</h4>
-        <p class="text-[#172b4d] text-sm">This is a tip macro. Use it to share helpful hints and best practices with your readers.</p>
-      </div>
+  <div class="flex items-start space-x-3">
+    <div class="flex-shrink-0 w-6 h-6 bg-[#00875a] rounded-full flex items-center justify-center">
+      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+      </svg>
     </div>
-  </div>`,
+    <div class="flex-1">
+      <h4 class="text-[#00875a] font-semibold text-sm mb-1">Tip</h4>
+      <p class="text-[#172b4d] text-sm">This is a tip macro. Use it to share helpful hints and best practices with your readers.</p>
+    </div>
+  </div>
+</div>`,
 
   codeMacro: `<div class="confluence-macro code-macro bg-[#f4f5f7] border border-[#dfe1e6] rounded-lg overflow-hidden my-4">
-    <div class="bg-[#172b4d] px-4 py-2 flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <svg class="w-4 h-4 text-[#b3bac5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
-        </svg>
-        <span class="text-[#b3bac5] text-sm font-medium">JavaScript</span>
-      </div>
-      <button class="text-[#b3bac5] hover:text-white text-sm">Copy</button>
+  <div class="bg-[#172b4d] px-4 py-2 flex items-center justify-between">
+    <div class="flex items-center space-x-2">
+      <svg class="w-4 h-4 text-[#b3bac5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+      </svg>
+      <span class="text-[#b3bac5] text-sm font-medium">JavaScript</span>
     </div>
-    <div class="p-4">
-      <pre class="text-sm text-[#172b4d] font-mono"><code>// Example API call
+    <button class="text-[#b3bac5] hover:text-white text-sm">Copy</button>
+  </div>
+  <div class="p-4">
+    <pre class="text-sm text-[#172b4d] font-mono"><code>// Example API call
 const response = await fetch('/api/v1/users', {
-  method: 'GET',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  }
+method: 'GET',
+headers: {
+  'Authorization': 'Bearer YOUR_API_KEY',
+  'Content-Type': 'application/json'
+}
 });
 
 const users = await response.json();
 console.log(users);</code></pre>
-    </div>
-  </div>`,
+  </div>
+</div>`,
 
   expandMacro: `<div class="confluence-macro expand-macro border border-[#dfe1e6] rounded-lg my-4">
-    <div class="bg-[#f4f5f7] px-4 py-3 border-b border-[#dfe1e6] cursor-pointer hover:bg-[#ebecf0] transition-colors">
-      <div class="flex items-center justify-between">
-        <h4 class="text-[#172b4d] font-medium">Click to expand...</h4>
-        <svg class="w-4 h-4 text-[#6b778c] transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-        </svg>
-      </div>
+  <div class="bg-[#f4f5f7] px-4 py-3 border-b border-[#dfe1e6] cursor-pointer hover:bg-[#ebecf0] transition-colors">
+    <div class="flex items-center justify-between">
+      <h4 class="text-[#172b4d] font-medium">Click to expand...</h4>
+      <svg class="w-4 h-4 text-[#6b778c] transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
     </div>
-    <div class="p-4 bg-white">
-      <p class="text-[#172b4d] text-sm">This content is hidden by default and can be expanded by clicking the header above. This is useful for optional or detailed information that doesn't need to be visible immediately.</p>
-    </div>
-  </div>`,
+  </div>
+  <div class="p-4 bg-white">
+    <p class="text-[#172b4d] text-sm">This content is hidden by default and can be expanded by clicking the header above. This is useful for optional or detailed information that doesn't need to be visible immediately.</p>
+  </div>
+</div>`,
 
   tableOfContentsMacro: `<div class="confluence-macro toc-macro bg-[#f4f5f7] border border-[#dfe1e6] rounded-lg p-4 my-4">
-    <div class="flex items-center space-x-2 mb-3">
-      <svg class="w-5 h-5 text-[#6b778c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-      </svg>
-      <h4 class="text-[#172b4d] font-semibold">Table of Contents</h4>
-    </div>
-    <ul class="space-y-1 text-sm">
-      <li><a href="#section1" class="text-[#0052cc] hover:underline">1. Introduction</a></li>
-      <li><a href="#section2" class="text-[#0052cc] hover:underline">2. Getting Started</a></li>
-      <li class="ml-4"><a href="#section2-1" class="text-[#0052cc] hover:underline">2.1 Prerequisites</a></li>
-      <li class="ml-4"><a href="#section2-2" class="text-[#0052cc] hover:underline">2.2 Installation</a></li>
-      <li><a href="#section3" class="text-[#0052cc] hover:underline">3. Configuration</a></li>
-      <li><a href="#section4" class="text-[#0052cc] hover:underline">4. API Reference</a></li>
-    </ul>
-  </div>`,
+  <div class="flex items-center space-x-2 mb-3">
+    <svg class="w-5 h-5 text-[#6b778c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+    </svg>
+    <h4 class="text-[#172b4d] font-semibold">Table of Contents</h4>
+  </div>
+  <ul class="space-y-1 text-sm">
+    <li><a href="#section1" class="text-[#0052cc] hover:underline">1. Introduction</a></li>
+    <li><a href="#section2" class="text-[#0052cc] hover:underline">2. Getting Started</a></li>
+    <li class="ml-4"><a href="#section2-1" class="text-[#0052cc] hover:underline">2.1 Prerequisites</a></li>
+    <li class="ml-4"><a href="#section2-2" class="text-[#0052cc] hover:underline">2.2 Installation</a></li>
+    <li><a href="#section3" class="text-[#0052cc] hover:underline">3. Configuration</a></li>
+    <li><a href="#section4" class="text-[#0052cc] hover:underline">4. API Reference</a></li>
+  </ul>
+</div>`,
 
   statusMacro: `<div class="confluence-macro status-macro inline-flex items-center space-x-2 bg-[#e3fcef] border border-[#00875a] rounded-full px-3 py-1 my-2">
-    <div class="w-2 h-2 bg-[#00875a] rounded-full"></div>
-    <span class="text-[#00875a] text-sm font-medium">In Progress</span>
-  </div>`,
+  <div class="w-2 h-2 bg-[#00875a] rounded-full"></div>
+  <span class="text-[#00875a] text-sm font-medium">In Progress</span>
+</div>`,
 
   panelMacro: `<div class="confluence-macro panel-macro bg-white border border-[#dfe1e6] rounded-lg p-6 my-4 shadow-sm">
-    <div class="border-l-4 border-[#0052cc] pl-4">
-      <h3 class="text-[#172b4d] font-semibold text-lg mb-2">Panel Title</h3>
-      <p class="text-[#6b778c] text-sm leading-relaxed">This is a panel macro that can be used to highlight important content or create visual separation in your documentation. Panels are great for callouts, summaries, or featured content.</p>
-    </div>
-  </div>`,
+  <div class="border-l-4 border-[#0052cc] pl-4">
+    <h3 class="text-[#172b4d] font-semibold text-lg mb-2">Panel Title</h3>
+    <p class="text-[#6b778c] text-sm leading-relaxed">This is a panel macro that can be used to highlight important content or create visual separation in your documentation. Panels are great for callouts, summaries, or featured content.</p>
+  </div>
+</div>`,
 }
 
 export const componentCategories = [
@@ -460,11 +460,11 @@ export function getDefaultContent(type: MarkdownComponent["type"], htmlBlockKey?
       return {
         code: `// Example API call
 const response = await fetch('/api/v1/users', {
-  method: 'GET',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  }
+method: 'GET',
+headers: {
+  'Authorization': 'Bearer YOUR_API_KEY',
+  'Content-Type': 'application/json'
+}
 });
 
 const users = await response.json();
@@ -483,11 +483,11 @@ console.log(users);`,
     case "mermaid":
       return {
         code: `graph TD
-    A[User Request] --> B{Authentication}
-    B -->|Valid| C[Process Request]
-    B -->|Invalid| D[Return Error]
-    C --> E[Database Query]
-    E --> F[Return Response]`,
+  A[User Request] --> B{Authentication}
+  B -->|Valid| C[Process Request]
+  B -->|Invalid| D[Return Error]
+  C --> E[Database Query]
+  E --> F[Return Response]`,
       }
     case "chart":
       return {
@@ -573,9 +573,9 @@ console.log(users);`,
       }
       return {
         htmlContent: `<div class='p-6 border-2 border-dashed border-[#dfe1e6] rounded-lg text-center bg-[#f4f5f7]'>
-          <h3 class='text-lg font-semibold text-[#172b4d] mb-2'>Custom HTML Block</h3>
-          <p class='text-[#6b778c]'>Add your custom HTML content here</p>
-        </div>`,
+        <h3 class='text-lg font-semibold text-[#172b4d] mb-2'>Custom HTML Block</h3>
+        <p class='text-[#6b778c]'>Add your custom HTML content here</p>
+      </div>`,
         name: "Custom HTML Block",
         category: "custom",
         editable: true,
@@ -733,3 +733,6 @@ export function ComponentPalette() {
     </div>
   )
 }
+
+// Allow both named and default import styles
+export default ComponentPalette
