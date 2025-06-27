@@ -18,9 +18,8 @@ export function Header() {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("gra-docs-theme")
       if (stored) return stored
-      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
     }
-    return "light"
+    return "light" // Always default to light
   })
 
   const [availableVersions, setAvailableVersions] = useState<{
@@ -73,15 +72,13 @@ export function Header() {
     setTheme(newTheme)
     localStorage.setItem("gra-docs-theme", newTheme)
     document.documentElement.setAttribute("data-theme", newTheme)
-    document.body.setAttribute("data-theme", newTheme) // Ensure body also gets the attribute for broader compatibility
+    document.body.setAttribute("data-theme", newTheme)
     document.documentElement.style.colorScheme = newTheme
   }
 
   const handleVersionChange = (version: string) => {
     setCurrentVersion(version)
     setIsVersionDropdownOpen(false)
-    // Potentially navigate to the new version's URL
-    // window.location.href = `/docs/${version.substring(1)}/...`;
     console.log(`Switching to version: ${version}`)
   }
 
@@ -89,19 +86,6 @@ export function Header() {
     document.documentElement.setAttribute("data-theme", theme)
     document.body.setAttribute("data-theme", theme)
     document.documentElement.style.colorScheme = theme
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
-    const handleChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem("gra-docs-theme")) {
-        const systemTheme = e.matches ? "dark" : "light"
-        setTheme(systemTheme)
-        document.documentElement.setAttribute("data-theme", systemTheme)
-        document.body.setAttribute("data-theme", systemTheme)
-        document.documentElement.style.colorScheme = systemTheme
-      }
-    }
-    mediaQuery.addEventListener("change", handleChange)
-    return () => mediaQuery.removeEventListener("change", handleChange)
   }, [theme])
 
   useEffect(() => {
@@ -113,7 +97,6 @@ export function Header() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement
-      // Check if the click is outside the version dropdown button and its menu
       if (
         isVersionDropdownOpen &&
         !target.closest(".version-dropdown-button") &&
@@ -121,13 +104,12 @@ export function Header() {
       ) {
         setIsVersionDropdownOpen(false)
       }
-      // Check if the click is outside a nav dropdown and its menu
       if (activeDropdown && !target.closest(".nav-dropdown-button") && !target.closest(".nav-dropdown-menu")) {
         setActiveDropdown(null)
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside) // Use mousedown to catch click before it might be stopped
+    document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [isVersionDropdownOpen, activeDropdown])
 
