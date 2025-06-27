@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import { Header } from "@/components/header"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -8,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "GRA Core Platform Documentation",
   description: "A comprehensive, modern platform built for the GRA community.",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -41,7 +42,8 @@ export default function RootLayout({
             color: "rgb(var(--foreground))",
           }}
         >
-          {children}
+          <Header />
+          <main className="w-full">{children}</main>
         </div>
       </body>
     </html>

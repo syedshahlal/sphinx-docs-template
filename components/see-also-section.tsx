@@ -1,86 +1,184 @@
 "use client"
 
+import type React from "react"
 import Link from "next/link"
-import { ArrowRight } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import {
+  BookOpen,
+  Code,
+  Zap,
+  Users,
+  ArrowRight,
+  ExternalLink,
+  FileText,
+  Settings,
+  HelpCircle,
+  Lightbulb,
+} from "lucide-react"
 
-/**
- * Simple “See Also” call-out that suggests other parts of the docs.
- * – No needless left/right spacing (full-width radial background)
- * – No `bg-slate-300` container – that wrapper has been removed
- * – Light/Dark-mode aware colours
- */
-const links = [
+interface SeeAlsoItem {
+  title: string
+  description: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  badge?: string
+  external?: boolean
+}
+
+const seeAlsoItems: SeeAlsoItem[] = [
   {
+    title: "Getting Started Guide",
+    description: "Complete walkthrough for new users to get up and running quickly",
     href: "/user-guide/getting-started",
-    title: "Getting Started",
-    desc: "Set up the GRA Core Platform in minutes.",
-    icon: "🚀",
-    color: "bg-green-500/10 text-green-600 dark:text-green-300",
-    border: "border-green-200/50 dark:border-green-700/50",
+    icon: BookOpen,
+    badge: "Essential",
   },
   {
-    href: "/examples",
-    title: "Examples",
-    desc: "Real-world templates and code samples.",
-    icon: "💻",
-    color: "bg-blue-500/10 text-blue-600 dark:text-blue-300",
-    border: "border-blue-200/50 dark:border-blue-700/50",
-  },
-  {
-    href: "/api-reference",
     title: "API Reference",
-    desc: "Every endpoint, parameter and response.",
-    icon: "📚",
-    color: "bg-purple-500/10 text-purple-600 dark:text-purple-300",
-    border: "border-purple-200/50 dark:border-purple-700/50",
+    description: "Comprehensive documentation of all available endpoints and methods",
+    href: "/api-reference",
+    icon: Code,
+    badge: "Technical",
+  },
+  {
+    title: "Examples & Tutorials",
+    description: "Practical examples and step-by-step tutorials for common use cases",
+    href: "/examples",
+    icon: Zap,
+    badge: "Popular",
+  },
+  {
+    title: "Community Forum",
+    description: "Connect with other developers, ask questions, and share knowledge",
+    href: "/community",
+    icon: Users,
+    badge: "Community",
+  },
+  {
+    title: "Configuration Guide",
+    description: "Learn how to configure and customize the platform for your needs",
+    href: "/user-guide/configuration",
+    icon: Settings,
+  },
+  {
+    title: "Best Practices",
+    description: "Industry best practices and recommended patterns for development",
+    href: "/user-guide/best-practices",
+    icon: Lightbulb,
+  },
+  {
+    title: "Troubleshooting",
+    description: "Common issues and their solutions to help you resolve problems quickly",
+    href: "/user-guide/troubleshooting",
+    icon: HelpCircle,
+  },
+  {
+    title: "Changelog",
+    description: "Stay updated with the latest features, improvements, and bug fixes",
+    href: "/changelog",
+    icon: FileText,
+    badge: "Updated",
   },
 ]
 
-function SeeAlsoSection() {
+export function SeeAlsoSection() {
   return (
-    <section className="relative isolate overflow-hidden py-24 sm:py-32">
-      {/* Decorative radial gradient */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="h-full w-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.06),transparent_60%)]" />
+    <section className="relative py-16 md:py-24 overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <header className="mb-12 text-center">
-          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
-            See&nbsp;Also
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600 dark:text-slate-400">
-            Keep exploring the documentation with these resources.
-          </p>
-        </header>
+      <div className="relative z-10 p-8 md:p-12">
+        {/* Header */}
+        <div className="flex items-start gap-4 mb-8">
+          <div className="flex-shrink-0 p-3 bg-green-500/10 dark:bg-green-400/10 rounded-xl border border-green-200/50 dark:border-green-700/50">
+            <BookOpen className="w-6 h-6 text-green-600 dark:text-green-400" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">See Also</h2>
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
+              Explore related documentation and resources to enhance your understanding
+            </p>
+          </div>
+        </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {links.map(({ href, title, desc, icon, color, border }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                "group relative flex flex-col overflow-hidden rounded-2xl border p-6 transition-shadow hover:shadow-lg",
-                color,
-                border,
-              )}
+        {/* Grid of Related Items */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+          {seeAlsoItems.map((item, index) => (
+            <Card
+              key={index}
+              className="group hover:shadow-lg transition-all duration-200 border-gray-200/50 dark:border-gray-700/50 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
             >
-              <span className="text-4xl">{icon}</span>
-              <h3 className="mt-4 text-xl font-semibold">{title}</h3>
-              <p className="mt-2 flex-1 text-sm leading-6 text-slate-700 dark:text-slate-300">{desc}</p>
-
-              <span className="mt-4 inline-flex items-center text-sm font-medium text-primary group-hover:underline">
-                Learn more
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </span>
-            </Link>
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="flex-shrink-0 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors">
+                    <item.icon className="w-4 h-4 text-gray-600 dark:text-gray-300 group-hover:text-green-600 dark:group-hover:text-green-400" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-sm group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                        {item.title}
+                      </h3>
+                      {item.badge && (
+                        <Badge
+                          variant="secondary"
+                          className="text-xs px-1.5 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
+                      {item.external && <ExternalLink className="w-3 h-3 text-gray-400" />}
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{item.description}</p>
+                  </div>
+                </div>
+                <Link href={item.href} className="block">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-between h-8 text-xs group-hover:bg-green-50 dark:group-hover:bg-green-900/20 group-hover:text-green-600 dark:group-hover:text-green-400"
+                  >
+                    <span>Learn more</span>
+                    <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
           ))}
+        </div>
+
+        {/* Call to Action */}
+        <div className="text-center">
+          <div className="inline-flex items-center gap-4 p-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+            <div className="text-left">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Need more help?</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Join our community or contact support for personalized assistance
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" asChild>
+                <Link href="/community">
+                  <Users className="w-4 h-4 mr-2" />
+                  Community
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/support">
+                  <HelpCircle className="w-4 h-4 mr-2" />
+                  Support
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-export { SeeAlsoSection }
-export default SeeAlsoSection
+// Named export for compatibility
+export { SeeAlsoSection as default }

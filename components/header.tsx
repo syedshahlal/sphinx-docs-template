@@ -1,544 +1,337 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Search, Menu, X, GitBranch, ChevronDown, Bell, Sun, Moon } from "lucide-react"
+import React, { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import Link from "next/link"
-// Removed direct import of next/image as it's now encapsulated in BankChip
-import { BankChip } from "@/components/ui/bank-chip" // Import the new component
+import { BankChip } from "@/components/ui/bank-chip"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {
+  Search,
+  Menu,
+  Sun,
+  Moon,
+  User,
+  Settings,
+  LogOut,
+  BookOpen,
+  Code,
+  Zap,
+  Users,
+  FileText,
+  HelpCircle,
+} from "lucide-react"
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const [isVersionDropdownOpen, setIsVersionDropdownOpen] = useState(false)
-  const [currentVersion, setCurrentVersion] = useState("v5.7")
+  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const pathname = usePathname()
 
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("gra-docs-theme")
-      if (stored) return stored
-      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
     }
-    return "light"
-  })
-
-  const [availableVersions, setAvailableVersions] = useState<{
-    current: Array<{ version: string; label: string; status: string; statusColor: string }>
-    previous: Array<{ version: string; label: string; status: string; statusColor: string }>
-  }>({
-    current: [],
-    previous: [],
-  })
-
-  useEffect(() => {
-    const detectVersions = async () => {
-      try {
-        const existingVersions = ["5.7"]
-
-        const latestVersion = "5.7"
-        const currentVersionData = [
-          {
-            version: `v${latestVersion}`,
-            label: `v${latestVersion}`,
-            status: "stable",
-            statusColor: "bg-green-100 text-green-800 dark:bg-green-700/30 dark:text-green-300",
-          },
-        ]
-
-        const previousVersionsData = existingVersions
-          .filter((v) => v !== latestVersion)
-          .sort((a, b) => Number.parseFloat(b) - Number.parseFloat(a))
-          .map((v) => ({
-            version: `v${v}`,
-            label: `v${v}`,
-            status: "legacy",
-            statusColor: "bg-gray-100 text-gray-600 dark:bg-gray-700/30 dark:text-gray-400",
-          }))
-
-        setAvailableVersions({
-          current: currentVersionData,
-          previous: previousVersionsData,
-        })
-        setCurrentVersion(`v${latestVersion}`)
-      } catch (error) {
-        console.error("Error detecting versions:", error)
-      }
-    }
-    detectVersions()
-  }, [])
-
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light"
-    setTheme(newTheme)
-    localStorage.setItem("gra-docs-theme", newTheme)
-    document.documentElement.setAttribute("data-theme", newTheme)
-    document.body.setAttribute("data-theme", newTheme) // Ensure body also gets the attribute for broader compatibility
-    document.documentElement.style.colorScheme = newTheme
-  }
-
-  const handleVersionChange = (version: string) => {
-    setCurrentVersion(version)
-    setIsVersionDropdownOpen(false)
-    // Potentially navigate to the new version's URL
-    // window.location.href = `/docs/${version.substring(1)}/...`;
-    console.log(`Switching to version: ${version}`)
-  }
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme)
-    document.body.setAttribute("data-theme", theme)
-    document.documentElement.style.colorScheme = theme
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
-    const handleChange = (e: MediaQueryListEvent) => {
-      if (!localStorage.getItem("gra-docs-theme")) {
-        const systemTheme = e.matches ? "dark" : "light"
-        setTheme(systemTheme)
-        document.documentElement.setAttribute("data-theme", systemTheme)
-        document.body.setAttribute("data-theme", systemTheme)
-        document.documentElement.style.colorScheme = systemTheme
-      }
-    }
-    mediaQuery.addEventListener("change", handleChange)
-    return () => mediaQuery.removeEventListener("change", handleChange)
-  }, [theme])
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10)
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement
-      // Check if the click is outside the version dropdown button and its menu
-      if (
-        isVersionDropdownOpen &&
-        !target.closest(".version-dropdown-button") &&
-        !target.closest(".version-dropdown-menu")
-      ) {
-        setIsVersionDropdownOpen(false)
-      }
-      // Check if the click is outside a nav dropdown and its menu
-      if (activeDropdown && !target.closest(".nav-dropdown-button") && !target.closest(".nav-dropdown-menu")) {
-        setActiveDropdown(null)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside) // Use mousedown to catch click before it might be stopped
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [isVersionDropdownOpen, activeDropdown])
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode)
+    document.documentElement.classList.toggle("dark")
+  }
 
   const navigationItems = [
     {
-      label: "User Guide",
+      title: "User Guide",
       href: "/user-guide",
-      hasDropdown: true,
-      dropdownItems: [
-        {
-          label: "Getting Started",
-          href: "/user-guide/getting-started",
-          icon: "🚀",
-          description: "Quick setup and installation",
-        },
-        { label: "Configuration", href: "/user-guide/configuration", icon: "⚙️", description: "Customize your setup" },
-        {
-          label: "Best Practices",
-          href: "/user-guide/best-practices",
-          icon: "⭐",
-          description: "Tips and recommendations",
-        },
-        {
-          label: "Troubleshooting",
-          href: "/user-guide/troubleshooting",
-          icon: "🔧",
-          description: "Common issues and solutions",
-        },
+      description: "Complete guide to using the GRA Core Platform",
+      icon: BookOpen,
+      items: [
+        { title: "Getting Started", href: "/user-guide/getting-started" },
+        { title: "Installation", href: "/user-guide/installation" },
+        { title: "Configuration", href: "/user-guide/configuration" },
+        { title: "Best Practices", href: "/user-guide/best-practices" },
       ],
     },
     {
-      label: "API Reference",
+      title: "API Reference",
       href: "/api-reference",
-      hasDropdown: true,
-      dropdownItems: [
-        { label: "Core API", href: "/api-reference/core", icon: "🔌", description: "Essential API endpoints" },
-        {
-          label: "Authentication",
-          href: "/api-reference/authentication",
-          icon: "🔐",
-          description: "Auth and security",
-        },
-        { label: "Data Models", href: "/api-reference/data-models", icon: "📊", description: "Schema and types" },
-        { label: "SDKs", href: "/api-reference/sdks", icon: "📦", description: "Client libraries" },
+      description: "Comprehensive API documentation and examples",
+      icon: Code,
+      items: [
+        { title: "Authentication", href: "/api-reference/auth" },
+        { title: "Endpoints", href: "/api-reference/endpoints" },
+        { title: "SDKs", href: "/api-reference/sdks" },
+        { title: "Rate Limits", href: "/api-reference/rate-limits" },
       ],
     },
     {
-      label: "Examples",
+      title: "Examples",
       href: "/examples",
-      hasDropdown: true,
-      dropdownItems: [
-        { label: "Quick Start", href: "/examples/quick-start", icon: "⚡", description: "Get running in 5 minutes" },
-        { label: "Tutorials", href: "/examples/tutorials", icon: "📚", description: "Step-by-step guides" },
-        { label: "Code Samples", href: "/examples/code-samples", icon: "💻", description: "Ready-to-use snippets" },
-        { label: "Templates", href: "/examples/templates", icon: "🎨", description: "Project starters" },
+      description: "Code examples and tutorials",
+      icon: Zap,
+      items: [
+        { title: "Quick Start", href: "/examples/quickstart" },
+        { title: "Integration Examples", href: "/examples/integrations" },
+        { title: "Use Cases", href: "/examples/use-cases" },
+        { title: "Sample Projects", href: "/examples/projects" },
       ],
     },
     {
-      label: "Create Doc",
-      href: "/markdown-editor",
-      hasDropdown: true,
-      dropdownItems: [
-        { label: "Visual Editor", href: "/markdown-editor", icon: "✏️", description: "Drag & drop markdown creator" },
-        {
-          label: "Templates",
-          href: "/markdown-editor/templates",
-          icon: "📄",
-          description: "Pre-built document templates",
-        },
-        { label: "My Documents", href: "/markdown-editor/files", icon: "📁", description: "Manage saved files" },
-        {
-          label: "Export Tools",
-          href: "/markdown-editor/export",
-          icon: "📤",
-          description: "Download and share options",
-        },
+      title: "Community",
+      href: "/community",
+      description: "Connect with other developers",
+      icon: Users,
+      items: [
+        { title: "Discord", href: "/community/discord" },
+        { title: "GitHub", href: "/community/github" },
+        { title: "Forums", href: "/community/forums" },
+        { title: "Events", href: "/community/events" },
       ],
     },
-    { label: "Changelog", href: "/changelog", hasDropdown: false },
   ]
 
+  const isActiveLink = (href: string) => {
+    return pathname === href || pathname.startsWith(href + "/")
+  }
+
   return (
-    <>
-      <header
-        className={`sticky top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? theme === "dark"
-              ? "bg-slate-900/95 backdrop-blur-xl border-b border-slate-700/50 shadow-2xl shadow-blue-500/10"
-              : "bg-white/95 backdrop-blur-xl border-b border-gray-200/50 shadow-lg dark:shadow-slate-700/50"
-            : theme === "dark"
-              ? "bg-slate-900 border-b border-slate-700/30"
-              : "bg-white border-b border-gray-100 dark:border-slate-800"
-        }`}
-      >
-        <div className="w-full px-2 sm:px-4 lg:px-6">
-          {" "}
-          {/* Changed max-w-7xl to screen-xl for wider layout */}
-          <div className="flex items-center h-16 w-full">
-            {/* Logo Section - Push to extreme left */}
-            <div className="flex items-center flex-shrink-0">
-              <Link href="/" className="relative group flex items-center space-x-3">
-                <BankChip />
-                <h1
-                  className={`font-semibold text-lg whitespace-nowrap transition-colors duration-200 ${
-                    theme === "dark"
-                      ? "text-white group-hover:text-blue-300"
-                      : "text-gray-900 group-hover:text-blue-600"
-                  }`}
-                >
-                  GRA Core Platform Docs
-                </h1>
-              </Link>
-
-              {/* Version Dropdown */}
-              <div className="relative ml-4">
-                <button
-                  className={`version-dropdown-button flex items-center space-x-1 px-2 py-1 rounded-md text-sm font-medium transition-all duration-200 ${
-                    theme === "dark"
-                      ? "bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700"
-                      : "bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200"
-                  }`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setIsVersionDropdownOpen(!isVersionDropdownOpen)
-                    setActiveDropdown(null)
-                  }}
-                  aria-expanded={isVersionDropdownOpen}
-                  aria-haspopup="true"
-                >
-                  <span>{currentVersion}</span>
-                  <span
-                    className={`text-xs px-1.5 py-0.5 rounded-full ml-1 ${availableVersions.current.find((v) => v.version === currentVersion)?.statusColor || ""}`}
-                  >
-                    {availableVersions.current.find((v) => v.version === currentVersion)?.status || "stable"}
-                  </span>
-                  <ChevronDown
-                    className={`w-3 h-3 transition-transform duration-200 ${isVersionDropdownOpen ? "rotate-180" : ""}`}
-                  />
-                </button>
-                {/* Version dropdown menu remains the same */}
-                {isVersionDropdownOpen && (
-                  <div
-                    className={`version-dropdown-menu absolute top-full left-0 mt-2 w-64 rounded-xl shadow-2xl border transition-all duration-200 z-50 ${
-                      theme === "dark"
-                        ? "bg-slate-800/95 backdrop-blur-xl border-slate-700/50"
-                        : "bg-white/95 backdrop-blur-xl border-gray-200/50"
-                    }`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="p-2">
-                      <div
-                        className={`px-3 py-2 text-xs font-semibold uppercase tracking-wide border-b ${
-                          theme === "dark" ? "text-slate-400 border-slate-700" : "text-slate-500 border-slate-200"
-                        }`}
-                      >
-                        Current
-                      </div>
-                      {availableVersions.current.map((ver) => (
-                        <button
-                          key={ver.version}
-                          className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center justify-between ${
-                            currentVersion === ver.version
-                              ? theme === "dark"
-                                ? "bg-blue-600/30 text-blue-300"
-                                : "bg-blue-100 text-blue-700"
-                              : theme === "dark"
-                                ? "text-slate-200 hover:bg-slate-700 hover:text-white"
-                                : "text-slate-900 hover:bg-slate-50"
-                          }`}
-                          onClick={() => handleVersionChange(ver.version)}
-                        >
-                          <span className="font-medium">{ver.label}</span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${ver.statusColor}`}>{ver.status}</span>
-                        </button>
-                      ))}
-
-                      {availableVersions.previous.length > 0 && (
-                        <>
-                          <div
-                            className={`px-3 py-2 text-xs font-semibold uppercase tracking-wide border-b border-t mt-2 ${
-                              theme === "dark" ? "text-slate-400 border-slate-700" : "text-slate-500 border-slate-200"
-                            }`}
-                          >
-                            Previous Versions
-                          </div>
-                          {availableVersions.previous.map((ver) => (
-                            <button
-                              key={ver.version}
-                              className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-all duration-200 flex items-center justify-between ${
-                                currentVersion === ver.version
-                                  ? theme === "dark"
-                                    ? "bg-slate-700 text-slate-300"
-                                    : "bg-slate-100 text-slate-800"
-                                  : theme === "dark"
-                                    ? "text-slate-300 hover:bg-slate-700/70 hover:text-slate-100"
-                                    : "text-slate-700 hover:bg-slate-50"
-                              }`}
-                              onClick={() => handleVersionChange(ver.version)}
-                            >
-                              <span>{ver.label}</span>
-                              <span className={`text-xs px-2 py-1 rounded-full ${ver.statusColor}`}>{ver.status}</span>
-                            </button>
-                          ))}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
+    <header
+      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
+        isScrolled
+          ? "bg-white/80 backdrop-blur-md border-b border-gray-200 dark:bg-slate-900/80 dark:border-slate-700"
+          : "bg-white border-b border-gray-100 dark:border-slate-800"
+      }`}
+    >
+      <div className="w-full px-2 sm:px-4">
+        <div className="flex items-center h-16 w-full">
+          {/* Logo and Title - Extreme Left */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <BankChip className="h-8 w-8" />
+              <div className="flex flex-col">
+                <span className="font-bold text-lg text-gray-900 dark:text-white leading-tight">GRA Core Platform</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 leading-tight">Documentation</span>
               </div>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation - Center */}
+          <div className="hidden lg:flex flex-1 justify-center">
+            <NavigationMenu>
+              <NavigationMenuList className="gap-1">
+                {navigationItems.map((item) => (
+                  <NavigationMenuItem key={item.href}>
+                    <NavigationMenuTrigger
+                      className={`h-9 px-3 ${
+                        isActiveLink(item.href)
+                          ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white"
+                          : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4 mr-2" />
+                      {item.title}
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      <div className="w-80 p-4">
+                        <div className="mb-4">
+                          <h4 className="font-medium text-gray-900 dark:text-white mb-1">{item.title}</h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
+                        </div>
+                        <div className="grid gap-1">
+                          {item.items.map((subItem) => (
+                            <NavigationMenuLink key={subItem.href} asChild>
+                              <Link
+                                href={subItem.href}
+                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${
+                                  isActiveLink(subItem.href)
+                                    ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white"
+                                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white"
+                                }`}
+                              >
+                                {subItem.title}
+                              </Link>
+                            </NavigationMenuLink>
+                          ))}
+                        </div>
+                      </div>
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+
+          {/* Right Section */}
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Search */}
+            <div className="hidden md:flex relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                type="search"
+                placeholder="Search docs..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 w-64 h-9 bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700"
+              />
             </div>
 
-            {/* Spacer to push navigation and right section apart */}
-            <div className="flex-1 flex items-center justify-between ml-8">
-              {/* Desktop Navigation - Centered */}
-              <nav className="hidden lg:flex items-center space-x-1 flex-1 justify-center">
-                {navigationItems.map((item) => (
-                  <div key={item.label} className="relative group">
-                    <Link
-                      href={item.href}
-                      className={`nav-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
-                        theme === "dark"
-                          ? "text-slate-200 hover:text-white hover:bg-slate-700/50"
-                          : "text-slate-700 hover:text-slate-900 hover:bg-slate-100/50"
-                      } ${activeDropdown === item.label ? (theme === "dark" ? "bg-slate-700/50 text-white" : "bg-slate-100/50 text-slate-900") : ""}`}
-                      onMouseEnter={() => {
-                        item.hasDropdown && setActiveDropdown(item.label)
-                        item.hasDropdown && setIsVersionDropdownOpen(false)
-                      }}
-                      onClick={(e) => {
-                        if (item.hasDropdown) {
-                          e.preventDefault()
-                          setActiveDropdown(activeDropdown === item.label ? null : item.label)
-                          setIsVersionDropdownOpen(false)
-                        }
-                      }}
-                    >
-                      {item.label}
-                      {item.hasDropdown && (
-                        <ChevronDown
-                          className={`w-4 h-4 transition-transform duration-200 ${
-                            activeDropdown === item.label ? "rotate-180" : ""
-                          }`}
-                        />
-                      )}
-                    </Link>
+            {/* Quick Actions */}
+            <div className="hidden sm:flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="h-9 px-3 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
+                <Link href="/create-doc">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Create Doc
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="h-9 px-3 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              >
+                <Link href="/markdown-editor">
+                  <Code className="w-4 h-4 mr-2" />
+                  Editor
+                </Link>
+              </Button>
+            </div>
 
-                    {item.hasDropdown && activeDropdown === item.label && (
-                      <div
-                        className={`nav-dropdown-menu absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 rounded-xl shadow-2xl border transition-all duration-200 origin-top ${
-                          theme === "dark"
-                            ? "bg-slate-800/95 backdrop-blur-xl border-slate-700/50"
-                            : "bg-white/95 backdrop-blur-xl border-gray-200/50"
-                        }`}
-                        onMouseLeave={() => setActiveDropdown(null)}
-                      >
-                        <div className="p-2">
-                          {item.dropdownItems?.map((dropdownItem) => (
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="h-9 w-9 p-0 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </Button>
+
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 w-9 p-0 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                >
+                  <User className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <HelpCircle className="w-4 h-4 mr-2" />
+                  Help & Support
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Mobile Menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="lg:hidden h-9 w-9 p-0 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                >
+                  <Menu className="w-4 h-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80">
+                <div className="flex flex-col gap-4 mt-8">
+                  {/* Mobile Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      type="search"
+                      placeholder="Search docs..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10 pr-4"
+                    />
+                  </div>
+
+                  {/* Mobile Navigation */}
+                  <nav className="flex flex-col gap-2">
+                    {navigationItems.map((item) => (
+                      <div key={item.href} className="space-y-2">
+                        <Link
+                          href={item.href}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                            isActiveLink(item.href)
+                              ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white"
+                              : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white"
+                          }`}
+                        >
+                          <item.icon className="w-4 h-4" />
+                          {item.title}
+                        </Link>
+                        <div className="ml-7 space-y-1">
+                          {item.items.map((subItem) => (
                             <Link
-                              key={dropdownItem.label}
-                              href={dropdownItem.href}
-                              onClick={() => setActiveDropdown(null)}
-                              className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-200 ${
-                                theme === "dark"
-                                  ? "hover:bg-slate-700 text-slate-200 hover:text-white"
-                                  : "hover:bg-slate-50 text-slate-700 hover:text-slate-900"
+                              key={subItem.href}
+                              href={subItem.href}
+                              className={`block px-3 py-1.5 text-sm rounded-md transition-colors ${
+                                isActiveLink(subItem.href)
+                                  ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white"
+                                  : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white"
                               }`}
                             >
-                              <span className="text-xl mt-0.5">{dropdownItem.icon}</span>
-                              <div className="flex-1">
-                                <div className="font-medium">{dropdownItem.label}</div>
-                                <div className={`text-sm ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}>
-                                  {dropdownItem.description}
-                                </div>
-                              </div>
+                              {subItem.title}
                             </Link>
                           ))}
                         </div>
                       </div>
-                    )}
-                  </div>
-                ))}
-              </nav>
+                    ))}
+                  </nav>
 
-              {/* Right Section */}
-              <div className="flex items-center space-x-2 flex-shrink-0">
-                {/* Search */}
-                <div className="relative hidden md:block">
-                  <Search
-                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
-                      theme === "dark" ? "text-slate-400" : "text-slate-500"
-                    }`}
-                  />
-                  <Input
-                    type="search"
-                    placeholder="Search docs..."
-                    className={`pl-10 pr-16 py-2 w-56 text-sm transition-all duration-300 rounded-lg ${
-                      theme === "dark"
-                        ? "bg-slate-800 border-slate-700 text-white placeholder-slate-400 focus:bg-slate-700 focus:border-blue-400"
-                        : "bg-slate-100 border-slate-300 text-slate-900 placeholder-slate-500 focus:bg-white focus:border-blue-400"
-                    }`}
-                  />
-                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                    <kbd
-                      className={`px-1.5 py-0.5 text-xs rounded ${
-                        theme === "dark"
-                          ? "text-slate-400 bg-slate-700 border border-slate-600"
-                          : "text-slate-500 bg-slate-200 border border-slate-300"
-                      }`}
+                  {/* Mobile Quick Actions */}
+                  <div className="border-t pt-4 space-y-2">
+                    <Link
+                      href="/create-doc"
+                      className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
                     >
-                      ⌘K
-                    </kbd>
+                      <FileText className="w-4 h-4" />
+                      Create Document
+                    </Link>
+                    <Link
+                      href="/markdown-editor"
+                      className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    >
+                      <Code className="w-4 h-4" />
+                      Markdown Editor
+                    </Link>
                   </div>
                 </div>
-                {/* Action Buttons */}
-                <div className="flex items-center space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`relative rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                    aria-label="Notifications"
-                  >
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleTheme}
-                    className={`rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                    aria-label="Toggle theme"
-                  >
-                    {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    asChild
-                    className={`rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                    aria-label="Bitbucket Repository"
-                  >
-                    <Link href="https://bitbucket.org/your-repo" target="_blank">
-                      <GitBranch className="h-5 w-5" />
-                    </Link>
-                  </Button>
-                </div>
-                {/* Mobile Menu Button */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={`lg:hidden rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  aria-label="Toggle mobile menu"
-                >
-                  {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-                </Button>
-              </div>
-            </div>
+              </SheetContent>
+            </Sheet>
           </div>
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div
-              className={`lg:hidden border-t py-4 ${
-                theme === "dark"
-                  ? "border-slate-700/50 bg-slate-900/95 backdrop-blur-xl"
-                  : "border-gray-200/50 bg-white/95 backdrop-blur-xl"
-              }`}
-            >
-              <div className="px-2 py-3">
-                <div className="relative">
-                  <Search
-                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
-                      theme === "dark" ? "text-slate-400" : "text-slate-500"
-                    }`}
-                  />
-                  <Input
-                    type="search"
-                    placeholder="Search docs..."
-                    className={`pl-10 w-full rounded-lg ${
-                      theme === "dark"
-                        ? "bg-slate-800 border-slate-700 text-white placeholder-slate-400"
-                        : "bg-slate-100 border-slate-300 text-slate-900 placeholder-slate-500"
-                    }`}
-                  />
-                </div>
-              </div>
-              <nav className="flex flex-col space-y-1 px-2">
-                {navigationItems.map((item) => (
-                  // Basic mobile nav, can be enhanced with collapsible sections
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center justify-between px-3 py-3 rounded-lg transition-colors text-base font-medium ${
-                      // Increased text size
-                      theme === "dark"
-                        ? "text-slate-200 hover:text-white hover:bg-slate-700/50"
-                        : "text-slate-700 hover:text-slate-900 hover:bg-slate-100/50"
-                    }`}
-                  >
-                    {item.label}
-                    {item.hasDropdown && <ChevronDown className="w-4 h-4 opacity-50" />}
-                  </Link>
-                ))}
-              </nav>
-            </div>
-          )}
         </div>
-      </header>
-    </>
+      </div>
+    </header>
   )
 }
-
-export default Header
