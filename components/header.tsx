@@ -101,7 +101,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 max-w-screen-2xl items-center bg-[rgba(1,33,105,1)] bg-[rgba(0,17,34,1)]">
+      <div className="flex h-16 w-full items-center px-0 mx-0 bg-[rgba(1,33,105,1)] bg-[rgba(0,17,34,1)]">
         <div className="flex items-center h-16 w-full">
           {/* Logo and Title - Extreme Left */}
           <div className="flex items-center gap-3 flex-shrink-0">
