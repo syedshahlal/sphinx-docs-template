@@ -26,11 +26,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Enable local development
-  experimental: {
-    appDir: true,
-  },
-
   // Custom webpack config for development
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
