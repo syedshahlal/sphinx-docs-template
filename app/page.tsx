@@ -1,17 +1,9 @@
-import { Header } from "@/components/header"
-import { Banner } from "@/components/banner"
-import { FeatureCards } from "@/components/feature-cards"
-import { SeeAlsoSection } from "@/components/see-also-section"
+import PlatformFeatures from "../components/platform-features"
 
-export default function HomePage() {
+export default function Home() {
   return (
-    <div className="min-h-screen w-full bg-white">
-      <Banner />
-      <Header />
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <FeatureCards />
-        <SeeAlsoSection />
-      </main>
-    </div>
+    <main>
+      <PlatformFeatures />
+    </main>
   )
 }
