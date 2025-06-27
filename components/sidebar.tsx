@@ -1,92 +1,59 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Home } from "lucide-react"
+import { Book, Loader2 } from "lucide-react"
+import CollapsibleNavItem from "./collapsible-nav-item"
 import type { NavItem } from "@/lib/docs-navigation"
-import { CollapsibleNavItem } from "./collapsible-nav-item"
-import { Skeleton } from "@/components/ui/skeleton"
 
-interface SidebarProps {
-  /** Documentation version, e.g. "v5.7" – defaults to "v5.7" */
-  version?: string
-}
-
-export function Sidebar({ version = "v5.7" }: SidebarProps) {
-  const [nav, setNav] = useState<NavItem[] | null>(null)
+export default function Sidebar() {
+  const [navigation, setNavigation] = useState<NavItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  /* Fetch nav whenever the version changes */
   useEffect(() => {
-    let mounted = true
-    setNav(null)
-    setError(null)
-
-    fetch(`/api/docs-nav?version=${version}`)
-      .then(async (res) => {
-        if (!res.ok) {
-          // try to get error message from body
-          const body = await res.json().catch(() => ({}))
-          throw new Error(body.error || `Request failed with status ${res.status}`)
+    async function fetchNav() {
+      try {
+        setIsLoading(true)
+        setError(null)
+        const response = await fetch("/api/docs-nav?version=v5.7")
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`)
         }
-        return res.json() as Promise<NavItem[]>
-      })
-      .then((data) => {
-        if (mounted) setNav(data)
-      })
-      .catch((err: Error) => {
-        if (mounted) {
-          console.error("Sidebar fetch error:", err)
-          setError(err.message)
-          setNav([])
-        }
-      })
-
-    return () => {
-      mounted = false
+        const data = await response.json()
+        setNavigation(data)
+      } catch (e: any) {
+        console.error("Sidebar fetch error:", e.message)
+        setError("Failed to load navigation.")
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }, [version])
-
-  /* Helper to render loading / error / tree */
-  const renderNav = () => {
-    if (nav === null) {
-      return (
-        <div className="space-y-3 px-3">
-          <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-5/6" />
-          <Skeleton className="h-6 w-full" />
-        </div>
-      )
-    }
-    if (error) {
-      return <p className="px-3 text-sm text-red-600 dark:text-red-400">Error: {error}</p>
-    }
-    if (nav.length === 0) {
-      return <p className="px-3 text-sm text-gray-500 dark:text-gray-400">No documentation found.</p>
-    }
-    return nav.map((item) => <CollapsibleNavItem key={item.href} item={item} />)
-  }
+    fetchNav()
+  }, [])
 
   return (
-    /* wider: w-72 ≈ 288 px */
     <aside className="w-72 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 hidden lg:block">
-      {/* font color adapts via Tailwind dark: variants */}
-      <div className="h-full py-6 px-4 overflow-y-auto text-gray-900 dark:text-white">
+      <div className="h-full py-6 px-4 overflow-y-auto">
         <div className="mb-6">
-          <Link
-            href="/"
-            className="flex items-center px-3 py-2 text-sm font-semibold rounded-md text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30"
-          >
-            <Home className="mr-3 h-5 w-5" aria-hidden="true" />
-            Home
+          <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-50">
+            <Book className="h-6 w-6 text-sky-500" />
+            <span>GRA Core Docs</span>
           </Link>
         </div>
 
-        <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-2">
+        <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-2">
           Documentation
         </h3>
-
-        <nav className="space-y-1">{renderNav()}</nav>
+        <nav className="space-y-1">
+          {isLoading && (
+            <div className="flex items-center justify-center p-4">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+            </div>
+          )}
+          {error && <div className="text-red-500 px-3 text-sm">{error}</div>}
+          {!isLoading && !error && navigation.map((item) => <CollapsibleNavItem key={item.href} item={item} />)}
+        </nav>
       </div>
     </aside>
   )
