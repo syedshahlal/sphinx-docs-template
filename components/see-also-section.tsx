@@ -62,7 +62,7 @@ export function SeeAlsoSection() {
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.1),transparent_50%)]" />
           </div>
 
-          <div className="relative z-10 p-8 md:p-12 bg-slate-300">
+          <div className="relative z-10 p-8 md:p-12">
             {/* Header */}
             <div className="flex items-start gap-4 mb-8">
               <div className="flex-shrink-0 p-3 bg-green-500/10 dark:bg-green-400/10 rounded-xl border border-green-200/50 dark:border-green-700/50">
