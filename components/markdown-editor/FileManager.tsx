@@ -321,11 +321,16 @@ export function FileManager() {
             <Plus className="w-4 h-4" />
             New File
           </Button>
-          <Button onClick={handleNewFolder} variant="outline" size="sm" className="flex items-center gap-2">
+          <Button
+            onClick={handleNewFolder}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 bg-transparent"
+          >
             <Folder className="w-4 h-4" />
             New Folder
           </Button>
-          <Button onClick={handleUpload} variant="outline" size="sm" className="flex items-center gap-2">
+          <Button onClick={handleUpload} variant="outline" size="sm" className="flex items-center gap-2 bg-transparent">
             <Upload className="w-4 h-4" />
             Upload
           </Button>
