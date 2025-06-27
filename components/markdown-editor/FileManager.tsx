@@ -13,7 +13,7 @@ import { useEditor } from "./EditorContext"
 import { cn } from "@/lib/utils"
 import {
   FolderOpen,
-  File,
+  FileIcon,
   Plus,
   Search,
   FileText,
@@ -111,17 +111,14 @@ export function FileManager() {
   const [showNewFileDialog, setShowNewFileDialog] = useState(false)
   const [newFileName, setNewFileName] = useState("")
 
-  const filteredFiles = mockFiles.filter(file =>
-    file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    file.author.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredFiles = mockFiles.filter(
+    (file) =>
+      file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      file.author.toLowerCase().includes(searchQuery.toLowerCase()),
   )
 
   const handleFileSelect = (fileId: string) => {
-    setSelectedFiles(prev => 
-      prev.includes(fileId) 
-        ? prev.filter(id => id !== fileId)
-        : [...prev, fileId]
-    )
+    setSelectedFiles((prev) => (prev.includes(fileId) ? prev.filter((id) => id !== fileId) : [...prev, fileId]))
   }
 
   const handleFileOpen = (file: any) => {
@@ -146,7 +143,7 @@ export function FileManager() {
       month: "short",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
+      minute: "2-digit",
     })
   }
 
@@ -199,9 +196,7 @@ export function FileManager() {
                   <Button variant="outline" onClick={() => setShowNewFileDialog(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleNewFile}>
-                    Create
-                  </Button>
+                  <Button onClick={handleNewFile}>Create</Button>
                 </div>
               </div>
             </DialogContent>
@@ -288,36 +283,34 @@ export function FileManager() {
                 {filteredFiles.map((file) => {
                   const IconComponent = getFileIcon(file.type, file.extension)
                   const isSelected = selectedFiles.includes(file.id)
-                  
+
                   return (
-                    <Card 
+                    <Card
                       key={file.id}
                       className={cn(
                         "cursor-pointer transition-all duration-200 hover:shadow-md",
-                        isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                        isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
                       )}
                       onClick={() => handleFileSelect(file.id)}
                       onDoubleClick={() => handleFileOpen(file)}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
+                          {/* Icon */}
                           <div className="p-2 rounded-lg bg-muted">
                             <IconComponent className="h-4 w-4 text-muted-foreground" />
                           </div>
-                          
+
+                          {/* Meta */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">
-                              <h4 className="font-medium text-sm text-foreground truncate">
-                                {file.name}
-                              </h4>
-                              <Badge 
-                                variant="secondary" 
-                                className={cn("text-xs", getStatusColor(file.status))}
-                              >
+                              <h4 className="font-medium text-sm text-foreground truncate">{file.name}</h4>
+                              <Badge variant="secondary" className={cn("text-xs", getStatusColor(file.status))}>
                                 {file.status}
                               </Badge>
                             </div>
-                            
+
+                            {/* Author & modified */}
                             <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
                               <div className="flex items-center gap-1">
                                 <User className="h-3 w-3" />
@@ -327,6 +320,24 @@ export function FileManager() {
                                 <Clock className="h-3 w-3" />
                                 {formatDate(file.lastModified)}
                               </div>
-                              <div className="flex items-center gap-1">
-                                <File className="h-3 w-3" />
-                                {file.\
+                            </div>
+                          </div>
+
+                          {/* Size */}
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <FileIcon className="h-3 w-3" />
+                            {file.size}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </ScrollArea>
+    </div>
+  )
+}
