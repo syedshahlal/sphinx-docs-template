@@ -1,241 +1,167 @@
-"use client"
+'use client'
 
-import type { ChangeEvent } from "react"
-import { useState } from "react"
-
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Folder, File, Plus, Search, MoreVertical } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Folder, Search, MoreHorizontal, Trash2, Edit3, Copy, Upload, ChevronRight, ChevronDown } from "lucide-react"
-import { cn } from "@/lib/utils"
-
-/* -------------------------------------------------------------------------- */
-/*                                   TYPES                                    */
-/* -------------------------------------------------------------------------- */
+} from '@/components/ui/dropdown-menu'
 
 interface FileItem {
   id: string
   name: string
-  type: "file" | "folder"
+  type: 'file' | 'folder'
   path: string
-  size?: string
-  modified: string
-  starred?: boolean
   children?: FileItem[]
+  modified?: string
+  size?: string
 }
-
-/* -------------------------------------------------------------------------- */
-/*                               MOCK FILE DATA                               */
-/* -------------------------------------------------------------------------- */
 
 const mockFiles: FileItem[] = [
   {
-    id: "folder-1",
-    name: "Documentation",
-    type: "folder",
-    path: "/docs",
-    modified: "2024-01-15",
+    id: '1',
+    name: 'docs',
+    type: 'folder',
+    path: '/docs',
     children: [
       {
-        id: "file-1",
-        name: "Getting Started.md",
-        type: "file",
-        path: "/docs/getting-started.md",
-        size: "2.4 KB",
-        modified: "2024-01-15",
-        starred: true,
+        id: '2',
+        name: 'getting-started.md',
+        type: 'file',
+        path: '/docs/getting-started.md',
+        modified: '2 hours ago',
+        size: '2.1 KB'
       },
       {
-        id: "file-2",
-        name: "API Reference.md",
-        type: "file",
-        path: "/docs/api-reference.md",
-        size: "12.1 KB",
-        modified: "2024-01-14",
-      },
-    ],
+        id: '3',
+        name: 'api-reference.md',
+        type: 'file',
+        path: '/docs/api-reference.md',
+        modified: '1 day ago',
+        size: '5.3 KB'
+      }
+    ]
   },
   {
-    id: "file-3",
-    name: "README.md",
-    type: "file",
-    path: "/README.md",
-    size: "956 B",
-    modified: "2024-01-16",
-  },
+    id: '4',
+    name: 'examples',
+    type: 'folder',
+    path: '/examples',
+    children: [
+      {
+        id: '5',
+        name: 'basic-usage.md',
+        type: 'file',
+        path: '/examples/basic-usage.md',
+        modified: '3 days ago',
+        size: '1.8 KB'
+      }
+    ]
+  }
 ]
 
-/* -------------------------------------------------------------------------- */
-/*                               FILE-TREE ITEM                               */
-/* -------------------------------------------------------------------------- */
-
-interface FileTreeItemProps {
-  item: FileItem
-  level: number
-  onSelect: (item: FileItem) => void
-  onAction: (action: string, item: FileItem) => void
-  selectedId?: string
-}
-
-function FileTreeItem({ item, level, onSelect, onAction, selectedId }: FileTreeItemProps) {
-  const [isExpanded, setIsExpanded] = useState(level === 0)
-  const isSelected = selectedId === item.id
-
-  const Icon = item.type === "folder" ? Folder : Edit3 // placeholder icon for files
-
-  return (
-    <div className="group text-sm">
-      <div
-        onClick={() => onSelect(item)}
-        style={{ paddingLeft: `${level * 16 + 8}px` }}
-        className={cn(
-          "flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer hover:bg-muted transition-colors",
-          isSelected && "bg-primary/10 text-primary",
-        )}
-      >
-        {item.type === "folder" && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              setIsExpanded(!isExpanded)
-            }}
-            className="p-0.5 hover:bg-muted-foreground/20 rounded"
-          >
-            {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-          </button>
-        )}
-
-        <Icon
-          className={cn("w-4 h-4", item.type === "folder" ? "text-blue-500" : "text-muted-foreground")}
-          style={{ marginLeft: item.type === "file" ? "24px" : 0 }}
-        />
-
-        <span className="flex-1 truncate">{item.name}</span>
-
-        {/* Action menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreHorizontal className="w-3 h-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onAction("rename", item)}>
-              <Edit3 className="w-4 h-4 mr-2" /> Rename
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAction("duplicate", item)}>
-              <Copy className="w-4 h-4 mr-2" /> Duplicate
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onAction("delete", item)} className="text-red-600">
-              <Trash2 className="w-4 h-4 mr-2" /> Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {item.type === "folder" && isExpanded && item.children?.length
-        ? item.children.map((child) => (
-            <FileTreeItem
-              key={child.id}
-              item={child}
-              level={level + 1}
-              onSelect={onSelect}
-              onAction={onAction}
-              selectedId={selectedId}
-            />
-          ))
-        : null}
-    </div>
-  )
-}
-
-/* -------------------------------------------------------------------------- */
-/*                                FILE MANAGER                                */
-/* -------------------------------------------------------------------------- */
-
-export function FileManager() {
+export default function FileManager() {
   const [files] = useState<FileItem[]>(mockFiles)
-  const [search, setSearch] = useState("")
-  const [selected, setSelected] = useState<FileItem | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['1', '4']))
 
-  const handleFileUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    const uploaded = e.target.files?.[0]
-    if (uploaded) {
-      console.log("Uploaded:", uploaded.name)
-      // Upload logic goes here
+  const toggleFolder = (folderId: string) => {
+    const newExpanded = new Set(expandedFolders)
+    if (newExpanded.has(folderId)) {
+      newExpanded.delete(folderId)
+    } else {
+      newExpanded.add(folderId)
     }
+    setExpandedFolders(newExpanded)
   }
 
-  const handleAction = (action: string, item: FileItem) => {
-    console.log(action, item)
-    // Real actions would be implemented here
+  const renderFileItem = (item: FileItem, depth = 0) => {
+    const isExpanded = expandedFolders.has(item.id)
+    
+    return (
+      <div key={item.id}>
+        <div 
+          className="flex items-center gap-2 p-2 hover:bg-muted/50 rounded-md cursor-pointer"
+          style={{ paddingLeft: `${depth * 16 + 8}px` }}
+          onClick={() => item.type === 'folder' && toggleFolder(item.id)}
+        >
+          {item.type === 'folder' ? (
+            <Folder className="h-4 w-4 text-blue-500" />
+          ) : (
+            <File className="h-4 w-4 text-gray-500" />
+          )}
+          
+          <span className="flex-1 text-sm">{item.name}</span>
+          
+          {item.type === 'file' && (
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs">
+                {item.size}
+              </Badge>
+              <span className="text-xs text-muted-foreground">
+                {item.modified}
+              </span>
+            </div>
+          )}
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                <MoreVertical className="h-3 w-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>Rename</DropdownMenuItem>
+              <DropdownMenuItem>Duplicate</DropdownMenuItem>
+              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        
+        {item.type === 'folder' && isExpanded && item.children && (
+          <div>
+            {item.children.map(child => renderFileItem(child, depth + 1))}
+          </div>
+        )}
+      </div>
+    )
   }
 
-  const visibleFiles = files.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()))
+  const filteredFiles = files.filter(file => 
+    file.name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   return (
-    <div className="h-full flex flex-col bg-card border rounded-lg">
-      {/* Search / upload */}
-      <div className="p-4 border-b border-border space-y-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search files…"
-            className="pl-10 h-9"
-          />
-        </div>
-        <input id="file-upload-input" type="file" onChange={handleFileUpload} className="hidden" />
-        <Button
-          variant="outline"
-          onClick={() => document.getElementById("file-upload-input")?.click()}
-          className="w-full"
-        >
-          <Upload className="w-4 h-4 mr-2" />
-          Upload file
-        </Button>
-      </div>
-
-      {/* File tree */}
-      <ScrollArea className="flex-1">
-        <div className="p-2">
-          {visibleFiles.map((item) => (
-            <FileTreeItem
-              key={item.id}
-              item={item}
-              level={0}
-              onSelect={setSelected}
-              onAction={handleAction}
-              selectedId={selected?.id}
+    <Card className="h-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg">Files</CardTitle>
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search files..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8"
             />
-          ))}
+          </div>
+          <Button size="sm" variant="outline">
+            <Plus className="h-4 w-4 mr-1" />
+            New
+          </Button>
         </div>
-      </ScrollArea>
-
-      {/* Footer */}
-      {selected && (
-        <div className="p-3 border-t border-border flex items-center justify-between text-xs bg-muted/50 text-muted-foreground">
-          <span className="truncate">{selected.path}</span>
-          <Badge>{selected.type}</Badge>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="max-h-96 overflow-y-auto">
+          {filteredFiles.map(file => renderFileItem(file))}
         </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   )
 }
-
-export default FileManager
