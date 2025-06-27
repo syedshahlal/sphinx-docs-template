@@ -1,8 +1,9 @@
 import type { NavItem } from "./docs-navigation"
 
 /**
- * Hard-coded navigation trees for each documentation version.
- * In a real app you would generate this at build-time.
+ * A STATIC navigation tree.
+ * In a production app you would generate this at build time or
+ * query a database / CMS.  For the preview we keep it in memory.
  */
 export const staticNav: Record<string, NavItem[]> = {
   "v5.7": [

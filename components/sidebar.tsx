@@ -8,6 +8,7 @@ import { CollapsibleNavItem } from "./collapsible-nav-item"
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface SidebarProps {
+  /** Documentation version, e.g. "v5.7" – defaults to "v5.7" */
   version?: string
 }
 
@@ -15,6 +16,7 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
   const [nav, setNav] = useState<NavItem[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  /* Fetch nav whenever the version changes */
   useEffect(() => {
     let mounted = true
     setNav(null)
@@ -23,15 +25,16 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
     fetch(`/api/docs-nav?version=${version}`)
       .then(async (res) => {
         if (!res.ok) {
+          // try to get error message from body
           const body = await res.json().catch(() => ({}))
           throw new Error(body.error || `Request failed with status ${res.status}`)
         }
-        return res.json()
+        return res.json() as Promise<NavItem[]>
       })
-      .then((data: NavItem[]) => {
+      .then((data) => {
         if (mounted) setNav(data)
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         if (mounted) {
           console.error("Sidebar fetch error:", err)
           setError(err.message)
@@ -44,6 +47,7 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
     }
   }, [version])
 
+  /* Helper to render loading / error / tree */
   const renderNav = () => {
     if (nav === null) {
       return (
@@ -51,7 +55,6 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
           <Skeleton className="h-6 w-full" />
           <Skeleton className="h-6 w-5/6" />
           <Skeleton className="h-6 w-full" />
-          <Skeleton className="h-6 w-4/5" />
         </div>
       )
     }
@@ -59,14 +62,16 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
       return <p className="px-3 text-sm text-red-600 dark:text-red-400">Error: {error}</p>
     }
     if (nav.length === 0) {
-      return <p className="px-3 text-sm text-gray-500">No documentation found.</p>
+      return <p className="px-3 text-sm text-gray-500 dark:text-gray-400">No documentation found.</p>
     }
     return nav.map((item) => <CollapsibleNavItem key={item.href} item={item} />)
   }
 
   return (
+    /* wider: w-72 ≈ 288 px */
     <aside className="w-72 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 hidden lg:block">
-      <div className="h-full py-6 px-4 overflow-y-auto">
+      {/* font color adapts via Tailwind dark: variants */}
+      <div className="h-full py-6 px-4 overflow-y-auto text-gray-900 dark:text-white">
         <div className="mb-6">
           <Link
             href="/"
@@ -76,10 +81,12 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
             Home
           </Link>
         </div>
-        <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+
+        <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-2">
           Documentation
         </h3>
-        <nav className="space-y-1 text-white text-white">{renderNav()}</nav>
+
+        <nav className="space-y-1">{renderNav()}</nav>
       </div>
     </aside>
   )
