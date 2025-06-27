@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Info, ExternalLink, ArrowRight, Sparkles } from "lucide-react"
+import { Info, ExternalLink } from "lucide-react"
 
 export function SeeAlsoSection() {
   const [hoveredPlatform, setHoveredPlatform] = useState<number | null>(null)
@@ -54,3 +54,25 @@ export function SeeAlsoSection() {
   )
 
   return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {relatedPlatforms.map((platform) => (
+        <div
+          key={platform.key}
+          className={`bg-gradient-to-r ${platform.color} p-4 rounded-lg flex items-center space-x-4 hover:opacity-80`}
+          onMouseEnter={() => setHoveredPlatform(Number.parseInt(platform.key))}
+          onMouseLeave={() => setHoveredPlatform(null)}
+        >
+          <Info className="w-6 h-6" />
+          <div>
+            <h3 className="text-lg font-semibold">{platform.name}</h3>
+            <p className="text-gray-600">{platform.description}</p>
+          </div>
+          <div className="ml-auto">
+            <span className="bg-white text-black px-2 py-1 rounded-full text-sm">{platform.badge}</span>
+            <ExternalLink className="w-6 h-6 ml-2" />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
