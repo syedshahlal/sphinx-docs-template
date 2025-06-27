@@ -1,3 +1,5 @@
+"use server"
+
 import fs from "fs/promises"
 import path from "path"
 import type { NavItem } from "./docs-navigation"
@@ -6,7 +8,7 @@ const DOCS_ROOT = path.join(process.cwd(), "docs")
 
 const isContentFile = (name: string) => name.endsWith(".md") || name.endsWith(".rst")
 
-const niceTitle = (raw: string) => raw.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) // capitalise every word
+const niceTitle = (raw: string) => raw.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
 
 /**
  * Recursively walk docs/{version} and build a navigation tree.
@@ -35,7 +37,6 @@ export async function buildNav(version: string): Promise<NavItem[]> {
           })
         }
       } else if (e.isFile() && isContentFile(e.name)) {
-        // skip "index" → the directory link already covers it
         const base = path.parse(e.name).name
         if (base === "index") continue
         nav.push({
@@ -44,13 +45,13 @@ export async function buildNav(version: string): Promise<NavItem[]> {
         })
       }
     }
-    // alpha sort
     return nav.sort((a, b) => a.title.localeCompare(b.title))
   }
 
   try {
     return await walk(baseDir)
   } catch {
-    return [] // version folder missing
+    console.warn(`Could not build navigation for version "${version}". Directory not found.`)
+    return []
   }
 }

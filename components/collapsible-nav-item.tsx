@@ -2,44 +2,51 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronRight, ChevronDown } from "lucide-react"
+import { usePathname } from "next/navigation"
+import { ChevronRight } from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { cn } from "@/lib/utils"
 import type { NavItem } from "@/lib/docs-navigation"
 
-interface Props {
+interface CollapsibleNavItemProps {
   item: NavItem
-  depth?: number
 }
-export function CollapsibleNavItem({ item, depth = 0 }: Props) {
-  const [open, setOpen] = useState(depth < 1) // top-level open by default
-  const hasChildren = !!item.items?.length
+
+export function CollapsibleNavItem({ item }: CollapsibleNavItemProps) {
+  const pathname = usePathname()
+  const isActive = pathname === item.href
+  const isParentActive = item.items ? pathname.startsWith(item.href) : false
+  const [isOpen, setIsOpen] = useState(isParentActive)
+
+  if (!item.items || item.items.length === 0) {
+    return (
+      <Link
+        href={item.href}
+        className={cn(
+          "flex items-center px-3 py-2 text-sm font-medium rounded-md",
+          isActive
+            ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-slate-50"
+            : "text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800",
+        )}
+      >
+        {item.title}
+      </Link>
+    )
+  }
 
   return (
-    <div>
-      <div
-        className="flex items-center cursor-pointer select-none px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800"
-        onClick={() => hasChildren && setOpen(!open)}
-      >
-        {hasChildren ? (
-          open ? (
-            <ChevronDown className="mr-2 h-4 w-4 text-gray-400" />
-          ) : (
-            <ChevronRight className="mr-2 h-4 w-4 text-gray-400" />
-          )
-        ) : (
-          <span className="mr-2 w-4" /> /* space align */
-        )}
-        <Link href={item.href} className="flex-1 text-sm text-gray-700 dark:text-slate-300">
-          {item.title}
-        </Link>
-      </div>
-
-      {hasChildren && open && (
-        <div className="ml-5 space-y-1">
-          {item.items!.map((c) => (
-            <CollapsibleNavItem key={c.href} item={c} depth={depth + 1} />
-          ))}
-        </div>
-      )}
-    </div>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger asChild>
+        <button className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800">
+          <span className="text-left">{item.title}</span>
+          <ChevronRight className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")} />
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pl-4 mt-1 space-y-1">
+        {item.items.map((child) => (
+          <CollapsibleNavItem key={child.href} item={child} />
+        ))}
+      </CollapsibleContent>
+    </Collapsible>
   )
 }

@@ -4,6 +4,11 @@ import { buildNav } from "@/lib/docs-utils"
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
   const version = searchParams.get("version") ?? "v5.7"
-  const nav = await buildNav(version)
-  return NextResponse.json(nav)
+  try {
+    const nav = await buildNav(version)
+    return NextResponse.json(nav)
+  } catch (error) {
+    console.error(`Failed to build nav for version ${version}:`, error)
+    return NextResponse.json({ error: "Failed to build navigation" }, { status: 500 })
+  }
 }
