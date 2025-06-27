@@ -4,30 +4,31 @@ import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ChevronRight } from "lucide-react"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { cn } from "@/lib/utils"
 import type { NavItem } from "@/lib/docs-navigation"
+import { cn } from "@/lib/utils"
 
 interface CollapsibleNavItemProps {
   item: NavItem
+  level?: number
 }
 
-export function CollapsibleNavItem({ item }: CollapsibleNavItemProps) {
+export function CollapsibleNavItem({ item, level = 0 }: CollapsibleNavItemProps) {
   const pathname = usePathname()
+  const [isOpen, setIsOpen] = useState(pathname.startsWith(item.href))
+
   const isActive = pathname === item.href
-  const isParentActive = item.items ? pathname.startsWith(item.href) : false
-  const [isOpen, setIsOpen] = useState(isParentActive)
 
   if (!item.items || item.items.length === 0) {
     return (
       <Link
         href={item.href}
         className={cn(
-          "flex items-center px-3 py-2 text-sm font-medium rounded-md",
+          "flex items-center py-2 text-sm rounded-md transition-colors",
           isActive
-            ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-slate-50"
-            : "text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800",
+            ? "font-semibold text-blue-600 dark:text-blue-400"
+            : "text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800",
         )}
+        style={{ paddingLeft: `${0.75 + level * 1}rem` }}
       >
         {item.title}
       </Link>
@@ -35,18 +36,27 @@ export function CollapsibleNavItem({ item }: CollapsibleNavItemProps) {
   }
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger asChild>
-        <button className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800">
-          <span className="text-left">{item.title}</span>
-          <ChevronRight className={cn("h-4 w-4 transition-transform", isOpen && "rotate-90")} />
-        </button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="pl-4 mt-1 space-y-1">
-        {item.items.map((child) => (
-          <CollapsibleNavItem key={child.href} item={child} />
-        ))}
-      </CollapsibleContent>
-    </Collapsible>
+    <div>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "flex items-center justify-between w-full py-2 text-sm rounded-md transition-colors",
+          "text-gray-700 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800",
+        )}
+        style={{ paddingLeft: `${0.75 + level * 1}rem` }}
+      >
+        <span className={cn("font-medium", pathname.startsWith(item.href) && "text-blue-600 dark:text-blue-400")}>
+          {item.title}
+        </span>
+        <ChevronRight className={cn("h-4 w-4 text-gray-500 transition-transform", isOpen && "rotate-90")} />
+      </button>
+      {isOpen && (
+        <div className="mt-1 space-y-1">
+          {item.items.map((child) => (
+            <CollapsibleNavItem key={child.href} item={child} level={level + 1} />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

@@ -17,14 +17,14 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
 
   useEffect(() => {
     let mounted = true
-    setNav(null) // Reset on version change
+    setNav(null)
     setError(null)
 
     fetch(`/api/docs-nav?version=${version}`)
       .then(async (res) => {
         if (!res.ok) {
-          const body = await res.json()
-          throw new Error(body.error || "Failed to fetch navigation")
+          const body = await res.json().catch(() => ({}))
+          throw new Error(body.error || `Request failed with status ${res.status}`)
         }
         return res.json()
       })
@@ -33,6 +33,7 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
       })
       .catch((err) => {
         if (mounted) {
+          console.error("Sidebar fetch error:", err)
           setError(err.message)
           setNav([])
         }
@@ -45,20 +46,20 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
 
   const renderNav = () => {
     if (nav === null) {
-      // Loading state
       return (
-        <div className="space-y-2 px-3">
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-5/6" />
+        <div className="space-y-3 px-3">
+          <Skeleton className="h-6 w-full" />
+          <Skeleton className="h-6 w-5/6" />
+          <Skeleton className="h-6 w-full" />
+          <Skeleton className="h-6 w-4/5" />
         </div>
       )
     }
     if (error) {
-      return <p className="px-3 text-sm text-red-500">{error}</p>
+      return <p className="px-3 text-sm text-red-600 dark:text-red-400">Error: {error}</p>
     }
     if (nav.length === 0) {
-      return <p className="px-3 text-sm text-gray-500">No documentation found for this version.</p>
+      return <p className="px-3 text-sm text-gray-500">No documentation found.</p>
     }
     return nav.map((item) => <CollapsibleNavItem key={item.href} item={item} />)
   }
