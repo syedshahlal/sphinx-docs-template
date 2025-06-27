@@ -1,22 +1,16 @@
 "use client"
 
-import { useState, type ChangeEvent } from "react"
+import type React from "react"
+
+import { useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { FolderOpen, Plus, Search, MoreHorizontal, Trash2, Edit3, Copy, Download, Upload, Star, Clock, Folder, ChevronRight, ChevronDown } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Search, MoreHorizontal, Trash2, Edit3, Folder, ChevronRight, ChevronDown, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-/* ---------- mock data & types ---------- */
-
+// Types
 interface FileItem {
   id: string
   name: string
@@ -28,6 +22,7 @@ interface FileItem {
   children?: FileItem[]
 }
 
+// Mock Data
 const mockFiles: FileItem[] = [
   {
     id: "1",
@@ -48,46 +43,59 @@ const mockFiles: FileItem[] = [
     ],
   },
   {
-    id: "3",
+    id: "9",
     name: "README.md",
     type: "file",
     path: "/README.md",
     size: "956 B",
     modified: "2024-01-16",
+    starred: true,
   },
 ]
 
-/* ---------- tree item ---------- */
-
+// Helper Component
 interface FileTreeItemProps {
   item: FileItem
   level: number
-  onSelect: (i: FileItem) => void
-  onAction: (action: string, i: FileItem) => void
+  onSelect: (item: FileItem) => void
+  onAction: (action: string, item: FileItem) => void
   selectedId?: string
 }
 
 function FileTreeItem({ item, level, onSelect, onAction, selectedId }: FileTreeItemProps) {
-  const [open, setOpen] = useState(level === 0)
+  const [isExpanded, setIsExpanded] = useState(level === 0)
   const isSelected = selectedId === item.id
 
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (item.type === "folder") {
+      setIsExpanded(!isExpanded)
+    }
+  }
+
   return (
-    <div>
+    <div className="group">
       <div
         className={cn(
-          "flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer hover:bg-muted/50",
+          "flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer hover:bg-muted/50 transition-colors",
           isSelected && "bg-primary/10 text-primary",
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
         onClick={() => onSelect(item)}
       >
-        {item.type === "folder" && (
-          <button onClick={() => setOpen(!open)} className="p-0.5 hover:bg-muted rounded">
-            {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-          </button>
+        {item.type === "folder" ? (
+          <>
+            <button onClick={handleToggle} className="p-0.5 hover:bg-muted rounded">
+              {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            </button>
+            <Folder className="w-4 h-4 text-blue-500" />
+          </>
+        ) : (
+          // Using a div as a spacer for file items to align them with folders
+          <div className="w-4 h-4 ml-4" />
         )}
-        <Folder className="w-4 h-4 text-blue-500" />
-        <span className="flex-1 truncate">{item.name}</span>
+        <span className="flex-1 text-sm truncate">{item.name}</span>
+        {item.starred && <Star className="w-3 h-3 text-yellow-500 fill-current" />}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -103,90 +111,78 @@ function FileTreeItem({ item, level, onSelect, onAction, selectedId }: FileTreeI
             <DropdownMenuItem onClick={() => onAction("rename", item)}>
               <Edit3 className="w-4 h-4 mr-2" /> Rename
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAction("duplicate", item)}>
-              <Copy className="w-4 h-4 mr-2" /> Duplicate
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAction("download", item)}>
-              <Download className="w-4 h-4 mr-2" /> Download
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onAction("delete", item)} className="text-red-600">
               <Trash2 className="w-4 h-4 mr-2" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
-      {item.type === "folder" && open && item.children?.length
-        ? item.children.map((c) => (
+      {item.type === "folder" && isExpanded && item.children && (
+        <div>
+          {item.children.map((child) => (
             <FileTreeItem
-              key={c.id}
-              item={c}
+              key={child.id}
+              item={child}
               level={level + 1}
               onSelect={onSelect}
               onAction={onAction}
               selectedId={selectedId}
             />
-          ))
-        : null}
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
-/* ---------- FileManager main ---------- */
-
-export interface FileManagerProps {
-  onSelect: (file: File) => void
-}
-
-export function FileManager({ onSelect }: FileManagerProps) {
+// Main Component
+export function FileManager() {
   const [files] = useState<FileItem[]>(mockFiles)
-  const [search, setSearch] = useState("")
-  const [selected, setSelected] = useState<FileItem | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [selectedFile, setSelectedFile] = useState<FileItem | null>(null)
 
-  const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    if (f) onSelect(f)
+  const handleFileAction = (action: string, file: FileItem) => {
+    console.log(action, file.name)
+    // Placeholder for actions like rename, delete, etc.
   }
 
-  const visible = files.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()))
+  const filteredFiles = files.filter((file) => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (
-    <div className="h-full flex flex-col bg-card">
-      {/* toolbar */}
-      <div className="p-4 border-b border-border bg-muted/50 space-y-3">
-        <div className="flex items-center gap-2">
-          <Search className="w-4 h-4 text-muted-foreground" />
+    <div className="h-full flex flex-col bg-card border border-border rounded-lg">
+      <div className="p-4 border-b border-border">
+        <h2 className="text-lg font-bold text-foreground">Files</h2>
+        <p className="text-sm text-muted-foreground">Manage your documents</p>
+      </div>
+      <div className="p-4 border-b border-border">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search files…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="h-8"
+            type="text"
+            placeholder="Search files..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-9"
           />
-          <Input type="file" onChange={handleUpload} className="ml-auto h-8" />
         </div>
       </div>
-
-      {/* file tree */}
       <ScrollArea className="flex-1">
-        <div className="p-4">
-          {visible.map((f) => (
+        <div className="p-2">
+          {filteredFiles.map((file) => (
             <FileTreeItem
-              key={f.id}
-              item={f}
+              key={file.id}
+              item={file}
               level={0}
-              onSelect={setSelected}
-              onAction={() => {}}
-              selectedId={selected?.id}
+              onSelect={setSelectedFile}
+              onAction={handleFileAction}
+              selectedId={selectedFile?.id}
             />
           ))}
         </div>
       </ScrollArea>
-
-      {/* footer */}
-      {selected && (
-        <div className="p-3 border-t border-border text-xs flex justify-between bg-muted/50">
-          <span>{selected.path}</span> <Badge>{selected.type}</Badge>
+      {selectedFile && (
+        <div className="p-3 border-t border-border bg-muted/50 text-sm text-muted-foreground">
+          Selected: <span className="font-medium text-foreground">{selectedFile.name}</span>
         </div>
       )}
     </div>
