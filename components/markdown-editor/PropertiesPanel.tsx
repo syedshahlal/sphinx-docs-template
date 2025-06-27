@@ -1,5 +1,6 @@
 "use client"
-import { useState } from "react"
+
+import { useState, useEffect } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -7,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Save, Check, Sliders } from "lucide-react"
+import { Settings, Save, Check, Sliders } from "lucide-react"
 import { useEditor } from "./EditorContext"
 import type { MarkdownComponent } from "./types"
 
@@ -19,8 +20,27 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
   const { updateComponentContent, updateComponentStyle } = useEditor()
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle")
 
+  // A local state to manage form inputs and only update context on blur or explicit action
+  // This can improve performance for complex components
+  const [localContent, setLocalContent] = useState(selectedComponent?.content)
+
+  useEffect(() => {
+    setLocalContent(selectedComponent?.content)
+  }, [selectedComponent])
+
+  const handleContentChange = (field: string, value: any) => {
+    if (!selectedComponent) return
+    updateComponentContent(selectedComponent.id, { [field]: value })
+  }
+
+  const handleStyleChange = (field: string, value: any) => {
+    if (!selectedComponent) return
+    updateComponentStyle(selectedComponent.id, { [field]: value })
+  }
+
   const handleSave = async () => {
     setSaveStatus("saving")
+    // In a real app, you'd call an API here
     await new Promise((resolve) => setTimeout(resolve, 1000))
     setSaveStatus("saved")
     setTimeout(() => setSaveStatus("idle"), 2000)
@@ -38,16 +58,16 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="heading-text"
                 value={selectedComponent.content.text || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { text: e.target.value })}
+                onChange={(e) => handleContentChange("text", e.target.value)}
               />
             </div>
             <div>
               <Label htmlFor="heading-level">Level</Label>
               <Select
                 value={String(selectedComponent.content.level || "2")}
-                onValueChange={(value) => updateComponentContent(selectedComponent.id, { level: Number(value) })}
+                onValueChange={(value) => handleContentChange("level", Number(value))}
               >
-                <SelectTrigger>
+                <SelectTrigger id="heading-level">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -68,7 +88,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
             <Textarea
               id="paragraph-text"
               value={selectedComponent.content.text || ""}
-              onChange={(e) => updateComponentContent(selectedComponent.id, { text: e.target.value })}
+              onChange={(e) => handleContentChange("text", e.target.value)}
               rows={5}
             />
           </div>
@@ -81,7 +101,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="image-src"
                 value={selectedComponent.content.src || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { src: e.target.value })}
+                onChange={(e) => handleContentChange("src", e.target.value)}
                 placeholder="https://example.com/image.jpg"
               />
             </div>
@@ -90,7 +110,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="image-alt"
                 value={selectedComponent.content.alt || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { alt: e.target.value })}
+                onChange={(e) => handleContentChange("alt", e.target.value)}
                 placeholder="Describe the image"
               />
             </div>
@@ -99,7 +119,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="image-caption"
                 value={selectedComponent.content.caption || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { caption: e.target.value })}
+                onChange={(e) => handleContentChange("caption", e.target.value)}
                 placeholder="Image caption"
               />
             </div>
@@ -109,7 +129,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
                 <Input
                   id="image-width"
                   value={selectedComponent.content.width || ""}
-                  onChange={(e) => updateComponentContent(selectedComponent.id, { width: e.target.value })}
+                  onChange={(e) => handleContentChange("width", e.target.value)}
                   placeholder="100%, 400px"
                 />
               </div>
@@ -118,7 +138,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
                 <Input
                   id="image-height"
                   value={selectedComponent.content.height || ""}
-                  onChange={(e) => updateComponentContent(selectedComponent.id, { height: e.target.value })}
+                  onChange={(e) => handleContentChange("height", e.target.value)}
                   placeholder="auto, 300px"
                 />
               </div>
@@ -133,7 +153,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="button-text"
                 value={selectedComponent.content.text || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { text: e.target.value })}
+                onChange={(e) => handleContentChange("text", e.target.value)}
                 placeholder="Button text"
               />
             </div>
@@ -142,7 +162,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="button-link"
                 value={selectedComponent.content.link || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { link: e.target.value })}
+                onChange={(e) => handleContentChange("link", e.target.value)}
                 placeholder="https://example.com"
               />
             </div>
@@ -151,7 +171,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
                 <Label htmlFor="button-variant">Variant</Label>
                 <Select
                   value={selectedComponent.content.variant || "default"}
-                  onValueChange={(value) => updateComponentContent(selectedComponent.id, { variant: value })}
+                  onValueChange={(value) => handleContentChange("variant", value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -170,7 +190,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
                 <Label htmlFor="button-size">Size</Label>
                 <Select
                   value={selectedComponent.content.size || "default"}
-                  onValueChange={(value) => updateComponentContent(selectedComponent.id, { size: value })}
+                  onValueChange={(value) => handleContentChange("size", value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -193,7 +213,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="card-title"
                 value={selectedComponent.content.title || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { title: e.target.value })}
+                onChange={(e) => handleContentChange("title", e.target.value)}
                 placeholder="Card title"
               />
             </div>
@@ -202,7 +222,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Textarea
                 id="card-description"
                 value={selectedComponent.content.description || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { description: e.target.value })}
+                onChange={(e) => handleContentChange("description", e.target.value)}
                 rows={3}
                 placeholder="Card description"
               />
@@ -212,7 +232,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="card-image"
                 value={selectedComponent.content.imageUrl || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { imageUrl: e.target.value })}
+                onChange={(e) => handleContentChange("imageUrl", e.target.value)}
                 placeholder="https://example.com/image.jpg"
               />
             </div>
@@ -220,7 +240,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Label htmlFor="card-layout">Layout</Label>
               <Select
                 value={selectedComponent.content.layout || "default"}
-                onValueChange={(value) => updateComponentContent(selectedComponent.id, { layout: value })}
+                onValueChange={(value) => handleContentChange("layout", value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -243,7 +263,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Label htmlFor="chart-type">Chart Type</Label>
               <Select
                 value={selectedComponent.content.type || "bar"}
-                onValueChange={(value) => updateComponentContent(selectedComponent.id, { type: value })}
+                onValueChange={(value) => handleContentChange("type", value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -262,7 +282,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="chart-title"
                 value={selectedComponent.content.title || ""}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { title: e.target.value })}
+                onChange={(e) => handleContentChange("title", e.target.value)}
                 placeholder="Chart title"
               />
             </div>
@@ -279,7 +299,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
                 min="1"
                 max="6"
                 value={selectedComponent.content.columns || 3}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { columns: Number(e.target.value) })}
+                onChange={(e) => handleContentChange("columns", Number(e.target.value))}
               />
             </div>
             <div>
@@ -287,7 +307,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
               <Input
                 id="grid-gap"
                 value={selectedComponent.content.gap || "1.5rem"}
-                onChange={(e) => updateComponentContent(selectedComponent.id, { gap: e.target.value })}
+                onChange={(e) => handleContentChange("gap", e.target.value)}
                 placeholder="1.5rem, 24px"
               />
             </div>
@@ -296,7 +316,8 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
       default:
         return (
           <div className="text-center py-8 text-muted-foreground">
-            <p>No content properties for this component.</p>
+            <Settings className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p>No specific properties for this component.</p>
           </div>
         )
     }
@@ -314,7 +335,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
             id="style-padding"
             value={style.padding || ""}
             placeholder="e.g., 1rem or 16px"
-            onChange={(e) => updateComponentStyle(selectedComponent.id, { padding: e.target.value })}
+            onChange={(e) => handleStyleChange("padding", e.target.value)}
           />
         </div>
         <div>
@@ -323,7 +344,7 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
             id="style-margin"
             value={style.margin || ""}
             placeholder="e.g., 1rem 0"
-            onChange={(e) => updateComponentStyle(selectedComponent.id, { margin: e.target.value })}
+            onChange={(e) => handleStyleChange("margin", e.target.value)}
           />
         </div>
         <div>
@@ -332,8 +353,8 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
             id="style-color"
             type="color"
             value={style.color || "#000000"}
-            onChange={(e) => updateComponentStyle(selectedComponent.id, { color: e.target.value })}
-            className="w-full h-10"
+            onChange={(e) => handleStyleChange("color", e.target.value)}
+            className="w-full h-10 p-1"
           />
         </div>
       </div>
@@ -342,25 +363,25 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
 
   if (!selectedComponent) {
     return (
-      <div className="h-full flex flex-col bg-card border border-border rounded-lg">
-        <div className="p-4 border-b border-border">
-          <h2 className="text-lg font-bold text-foreground">Properties</h2>
+      <div className="h-full flex flex-col bg-card border rounded-lg shadow-sm">
+        <div className="p-4 border-b">
+          <h2 className="text-lg font-semibold text-foreground">Properties</h2>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-muted-foreground">Select a component to edit</p>
+          <p className="text-muted-foreground">Select a component to edit its properties.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="h-full flex flex-col bg-card border border-border rounded-lg">
-      <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-bold text-foreground capitalize">{selectedComponent.type} Properties</h2>
+    <div className="h-full flex flex-col bg-card border rounded-lg shadow-sm">
+      <div className="p-4 border-b">
+        <h2 className="text-lg font-semibold text-foreground capitalize">{selectedComponent.type} Properties</h2>
       </div>
       <ScrollArea className="flex-1">
         <div className="p-4">
-          <Tabs defaultValue="content">
+          <Tabs defaultValue="content" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="content">Content</TabsTrigger>
               <TabsTrigger value="style">Style</TabsTrigger>
@@ -374,21 +395,17 @@ export function PropertiesPanel({ selectedComponent }: PropertiesPanelProps) {
           </Tabs>
         </div>
       </ScrollArea>
-      <div className="p-4 border-t border-border bg-muted/50">
-        <Button onClick={handleSave} className="w-full">
+      <div className="p-4 border-t bg-muted/50">
+        <Button onClick={handleSave} className="w-full" disabled={saveStatus === "saving"}>
+          {saveStatus === "saving" && <Sliders className="w-4 h-4 mr-2 animate-spin" />}
           {saveStatus === "saving" ? (
-            <span className="flex items-center justify-center gap-2">
-              <Sliders className="w-4 h-4 animate-spin" /> Saving...
-            </span>
+            "Saving..."
           ) : saveStatus === "saved" ? (
-            <span className="flex items-center justify-center gap-2">
-              <Check className="w-4 h-4" /> Saved
-            </span>
+            <Check className="w-4 h-4 mr-2" />
           ) : (
-            <span className="flex items-center justify-center gap-2">
-              <Save className="w-4 h-4" /> Save Changes
-            </span>
+            <Save className="w-4 h-4 mr-2" />
           )}
+          {saveStatus === "saved" ? "Saved!" : "Save Changes"}
         </Button>
       </div>
     </div>
