@@ -101,15 +101,15 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 w-full items-center px-0 mx-0 bg-primary">
+      <div className="flex h-16 w-full items-center px-4 bg-primary text-primary-foreground">
         <div className="flex items-center h-16 w-full">
           {/* Logo and Title - Extreme Left */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <img src="/placeholder.svg?height=32&width=32&text=BOA" alt="Bank of America Logo" className="h-8 w-8" />
               <div className="flex flex-col">
-                <span className="font-bold text-lg text-foreground leading-tight">GRA Core Platform</span>
-                <span className="text-xs text-muted-foreground leading-tight">Documentation</span>
+                <span className="font-bold text-lg leading-tight">GRA Core Platform</span>
+                <span className="text-xs text-primary-foreground/80 leading-tight">Documentation</span>
               </div>
             </Link>
           </div>
@@ -118,25 +118,25 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-6 ml-8">
             <Link
               href="/user-guide"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"
             >
               User Guide
             </Link>
             <Link
               href="/api-reference"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"
             >
               API Reference
             </Link>
             <Link
               href="/examples"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"
             >
               Examples
             </Link>
             <Link
               href="/changelog"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"
             >
               Changelog
             </Link>
@@ -152,7 +152,7 @@ export default function Header() {
                 placeholder="Search documentation..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 w-64 bg-background border-input"
+                className="pl-10 pr-4 w-64 bg-background border-input text-foreground"
               />
             </div>
 
@@ -161,7 +161,7 @@ export default function Header() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="gap-2 bg-background border-input hover:bg-accent hover:text-accent-foreground"
+                  className="gap-2 bg-background border-input text-foreground hover:bg-accent hover:text-accent-foreground"
                 >
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{currentVersionInfo.label}</span>
@@ -252,8 +252,12 @@ export default function Header() {
           {/* Right Side Actions */}
           <div className="flex items-center gap-2 ml-auto">
             {/* Notifications */}
-            <Button variant="ghost" size="icon" className="hover:bg-accent/10 hover:text-foreground">
-              <Bell className="h-4 w-4 text-muted-foreground" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
+              <Bell className="h-4 w-4" />
               <span className="sr-only">Notifications</span>
             </Button>
 
@@ -262,30 +266,42 @@ export default function Header() {
               variant="ghost"
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="hover:bg-accent/10 hover:text-foreground"
+              className="text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground"
             >
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-muted-foreground" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-muted-foreground" />
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">Toggle theme</span>
             </Button>
 
             {/* Help */}
-            <Button variant="ghost" size="icon" className="hover:bg-accent/10 hover:text-foreground">
-              <HelpCircle className="h-4 w-4 text-muted-foreground" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
+              <HelpCircle className="h-4 w-4" />
               <span className="sr-only">Help</span>
             </Button>
 
             {/* Settings */}
-            <Button variant="ghost" size="icon" className="hover:bg-accent/10 hover:text-foreground">
-              <Settings className="h-4 w-4 text-muted-foreground" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
+              <Settings className="h-4 w-4" />
               <span className="sr-only">Settings</span>
             </Button>
 
             {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hover:bg-accent/10 hover:text-foreground">
-                  <User className="h-4 w-4 text-muted-foreground" />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                >
+                  <User className="h-4 w-4" />
                   <span className="sr-only">User menu</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -298,8 +314,12 @@ export default function Header() {
             </DropdownMenu>
 
             {/* Mobile Menu */}
-            <Button variant="ghost" size="icon" className="md:hidden hover:bg-accent/10 hover:text-foreground">
-              <Menu className="h-4 w-4 text-muted-foreground" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden text-primary-foreground/80 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+            >
+              <Menu className="h-4 w-4" />
               <span className="sr-only">Menu</span>
             </Button>
           </div>
