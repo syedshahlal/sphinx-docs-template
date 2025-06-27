@@ -1,142 +1,173 @@
 API Reference
 =============
 
-Complete API reference for GRA Core Platform v5.8.
+GRA Core Platform v5.8 provides comprehensive APIs for building modern applications. This version introduces GraphQL support alongside our existing REST APIs, plus enhanced WebSocket capabilities for real-time applications.
 
-.. toctree::
-   :maxdepth: 2
+API Overview
+------------
 
-REST API
-========
+Available APIs
+~~~~~~~~~~~~~~
 
-Base URL
---------
+* **REST API**: Traditional HTTP-based API with JSON responses
+* **GraphQL API**: Type-safe queries with real-time subscriptions
+* **WebSocket API**: Real-time bidirectional communication
+* **Webhook API**: Event-driven integrations
+
+Base URLs
+~~~~~~~~~
 
 .. code-block:: text
 
-   https://api.gra-core.boa.com/v5.8
+   REST API:      https://api.gra-platform.com/v5.8/
+   GraphQL API:   https://api.gra-platform.com/v5.8/graphql
+   WebSocket API: wss://api.gra-platform.com/v5.8/ws
+   Webhook API:   https://webhooks.gra-platform.com/v5.8/
 
 Authentication
 --------------
 
-All API requests require authentication via:
+API Key Authentication
+~~~~~~~~~~~~~~~~~~~~~~
 
-* Bearer token in Authorization header
-* API key in X-API-Key header
+.. code-block:: bash
 
-Core Endpoints
-==============
+   curl -H "Authorization: Bearer YOUR_API_KEY" \
+        https://api.gra-platform.com/v5.8/users
 
-Authentication API
-------------------
+OAuth 2.0
+~~~~~~~~~~
 
-.. http:post:: /auth/login
+.. code-block:: bash
 
-   Authenticate user and obtain access token.
+   # Get access token
+   curl -X POST https://auth.gra-platform.com/oauth/token \
+        -H "Content-Type: application/json" \
+        -d '{
+          "grant_type": "client_credentials",
+          "client_id": "your_client_id",
+          "client_secret": "your_client_secret"
+        }'
 
-   **Request Body:**
+JWT Authentication
+~~~~~~~~~~~~~~~~~~
 
-   .. code-block:: json
+.. code-block:: bash
 
-      {
-        "username": "user@boa.com",
-        "password": "password123",
-        "mfa_code": "123456"
-      }
+   curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+        https://api.gra-platform.com/v5.8/users
 
-   **Response:**
-
-   .. code-block:: json
-
-      {
-        "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-        "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-        "expires_in": 3600,
-        "token_type": "Bearer"
-      }
-
-User Management API
--------------------
-
-.. http:get:: /users
-
-   List all users.
-
-   **Query Parameters:**
-
-   * ``page`` (int) - Page number (default: 1)
-   * ``limit`` (int) - Items per page (default: 20)
-   * ``search`` (string) - Search term
-
-   **Response:**
-
-   .. code-block:: json
-
-      {
-        "users": [
-          {
-            "id": "user-123",
-            "username": "john.doe",
-            "email": "john.doe@boa.com",
-            "role": "admin",
-            "created_at": "2024-01-15T10:30:00Z"
-          }
-        ],
-        "total": 1,
-        "page": 1,
-        "limit": 20
-      }
-
-Data Processing API
--------------------
-
-.. http:post:: /data/process
-
-   Submit data for processing.
-
-   **Request Body:**
-
-   .. code-block:: json
-
-      {
-        "data": {
-          "records": [
-            {"id": 1, "value": "sample data"}
-          ]
-        },
-        "processing_type": "batch",
-        "options": {
-          "validate": true,
-          "transform": "standard"
-        }
-      }
-
-GraphQL API
-===========
-
-Endpoint
+REST API
 --------
 
-.. code-block:: text
+Users API
+~~~~~~~~~
 
-   https://api.gra-core.boa.com/v5.8/graphql
+Get Users
+^^^^^^^^^
 
-Schema
-------
+.. code-block:: http
+
+   GET /v5.8/users HTTP/1.1
+   Host: api.gra-platform.com
+   Authorization: Bearer YOUR_API_KEY
+
+Response:
+
+.. code-block:: json
+
+   {
+     "data": [
+       {
+         "id": "user_123",
+         "name": "John Doe",
+         "email": "john@example.com",
+         "created_at": "2024-01-15T10:30:00Z",
+         "updated_at": "2024-01-15T10:30:00Z"
+       }
+     ],
+     "pagination": {
+       "page": 1,
+       "per_page": 20,
+       "total": 150,
+       "total_pages": 8
+     }
+   }
+
+Create User
+^^^^^^^^^^^
+
+.. code-block:: http
+
+   POST /v5.8/users HTTP/1.1
+   Host: api.gra-platform.com
+   Authorization: Bearer YOUR_API_KEY
+   Content-Type: application/json
+
+   {
+     "name": "Jane Smith",
+     "email": "jane@example.com",
+     "role": "user"
+   }
+
+Response:
+
+.. code-block:: json
+
+   {
+     "id": "user_124",
+     "name": "Jane Smith",
+     "email": "jane@example.com",
+     "role": "user",
+     "created_at": "2024-12-27T10:30:00Z"
+   }
+
+Data API
+~~~~~~~~
+
+Process Data
+^^^^^^^^^^^^
+
+.. code-block:: http
+
+   POST /v5.8/data/process HTTP/1.1
+   Host: api.gra-platform.com
+   Authorization: Bearer YOUR_API_KEY
+   Content-Type: application/json
+
+   {
+     "data": [
+       {"id": 1, "value": "sample data"},
+       {"id": 2, "value": "more data"}
+     ],
+     "processing_type": "transform",
+     "options": {
+       "format": "json",
+       "validation": true
+     }
+   }
+
+GraphQL API
+-----------
+
+Schema Overview
+~~~~~~~~~~~~~~~
 
 .. code-block:: graphql
 
    type User {
      id: ID!
-     username: String!
+     name: String!
      email: String!
      role: Role!
      createdAt: DateTime!
+     updatedAt: DateTime!
    }
 
    type Query {
-     users(page: Int, limit: Int): [User!]!
+     users(first: Int, after: String): UserConnection!
      user(id: ID!): User
+     me: User
    }
 
    type Mutation {
@@ -145,33 +176,235 @@ Schema
      deleteUser(id: ID!): Boolean!
    }
 
+   type Subscription {
+     userCreated: User!
+     userUpdated(id: ID): User!
+     userDeleted: ID!
+   }
+
+Example Queries
+~~~~~~~~~~~~~~~
+
+Get Users
+^^^^^^^^^
+
+.. code-block:: graphql
+
+   query GetUsers($first: Int, $after: String) {
+     users(first: $first, after: $after) {
+       edges {
+         node {
+           id
+           name
+           email
+           role
+           createdAt
+         }
+       }
+       pageInfo {
+         hasNextPage
+         endCursor
+       }
+     }
+   }
+
+Create User
+^^^^^^^^^^^
+
+.. code-block:: graphql
+
+   mutation CreateUser($input: CreateUserInput!) {
+     createUser(input: $input) {
+       id
+       name
+       email
+       role
+       createdAt
+     }
+   }
+
+Real-time Subscription
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: graphql
+
+   subscription UserUpdates {
+     userCreated {
+       id
+       name
+       email
+     }
+     userUpdated {
+       id
+       name
+       email
+     }
+   }
+
+WebSocket API
+-------------
+
+Connection
+~~~~~~~~~~
+
+.. code-block:: javascript
+
+   const ws = new WebSocket('wss://api.gra-platform.com/v5.8/ws');
+   
+   ws.onopen = function(event) {
+     // Send authentication
+     ws.send(JSON.stringify({
+       type: 'auth',
+       token: 'YOUR_API_KEY'
+     }));
+   };
+
+Real-time Events
+~~~~~~~~~~~~~~~~
+
+.. code-block:: javascript
+
+   // Subscribe to user events
+   ws.send(JSON.stringify({
+     type: 'subscribe',
+     channel: 'users',
+     events: ['created', 'updated', 'deleted']
+   }));
+   
+   ws.onmessage = function(event) {
+     const data = JSON.parse(event.data);
+     console.log('Received:', data);
+   };
+
+Webhook API
+-----------
+
+Configuration
+~~~~~~~~~~~~~
+
+.. code-block:: http
+
+   POST /v5.8/webhooks HTTP/1.1
+   Host: api.gra-platform.com
+   Authorization: Bearer YOUR_API_KEY
+   Content-Type: application/json
+
+   {
+     "url": "https://your-app.com/webhooks/gra",
+     "events": ["user.created", "user.updated", "data.processed"],
+     "secret": "your_webhook_secret"
+   }
+
+Event Payload
+~~~~~~~~~~~~~
+
+.. code-block:: json
+
+   {
+     "id": "evt_123456789",
+     "type": "user.created",
+     "created": 1640995200,
+     "data": {
+       "object": {
+         "id": "user_124",
+         "name": "Jane Smith",
+         "email": "jane@example.com"
+       }
+     }
+   }
+
+Rate Limits
+-----------
+
+Default Limits
+~~~~~~~~~~~~~~
+
+* **REST API**: 1000 requests per minute
+* **GraphQL API**: 500 queries per minute
+* **WebSocket API**: 100 connections per account
+* **Webhook API**: 10,000 events per hour
+
+Headers
+~~~~~~~
+
+.. code-block:: http
+
+   X-RateLimit-Limit: 1000
+   X-RateLimit-Remaining: 999
+   X-RateLimit-Reset: 1640995200
+
 Error Handling
-==============
-
-HTTP Status Codes
-------------------
-
-* ``200`` - Success
-* ``201`` - Created
-* ``400`` - Bad Request
-* ``401`` - Unauthorized
-* ``403`` - Forbidden
-* ``404`` - Not Found
-* ``429`` - Rate Limited
-* ``500`` - Internal Server Error
+--------------
 
 Error Response Format
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: json
 
    {
      "error": {
-       "code": "INVALID_REQUEST",
-       "message": "The request is invalid",
+       "code": "VALIDATION_ERROR",
+       "message": "Invalid email format",
        "details": {
-         "field": "username",
-         "reason": "Username is required"
+         "field": "email",
+         "value": "invalid-email"
        }
      }
    }
+
+Common Error Codes
+~~~~~~~~~~~~~~~~~~
+
+* ``AUTHENTICATION_ERROR``: Invalid or missing authentication
+* ``AUTHORIZATION_ERROR``: Insufficient permissions
+* ``VALIDATION_ERROR``: Invalid request data
+* ``RATE_LIMIT_ERROR``: Rate limit exceeded
+* ``INTERNAL_ERROR``: Server error
+
+SDKs and Libraries
+------------------
+
+Official SDKs
+~~~~~~~~~~~~~
+
+* **Python**: ``pip install gra-platform-sdk==5.8.0``
+* **Node.js**: ``npm install @gra-platform/sdk@5.8.0``
+* **Java**: ``implementation 'com.gra-platform:sdk:5.8.0'``
+* **Go**: ``go get github.com/gra-platform/go-sdk@v5.8.0``
+
+Example Usage (Python)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+
+   from gra_platform import GRAPlatform
+   
+   client = GRAPlatform(api_key='your_api_key')
+   
+   # Create a user
+   user = client.users.create({
+       'name': 'John Doe',
+       'email': 'john@example.com'
+   })
+   
+   # Query with GraphQL
+   result = client.graphql.query('''
+       query {
+         users(first: 10) {
+           edges {
+             node {
+               id
+               name
+               email
+             }
+           }
+         }
+       }
+   ''')
+
+Next Steps
+----------
+
+* :doc:`../getting-started/quickstart` - Try the API with examples
+* :doc:`../security-compliance/index` - Learn about API security
+* :doc:`../examples/index` - See real-world examples

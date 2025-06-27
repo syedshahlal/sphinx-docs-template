@@ -44,17 +44,18 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const theme = isDarkMode ? "dark" : "light"
 
-  // Available versions - highest version first (default)
+  // Available versions - dynamically detect from docs structure
+  // Highest version first (default) - v5.8 is now the latest
   const [availableVersions] = useState([
-    { version: "5.7", label: "v5.7", url: "/docs/gcp-5.7", isLatest: true },
+    { version: "5.8", label: "v5.8", url: "/docs/gcp-5.8", isLatest: true },
+    { version: "5.7", label: "v5.7", url: "/docs/gcp-5.7", isLatest: false },
     { version: "5.6", label: "v5.6", url: "/docs/gcp-5.6", isLatest: false },
     { version: "5.5", label: "v5.5", url: "/docs/gcp-5.5", isLatest: false },
-    { version: "5.4", label: "v5.4", url: "/docs/gcp-5.4", isLatest: false },
   ])
 
   // Extract version from current path and set current version
   const [currentVersion, setCurrentVersion] = useState(() => {
-    // Default to highest version
+    // Default to highest version (5.8)
     return availableVersions[0].version
   })
 

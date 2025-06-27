@@ -1,7 +1,39 @@
 GRA Core Platform v5.8 Documentation
 ====================================
 
-Welcome to the GRA Core Platform v5.8 documentation. This version introduces enhanced security features, improved performance optimizations, and new API endpoints.
+Welcome to the GRA Core Platform v5.8 documentation. This version introduces significant performance improvements, enhanced security features, and new API capabilities.
+
+.. note::
+   GRA Core Platform v5.8 is the latest version with enhanced security, 40% performance improvements, and new GraphQL API support.
+
+What's New in v5.8
+------------------
+
+* **Enhanced Security**: AES-256 encryption and multi-factor authentication
+* **Performance**: 40% improvement in processing speed over v5.7
+* **GraphQL API**: New GraphQL endpoints alongside REST APIs
+* **Real-time Analytics**: Live dashboard with streaming data
+* **Kubernetes Ready**: Native Kubernetes support with Helm charts
+* **Migration Tools**: Automated migration from v5.7 and v5.6
+
+Quick Start
+-----------
+
+Get started with GRA Core Platform v5.8 in minutes:
+
+.. code-block:: bash
+
+   # Install GRA Core Platform v5.8
+   pip install gra-core-platform==5.8.0
+   
+   # Initialize your project
+   gra init my-project --version=5.8
+   
+   # Start the development server
+   gra serve --port=8080
+
+Documentation Sections
+----------------------
 
 .. toctree::
    :maxdepth: 2
@@ -19,30 +51,21 @@ Welcome to the GRA Core Platform v5.8 documentation. This version introduces enh
    migration-guides/index
    troubleshooting/index
 
-What's New in v5.8
-==================
+Support and Community
+--------------------
 
-* **Enhanced Security**: New multi-factor authentication and advanced encryption
-* **Performance Improvements**: 40% faster data processing and reduced latency
-* **New API Endpoints**: Extended REST API with GraphQL support
-* **Improved Monitoring**: Real-time analytics dashboard and alerting system
-* **Cloud Integration**: Enhanced AWS, Azure, and GCP connectivity
+* **Documentation**: Complete guides and API reference
+* **GitHub**: Source code and issue tracking
+* **Discord**: Community chat and support
+* **Stack Overflow**: Tagged questions and answers
 
-Quick Start
-===========
+Version Information
+------------------
 
-Get started with GRA Core Platform v5.8 in minutes:
-
-1. :doc:`getting-started/index` - Installation and setup
-2. :doc:`platform-overview/index` - Architecture overview
-3. :doc:`user-guide/index` - User guide and tutorials
-
-Support
-=======
-
-* **Documentation**: Complete API reference and user guides
-* **Community**: Join our developer community
-* **Support**: Enterprise support available
+:Version: 5.8.0
+:Release Date: December 2024
+:Compatibility: Python 3.8+, Node.js 16+
+:License: MIT License
 
 Indices and tables
 ==================

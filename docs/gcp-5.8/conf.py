@@ -20,13 +20,13 @@ extensions = [
     'sphinx.ext.intersphinx',
     'myst_parser',
     'react_sphinx_integration',
-    'chatbot_extension'
+    'chatbot_extension',
 ]
 
 templates_path = ['../../_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-# -- Options for HTML output ------------------------------------------------
+# -- Options for HTML output -------------------------------------------------
 html_theme = 'gra_theme'
 html_theme_path = ['../../_themes']
 html_static_path = ['../../_static']
@@ -36,9 +36,9 @@ html_css_files = [
     'css/content.css',
     'css/navigation.css',
     'css/sidebar.css',
-    'css/chatbot.css',
     'css/react-integration.css',
-    'custom.css'
+    'css/chatbot.css',
+    'custom.css',
 ]
 
 html_js_files = [
@@ -47,25 +47,39 @@ html_js_files = [
     'js/search.js',
     'js/theme-switcher.js',
     'js/version-compare.js',
-    'js/chatbot.js',
     'js/react-integration.js',
-    'custom.js'
+    'js/chatbot.js',
+    'custom.js',
 ]
 
-# Theme options
+# -- Theme options -----------------------------------------------------------
 html_theme_options = {
-    'logo': 'images/boa-logo.png',
-    'github_url': 'https://github.com/bankofamerica/gra-core-platform',
+    'logo': 'images/gra-logo.png',
+    'github_url': 'https://github.com/gra-core-platform',
     'version_dropdown': True,
     'current_version': '5.8',
-    'versions': [
-        ('5.8', '/docs/gcp-5.8/'),
-        ('5.7', '/docs/gcp-5.7/'),
-        ('5.6', '/docs/gcp-5.6/')
-    ]
+    'available_versions': ['5.8', '5.7', '5.6', '5.5'],
+    'show_powered_by': False,
+    'navigation_depth': 3,
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'includehidden': True,
+    'titles_only': False,
 }
 
 # -- Extension configuration -------------------------------------------------
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+
+# Intersphinx mapping
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+}
+
+# MyST configuration
 myst_enable_extensions = [
     "colon_fence",
     "deflist",
@@ -75,16 +89,5 @@ myst_enable_extensions = [
     "replacements",
     "smartquotes",
     "substitution",
-    "tasklist"
+    "tasklist",
 ]
-
-# Napoleon settings
-napoleon_google_docstring = True
-napoleon_numpy_docstring = True
-napoleon_include_init_with_doc = False
-napoleon_include_private_with_doc = False
-
-# Intersphinx mapping
-intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-}
