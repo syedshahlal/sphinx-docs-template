@@ -200,7 +200,7 @@ export function Header() {
                 aria-label="Notifications"
               >
                 <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-background animate-pulse" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-background animate-pulse border-none border-nonepx] border-none border-none" />
               </Button>
 
               {/* Theme Toggle */}
