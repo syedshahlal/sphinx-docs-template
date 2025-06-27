@@ -1,14 +1,16 @@
 import Link from "next/link"
-import { Home, BookText, Code2, LayoutGrid, FileText, PenSquare } from "lucide-react"
+import { Home } from "lucide-react"
+import { navigationV5_7 } from "@/lib/docs-navigation"
+import { CollapsibleNavItem } from "./collapsible-nav-item"
 
-export function Sidebar() {
-  const mainNavigation = [
-    { name: "User Guide", href: "/user-guide", icon: BookText },
-    { name: "API Reference", href: "/api-reference", icon: Code2 },
-    { name: "Examples", href: "/examples", icon: LayoutGrid },
-    { name: "Create Doc", href: "/markdown-editor", icon: PenSquare },
-    { name: "Changelog", href: "/changelog", icon: FileText },
-  ]
+interface SidebarProps {
+  version?: string
+}
+
+export function Sidebar({ version = "v5.7" }: SidebarProps) {
+  // In a real app, you might have a map of versions to navigation data
+  // or fetch it based on the version prop.
+  const navigation = version === "v5.7" ? navigationV5_7 : []
 
   return (
     <aside className="w-64 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 hidden lg:block">
@@ -26,15 +28,8 @@ export function Sidebar() {
           Documentation
         </h3>
         <nav className="space-y-1">
-          {mainNavigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800"
-            >
-              <item.icon className="mr-3 h-5 w-5 flex-shrink-0 text-gray-400 dark:text-slate-500" aria-hidden="true" />
-              {item.name}
-            </Link>
+          {navigation.map((item) => (
+            <CollapsibleNavItem key={item.href} item={item} />
           ))}
         </nav>
       </div>
