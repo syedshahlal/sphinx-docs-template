@@ -25,10 +25,12 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
           throw new Error(`Request failed with status ${response.status}`)
         }
         const data = await response.json()
-        setNavigation(data)
+        // FIX: Use data.nav to get the array, not the whole data object.
+        setNavigation(data.nav || [])
       } catch (e: any) {
         console.error("Sidebar fetch error:", e.message)
         setError("Failed to load navigation.")
+        setNavigation([]) // Ensure navigation is an array on error
       } finally {
         setIsLoading(false)
       }
