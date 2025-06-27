@@ -1,100 +1,309 @@
 "use client"
 
-import { useState } from "react"
-import { Search, Menu, X, Github, Twitter } from "lucide-react"
+import { useState, useEffect } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { ChevronDown, Search, Moon, Sun, Menu, Bell, User, Settings, HelpCircle } from "lucide-react"
+import { useTheme } from "next-themes"
 
-export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+// Version configuration
+const AVAILABLE_VERSIONS = [
+  { version: "5.7.0", label: "v5.7.0", status: "stable", category: "current" },
+  { version: "5.6.2", label: "v5.6.2", status: "legacy", category: "previous" },
+  { version: "5.5.4", label: "v5.5.4", status: "legacy", category: "previous" },
+  { version: "5.4.8", label: "v5.4.8", status: "legacy", category: "previous" },
+  { version: "5.3.6", label: "v5.3.6", status: "legacy", category: "previous" },
+  { version: "5.2.3", label: "v5.2.3", status: "legacy", category: "previous" },
+  { version: "5.1.9", label: "v5.1.9", status: "legacy", category: "previous" },
+  { version: "5.8.0-beta", label: "v5.8.0-beta", status: "beta", category: "development" },
+  { version: "6.0.0-alpha", label: "v6.0.0-alpha", status: "alpha", category: "development" },
+]
+
+const DEFAULT_VERSION = "5.7.0" // Stable version as default
+
+export default function Header() {
+  const pathname = usePathname()
+  const router = useRouter()
+  const { theme, setTheme } = useTheme()
+  const [currentVersion, setCurrentVersion] = useState(DEFAULT_VERSION)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [mounted, setMounted] = useState(false)
+
+  // Ensure component is mounted before accessing theme
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Extract version from pathname
+  const extractVersionFromPath = (path: string): string => {
+    const match = path.match(/\/docs\/gcp-(\d+\.\d+(?:\.\d+)?(?:-\w+)?)/)
+    return match ? match[1] : DEFAULT_VERSION
+  }
+
+  // Update current version based on pathname
+  useEffect(() => {
+    const versionFromPath = extractVersionFromPath(pathname)
+    setCurrentVersion(versionFromPath)
+  }, [pathname])
+
+  // Handle version switching
+  const switchVersion = (newVersion: string) => {
+    const currentPath = pathname
+    const newPath = currentPath.replace(/\/docs\/gcp-[\d.\-\w]+/, `/docs/gcp-${newVersion}`)
+    router.push(newPath)
+  }
+
+  // Get current version info
+  const currentVersionInfo = AVAILABLE_VERSIONS.find((v) => v.version === currentVersion) || AVAILABLE_VERSIONS[0]
+
+  // Get status badge variant
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case "stable":
+        return "default"
+      case "beta":
+        return "secondary"
+      case "alpha":
+        return "outline"
+      case "legacy":
+        return "outline"
+      default:
+        return "default"
+    }
+  }
+
+  // Group versions by category
+  const groupedVersions = AVAILABLE_VERSIONS.reduce(
+    (acc, version) => {
+      if (!acc[version.category]) {
+        acc[version.category] = []
+      }
+      acc[version.category].push(version)
+      return acc
+    },
+    {} as Record<string, typeof AVAILABLE_VERSIONS>,
+  )
+
+  if (!mounted) {
+    return null // Prevent hydration mismatch
+  }
 
   return (
-    <header className="border-b border-gray-200 bg-white sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo and Title */}
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">GRA</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <span className="font-semibold text-gray-900">GRA Core Platform</span>
-              <span className="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">v1.0.0 (stable)</span>
-            </div>
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 w-full items-center px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center h-16 w-full">
+          {/* Logo and Title - Extreme Left */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <img src="/placeholder.svg?height=32&width=32&text=BOA" alt="Bank of America Logo" className="h-8 w-8" />
+              <div className="flex flex-col">
+                <span className="font-bold text-lg text-foreground leading-tight">GRA Core Platform</span>
+                <span className="text-xs text-muted-foreground leading-tight">Documentation</span>
+              </div>
+            </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <a href="#" className="text-gray-700 hover:text-gray-900">
+          {/* Navigation Links - Left Side */}
+          <nav className="hidden md:flex items-center gap-6 ml-8">
+            <Link
+              href="/user-guide"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               User Guide
-            </a>
-            <a href="#" className="text-gray-700 hover:text-gray-900">
+            </Link>
+            <Link
+              href="/api-reference"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               API Reference
-            </a>
-            <a href="#" className="text-gray-700 hover:text-gray-900">
+            </Link>
+            <Link
+              href="/examples"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               Examples
-            </a>
-            <a href="#" className="text-gray-700 hover:text-gray-900">
+            </Link>
+            <Link
+              href="/changelog"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               Changelog
-            </a>
-            <div className="relative group">
-              <button className="text-gray-700 hover:text-gray-900 flex items-center">
-                More
-                <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-            </div>
+            </Link>
           </nav>
 
-          {/* Search and Icons */}
-          <div className="flex items-center space-x-3">
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input type="search" placeholder="Search" className="pl-10 pr-4 py-2 w-64 text-sm" />
-              <kbd className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
-                Ctrl K
-              </kbd>
+          {/* Center Section - Search and Version */}
+          <div className="flex items-center gap-4 mx-auto">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search documentation..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 w-64 bg-background border-input"
+              />
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm">
-                <Github className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Twitter className="h-4 w-4" />
-              </Button>
-            </div>
+            {/* Version Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="gap-2 bg-background border-input hover:bg-accent hover:text-accent-foreground"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{currentVersionInfo.label}</span>
+                    {currentVersionInfo.status && (
+                      <Badge variant={getStatusVariant(currentVersionInfo.status)} className="text-xs px-1.5 py-0.5">
+                        {currentVersionInfo.status}
+                      </Badge>
+                    )}
+                  </div>
+                  <ChevronDown className="ml-2 h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-56 max-h-96 overflow-y-auto bg-popover border-border">
+                {/* Current Version */}
+                {groupedVersions.current && (
+                  <>
+                    <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Current
+                    </DropdownMenuLabel>
+                    {groupedVersions.current.map((version) => (
+                      <DropdownMenuItem
+                        key={version.version}
+                        onClick={() => switchVersion(version.version)}
+                        className="flex items-center justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <span className="font-medium">{version.label}</span>
+                        <Badge variant={getStatusVariant(version.status)} className="text-xs">
+                          {version.status}
+                        </Badge>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator className="bg-border" />
+                  </>
+                )}
 
-            {/* Mobile menu button */}
-            <Button variant="ghost" size="sm" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {/* Previous Versions */}
+                {groupedVersions.previous && (
+                  <>
+                    <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Previous Versions
+                    </DropdownMenuLabel>
+                    {groupedVersions.previous.map((version) => (
+                      <DropdownMenuItem
+                        key={version.version}
+                        onClick={() => switchVersion(version.version)}
+                        className="flex items-center justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <span>{version.label}</span>
+                        <Badge variant={getStatusVariant(version.status)} className="text-xs">
+                          {version.status}
+                        </Badge>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator className="bg-border" />
+                  </>
+                )}
+
+                {/* Development Versions */}
+                {groupedVersions.development && (
+                  <>
+                    <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Development
+                    </DropdownMenuLabel>
+                    {groupedVersions.development.map((version) => (
+                      <DropdownMenuItem
+                        key={version.version}
+                        onClick={() => switchVersion(version.version)}
+                        className="flex items-center justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <span>{version.label}</span>
+                        <Badge variant={getStatusVariant(version.status)} className="text-xs">
+                          {version.status}
+                        </Badge>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator className="bg-border" />
+                  </>
+                )}
+
+                {/* Compare Versions */}
+                <DropdownMenuItem className="cursor-pointer hover:bg-accent hover:text-accent-foreground">
+                  <span className="text-sm font-medium">Compare Versions</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Right Side Actions */}
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Notifications */}
+            <Button variant="ghost" size="icon" className="hover:bg-accent hover:text-accent-foreground">
+              <Bell className="h-4 w-4" />
+              <span className="sr-only">Notifications</span>
+            </Button>
+
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="hover:bg-accent hover:text-accent-foreground"
+            >
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              <span className="sr-only">Toggle theme</span>
+            </Button>
+
+            {/* Help */}
+            <Button variant="ghost" size="icon" className="hover:bg-accent hover:text-accent-foreground">
+              <HelpCircle className="h-4 w-4" />
+              <span className="sr-only">Help</span>
+            </Button>
+
+            {/* Settings */}
+            <Button variant="ghost" size="icon" className="hover:bg-accent hover:text-accent-foreground">
+              <Settings className="h-4 w-4" />
+              <span className="sr-only">Settings</span>
+            </Button>
+
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="hover:bg-accent hover:text-accent-foreground">
+                  <User className="h-4 w-4" />
+                  <span className="sr-only">User menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-popover border-border">
+                <DropdownMenuItem className="hover:bg-accent hover:text-accent-foreground">Profile</DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-accent hover:text-accent-foreground">Settings</DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border" />
+                <DropdownMenuItem className="hover:bg-accent hover:text-accent-foreground">Sign out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Mobile Menu */}
+            <Button variant="ghost" size="icon" className="md:hidden hover:bg-accent hover:text-accent-foreground">
+              <Menu className="h-4 w-4" />
+              <span className="sr-only">Menu</span>
             </Button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
-            <nav className="flex flex-col space-y-3">
-              <a href="#" className="text-gray-700 hover:text-gray-900 px-2 py-1">
-                User Guide
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 px-2 py-1">
-                API Reference
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 px-2 py-1">
-                Examples
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 px-2 py-1">
-                Changelog
-              </a>
-              <div className="px-2 py-2">
-                <Input type="search" placeholder="Search" className="w-full" />
-              </div>
-            </nav>
-          </div>
-        )}
       </div>
     </header>
   )
