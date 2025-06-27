@@ -13,7 +13,28 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import { Search, Menu, Sun, Moon, BookOpen, Code, Zap, Users, Bell, GitBranch, X } from "lucide-react"
+import {
+  Search,
+  Menu,
+  Sun,
+  Moon,
+  BookOpen,
+  Code,
+  Zap,
+  Users,
+  Bell,
+  GitBranch,
+  X,
+  ExternalLink,
+  ChevronDown,
+} from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -22,6 +43,14 @@ export function Header() {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const theme = isDarkMode ? "dark" : "light"
+
+  const [currentVersion, setCurrentVersion] = useState("v5.7")
+  const [availableVersions] = useState([
+    { version: "v5.7", label: "v5.7 (latest)", url: "/v5.7/", isLatest: true },
+    { version: "v5.6", label: "v5.6", url: "/v5.6/", isLatest: false },
+    { version: "v5.5", label: "v5.5", url: "/v5.5/", isLatest: false },
+    { version: "v5.4", label: "v5.4", url: "/v5.4/", isLatest: false },
+  ])
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -34,6 +63,21 @@ export function Header() {
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
     document.documentElement.classList.toggle("dark")
+  }
+
+  const switchVersion = (version: string) => {
+    if (version === currentVersion) return
+
+    // Get current page path
+    const currentPath = window.location.pathname
+    const pathWithoutVersion = currentPath.replace(/^\/v\d+\.\d+/, "")
+
+    // Construct new URL
+    const selectedVersion = availableVersions.find((v) => v.version === version)
+    if (selectedVersion) {
+      const newUrl = `${selectedVersion.url}${pathWithoutVersion.startsWith("/") ? pathWithoutVersion.slice(1) : pathWithoutVersion}`
+      window.location.href = newUrl
+    }
   }
 
   const navigationItems = [
@@ -185,6 +229,69 @@ export function Header() {
               </div>
             </div>
 
+            {/* Version Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`h-10 px-3 rounded-lg transition-all duration-200 border-2 ${
+                    theme === "dark"
+                      ? "bg-slate-800/50 border-slate-600 text-slate-200 hover:bg-slate-700/70 hover:border-slate-500 hover:text-slate-100"
+                      : "bg-white/90 border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900"
+                  } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
+                >
+                  <span className="text-sm font-medium">{currentVersion}</span>
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className={`w-48 ${theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}
+              >
+                <div className="px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                  Documentation Version
+                </div>
+                <DropdownMenuSeparator className={theme === "dark" ? "bg-slate-700" : "bg-slate-200"} />
+                {availableVersions.map((version) => (
+                  <DropdownMenuItem
+                    key={version.version}
+                    onClick={() => switchVersion(version.version)}
+                    className={`flex items-center justify-between px-3 py-2 text-sm cursor-pointer ${
+                      version.version === currentVersion
+                        ? theme === "dark"
+                          ? "bg-slate-700 text-slate-100"
+                          : "bg-slate-100 text-slate-900"
+                        : theme === "dark"
+                          ? "text-slate-300 hover:bg-slate-700/50 hover:text-slate-100"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span>{version.label}</span>
+                      {version.isLatest && (
+                        <span className="px-1.5 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
+                          Latest
+                        </span>
+                      )}
+                    </div>
+                    {version.version === currentVersion && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator className={theme === "dark" ? "bg-slate-700" : "bg-slate-200"} />
+                <DropdownMenuItem
+                  className={`flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${
+                    theme === "dark"
+                      ? "text-slate-300 hover:bg-slate-700/50 hover:text-slate-100"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Compare Versions</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {/* Action Buttons */}
             <div className="flex items-center gap-1">
               {/* Notifications */}
@@ -249,8 +356,8 @@ export function Header() {
                 size="sm"
                 className={`h-10 px-3 rounded-lg transition-all duration-200 ${
                   theme === "dark"
-                    ? "text-slate-300 hover:bg-slate-700/70 hover:text-slate-100 hover:shadow-lg hover:shadow-slate-900/20"
-                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 hover:shadow-md hover:shadow-slate-200/50"
+                    ? "text-slate-300 hover:bg-slate-700/70 hover:text-slate-100"
+                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
               >
                 <div className="flex items-center gap-2">
