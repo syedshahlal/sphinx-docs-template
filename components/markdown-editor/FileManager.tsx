@@ -25,11 +25,11 @@ import {
   Star,
   Clock,
   Folder,
-  File,
   ChevronRight,
   ChevronDown,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import type { ChangeEvent } from "react"
 
 interface FileItem {
   id: string
@@ -164,7 +164,7 @@ function FileTreeItem({ item, level, onSelect, onAction, selectedId }: FileTreeI
         {item.type === "folder" ? (
           <Folder className="w-4 h-4 text-blue-500" />
         ) : (
-          <File className="w-4 h-4 text-muted-foreground" />
+          <Folder className="w-4 h-4 text-muted-foreground" />
         )}
         <span className="flex-1 text-sm truncate">{item.name}</span>
         {item.starred && <Star className="w-3 h-3 text-yellow-500 fill-current" />}
@@ -223,11 +223,16 @@ function FileTreeItem({ item, level, onSelect, onAction, selectedId }: FileTreeI
   )
 }
 
-export function FileManager() {
+export interface FileManagerProps {
+  onSelect: (file: File) => void
+}
+
+export function FileManager({ onSelect }: FileManagerProps) {
   const [files, setFiles] = useState<FileItem[]>(mockFiles)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null)
   const [view, setView] = useState<"tree" | "list" | "starred">("tree")
+  const [fileName, setFileName] = useState<string>("")
 
   const handleFileSelect = (file: FileItem) => {
     setSelectedFile(file)
@@ -264,6 +269,14 @@ export function FileManager() {
 
   const handleUpload = () => {
     // Upload logic
+  }
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setFileName(file.name)
+      onSelect(file as any)
+    }
   }
 
   const filteredFiles = files.filter((file) => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -334,6 +347,15 @@ export function FileManager() {
             <Upload className="w-4 h-4" />
             Upload
           </Button>
+          <Input type="file" onChange={handleChange} />
+          {fileName && (
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              Selected: <span className="font-medium">{fileName}</span>
+            </p>
+          )}
+          <Button variant="secondary" onClick={() => setFileName("")}>
+            Clear
+          </Button>
         </div>
       </div>
 
@@ -396,7 +418,7 @@ export function FileManager() {
                     )}
                     onClick={() => handleFileSelect(file)}
                   >
-                    <File className="w-4 h-4 text-muted-foreground" />
+                    <Folder className="w-4 h-4 text-muted-foreground" />
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-foreground truncate">{file.name}</div>
                       <div className="text-xs text-muted-foreground">{file.path}</div>
@@ -420,7 +442,7 @@ export function FileManager() {
                   )}
                   onClick={() => handleFileSelect(file)}
                 >
-                  <File className="w-4 h-4 text-muted-foreground" />
+                  <Folder className="w-4 h-4 text-muted-foreground" />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-foreground truncate">{file.name}</div>
                     <div className="text-xs text-muted-foreground">{file.path}</div>

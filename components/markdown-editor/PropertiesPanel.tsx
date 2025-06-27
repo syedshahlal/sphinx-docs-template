@@ -16,12 +16,24 @@ interface PropertiesPanelProps {
   selectedComponent: MarkdownComponent | null
   onUpdateComponent: (updates: Partial<MarkdownComponent>) => void
   onUpdateStyle: (styleUpdates: Partial<ComponentStyle>) => void
+  initialTitle?: string
+  initialDescription?: string
+  onSave: (title: string, description: string) => void
 }
 
-export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdateStyle }: PropertiesPanelProps) {
+export function PropertiesPanel({
+  selectedComponent,
+  onUpdateComponent,
+  onUpdateStyle,
+  initialTitle = "",
+  initialDescription = "",
+  onSave,
+}: PropertiesPanelProps) {
   const { updateComponentContent, updateComponentStyle } = useEditor()
   const [expandedSections, setExpandedSections] = useState<string[]>(["content", "style"])
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle")
+  const [title, setTitle] = useState(initialTitle)
+  const [description, setDescription] = useState(initialDescription)
 
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]))
@@ -639,6 +651,27 @@ export function PropertiesPanel({ selectedComponent, onUpdateComponent, onUpdate
             </div>
           </div>
         </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            onSave(title, description)
+          }}
+          className="space-y-4 flex-1 p-4"
+        >
+          <div className="space-y-1">
+            <Label htmlFor="title">Title</Label>
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+
+          <div className="space-y-1">
+            <Label htmlFor="description">Description</Label>
+            <Input id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
+          </div>
+
+          <Button type="submit" className="mt-2">
+            Save Metadata
+          </Button>
+        </form>
       </div>
     )
   }
