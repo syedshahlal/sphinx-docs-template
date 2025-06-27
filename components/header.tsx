@@ -226,11 +226,11 @@ export function Header() {
         <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
           {" "}
           {/* Changed max-w-7xl to screen-xl for wider layout */}
-          <div className="flex items-center justify-between h-16">
-            {/* Logo Section */}
-            <div className="flex items-center">
+          <div className="flex items-center h-16 w-full">
+            {/* Logo Section - Push to extreme left */}
+            <div className="flex items-center flex-shrink-0">
               <Link href="/" className="relative group flex items-center space-x-3">
-                <BankChip /> {/* Use the BankChip component here */}
+                <BankChip />
                 <h1
                   className={`font-semibold text-lg whitespace-nowrap transition-colors duration-200 ${
                     theme === "dark"
@@ -244,8 +244,6 @@ export function Header() {
 
               {/* Version Dropdown */}
               <div className="relative ml-4">
-                {" "}
-                {/* Added ml-4 for spacing */}
                 <button
                   className={`version-dropdown-button flex items-center space-x-1 px-2 py-1 rounded-md text-sm font-medium transition-all duration-200 ${
                     theme === "dark"
@@ -255,7 +253,7 @@ export function Header() {
                   onClick={(e) => {
                     e.stopPropagation()
                     setIsVersionDropdownOpen(!isVersionDropdownOpen)
-                    setActiveDropdown(null) // Close other dropdowns
+                    setActiveDropdown(null)
                   }}
                   aria-expanded={isVersionDropdownOpen}
                   aria-haspopup="true"
@@ -270,6 +268,7 @@ export function Header() {
                     className={`w-3 h-3 transition-transform duration-200 ${isVersionDropdownOpen ? "rotate-180" : ""}`}
                   />
                 </button>
+                {/* Version dropdown menu remains the same */}
                 {isVersionDropdownOpen && (
                   <div
                     className={`version-dropdown-menu absolute top-full left-0 mt-2 w-64 rounded-xl shadow-2xl border transition-all duration-200 z-50 ${
@@ -341,156 +340,151 @@ export function Header() {
               </div>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-1">
-              {" "}
-              {/* Reduced space-x for tighter nav */}
-              {navigationItems.map((item) => (
-                <div key={item.label} className="relative group">
-                  <Link
-                    href={item.href}
-                    className={`nav-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
-                      theme === "dark"
-                        ? "text-slate-200 hover:text-white hover:bg-slate-700/50"
-                        : "text-slate-700 hover:text-slate-900 hover:bg-slate-100/50"
-                    } ${activeDropdown === item.label ? (theme === "dark" ? "bg-slate-700/50 text-white" : "bg-slate-100/50 text-slate-900") : ""}`}
-                    onMouseEnter={() => {
-                      item.hasDropdown && setActiveDropdown(item.label)
-                      item.hasDropdown && setIsVersionDropdownOpen(false)
-                    }}
-                    onClick={(e) => {
-                      if (item.hasDropdown) {
-                        e.preventDefault() // Prevent navigation for dropdown parent
-                        setActiveDropdown(activeDropdown === item.label ? null : item.label)
-                        setIsVersionDropdownOpen(false) // Close version dropdown
-                      }
-                    }}
-                  >
-                    {item.label}
-                    {item.hasDropdown && (
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform duration-200 ${
-                          activeDropdown === item.label ? "rotate-180" : ""
-                        }`}
-                      />
-                    )}
-                  </Link>
-
-                  {item.hasDropdown && activeDropdown === item.label && (
-                    <div
-                      className={`nav-dropdown-menu absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 rounded-xl shadow-2xl border transition-all duration-200 origin-top ${
+            {/* Spacer to push navigation and right section apart */}
+            <div className="flex-1 flex items-center justify-between ml-8">
+              {/* Desktop Navigation - Centered */}
+              <nav className="hidden lg:flex items-center space-x-1 flex-1 justify-center">
+                {navigationItems.map((item) => (
+                  <div key={item.label} className="relative group">
+                    <Link
+                      href={item.href}
+                      className={`nav-dropdown-button flex items-center space-x-1 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
                         theme === "dark"
-                          ? "bg-slate-800/95 backdrop-blur-xl border-slate-700/50"
-                          : "bg-white/95 backdrop-blur-xl border-gray-200/50"
-                      }`}
-                      onMouseLeave={() => setActiveDropdown(null)}
+                          ? "text-slate-200 hover:text-white hover:bg-slate-700/50"
+                          : "text-slate-700 hover:text-slate-900 hover:bg-slate-100/50"
+                      } ${activeDropdown === item.label ? (theme === "dark" ? "bg-slate-700/50 text-white" : "bg-slate-100/50 text-slate-900") : ""}`}
+                      onMouseEnter={() => {
+                        item.hasDropdown && setActiveDropdown(item.label)
+                        item.hasDropdown && setIsVersionDropdownOpen(false)
+                      }}
+                      onClick={(e) => {
+                        if (item.hasDropdown) {
+                          e.preventDefault()
+                          setActiveDropdown(activeDropdown === item.label ? null : item.label)
+                          setIsVersionDropdownOpen(false)
+                        }
+                      }}
                     >
-                      <div className="p-2">
-                        {item.dropdownItems?.map((dropdownItem) => (
-                          <Link
-                            key={dropdownItem.label}
-                            href={dropdownItem.href}
-                            onClick={() => setActiveDropdown(null)} // Close dropdown on item click
-                            className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-200 ${
-                              theme === "dark"
-                                ? "hover:bg-slate-700 text-slate-200 hover:text-white"
-                                : "hover:bg-slate-50 text-slate-700 hover:text-slate-900"
-                            }`}
-                          >
-                            <span className="text-xl mt-0.5">{dropdownItem.icon}</span>
-                            <div className="flex-1">
-                              <div className="font-medium">{dropdownItem.label}</div>
-                              <div className={`text-sm ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}>
-                                {dropdownItem.description}
-                              </div>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </nav>
+                      {item.label}
+                      {item.hasDropdown && (
+                        <ChevronDown
+                          className={`w-4 h-4 transition-transform duration-200 ${
+                            activeDropdown === item.label ? "rotate-180" : ""
+                          }`}
+                        />
+                      )}
+                    </Link>
 
-            {/* Right Section */}
-            <div className="flex items-center space-x-2">
-              {" "}
-              {/* Reduced space-x */}
-              {/* Search */}
-              <div className="relative hidden md:block">
-                <Search
-                  className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
-                    theme === "dark" ? "text-slate-400" : "text-slate-500"
-                  }`}
-                />
-                <Input
-                  type="search"
-                  placeholder="Search docs..."
-                  className={`pl-10 pr-16 py-2 w-56 text-sm transition-all duration-300 rounded-lg ${
-                    /* Reduced width */
-                    theme === "dark"
-                      ? "bg-slate-800 border-slate-700 text-white placeholder-slate-400 focus:bg-slate-700 focus:border-blue-400"
-                      : "bg-slate-100 border-slate-300 text-slate-900 placeholder-slate-500 focus:bg-white focus:border-blue-400"
-                  }`}
-                />
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                  <kbd
-                    className={`px-1.5 py-0.5 text-xs rounded ${
-                      theme === "dark"
-                        ? "text-slate-400 bg-slate-700 border border-slate-600"
-                        : "text-slate-500 bg-slate-200 border border-slate-300"
+                    {item.hasDropdown && activeDropdown === item.label && (
+                      <div
+                        className={`nav-dropdown-menu absolute top-full left-1/2 -translate-x-1/2 mt-2 w-80 rounded-xl shadow-2xl border transition-all duration-200 origin-top ${
+                          theme === "dark"
+                            ? "bg-slate-800/95 backdrop-blur-xl border-slate-700/50"
+                            : "bg-white/95 backdrop-blur-xl border-gray-200/50"
+                        }`}
+                        onMouseLeave={() => setActiveDropdown(null)}
+                      >
+                        <div className="p-2">
+                          {item.dropdownItems?.map((dropdownItem) => (
+                            <Link
+                              key={dropdownItem.label}
+                              href={dropdownItem.href}
+                              onClick={() => setActiveDropdown(null)}
+                              className={`flex items-start space-x-3 p-3 rounded-lg transition-all duration-200 ${
+                                theme === "dark"
+                                  ? "hover:bg-slate-700 text-slate-200 hover:text-white"
+                                  : "hover:bg-slate-50 text-slate-700 hover:text-slate-900"
+                              }`}
+                            >
+                              <span className="text-xl mt-0.5">{dropdownItem.icon}</span>
+                              <div className="flex-1">
+                                <div className="font-medium">{dropdownItem.label}</div>
+                                <div className={`text-sm ${theme === "dark" ? "text-slate-400" : "text-slate-500"}`}>
+                                  {dropdownItem.description}
+                                </div>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </nav>
+
+              {/* Right Section */}
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                {/* Search */}
+                <div className="relative hidden md:block">
+                  <Search
+                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
+                      theme === "dark" ? "text-slate-400" : "text-slate-500"
                     }`}
-                  >
-                    ⌘K
-                  </kbd>
+                  />
+                  <Input
+                    type="search"
+                    placeholder="Search docs..."
+                    className={`pl-10 pr-16 py-2 w-56 text-sm transition-all duration-300 rounded-lg ${
+                      theme === "dark"
+                        ? "bg-slate-800 border-slate-700 text-white placeholder-slate-400 focus:bg-slate-700 focus:border-blue-400"
+                        : "bg-slate-100 border-slate-300 text-slate-900 placeholder-slate-500 focus:bg-white focus:border-blue-400"
+                    }`}
+                  />
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                    <kbd
+                      className={`px-1.5 py-0.5 text-xs rounded ${
+                        theme === "dark"
+                          ? "text-slate-400 bg-slate-700 border border-slate-600"
+                          : "text-slate-500 bg-slate-200 border border-slate-300"
+                      }`}
+                    >
+                      ⌘K
+                    </kbd>
+                  </div>
                 </div>
-              </div>
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-1">
-                {" "}
-                {/* Reduced space-x */}
-                <Button
-                  variant="ghost"
-                  size="icon" // Changed to icon size
-                  className={`relative rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                  aria-label="Notifications"
-                >
-                  <Bell className="h-5 w-5" /> {/* Increased icon size slightly */}
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />{" "}
-                  {/* Adjusted notification dot */}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon" // Changed to icon size
-                  onClick={toggleTheme}
-                  className={`rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                  aria-label="Toggle theme"
-                >
-                  {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                </Button>
+                {/* Action Buttons */}
+                <div className="flex items-center space-x-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`relative rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
+                    aria-label="Notifications"
+                  >
+                    <Bell className="h-5 w-5" />
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-background" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleTheme}
+                    className={`rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
+                    aria-label="Toggle theme"
+                  >
+                    {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    className={`rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
+                    aria-label="Bitbucket Repository"
+                  >
+                    <Link href="https://bitbucket.org/your-repo" target="_blank">
+                      <GitBranch className="h-5 w-5" />
+                    </Link>
+                  </Button>
+                </div>
+                {/* Mobile Menu Button */}
                 <Button
                   variant="ghost"
                   size="icon"
-                  asChild
-                  className={`rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                  aria-label="Bitbucket Repository"
+                  className={`lg:hidden rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  aria-label="Toggle mobile menu"
                 >
-                  <Link href="https://bitbucket.org/your-repo" target="_blank">
-                    <GitBranch className="h-5 w-5" />
-                  </Link>
+                  {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </Button>
               </div>
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="icon" // Changed to icon size
-                className={`lg:hidden rounded-lg ${theme === "dark" ? "text-slate-300 hover:bg-slate-700/50 hover:text-white" : "text-slate-500 hover:bg-slate-100/50 hover:text-slate-800"}`}
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                aria-label="Toggle mobile menu"
-              >
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
             </div>
           </div>
           {/* Mobile Navigation */}
