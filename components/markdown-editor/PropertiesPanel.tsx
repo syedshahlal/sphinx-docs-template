@@ -1,25 +1,26 @@
 "use client"
+
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
 import { useEditor } from "./EditorContext"
-import { Settings, Palette, Type, Trash2, Copy, Code, Edit3 } from "lucide-react"
+import { Settings, Palette, Layout, Type, Trash2 } from "lucide-react"
+import { useState } from "react"
 
 export function PropertiesPanel() {
-  const { state, updateComponentContent, updateComponentStyle, deleteComponent, duplicateComponent } = useEditor()
+  const { state, updateComponentContent, updateComponentStyle, deleteComponent } = useEditor()
+  const [activeTab, setActiveTab] = useState<"content" | "style" | "layout">("content")
 
-  const selectedComponent = state.components.find((c) => c.id === state.selectedComponent)
+  const selectedComponent = state.components.find((comp) => comp.id === state.selectedComponent)
 
   if (!selectedComponent) {
     return (
-      <div className="h-full flex flex-col bg-white border-r border-[#dfe1e6]">
+      <div className="h-full flex flex-col bg-white border-l border-[#dfe1e6]">
         <div className="p-4 border-b border-[#dfe1e6] bg-[#f4f5f7]">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-[#6b778c] text-white">
@@ -27,20 +28,15 @@ export function PropertiesPanel() {
             </div>
             <div>
               <h2 className="text-lg font-semibold text-[#172b4d]">Properties</h2>
-              <p className="text-sm text-[#6b778c]">Select an element to edit</p>
+              <p className="text-sm text-[#6b778c]">Configure selected element</p>
             </div>
           </div>
         </div>
-
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[#f4f5f7] flex items-center justify-center">
-              <Settings className="h-8 w-8 text-[#6b778c]" />
-            </div>
-            <h3 className="text-lg font-semibold text-[#172b4d] mb-2">No Element Selected</h3>
-            <p className="text-[#6b778c] max-w-sm text-sm leading-relaxed">
-              Click on an element in the editor to view and modify its properties, styling, and content.
-            </p>
+            <Settings className="w-12 h-12 mx-auto mb-4 text-[#6b778c] opacity-50" />
+            <p className="text-[#6b778c]">No component selected</p>
+            <p className="text-sm text-[#6b778c] mt-1">Select a component to edit its properties</p>
           </div>
         </div>
       </div>
@@ -59,45 +55,36 @@ export function PropertiesPanel() {
     deleteComponent(selectedComponent.id)
   }
 
-  const handleDuplicate = () => {
-    duplicateComponent(selectedComponent.id)
-  }
-
-  const renderContentEditor = () => {
+  const renderContentProperties = () => {
     switch (selectedComponent.type) {
       case "heading":
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="heading-text" className="text-[#172b4d] font-medium">
-                Text
-              </Label>
+              <Label htmlFor="heading-text">Text</Label>
               <Input
                 id="heading-text"
                 value={selectedComponent.content.text || ""}
                 onChange={(e) => handleContentUpdate({ text: e.target.value })}
                 placeholder="Enter heading text"
-                className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
               />
             </div>
             <div>
-              <Label htmlFor="heading-level" className="text-[#172b4d] font-medium">
-                Level
-              </Label>
+              <Label htmlFor="heading-level">Level</Label>
               <Select
                 value={selectedComponent.content.level?.toString() || "2"}
                 onValueChange={(value) => handleContentUpdate({ level: Number.parseInt(value) })}
               >
-                <SelectTrigger className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">H1 - Page Title</SelectItem>
-                  <SelectItem value="2">H2 - Section</SelectItem>
-                  <SelectItem value="3">H3 - Subsection</SelectItem>
-                  <SelectItem value="4">H4 - Minor Heading</SelectItem>
-                  <SelectItem value="5">H5 - Small Heading</SelectItem>
-                  <SelectItem value="6">H6 - Tiny Heading</SelectItem>
+                  <SelectItem value="1">H1</SelectItem>
+                  <SelectItem value="2">H2</SelectItem>
+                  <SelectItem value="3">H3</SelectItem>
+                  <SelectItem value="4">H4</SelectItem>
+                  <SelectItem value="5">H5</SelectItem>
+                  <SelectItem value="6">H6</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -107,20 +94,14 @@ export function PropertiesPanel() {
       case "paragraph":
         return (
           <div>
-            <Label htmlFor="paragraph-text" className="text-[#172b4d] font-medium">
-              Text Content
-            </Label>
+            <Label htmlFor="paragraph-text">Text</Label>
             <Textarea
               id="paragraph-text"
               value={selectedComponent.content.text || ""}
               onChange={(e) => handleContentUpdate({ text: e.target.value })}
               placeholder="Enter paragraph text"
-              rows={6}
-              className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc] mt-2"
+              rows={4}
             />
-            <p className="text-xs text-[#6b778c] mt-2">
-              You can use basic formatting like **bold** and *italic* in your text.
-            </p>
           </div>
         )
 
@@ -128,39 +109,30 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="image-src" className="text-[#172b4d] font-medium">
-                Image URL
-              </Label>
+              <Label htmlFor="image-src">Image URL</Label>
               <Input
                 id="image-src"
                 value={selectedComponent.content.src || ""}
                 onChange={(e) => handleContentUpdate({ src: e.target.value })}
                 placeholder="https://example.com/image.jpg"
-                className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
               />
             </div>
             <div>
-              <Label htmlFor="image-alt" className="text-[#172b4d] font-medium">
-                Alt Text
-              </Label>
+              <Label htmlFor="image-alt">Alt Text</Label>
               <Input
                 id="image-alt"
                 value={selectedComponent.content.alt || ""}
                 onChange={(e) => handleContentUpdate({ alt: e.target.value })}
-                placeholder="Describe the image for accessibility"
-                className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
+                placeholder="Describe the image"
               />
             </div>
             <div>
-              <Label htmlFor="image-caption" className="text-[#172b4d] font-medium">
-                Caption (Optional)
-              </Label>
+              <Label htmlFor="image-caption">Caption</Label>
               <Input
                 id="image-caption"
                 value={selectedComponent.content.caption || ""}
                 onChange={(e) => handleContentUpdate({ caption: e.target.value })}
-                placeholder="Image caption"
-                className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
+                placeholder="Optional caption"
               />
             </div>
           </div>
@@ -170,334 +142,363 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="button-text" className="text-[#172b4d] font-medium">
-                Button Text
-              </Label>
+              <Label htmlFor="button-text">Button Text</Label>
               <Input
                 id="button-text"
                 value={selectedComponent.content.text || ""}
                 onChange={(e) => handleContentUpdate({ text: e.target.value })}
-                placeholder="Button text"
-                className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
+                placeholder="Click me"
               />
             </div>
             <div>
-              <Label htmlFor="button-link" className="text-[#172b4d] font-medium">
-                Link URL
-              </Label>
+              <Label htmlFor="button-link">Link URL</Label>
               <Input
                 id="button-link"
                 value={selectedComponent.content.link || ""}
                 onChange={(e) => handleContentUpdate({ link: e.target.value })}
                 placeholder="https://example.com"
-                className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="button-variant" className="text-[#172b4d] font-medium">
-                  Style
-                </Label>
-                <Select
-                  value={selectedComponent.content.variant || "default"}
-                  onValueChange={(value) => handleContentUpdate({ variant: value })}
-                >
-                  <SelectTrigger className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="default">Primary</SelectItem>
-                    <SelectItem value="secondary">Secondary</SelectItem>
-                    <SelectItem value="outline">Outline</SelectItem>
-                    <SelectItem value="ghost">Ghost</SelectItem>
-                    <SelectItem value="link">Link</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="button-size" className="text-[#172b4d] font-medium">
-                  Size
-                </Label>
-                <Select
-                  value={selectedComponent.content.size || "default"}
-                  onValueChange={(value) => handleContentUpdate({ size: value })}
-                >
-                  <SelectTrigger className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sm">Small</SelectItem>
-                    <SelectItem value="default">Default</SelectItem>
-                    <SelectItem value="lg">Large</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <Label htmlFor="button-variant">Variant</Label>
+              <Select
+                value={selectedComponent.content.variant || "default"}
+                onValueChange={(value) => handleContentUpdate({ variant: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">Default</SelectItem>
+                  <SelectItem value="destructive">Destructive</SelectItem>
+                  <SelectItem value="outline">Outline</SelectItem>
+                  <SelectItem value="secondary">Secondary</SelectItem>
+                  <SelectItem value="ghost">Ghost</SelectItem>
+                  <SelectItem value="link">Link</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )
 
-      case "htmlBlock":
+      case "list":
+      case "orderedList":
         return (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-[#172b4d] font-medium">Macro Content</Label>
-                <p className="text-xs text-[#6b778c] mt-1">
-                  {selectedComponent.content.category === "confluence" ? "Confluence Macro" : "Custom HTML Block"}
-                </p>
-              </div>
-              {selectedComponent.content.category === "confluence" && (
-                <Badge variant="secondary" className="text-xs bg-[#e3fcef] text-[#00875a] border-[#00875a]">
-                  Confluence
-                </Badge>
-              )}
-            </div>
-
             <div>
-              <Label htmlFor="html-name" className="text-[#172b4d] font-medium">
-                Name
-              </Label>
-              <Input
-                id="html-name"
-                value={selectedComponent.content.name || ""}
-                onChange={(e) => handleContentUpdate({ name: e.target.value })}
-                placeholder="Macro name"
-                className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
-              />
+              <Label>List Items</Label>
+              <div className="space-y-2 mt-2">
+                {(selectedComponent.content.items || []).map((item: string, index: number) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      value={item}
+                      onChange={(e) => {
+                        const newItems = [...(selectedComponent.content.items || [])]
+                        newItems[index] = e.target.value
+                        handleContentUpdate({ items: newItems })
+                      }}
+                      placeholder={`Item ${index + 1}`}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const newItems = selectedComponent.content.items.filter((_: any, i: number) => i !== index)
+                        handleContentUpdate({ items: newItems })
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newItems = [...(selectedComponent.content.items || []), "New item"]
+                    handleContentUpdate({ items: newItems })
+                  }}
+                >
+                  Add Item
+                </Button>
+              </div>
             </div>
-
-            {selectedComponent.content.editable && (
+            {selectedComponent.type === "orderedList" && (
               <div>
-                <Label htmlFor="html-content" className="text-[#172b4d] font-medium">
-                  HTML Content
-                </Label>
-                <Textarea
-                  id="html-content"
-                  value={selectedComponent.content.htmlContent || ""}
-                  onChange={(e) => handleContentUpdate({ htmlContent: e.target.value })}
-                  placeholder="Enter HTML content"
-                  rows={8}
-                  className="font-mono text-sm border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
+                <Label htmlFor="list-start">Start Number</Label>
+                <Input
+                  id="list-start"
+                  type="number"
+                  value={selectedComponent.content.start || 1}
+                  onChange={(e) => handleContentUpdate({ start: Number.parseInt(e.target.value) || 1 })}
                 />
               </div>
             )}
-
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="html-responsive"
-                checked={selectedComponent.content.responsive || false}
-                onCheckedChange={(checked) => handleContentUpdate({ responsive: checked })}
-              />
-              <Label htmlFor="html-responsive" className="text-sm text-[#172b4d]">
-                Responsive design
-              </Label>
-            </div>
           </div>
         )
 
       default:
         return (
           <div className="text-center py-8">
-            <Code className="h-8 w-8 mx-auto mb-2 text-[#6b778c]" />
-            <p className="text-sm text-[#6b778c]">Content editor for {selectedComponent.type} is coming soon</p>
+            <p className="text-sm text-[#6b778c]">No content properties available for this component type.</p>
           </div>
         )
     }
   }
 
-  const renderStyleEditor = () => {
+  const renderStyleProperties = () => {
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="bg-color" className="text-[#172b4d] font-medium">
-              Background
-            </Label>
-            <div className="flex items-center space-x-2 mt-2">
+      <div className="space-y-6">
+        {/* Typography */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Type className="h-4 w-4" />
+              Typography
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label htmlFor="font-size">Font Size</Label>
+              <Input
+                id="font-size"
+                value={selectedComponent.style.fontSize || ""}
+                onChange={(e) => handleStyleUpdate({ fontSize: e.target.value })}
+                placeholder="16px, 1rem, etc."
+              />
+            </div>
+            <div>
+              <Label htmlFor="font-weight">Font Weight</Label>
+              <Select
+                value={selectedComponent.style.fontWeight?.toString() || ""}
+                onValueChange={(value) => handleStyleUpdate({ fontWeight: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select weight" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="300">Light</SelectItem>
+                  <SelectItem value="400">Normal</SelectItem>
+                  <SelectItem value="500">Medium</SelectItem>
+                  <SelectItem value="600">Semibold</SelectItem>
+                  <SelectItem value="700">Bold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="text-align">Text Align</Label>
+              <Select
+                value={selectedComponent.style.textAlign || ""}
+                onValueChange={(value) => handleStyleUpdate({ textAlign: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select alignment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="left">Left</SelectItem>
+                  <SelectItem value="center">Center</SelectItem>
+                  <SelectItem value="right">Right</SelectItem>
+                  <SelectItem value="justify">Justify</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Colors */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Palette className="h-4 w-4" />
+              Colors
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label htmlFor="text-color">Text Color</Label>
+              <Input
+                id="text-color"
+                type="color"
+                value={selectedComponent.style.color || "#000000"}
+                onChange={(e) => handleStyleUpdate({ color: e.target.value })}
+              />
+            </div>
+            <div>
+              <Label htmlFor="bg-color">Background Color</Label>
               <Input
                 id="bg-color"
                 type="color"
                 value={selectedComponent.style.backgroundColor || "#ffffff"}
                 onChange={(e) => handleStyleUpdate({ backgroundColor: e.target.value })}
-                className="w-12 h-8 p-1 border-[#dfe1e6]"
-              />
-              <Input
-                value={selectedComponent.style.backgroundColor || "#ffffff"}
-                onChange={(e) => handleStyleUpdate({ backgroundColor: e.target.value })}
-                placeholder="#ffffff"
-                className="flex-1 border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
               />
             </div>
-          </div>
-          <div>
-            <Label htmlFor="text-color" className="text-[#172b4d] font-medium">
-              Text Color
-            </Label>
-            <div className="flex items-center space-x-2 mt-2">
+          </CardContent>
+        </Card>
+
+        {/* Spacing */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Layout className="h-4 w-4" />
+              Spacing
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label htmlFor="margin">Margin</Label>
               <Input
-                id="text-color"
-                type="color"
-                value={selectedComponent.style.textColor || "#172b4d"}
-                onChange={(e) => handleStyleUpdate({ textColor: e.target.value })}
-                className="w-12 h-8 p-1 border-[#dfe1e6]"
-              />
-              <Input
-                value={selectedComponent.style.textColor || "#172b4d"}
-                onChange={(e) => handleStyleUpdate({ textColor: e.target.value })}
-                placeholder="#172b4d"
-                className="flex-1 border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
+                id="margin"
+                value={selectedComponent.style.margin || ""}
+                onChange={(e) => handleStyleUpdate({ margin: e.target.value })}
+                placeholder="10px, 1rem, etc."
               />
             </div>
-          </div>
-        </div>
+            <div>
+              <Label htmlFor="padding">Padding</Label>
+              <Input
+                id="padding"
+                value={selectedComponent.style.padding || ""}
+                onChange={(e) => handleStyleUpdate({ padding: e.target.value })}
+                placeholder="10px, 1rem, etc."
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
-        <div>
-          <Label htmlFor="text-align" className="text-[#172b4d] font-medium">
-            Text Alignment
-          </Label>
-          <Select
-            value={selectedComponent.style.textAlign || "left"}
-            onValueChange={(value) => handleStyleUpdate({ textAlign: value })}
-          >
-            <SelectTrigger className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="left">Left</SelectItem>
-              <SelectItem value="center">Center</SelectItem>
-              <SelectItem value="right">Right</SelectItem>
-              <SelectItem value="justify">Justify</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+  const renderLayoutProperties = () => {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Layout className="h-4 w-4" />
+              Dimensions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label htmlFor="width">Width</Label>
+              <Input
+                id="width"
+                value={selectedComponent.style.width || ""}
+                onChange={(e) => handleStyleUpdate({ width: e.target.value })}
+                placeholder="100%, 300px, auto, etc."
+              />
+            </div>
+            <div>
+              <Label htmlFor="height">Height</Label>
+              <Input
+                id="height"
+                value={selectedComponent.style.height || ""}
+                onChange={(e) => handleStyleUpdate({ height: e.target.value })}
+                placeholder="auto, 200px, etc."
+              />
+            </div>
+            <div>
+              <Label htmlFor="max-width">Max Width</Label>
+              <Input
+                id="max-width"
+                value={selectedComponent.style.maxWidth || ""}
+                onChange={(e) => handleStyleUpdate({ maxWidth: e.target.value })}
+                placeholder="100%, 600px, etc."
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="padding" className="text-[#172b4d] font-medium">
-              Padding
-            </Label>
-            <Input
-              id="padding"
-              value={selectedComponent.style.padding || ""}
-              onChange={(e) => handleStyleUpdate({ padding: e.target.value })}
-              placeholder="16px"
-              className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
-            />
-          </div>
-          <div>
-            <Label htmlFor="margin" className="text-[#172b4d] font-medium">
-              Margin
-            </Label>
-            <Input
-              id="margin"
-              value={selectedComponent.style.margin || ""}
-              onChange={(e) => handleStyleUpdate({ margin: e.target.value })}
-              placeholder="16px"
-              className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
-            />
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="border-radius" className="text-[#172b4d] font-medium">
-            Border Radius
-          </Label>
-          <Input
-            id="border-radius"
-            value={selectedComponent.style.borderRadius || ""}
-            onChange={(e) => handleStyleUpdate({ borderRadius: e.target.value })}
-            placeholder="8px"
-            className="border-[#dfe1e6] focus:border-[#0052cc] focus:ring-1 focus:ring-[#0052cc]"
-          />
-        </div>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Border & Effects</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label htmlFor="border-radius">Border Radius</Label>
+              <Input
+                id="border-radius"
+                value={selectedComponent.style.borderRadius || ""}
+                onChange={(e) => handleStyleUpdate({ borderRadius: e.target.value })}
+                placeholder="4px, 0.5rem, etc."
+              />
+            </div>
+            <div>
+              <Label htmlFor="box-shadow">Box Shadow</Label>
+              <Input
+                id="box-shadow"
+                value={selectedComponent.style.boxShadow || ""}
+                onChange={(e) => handleStyleUpdate({ boxShadow: e.target.value })}
+                placeholder="0 2px 4px rgba(0,0,0,0.1)"
+              />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
-      {/* Header */}
+    <div className="h-full flex flex-col bg-white border-l border-[#dfe1e6]">
+      {/* Properties Header */}
       <div className="p-4 border-b border-[#dfe1e6] bg-[#f4f5f7]">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[#0052cc] text-white">
-              <Settings className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-[#172b4d]">Properties</h2>
-              <p className="text-sm text-[#6b778c]">
-                {selectedComponent.type.charAt(0).toUpperCase() + selectedComponent.type.slice(1)} Element
-              </p>
-            </div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 rounded-lg bg-[#0052cc] text-white">
+            <Settings className="h-5 w-5" />
           </div>
-          <Badge variant="outline" className="text-xs font-mono bg-white border-[#dfe1e6] text-[#6b778c]">
-            {selectedComponent.id.split("-")[0]}
-          </Badge>
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold text-[#172b4d]">Properties</h2>
+            <p className="text-sm text-[#6b778c]">Configure selected element</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={handleDelete} className="text-destructive hover:text-destructive">
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2">
+        {/* Component Info */}
+        <div className="flex items-center gap-2 mb-4">
+          <Badge variant="secondary" className="text-xs">
+            {selectedComponent.type}
+          </Badge>
+          <span className="text-sm text-[#6b778c]">#{selectedComponent.id.slice(-8)}</span>
+        </div>
+
+        {/* Property Tabs */}
+        <div className="flex items-center gap-1 bg-white rounded-md p-1 border border-[#dfe1e6]">
           <Button
-            variant="outline"
+            variant={activeTab === "content" ? "default" : "ghost"}
             size="sm"
-            onClick={handleDuplicate}
-            className="flex-1 border-[#dfe1e6] text-[#6b778c] hover:text-[#172b4d] hover:bg-[#f4f5f7] bg-transparent"
+            onClick={() => setActiveTab("content")}
+            className="h-7 px-3 flex-1"
           >
-            <Copy className="h-4 w-4 mr-2" />
-            Duplicate
+            Content
           </Button>
           <Button
-            variant="outline"
+            variant={activeTab === "style" ? "default" : "ghost"}
             size="sm"
-            onClick={handleDelete}
-            className="flex-1 border-[#de350b] text-[#de350b] hover:bg-[#ffebe6] hover:border-[#de350b] bg-transparent"
+            onClick={() => setActiveTab("style")}
+            className="h-7 px-3 flex-1"
           >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
+            Style
+          </Button>
+          <Button
+            variant={activeTab === "layout" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setActiveTab("layout")}
+            className="h-7 px-3 flex-1"
+          >
+            Layout
           </Button>
         </div>
       </div>
 
-      {/* Content */}
+      {/* Properties Content */}
       <ScrollArea className="flex-1">
-        <Tabs defaultValue="content" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 m-4 bg-[#f4f5f7] border border-[#dfe1e6]">
-            <TabsTrigger value="content" className="data-[state=active]:bg-white data-[state=active]:text-[#0052cc]">
-              <Type className="h-4 w-4 mr-2" />
-              Content
-            </TabsTrigger>
-            <TabsTrigger value="style" className="data-[state=active]:bg-white data-[state=active]:text-[#0052cc]">
-              <Palette className="h-4 w-4 mr-2" />
-              Style
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="p-4 pt-0">
-            <TabsContent value="content">
-              <Card className="border-[#dfe1e6]">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base text-[#172b4d] flex items-center gap-2">
-                    <Edit3 className="h-4 w-4" />
-                    Content Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>{renderContentEditor()}</CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="style">
-              <Card className="border-[#dfe1e6]">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base text-[#172b4d] flex items-center gap-2">
-                    <Palette className="h-4 w-4" />
-                    Style Settings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>{renderStyleEditor()}</CardContent>
-              </Card>
-            </TabsContent>
-          </div>
-        </Tabs>
+        <div className="p-4">
+          {activeTab === "content" && renderContentProperties()}
+          {activeTab === "style" && renderStyleProperties()}
+          {activeTab === "layout" && renderLayoutProperties()}
+        </div>
       </ScrollArea>
     </div>
   )

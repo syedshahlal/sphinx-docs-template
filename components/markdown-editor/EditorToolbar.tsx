@@ -8,29 +8,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import { useEditor } from "./EditorContext"
 import {
-  Undo,
-  Redo,
+  Undo2,
+  Redo2,
   Save,
   Upload,
   FileText,
   Clock,
   CheckCircle,
   AlertCircle,
-  Share,
   Eye,
-  MoreHorizontal,
+  Download,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Palette,
+  Settings,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export function EditorToolbar() {
-  const { state, undo, redo, updateFileName } = useEditor()
+  const { state, undo, redo, updateFileName, setPreviewMode } = useEditor()
   const [saveDialogOpen, setSaveDialogOpen] = useState(false)
   const [publishDialogOpen, setPublishDialogOpen] = useState(false)
   const [selectedLocation, setSelectedLocation] = useState("docs/")
   const [commitMessage, setCommitMessage] = useState("")
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [viewportSize, setViewportSize] = useState<"desktop" | "tablet" | "mobile">("desktop")
 
   const canUndo = state.history.past.length > 0
   const canRedo = state.history.future.length > 0
@@ -45,6 +51,16 @@ export function EditorToolbar() {
   const handlePublish = async () => {
     // Simulate publish operation
     setPublishDialogOpen(false)
+  }
+
+  const handleExport = () => {
+    // TODO: Implement export functionality
+    console.log("Exporting document...")
+  }
+
+  const handleImport = () => {
+    // TODO: Implement import functionality
+    console.log("Importing document...")
   }
 
   const getStatusIcon = () => {
@@ -76,7 +92,7 @@ export function EditorToolbar() {
               disabled={!canUndo}
               className="h-8 px-2 text-[#6b778c] hover:text-[#172b4d] hover:bg-[#f4f5f7] disabled:opacity-50"
             >
-              <Undo className="h-4 w-4" />
+              <Undo2 className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
@@ -85,7 +101,7 @@ export function EditorToolbar() {
               disabled={!canRedo}
               className="h-8 px-2 text-[#6b778c] hover:text-[#172b4d] hover:bg-[#f4f5f7] disabled:opacity-50"
             >
-              <Redo className="h-4 w-4" />
+              <Redo2 className="h-4 w-4" />
             </Button>
           </div>
 
@@ -230,16 +246,92 @@ export function EditorToolbar() {
             </DialogContent>
           </Dialog>
 
-          <Button variant="ghost" size="sm" className="h-8 px-2 text-[#6b778c] hover:text-[#172b4d] hover:bg-[#f4f5f7]">
-            <Eye className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleExport}
+            className="h-8 px-2 text-[#6b778c] hover:text-[#172b4d] hover:bg-[#f4f5f7]"
+          >
+            <Download className="h-4 w-4 mr-1.5" />
+            Export
           </Button>
 
-          <Button variant="ghost" size="sm" className="h-8 px-2 text-[#6b778c] hover:text-[#172b4d] hover:bg-[#f4f5f7]">
-            <Share className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleImport}
+            className="h-8 px-2 text-[#6b778c] hover:text-[#172b4d] hover:bg-[#f4f5f7]"
+          >
+            <Upload className="h-4 w-4 mr-1.5" />
+            Import
           </Button>
 
-          <Button variant="ghost" size="sm" className="h-8 px-2 text-[#6b778c] hover:text-[#172b4d] hover:bg-[#f4f5f7]">
-            <MoreHorizontal className="h-4 w-4" />
+          <Separator orientation="vertical" className="h-6" />
+
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-1 bg-[#f4f5f7] rounded-md p-1">
+            <Button
+              variant={state.previewMode === "edit" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setPreviewMode("edit")}
+              className="h-7 px-3"
+            >
+              <Eye className="h-3 w-3 mr-1.5" />
+              Edit
+            </Button>
+            <Button
+              variant={state.previewMode === "preview" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setPreviewMode("preview")}
+              className="h-7 px-3"
+            >
+              <Eye className="h-3 w-3 mr-1.5" />
+              Preview
+            </Button>
+          </div>
+
+          <Separator orientation="vertical" className="h-6" />
+
+          {/* Viewport Size Controls */}
+          <div className="flex items-center gap-1 bg-[#f4f5f7] rounded-md p-1">
+            <Button
+              variant={viewportSize === "desktop" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewportSize("desktop")}
+              className="h-7 px-2"
+              title="Desktop View"
+            >
+              <Monitor className="h-3 w-3" />
+            </Button>
+            <Button
+              variant={viewportSize === "tablet" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewportSize("tablet")}
+              className="h-7 px-2"
+              title="Tablet View"
+            >
+              <Tablet className="h-3 w-3" />
+            </Button>
+            <Button
+              variant={viewportSize === "mobile" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewportSize("mobile")}
+              className="h-7 px-2"
+              title="Mobile View"
+            >
+              <Smartphone className="h-3 w-3" />
+            </Button>
+          </div>
+
+          <Separator orientation="vertical" className="h-6" />
+
+          <Button variant="ghost" size="sm">
+            <Palette className="h-4 w-4 mr-1.5" />
+            Theme
+          </Button>
+          <Button variant="ghost" size="sm">
+            <Settings className="h-4 w-4 mr-1.5" />
+            Settings
           </Button>
         </div>
       </div>
