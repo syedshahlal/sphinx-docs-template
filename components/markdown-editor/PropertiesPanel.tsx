@@ -1,21 +1,15 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Calendar, Tag, User, Clock, FileText } from 'lucide-react'
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Calendar, Tag, User, Clock, FileText } from "lucide-react"
 
 interface DocumentMetadata {
   title: string
@@ -23,7 +17,7 @@ interface DocumentMetadata {
   author: string
   tags: string[]
   category: string
-  status: 'draft' | 'review' | 'published'
+  status: "draft" | "review" | "published"
   created: string
   modified: string
   wordCount: number
@@ -31,40 +25,40 @@ interface DocumentMetadata {
 
 export default function PropertiesPanel() {
   const [metadata, setMetadata] = useState<DocumentMetadata>({
-    title: 'Getting Started Guide',
-    description: 'A comprehensive guide to help users get started with our platform',
-    author: 'John Doe',
-    tags: ['guide', 'beginner', 'tutorial'],
-    category: 'Documentation',
-    status: 'draft',
-    created: '2024-01-15',
-    modified: '2024-01-20',
-    wordCount: 1247
+    title: "Getting Started Guide",
+    description: "A comprehensive guide to help users get started with our platform",
+    author: "John Doe",
+    tags: ["guide", "beginner", "tutorial"],
+    category: "Documentation",
+    status: "draft",
+    created: "2024-01-15",
+    modified: "2024-01-20",
+    wordCount: 1247,
   })
 
-  const [newTag, setNewTag] = useState('')
+  const [newTag, setNewTag] = useState("")
 
   const addTag = () => {
     if (newTag.trim() && !metadata.tags.includes(newTag.trim())) {
-      setMetadata(prev => ({
+      setMetadata((prev) => ({
         ...prev,
-        tags: [...prev.tags, newTag.trim()]
+        tags: [...prev.tags, newTag.trim()],
       }))
-      setNewTag('')
+      setNewTag("")
     }
   }
 
   const removeTag = (tagToRemove: string) => {
-    setMetadata(prev => ({
+    setMetadata((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }))
   }
 
   const handleInputChange = (field: keyof DocumentMetadata, value: string) => {
-    setMetadata(prev => ({
+    setMetadata((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }))
   }
 
@@ -84,17 +78,17 @@ export default function PropertiesPanel() {
             <Input
               id="title"
               value={metadata.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
+              onChange={(e) => handleInputChange("title", e.target.value)}
               placeholder="Document title"
             />
           </div>
-          
+
           <div>
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               value={metadata.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
+              onChange={(e) => handleInputChange("description", e.target.value)}
               placeholder="Brief description of the document"
               rows={3}
             />
@@ -109,23 +103,20 @@ export default function PropertiesPanel() {
             <User className="h-4 w-4" />
             Author & Category
           </div>
-          
+
           <div>
             <Label htmlFor="author">Author</Label>
             <Input
               id="author"
               value={metadata.author}
-              onChange={(e) => handleInputChange('author', e.target.value)}
+              onChange={(e) => handleInputChange("author", e.target.value)}
               placeholder="Author name"
             />
           </div>
-          
+
           <div>
             <Label htmlFor="category">Category</Label>
-            <Select
-              value={metadata.category}
-              onValueChange={(value) => handleInputChange('category', value)}
-            >
+            <Select value={metadata.category} onValueChange={(value) => handleInputChange("category", value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -138,14 +129,12 @@ export default function PropertiesPanel() {
               </SelectContent>
             </Select>
           </div>
-          
+
           <div>
             <Label htmlFor="status">Status</Label>
             <Select
               value={metadata.status}
-              onValueChange={(value: 'draft' | 'review' | 'published') => 
-                handleInputChange('status', value)
-              }
+              onValueChange={(value: "draft" | "review" | "published") => handleInputChange("status", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select status" />
@@ -167,7 +156,7 @@ export default function PropertiesPanel() {
             <Tag className="h-4 w-4" />
             Tags
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             {metadata.tags.map((tag) => (
               <Badge
@@ -180,13 +169,13 @@ export default function PropertiesPanel() {
               </Badge>
             ))}
           </div>
-          
+
           <div className="flex gap-2">
             <Input
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
               placeholder="Add tag"
-              onKeyPress={(e) => e.key === 'Enter' && addTag()}
+              onKeyPress={(e) => e.key === "Enter" && addTag()}
             />
             <Button onClick={addTag} size="sm">
               Add
@@ -202,7 +191,7 @@ export default function PropertiesPanel() {
             <Clock className="h-4 w-4" />
             Document Info
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <Label className="text-xs text-muted-foreground">Created</Label>
@@ -211,7 +200,7 @@ export default function PropertiesPanel() {
                 {metadata.created}
               </div>
             </div>
-            
+
             <div>
               <Label className="text-xs text-muted-foreground">Modified</Label>
               <div className="flex items-center gap-1">
@@ -219,7 +208,7 @@ export default function PropertiesPanel() {
                 {metadata.modified}
               </div>
             </div>
-            
+
             <div className="col-span-2">
               <Label className="text-xs text-muted-foreground">Word Count</Label>
               <div className="font-medium">{metadata.wordCount.toLocaleString()} words</div>
@@ -231,7 +220,7 @@ export default function PropertiesPanel() {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1">
+          <Button variant="outline" size="sm" className="flex-1 bg-transparent">
             Save Draft
           </Button>
           <Button size="sm" className="flex-1">
@@ -242,3 +231,6 @@ export default function PropertiesPanel() {
     </Card>
   )
 }
+
+/* Named export required by build */
+export { PropertiesPanel }

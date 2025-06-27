@@ -1,22 +1,17 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Folder, File, Plus, Search, MoreVertical } from 'lucide-react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Folder, File, Plus, Search, MoreVertical } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface FileItem {
   id: string
   name: string
-  type: 'file' | 'folder'
+  type: "file" | "folder"
   path: string
   children?: FileItem[]
   modified?: string
@@ -25,51 +20,51 @@ interface FileItem {
 
 const mockFiles: FileItem[] = [
   {
-    id: '1',
-    name: 'docs',
-    type: 'folder',
-    path: '/docs',
+    id: "1",
+    name: "docs",
+    type: "folder",
+    path: "/docs",
     children: [
       {
-        id: '2',
-        name: 'getting-started.md',
-        type: 'file',
-        path: '/docs/getting-started.md',
-        modified: '2 hours ago',
-        size: '2.1 KB'
+        id: "2",
+        name: "getting-started.md",
+        type: "file",
+        path: "/docs/getting-started.md",
+        modified: "2 hours ago",
+        size: "2.1 KB",
       },
       {
-        id: '3',
-        name: 'api-reference.md',
-        type: 'file',
-        path: '/docs/api-reference.md',
-        modified: '1 day ago',
-        size: '5.3 KB'
-      }
-    ]
+        id: "3",
+        name: "api-reference.md",
+        type: "file",
+        path: "/docs/api-reference.md",
+        modified: "1 day ago",
+        size: "5.3 KB",
+      },
+    ],
   },
   {
-    id: '4',
-    name: 'examples',
-    type: 'folder',
-    path: '/examples',
+    id: "4",
+    name: "examples",
+    type: "folder",
+    path: "/examples",
     children: [
       {
-        id: '5',
-        name: 'basic-usage.md',
-        type: 'file',
-        path: '/examples/basic-usage.md',
-        modified: '3 days ago',
-        size: '1.8 KB'
-      }
-    ]
-  }
+        id: "5",
+        name: "basic-usage.md",
+        type: "file",
+        path: "/examples/basic-usage.md",
+        modified: "3 days ago",
+        size: "1.8 KB",
+      },
+    ],
+  },
 ]
 
 export default function FileManager() {
   const [files] = useState<FileItem[]>(mockFiles)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['1', '4']))
+  const [searchTerm, setSearchTerm] = useState("")
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["1", "4"]))
 
   const toggleFolder = (folderId: string) => {
     const newExpanded = new Set(expandedFolders)
@@ -83,33 +78,31 @@ export default function FileManager() {
 
   const renderFileItem = (item: FileItem, depth = 0) => {
     const isExpanded = expandedFolders.has(item.id)
-    
+
     return (
       <div key={item.id}>
-        <div 
+        <div
           className="flex items-center gap-2 p-2 hover:bg-muted/50 rounded-md cursor-pointer"
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
-          onClick={() => item.type === 'folder' && toggleFolder(item.id)}
+          onClick={() => item.type === "folder" && toggleFolder(item.id)}
         >
-          {item.type === 'folder' ? (
+          {item.type === "folder" ? (
             <Folder className="h-4 w-4 text-blue-500" />
           ) : (
             <File className="h-4 w-4 text-gray-500" />
           )}
-          
+
           <span className="flex-1 text-sm">{item.name}</span>
-          
-          {item.type === 'file' && (
+
+          {item.type === "file" && (
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="text-xs">
                 {item.size}
               </Badge>
-              <span className="text-xs text-muted-foreground">
-                {item.modified}
-              </span>
+              <span className="text-xs text-muted-foreground">{item.modified}</span>
             </div>
           )}
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
@@ -123,19 +116,15 @@ export default function FileManager() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        
-        {item.type === 'folder' && isExpanded && item.children && (
-          <div>
-            {item.children.map(child => renderFileItem(child, depth + 1))}
-          </div>
+
+        {item.type === "folder" && isExpanded && item.children && (
+          <div>{item.children.map((child) => renderFileItem(child, depth + 1))}</div>
         )}
       </div>
     )
   }
 
-  const filteredFiles = files.filter(file => 
-    file.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredFiles = files.filter((file) => file.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
   return (
     <Card className="h-full">
@@ -158,10 +147,11 @@ export default function FileManager() {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="max-h-96 overflow-y-auto">
-          {filteredFiles.map(file => renderFileItem(file))}
-        </div>
+        <div className="max-h-96 overflow-y-auto">{filteredFiles.map((file) => renderFileItem(file))}</div>
       </CardContent>
     </Card>
   )
 }
+
+/* Named export required by build */
+export { FileManager }
