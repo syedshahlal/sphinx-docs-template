@@ -785,7 +785,7 @@ function verifySignature(payload, signature, secret) {
     .update(payload)
     .digest('hex');
   
-  return signature === \`sha256=${expectedSignature}\`;
+  return signature === \`sha256=\${expectedSignature}\`;
 }</code></pre>
         </div>
       </div>
