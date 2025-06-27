@@ -38,7 +38,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 bg-gradient-to-br from-background via-background to-muted/20 bg-[rgba(1,33,105,1)] bg-[rgba(0,17,34,1)]">
+      <section className="relative py-20 px-4 bg-gradient-to-br from-background via-background to-muted/20 bg-[rgba(1,33,105,1)] bg-[rgba(0,17,34,1)] text-white mx-0.5">
         <div className="container mx-auto max-w-6xl text-center">
           <div className="mb-6">
             <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20">
