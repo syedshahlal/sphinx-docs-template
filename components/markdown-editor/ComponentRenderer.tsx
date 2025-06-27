@@ -68,6 +68,95 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
     setIsEditing(!isEditing)
   }
 
+  // A simple chart component for demonstration
+  function SimpleChart({ data, type, title }: { data: ChartContent; type: string; title?: string }) {
+    // Ensure we always have a valid data structure so ".labels" and ".datasets"
+    // look-ups never throw even if the user has not supplied any data yet.
+    const safeData = {
+      labels: data.data?.labels ?? [],
+      datasets: data.data?.datasets ?? [],
+    }
+
+    /* ↓↓↓ use the safeData object (instead of data.data) everywhere ↓↓↓ */
+
+    const datasets = safeData.datasets.length
+      ? safeData.datasets
+      : [
+          {
+            label: "Dataset 1",
+            data: new Array(safeData.labels.length).fill(0),
+            backgroundColor: "#3b82f6",
+          },
+        ]
+
+    const maxValue = Math.max(1, ...datasets.flatMap((d) => d.data))
+
+    if (type === "bar") {
+      return (
+        <div className="p-4 bg-card border border-border rounded-lg">
+          {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
+          <div className="space-y-3">
+            {safeData.labels.map((label, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <div className="w-20 text-sm text-muted-foreground">{label}</div>
+                <div className="flex-1 bg-muted rounded-full h-6 relative overflow-hidden">
+                  {datasets.map((dataset, datasetIndex) => (
+                    <div
+                      key={datasetIndex}
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${(dataset.data[index] / maxValue) * 100}%`,
+                        backgroundColor: Array.isArray(dataset.backgroundColor)
+                          ? dataset.backgroundColor[index] || dataset.backgroundColor[0] || "#3b82f6"
+                          : dataset.backgroundColor || "#3b82f6",
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className="w-12 text-sm text-foreground text-right">{datasets[0]?.data[index] || 0}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    const chartData = {
+      labels: safeData.labels,
+      datasets: datasets.map((dataset) => ({
+        ...dataset,
+        backgroundColor: dataset.backgroundColor || "#3b82f6",
+        borderColor: dataset.borderColor || "#3b82f6",
+      })),
+    }
+
+    if (type === "line") {
+      return (
+        <div className="p-4 bg-card border border-border rounded-lg">
+          {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
+          {/* @ts-expect-error */}
+          <Line data={chartData} />
+        </div>
+      )
+    }
+
+    if (type === "pie") {
+      return (
+        <div className="p-4 bg-card border border-border rounded-lg">
+          {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
+          {/* @ts-expect-error */}
+          <Pie data={chartData} />
+        </div>
+      )
+    }
+
+    return (
+      <div className="p-4 bg-card border border-border rounded-lg">
+        <p className="text-sm text-muted-foreground text-center">Chart type not supported</p>
+      </div>
+    )
+  }
+
   const renderComponent = () => {
     if (!isVisible) {
       return (
@@ -431,9 +520,17 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
               <BarChart3 className="h-5 w-5 text-primary" />
               <h3 className="font-semibold">Chart Component</h3>
             </div>
-            <div className="h-64 bg-muted/50 rounded flex items-center justify-center">
-              <p className="text-muted-foreground">Chart visualization would appear here</p>
-            </div>
+            {component.content.type === "simple" ? (
+              <SimpleChart
+                data={component.content}
+                type={component.content.chartType || "bar"}
+                title={component.content.title}
+              />
+            ) : (
+              <div className="h-64 bg-muted/50 rounded flex items-center justify-center">
+                <p className="text-muted-foreground">Chart visualization would appear here</p>
+              </div>
+            )}
           </div>
         )
 
@@ -591,3 +688,35 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
     </div>
   )
 }
+
+// Define the chart content type
+type ChartContent = {
+  type?: string
+  title?: string
+  data?: {
+    labels: string[]
+    datasets: {
+      label: string
+      data: number[]
+      backgroundColor?: string | string[]
+      borderColor?: string
+    }[]
+  }
+  chartType?: string
+}
+
+import { Line, Pie } from "react-chartjs-2"
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  BarElement,
+} from "chart.js"
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend)
