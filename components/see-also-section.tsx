@@ -1,78 +1,83 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { Info, ExternalLink } from "lucide-react"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
+import { cn } from "@/lib/utils"
 
-export function SeeAlsoSection() {
-  const [hoveredPlatform, setHoveredPlatform] = useState<number | null>(null)
+/**
+ * Simple “See Also” call-out that suggests other parts of the docs.
+ * – No needless left/right spacing (full-width radial background)
+ * – No `bg-slate-300` container – that wrapper has been removed
+ * – Light/Dark-mode aware colours
+ */
+const links = [
+  {
+    href: "/user-guide/getting-started",
+    title: "Getting Started",
+    desc: "Set up the GRA Core Platform in minutes.",
+    icon: "🚀",
+    color: "bg-green-500/10 text-green-600 dark:text-green-300",
+    border: "border-green-200/50 dark:border-green-700/50",
+  },
+  {
+    href: "/examples",
+    title: "Examples",
+    desc: "Real-world templates and code samples.",
+    icon: "💻",
+    color: "bg-blue-500/10 text-blue-600 dark:text-blue-300",
+    border: "border-blue-200/50 dark:border-blue-700/50",
+  },
+  {
+    href: "/api-reference",
+    title: "API Reference",
+    desc: "Every endpoint, parameter and response.",
+    icon: "📚",
+    color: "bg-purple-500/10 text-purple-600 dark:text-purple-300",
+    border: "border-purple-200/50 dark:border-purple-700/50",
+  },
+]
 
-  // ensure the array is always in-scope but created only once
-  const relatedPlatforms = useMemo(
-    () => [
-      {
-        key: "dev",
-        name: "GRA Core Platform · Dev Lane",
-        description: "Full-featured enterprise lane with advanced sidebar navigation.",
-        color: "from-blue-500 to-cyan-500",
-        badge: "Tech Lower Lanes",
-        href: "https://gra.example.com/dev/overview",
-      },
-      {
-        key: "sbx",
-        name: "GRA Core Platform · SBX Dev Lane",
-        description: "Lightweight lane, ideal for small-to-medium projects.",
-        color: "from-green-500 to-emerald-500",
-        badge: "GRA DEV Lane",
-        href: "https://gra.example.com/sbx/overview",
-      },
-      {
-        key: "uat",
-        name: "GRA Core Platform · SDX UAT Lane",
-        description: "User-acceptance test lane that showcases upcoming releases.",
-        color: "from-purple-500 to-pink-500",
-        badge: "GRA UAT Lane",
-        href: "https://gra.example.com/uat/overview",
-      },
-      {
-        key: "beta",
-        name: "GRA Core Platform · SDX Beta Lane",
-        description: "Early-access beta features for power users.",
-        color: "from-purple-500 to-pink-500",
-        badge: "GRA LLE",
-        href: "https://gra.example.com/beta/overview",
-      },
-      {
-        key: "prod",
-        name: "GRA Core Platform · Prod Lane",
-        description: "Official production environment for all customers.",
-        color: "from-purple-500 to-pink-500",
-        badge: "Production",
-        href: "https://gra.example.com/prod/overview",
-      },
-    ],
-    [],
-  )
-
+export default function SeeAlsoSection() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {relatedPlatforms.map((platform) => (
-        <div
-          key={platform.key}
-          className={`bg-gradient-to-r ${platform.color} p-4 rounded-lg flex items-center space-x-4 hover:opacity-80`}
-          onMouseEnter={() => setHoveredPlatform(Number.parseInt(platform.key))}
-          onMouseLeave={() => setHoveredPlatform(null)}
-        >
-          <Info className="w-6 h-6" />
-          <div>
-            <h3 className="text-lg font-semibold">{platform.name}</h3>
-            <p className="text-gray-600">{platform.description}</p>
-          </div>
-          <div className="ml-auto">
-            <span className="bg-white text-black px-2 py-1 rounded-full text-sm">{platform.badge}</span>
-            <ExternalLink className="w-6 h-6 ml-2" />
-          </div>
+    <section className="relative isolate overflow-hidden py-24 sm:py-32">
+      {/* Decorative radial gradient */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="h-full w-full bg-[radial-gradient(circle_at_50%_50%,rgba(34,197,94,0.06),transparent_60%)]" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <header className="mb-12 text-center">
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
+            See&nbsp;Also
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-slate-600 dark:text-slate-400">
+            Keep exploring the documentation with these resources.
+          </p>
+        </header>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {links.map(({ href, title, desc, icon, color, border }) => (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "group relative flex flex-col overflow-hidden rounded-2xl border p-6 transition-shadow hover:shadow-lg",
+                color,
+                border,
+              )}
+            >
+              <span className="text-4xl">{icon}</span>
+              <h3 className="mt-4 text-xl font-semibold">{title}</h3>
+              <p className="mt-2 flex-1 text-sm leading-6 text-slate-700 dark:text-slate-300">{desc}</p>
+
+              <span className="mt-4 inline-flex items-center text-sm font-medium text-primary group-hover:underline">
+                Learn more
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </span>
+            </Link>
+          ))}
         </div>
-      ))}
-    </div>
+      </div>
+    </section>
   )
 }
