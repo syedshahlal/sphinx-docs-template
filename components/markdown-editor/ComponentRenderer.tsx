@@ -1,542 +1,598 @@
 "use client"
 
 import type React from "react"
-import { useState, useRef } from "react"
-import type {
-  MarkdownComponent,
-  ComponentStyle,
-  ImageContent,
-  GridContent,
-  TableContent,
-  ChartContent,
-  ButtonContent,
-  AlertContent,
-  ListContent,
-  TaskListContent,
-  BlockquoteContent,
-  CodeContent,
-  SpacerContent,
-  ColumnsContent,
-  HtmlBlockContent,
-  HeroContent,
-  BannerContent,
-  TestimonialContent,
-  PricingContent,
-  GalleryContent,
-} from "./types"
-import { Button as UIButton } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { useState } from "react"
+import { useSortable } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Edit3, BarChart3, AlertTriangle, Info, Check } from "lucide-react"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
-import type { JSX } from "react/jsx-runtime"
-
-// A simple chart component for demonstration
-function SimpleChart({ data, type, title }: { data: ChartContent; type: string; title?: string }) {
-  const datasets = data.data?.datasets?.length
-    ? data.data.datasets
-    : [
-        {
-          label: "Dataset 1",
-          data: new Array(data.data?.labels?.length || 0).fill(0),
-          backgroundColor: "#3b82f6",
-        },
-      ]
-
-  const maxValue = Math.max(1, ...datasets.flatMap((d) => d.data))
-
-  if (type === "bar") {
-    return (
-      <div className="p-4 bg-card border border-border rounded-lg">
-        {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
-        <div className="space-y-3">
-          {data.data.labels.map((label, index) => (
-            <div key={index} className="flex items-center gap-3">
-              <div className="w-20 text-sm text-muted-foreground">{label}</div>
-              <div className="flex-1 bg-muted rounded-full h-6 relative overflow-hidden">
-                {datasets.map((dataset, datasetIndex) => (
-                  <div
-                    key={datasetIndex}
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${(dataset.data[index] / maxValue) * 100}%`,
-                      backgroundColor: Array.isArray(dataset.backgroundColor)
-                        ? dataset.backgroundColor[index] || dataset.backgroundColor[0] || "#3b82f6"
-                        : dataset.backgroundColor || "#3b82f6",
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="w-12 text-sm text-foreground text-right">{datasets[0]?.data[index] || 0}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div className="p-4 bg-card border border-border rounded-lg">
-      {title && <h3 className="text-lg font-semibold mb-4 text-foreground">{title}</h3>}
-      <div className="text-center py-8 text-muted-foreground">
-        <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-50" />
-        <p>Chart type "{type}"</p>
-      </div>
-    </div>
-  )
-}
-
-const applyStyles = (style?: ComponentStyle): React.CSSProperties => {
-  if (!style) return {}
-  const cssProps: React.CSSProperties = {}
-  if (style.color) cssProps.color = style.color
-  if (style.backgroundColor) cssProps.backgroundColor = style.backgroundColor
-  if (style.fontSize) cssProps.fontSize = style.fontSize
-  if (style.fontWeight) cssProps.fontWeight = style.fontWeight as React.CSSProperties["fontWeight"]
-  if (style.textAlign) cssProps.textAlign = style.textAlign as React.CSSProperties["textAlign"]
-  if (style.width) cssProps.width = style.width
-  if (style.height) cssProps.height = style.height
-  if (style.padding) cssProps.padding = style.padding
-  if (style.margin) cssProps.margin = style.margin
-  if (style.border) cssProps.border = style.border
-  if (style.borderRadius) cssProps.borderRadius = style.borderRadius
-  if (style.boxShadow) cssProps.boxShadow = style.boxShadow
-  if (style.opacity !== undefined) cssProps.opacity = style.opacity
-  if (style.backgroundImage) cssProps.backgroundImage = `url(${style.backgroundImage})`
-  if (style.backgroundSize) cssProps.backgroundSize = style.backgroundSize
-  if (style.backgroundPosition) cssProps.backgroundPosition = style.backgroundPosition
-  return cssProps
-}
+import {
+  GripVertical,
+  Copy,
+  Trash2,
+  Eye,
+  EyeOff,
+  Edit3,
+  AlertTriangle,
+  Info,
+  CheckCircle,
+  XCircle,
+  Code,
+  BarChart3,
+  Star,
+  FileCode,
+} from "lucide-react"
+import type { MarkdownComponent } from "./types"
+import type { JSX } from "react/jsx-runtime" // Import JSX to fix the undeclared variable error
 
 interface ComponentRendererProps {
   component: MarkdownComponent
   isSelected: boolean
-  updateComponentContent: (id: string, contentUpdates: any) => void
+  updateComponentContent: (id: string, contentUpdates: Partial<any>) => void
 }
 
 export function ComponentRenderer({ component, isSelected, updateComponentContent }: ComponentRendererProps) {
-  const [editingField, setEditingField] = useState<string | null>(null)
-  const [tempValue, setTempValue] = useState<string>("")
-  const [isHovered, setIsHovered] = useState(false)
-  const editRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
+  const [isVisible, setIsVisible] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
 
-  const handleStartEdit = (field: string, currentValue: string, e: React.MouseEvent) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: component.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  const handleDuplicate = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setEditingField(field)
-    setTempValue(currentValue || "")
+    // This would be handled by the parent component
   }
 
-  const handleSaveEdit = () => {
-    if (!editingField) return
-    updateComponentContent(component.id, { ...component.content, [editingField]: tempValue })
-    setEditingField(null)
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    // This would be handled by the parent component
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSaveEdit()
-    } else if (e.key === "Escape") {
-      e.preventDefault()
-      setEditingField(null)
-    }
+  const toggleVisibility = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsVisible(!isVisible)
   }
 
-  const renderEditableText = (
-    field: string,
-    value: string,
-    placeholder = "Click to edit",
-    multiline = false,
-    className = "",
-  ) => {
-    if (editingField === field) {
-      const commonProps = {
-        value: tempValue,
-        onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setTempValue(e.target.value),
-        onKeyDown: handleKeyDown,
-        onBlur: handleSaveEdit,
-        className: cn(
-          "w-full bg-background border-2 border-primary rounded-md px-2 py-1 focus:outline-none text-foreground",
-          className,
-        ),
-        autoFocus: true,
-      }
-      return multiline ? (
-        <Textarea ref={editRef as React.RefObject<HTMLTextAreaElement>} {...commonProps} />
-      ) : (
-        <Input ref={editRef as React.RefObject<HTMLInputElement>} type="text" {...commonProps} />
+  const toggleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsEditing(!isEditing)
+  }
+
+  const renderComponent = () => {
+    if (!isVisible) {
+      return (
+        <div className="p-4 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+          <p className="text-sm text-muted-foreground text-center">Component hidden</p>
+        </div>
       )
     }
-    return (
-      <span
-        className={cn(
-          "cursor-pointer hover:bg-primary/10 rounded-md px-1 py-0.5 transition-colors min-h-[1.5rem] inline-block w-full",
-          !value && "text-muted-foreground italic",
-          className,
-        )}
-        onClick={(e) => handleStartEdit(field, value, e)}
-      >
-        {value || placeholder}
-      </span>
-    )
-  }
-
-  const baseClasses = cn(
-    "relative group transition-all duration-200 my-4",
-    isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
-  )
-  const style = applyStyles(component.style)
-
-  const renderComponent = (): JSX.Element => {
-    const content = component.content
 
     switch (component.type) {
       case "heading":
-        const HeadingTag = `h${content.level || 2}` as keyof JSX.IntrinsicElements
+        const HeadingTag = `h${component.content.level || 2}` as keyof JSX.IntrinsicElements
         return (
-          <HeadingTag style={style} className={baseClasses}>
-            {renderEditableText("text", content.text, "Heading")}
+          <HeadingTag
+            className={cn(
+              "font-bold text-foreground",
+              component.content.level === 1 && "text-4xl",
+              component.content.level === 2 && "text-3xl",
+              component.content.level === 3 && "text-2xl",
+              component.content.level === 4 && "text-xl",
+              component.content.level === 5 && "text-lg",
+              component.content.level === 6 && "text-base",
+            )}
+            style={component.style}
+          >
+            {component.content.text || "Heading"}
           </HeadingTag>
         )
 
       case "paragraph":
         return (
-          <p style={style} className={baseClasses}>
-            {renderEditableText("text", content.text, "Paragraph text", true)}
+          <p className="text-base text-foreground leading-relaxed" style={component.style}>
+            {component.content.text || "Paragraph text"}
           </p>
         )
 
       case "image":
-        const imageContent = content as ImageContent
         return (
-          <div style={style} className={baseClasses}>
+          <div className="space-y-2" style={component.style}>
             <img
-              src={imageContent.src || "/placeholder.svg?height=300&width=500"}
-              alt={imageContent.alt || "Image"}
-              className="rounded-lg w-full"
+              src={component.content.src || "/placeholder.svg?height=300&width=500"}
+              alt={component.content.alt || "Image"}
+              className="rounded-lg max-w-full h-auto"
+              style={{
+                width: component.content.width || "100%",
+                height: component.content.height || "auto",
+                objectFit: component.content.objectFit || "cover",
+                borderRadius: component.content.borderRadius || "8px",
+              }}
             />
-            {imageContent.caption && (
-              <p className="text-sm text-muted-foreground text-center mt-2">
-                {renderEditableText("caption", imageContent.caption, "Add caption")}
-              </p>
+            {component.content.caption && (
+              <p className="text-sm text-muted-foreground text-center italic">{component.content.caption}</p>
             )}
           </div>
         )
 
       case "button":
-        const buttonContent = content as ButtonContent
         return (
-          <div className={baseClasses}>
-            <UIButton style={style} variant={buttonContent.variant} size={buttonContent.size}>
-              {buttonContent.text || "Button"}
-            </UIButton>
-          </div>
+          <Button
+            variant={component.content.variant || "default"}
+            size={component.content.size || "default"}
+            style={component.style}
+            className="inline-flex items-center gap-2"
+          >
+            {component.content.icon && <span>{component.content.icon}</span>}
+            {component.content.text || "Button"}
+          </Button>
         )
 
       case "card":
-        const cardContent = content as CardContent
         return (
-          <Card style={style} className={baseClasses}>
-            <CardHeader>
-              {cardContent.imageUrl && (
+          <Card className="w-full" style={component.style}>
+            {component.content.imageUrl && component.content.imagePosition === "top" && (
+              <div className="aspect-video w-full overflow-hidden rounded-t-lg">
                 <img
-                  src={cardContent.imageUrl || "/placeholder.svg"}
-                  alt={cardContent.title}
-                  className="mb-4 rounded-md"
+                  src={component.content.imageUrl || "/placeholder.svg"}
+                  alt={component.content.title || "Card image"}
+                  className="w-full h-full object-cover"
                 />
-              )}
-              <CardTitle>{renderEditableText("title", cardContent.title, "Card Title")}</CardTitle>
-              <CardDescription>
-                {renderEditableText("description", cardContent.description, "Card description", true)}
-              </CardDescription>
+              </div>
+            )}
+            <CardHeader>
+              <CardTitle>{component.content.title || "Card Title"}</CardTitle>
+              {component.content.description && <CardDescription>{component.content.description}</CardDescription>}
             </CardHeader>
-            <CardFooter>
-              {cardContent.buttons?.map((btn, i) => (
-                <UIButton key={i} variant={btn.variant as any}>
-                  {btn.text}
-                </UIButton>
-              ))}
-            </CardFooter>
+            {component.content.buttons && component.content.buttons.length > 0 && (
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {component.content.buttons.map((button: any, index: number) => (
+                    <Button key={index} variant={button.variant || "default"}>
+                      {button.text}
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            )}
           </Card>
         )
 
-      case "table":
-        const { headers = [], rows = [] } = content as TableContent
-        return (
-          <Table style={style} className={baseClasses}>
-            <TableHeader>
-              <TableRow>
-                {headers.map((h, i) => (
-                  <TableHead key={i}>{h}</TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {rows.map((row, i) => (
-                <TableRow key={i}>
-                  {row.map((cell, j) => (
-                    <TableCell key={j}>{cell}</TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )
-
       case "grid":
-        const { columns = 3, gap = "1rem", items = [] } = content as GridContent
         return (
           <div
-            style={{ ...style, display: "grid", gridTemplateColumns: `repeat(${columns}, 1fr)`, gap }}
-            className={baseClasses}
+            className="grid gap-4"
+            style={{
+              gridTemplateColumns: `repeat(${component.content.columns || 3}, 1fr)`,
+              gap: component.content.gap || "1.5rem",
+              ...component.style,
+            }}
           >
-            {items.map((item) => (
-              <Card key={item.id}>
+            {(component.content.items || []).map((item: any, index: number) => (
+              <Card key={index}>
                 <CardHeader>
-                  <CardTitle>{item.content.title}</CardTitle>
+                  <CardTitle className="text-lg">{item.content?.title || `Item ${index + 1}`}</CardTitle>
+                  {item.content?.description && <CardDescription>{item.content.description}</CardDescription>}
                 </CardHeader>
-                <CardContent>
-                  <p>{item.content.description}</p>
-                </CardContent>
               </Card>
             ))}
           </div>
         )
 
+      case "banner":
+        return (
+          <div
+            className="relative overflow-hidden rounded-xl p-8 text-center"
+            style={{
+              background: component.content.backgroundColor || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              color: component.content.textColor || "white",
+              backgroundImage: component.content.backgroundImage
+                ? `url(${component.content.backgroundImage})`
+                : undefined,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              ...component.style,
+            }}
+          >
+            <div className="relative z-10">
+              {component.content.subtitle && <p className="text-sm opacity-90 mb-2">{component.content.subtitle}</p>}
+              <h2 className="text-2xl font-bold mb-4">{component.content.title || "Banner Title"}</h2>
+              {component.content.description && (
+                <p className="text-lg opacity-90 mb-6">{component.content.description}</p>
+              )}
+              {component.content.buttons && component.content.buttons.length > 0 && (
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {component.content.buttons.map((button: any, index: number) => (
+                    <Button key={index} variant={button.variant || "secondary"}>
+                      {button.text}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )
+
+      case "hero":
+        return (
+          <div
+            className="relative overflow-hidden rounded-xl py-20 px-8"
+            style={{
+              background: component.content.backgroundColor || "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              backgroundImage: component.content.backgroundImage
+                ? `url(${component.content.backgroundImage})`
+                : undefined,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              textAlign: component.content.textAlign || "center",
+              ...component.style,
+            }}
+          >
+            <div className="relative z-10 max-w-4xl mx-auto text-white">
+              {component.content.subtitle && <p className="text-lg opacity-90 mb-4">{component.content.subtitle}</p>}
+              <h1 className="text-5xl font-bold mb-6">{component.content.title || "Hero Title"}</h1>
+              {component.content.description && (
+                <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">{component.content.description}</p>
+              )}
+              {component.content.buttons && component.content.buttons.length > 0 && (
+                <div className="flex flex-wrap gap-4 justify-center">
+                  {component.content.buttons.map((button: any, index: number) => (
+                    <Button key={index} variant={button.variant || "secondary"} size="lg">
+                      {button.text}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )
+
+      case "table":
+        return (
+          <div className="rounded-md border" style={component.style}>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {(component.content.headers || []).map((header: string, index: number) => (
+                    <TableHead key={index}>{header}</TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {(component.content.rows || []).map((row: string[], rowIndex: number) => (
+                  <TableRow key={rowIndex}>
+                    {row.map((cell: string, cellIndex: number) => (
+                      <TableCell key={cellIndex}>{cell}</TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )
+
+      case "divider":
+        return (
+          <Separator
+            className="my-4"
+            style={{
+              backgroundColor: component.content.color || "#e5e7eb",
+              height: component.content.thickness || "1px",
+              margin: component.content.margin || "2rem 0",
+              ...component.style,
+            }}
+          />
+        )
+
       case "list":
         return (
-          <ul style={style} className={cn(baseClasses, "list-disc list-inside space-y-1")}>
-            {(content as ListContent).items.map((item, i) => (
-              <li key={i}>{item}</li>
+          <ul className="list-disc list-inside space-y-2" style={component.style}>
+            {(component.content.items || []).map((item: string, index: number) => (
+              <li key={index} className="text-foreground">
+                {item}
+              </li>
             ))}
           </ul>
         )
 
       case "orderedList":
         return (
-          <ol style={style} className={cn(baseClasses, "list-decimal list-inside space-y-1")}>
-            {(content as ListContent).items.map((item, i) => (
-              <li key={i}>{item}</li>
+          <ol
+            className="list-decimal list-inside space-y-2"
+            style={{ ...component.style }}
+            start={component.content.start || 1}
+          >
+            {(component.content.items || []).map((item: string, index: number) => (
+              <li key={index} className="text-foreground">
+                {item}
+              </li>
             ))}
           </ol>
         )
 
       case "taskList":
         return (
-          <div style={style} className={cn(baseClasses, "space-y-2")}>
-            {(content as TaskListContent).items.map((item, i) => (
-              <div key={i} className="flex items-center gap-2">
+          <div className="space-y-3" style={component.style}>
+            {(component.content.items || []).map((item: any, index: number) => (
+              <div key={index} className="flex items-center space-x-3">
                 <Checkbox checked={item.checked} />
-                <span>{item.text}</span>
+                <span className={cn("text-foreground", item.checked && "line-through text-muted-foreground")}>
+                  {item.text}
+                </span>
               </div>
             ))}
           </div>
         )
 
       case "blockquote":
-        const bqContent = content as BlockquoteContent
         return (
-          <blockquote style={style} className={cn(baseClasses, "border-l-4 pl-4 italic")}>
-            <p>"{bqContent.text}"</p>
-            {bqContent.author && <footer className="mt-2 text-sm not-italic">- {bqContent.author}</footer>}
+          <blockquote className="border-l-4 border-primary pl-6 py-2 italic" style={component.style}>
+            <p className="text-lg text-foreground mb-2">"{component.content.text}"</p>
+            {component.content.author && (
+              <cite className="text-sm text-muted-foreground">— {component.content.author}</cite>
+            )}
           </blockquote>
         )
 
       case "alert":
-        const alertContent = content as AlertContent
-        const Icon = alertContent.type === "warning" ? AlertTriangle : Info
+        const alertIcons = {
+          info: Info,
+          warning: AlertTriangle,
+          error: XCircle,
+          success: CheckCircle,
+        }
+        const AlertIcon = alertIcons[component.content.type as keyof typeof alertIcons] || Info
+
         return (
-          <Alert
-            style={style}
-            className={baseClasses}
-            variant={alertContent.type === "warning" ? "destructive" : "default"}
-          >
-            <Icon className="h-4 w-4" />
-            <AlertTitle>{renderEditableText("title", alertContent.title, "Alert Title")}</AlertTitle>
-            <AlertDescription>{renderEditableText("text", alertContent.text, "Alert message")}</AlertDescription>
+          <Alert style={component.style}>
+            <AlertIcon className="h-4 w-4" />
+            {component.content.title && <AlertTitle>{component.content.title}</AlertTitle>}
+            <AlertDescription>{component.content.text}</AlertDescription>
           </Alert>
         )
 
       case "code":
         return (
-          <pre style={style} className={cn(baseClasses, "bg-muted p-4 rounded-md overflow-x-auto")}>
-            <code className={`language-${(content as CodeContent).language}`}>{(content as CodeContent).code}</code>
-          </pre>
+          <div className="relative" style={component.style}>
+            <pre className="bg-muted p-4 rounded-lg overflow-x-auto">
+              <code className="text-sm font-mono">{component.content.code || "// Your code here"}</code>
+            </pre>
+            {component.content.language && (
+              <Badge variant="secondary" className="absolute top-2 right-2 text-xs">
+                {component.content.language}
+              </Badge>
+            )}
+          </div>
         )
-
-      case "divider":
-        return <hr style={style} className={baseClasses} />
 
       case "spacer":
-        return <div style={{ ...style, height: (content as SpacerContent).height }} className={baseClasses} />
-
-      case "columns":
-        const colContent = content as ColumnsContent
-        return (
-          <div style={style} className={cn(baseClasses, "flex gap-4")}>
-            <div className="flex-1">{colContent.column1Text}</div>
-            <div className="flex-1">{colContent.column2Text}</div>
-          </div>
-        )
-
-      case "htmlBlock":
         return (
           <div
-            style={style}
-            className={baseClasses}
-            dangerouslySetInnerHTML={{ __html: (content as HtmlBlockContent).htmlContent }}
-          />
+            className="w-full bg-muted/20 border-2 border-dashed border-muted-foreground/30 rounded flex items-center justify-center"
+            style={{
+              height: component.content.height || "40px",
+              ...component.style,
+            }}
+          >
+            <span className="text-xs text-muted-foreground">Spacer ({component.content.height || "40px"})</span>
+          </div>
         )
 
-      case "hero":
-        const heroContent = content as HeroContent
+      case "columns":
         return (
-          <div style={style} className={cn(baseClasses, "text-center p-16 rounded-lg")}>
-            <h1 className="text-5xl font-bold">{heroContent.title}</h1>
-            <p className="text-xl mt-4">{heroContent.subtitle}</p>
-            <p className="mt-2">{heroContent.description}</p>
-            <div className="mt-8 flex justify-center gap-4">
-              {heroContent.buttons?.map((btn, i) => (
-                <UIButton key={i} variant={btn.variant} size="lg">
-                  {btn.text}
-                </UIButton>
-              ))}
+          <div
+            className="grid gap-4"
+            style={{
+              gridTemplateColumns:
+                component.content.columnRatio === "1:2"
+                  ? "1fr 2fr"
+                  : component.content.columnRatio === "2:1"
+                    ? "2fr 1fr"
+                    : "1fr 1fr",
+              gap: component.content.gap || "2rem",
+              ...component.style,
+            }}
+          >
+            <div className="space-y-4">
+              <p className="text-foreground">{component.content.column1Text || "Column 1 content"}</p>
+            </div>
+            <div className="space-y-4">
+              <p className="text-foreground">{component.content.column2Text || "Column 2 content"}</p>
             </div>
           </div>
         )
 
-      case "banner":
-        const bannerContent = content as BannerContent
+      case "mermaid":
         return (
-          <div style={style} className={cn(baseClasses, "p-8 rounded-lg flex items-center justify-between")}>
-            <div>
-              <h2 className="text-2xl font-bold">{bannerContent.title}</h2>
-              <p>{bannerContent.description}</p>
+          <div className="border rounded-lg p-4 bg-muted/50" style={component.style}>
+            <div className="flex items-center gap-2 mb-3">
+              <Code className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Mermaid Diagram</span>
             </div>
-            <div>
-              {bannerContent.buttons?.map((btn, i) => (
-                <UIButton key={i} variant={btn.variant}>
-                  {btn.text}
-                </UIButton>
-              ))}
+            <pre className="text-sm bg-background p-3 rounded border">
+              <code>{component.content.code || "graph TD;\n    A[Start] --> B[Process];"}</code>
+            </pre>
+          </div>
+        )
+
+      case "chart":
+        return (
+          <div className="border rounded-lg p-6 bg-card" style={component.style}>
+            <div className="flex items-center gap-2 mb-4">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold">Chart Component</h3>
+            </div>
+            <div className="h-64 bg-muted/50 rounded flex items-center justify-center">
+              <p className="text-muted-foreground">Chart visualization would appear here</p>
             </div>
           </div>
         )
 
       case "gallery":
         return (
-          <div style={style} className={cn(baseClasses, "grid grid-cols-3 gap-4")}>
-            {(content as GalleryContent).images?.map((img, i) => (
-              <img
-                key={i}
-                src={img.src || "/placeholder.svg"}
-                alt={img.alt}
-                className="w-full h-40 object-cover rounded-md"
-              />
-            ))}
+          <div className="space-y-4" style={component.style}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {(component.content.images || []).map((image: any, index: number) => (
+                <div key={index} className="space-y-2">
+                  <img
+                    src={image.src || "/placeholder.svg?height=300&width=400"}
+                    alt={image.alt || `Gallery image ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  {image.caption && <p className="text-sm text-muted-foreground text-center">{image.caption}</p>}
+                </div>
+              ))}
+            </div>
           </div>
         )
 
       case "testimonial":
-        const testimonial = content as TestimonialContent
         return (
-          <Card style={style} className={baseClasses}>
+          <Card className="max-w-2xl mx-auto" style={component.style}>
             <CardContent className="pt-6">
-              <blockquote className="border-none p-0">
-                <p>"{testimonial.quote}"</p>
-                <footer className="mt-4 flex items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src={testimonial.avatarUrl || "/placeholder.svg"} alt={testimonial.author} />
-                    <AvatarFallback>{testimonial.author.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">{testimonial.author}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+              <div className="flex items-start gap-4">
+                <img
+                  src={component.content.avatarUrl || "/placeholder.svg?height=60&width=60"}
+                  alt={component.content.author || "Author"}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-1 mb-2">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    ))}
                   </div>
-                </footer>
-              </blockquote>
+                  <blockquote className="text-lg italic mb-4">
+                    "{component.content.quote || "This is a testimonial quote."}"
+                  </blockquote>
+                  <div>
+                    <p className="font-semibold">{component.content.author || "Author Name"}</p>
+                    <p className="text-sm text-muted-foreground">{component.content.title || "Author Title"}</p>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         )
 
       case "pricing":
         return (
-          <div style={style} className={cn(baseClasses, "grid md:grid-cols-3 gap-6")}>
-            {(content as PricingContent).plans?.map((plan, i) => (
-              <Card key={i} className={cn("flex flex-col", plan.popular ? "border-primary" : "")}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={component.style}>
+            {(component.content.plans || []).map((plan: any, index: number) => (
+              <Card key={index} className={cn("relative", plan.popular && "border-primary shadow-lg")}>
                 {plan.popular && (
-                  <div className="text-center py-1 bg-primary text-primary-foreground text-sm font-semibold rounded-t-lg">
-                    Most Popular
-                  </div>
+                  <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2">Most Popular</Badge>
                 )}
                 <CardHeader className="text-center">
-                  <CardTitle>{plan.name}</CardTitle>
-                  <p className="text-4xl font-bold">{plan.price}</p>
-                  <CardDescription>{plan.period}</CardDescription>
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <div className="text-3xl font-bold">
+                    {plan.price}
+                    <span className="text-sm font-normal text-muted-foreground">{plan.period}</span>
+                  </div>
                 </CardHeader>
-                <CardContent className="flex-grow">
-                  <ul className="space-y-2">
-                    {plan.features.map((feat, j) => (
-                      <li key={j} className="flex items-center">
-                        <Check className="w-4 h-4 mr-2 text-green-500" />
-                        {feat}
+                <CardContent>
+                  <ul className="space-y-2 mb-6">
+                    {(plan.features || []).map((feature: string, featureIndex: number) => (
+                      <li key={featureIndex} className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                        <span className="text-sm">{feature}</span>
                       </li>
                     ))}
                   </ul>
+                  <Button className="w-full" variant={plan.popular ? "default" : "outline"}>
+                    {plan.buttonText || "Get Started"}
+                  </Button>
                 </CardContent>
-                <CardFooter>
-                  <UIButton className="w-full" variant={plan.popular ? "default" : "outline"}>
-                    {plan.buttonText}
-                  </UIButton>
-                </CardFooter>
               </Card>
             ))}
           </div>
         )
 
-      case "chart":
-        const chartContent = content as ChartContent
+      case "htmlBlock":
         return (
-          <div style={style} className={baseClasses}>
-            <SimpleChart
-              data={chartContent}
-              type={chartContent.type}
-              title={chartContent.options?.plugins?.title?.text}
+          <div className="relative" style={component.style}>
+            <div className="flex items-center gap-2 mb-3">
+              <FileCode className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">
+                {component.content.name || "HTML Block"}
+              </span>
+              {component.content.category === "tailgrids" && (
+                <Badge variant="secondary" className="text-xs">
+                  TailGrids
+                </Badge>
+              )}
+            </div>
+            <div
+              className="prose prose-sm max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: component.content.htmlContent || "<p>No HTML content</p>",
+              }}
             />
           </div>
         )
 
-      case "mermaid":
-        return (
-          <pre className={cn(baseClasses, "bg-muted p-4 rounded-md")}>
-            <code>{content.code}</code>
-          </pre>
-        )
-
       default:
         return (
-          <div className={cn(baseClasses, "p-4 border-2 border-dashed rounded-lg text-center text-red-500")}>
-            Unsupported component type: {component.type}
+          <div className="p-4 border-2 border-dashed border-muted-foreground/30 rounded-lg bg-muted/20">
+            <p className="text-sm text-muted-foreground text-center">Unknown component type: {component.type}</p>
           </div>
         )
     }
   }
 
   return (
-    <div className="relative" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-      {renderComponent()}
-      {(isHovered || isSelected) && (
-        <div className="absolute -top-3 -right-3 z-10">
-          <button className="bg-primary text-primary-foreground p-1.5 rounded-full shadow-lg hover:bg-primary/80">
-            <Edit3 className="w-3 h-3" />
-          </button>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "group relative transition-all duration-200",
+        isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+        isDragging && "opacity-50 scale-105 rotate-1 shadow-2xl z-50",
+      )}
+    >
+      {/* Component Controls */}
+      {isSelected && (
+        <div className="absolute -top-10 left-0 flex items-center gap-1 bg-background border border-border rounded-md shadow-lg px-2 py-1 z-10">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 cursor-grab active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-3 w-3" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={toggleEdit}>
+            <Edit3 className="h-3 w-3" />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={toggleVisibility}>
+            {isVisible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+          </Button>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={handleDuplicate}>
+            <Copy className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+            onClick={handleDelete}
+          >
+            <Trash2 className="h-3 w-3" />
+          </Button>
         </div>
       )}
+
+      {/* Component Content */}
+      <div className={cn("transition-all duration-200", !isVisible && "opacity-50")}>{renderComponent()}</div>
     </div>
   )
 }

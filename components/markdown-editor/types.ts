@@ -2,6 +2,7 @@ export interface ComponentStyle {
   // Text styles
   color?: string
   backgroundColor?: string
+  textColor?: string
   fontSize?: string
   fontWeight?: string | number
   fontStyle?: "normal" | "italic" | "oblique"
@@ -18,6 +19,7 @@ export interface ComponentStyle {
   justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly"
   alignItems?: "flex-start" | "flex-end" | "center" | "stretch" | "baseline"
   gap?: string
+  maxWidth?: string
 
   // Grid styles
   gridTemplateColumns?: string
@@ -65,6 +67,7 @@ export interface ComponentStyle {
 
   // Custom CSS class
   className?: string
+  [key: string]: any
 }
 
 export interface HeadingContent {
@@ -154,6 +157,9 @@ export interface ChartContent {
 export interface HtmlBlockContent {
   htmlContent: string
   name: string
+  category: string
+  editable: boolean
+  responsive: boolean
 }
 
 export interface ListContent {
@@ -253,42 +259,36 @@ export interface MarkdownComponent {
     | "heading"
     | "paragraph"
     | "image"
-    | "code"
     | "button"
     | "card"
     | "grid"
+    | "banner"
+    | "hero"
+    | "table"
     | "divider"
     | "list"
     | "orderedList"
     | "taskList"
     | "blockquote"
     | "alert"
+    | "code"
     | "spacer"
     | "columns"
-    | "table"
-    | "chart"
-    | "infographic"
     | "mermaid"
-    | "htmlBlock"
-    | "banner"
-    | "hero"
+    | "chart"
     | "gallery"
     | "testimonial"
     | "pricing"
-    | "contact"
-    | "navigation"
-    | "footer"
+    | "htmlBlock"
   content: any
-  style?: ComponentStyle
+  style: ComponentStyle
   order: number
-  locked?: boolean
-  hidden?: boolean
 }
 
 export interface EditorState {
   components: MarkdownComponent[]
   selectedComponent: string | null
-  previewMode: "edit" | "preview" | "mobile" | "tablet"
+  previewMode: "edit" | "preview"
   isDirty: boolean
   fileName?: string
   filePath?: string
@@ -296,7 +296,6 @@ export interface EditorState {
     past: EditorState[]
     future: EditorState[]
   }
-  clipboard?: MarkdownComponent
 }
 
 // Action types for useReducer
@@ -307,15 +306,12 @@ export type EditorAction =
       returnId?: (id: string) => void
     }
   | { type: "DELETE_COMPONENT"; payload: { id: string } }
-  | { type: "UPDATE_COMPONENT_CONTENT"; payload: { id: string; contentUpdates: any } }
+  | { type: "UPDATE_COMPONENT_CONTENT"; payload: { id: string; contentUpdates: Partial<any> } }
   | { type: "UPDATE_COMPONENT_STYLE"; payload: { id: string; styleUpdates: Partial<ComponentStyle> } }
   | { type: "REORDER_COMPONENTS"; payload: { components: MarkdownComponent[] } }
   | { type: "SELECT_COMPONENT"; payload: { id: string | null } }
-  | { type: "SET_PREVIEW_MODE"; payload: { mode: EditorState["previewMode"] } }
-  | {
-      type: "LOAD_COMPONENTS"
-      payload: { components: MarkdownComponent[]; fileName: string; filePath: string }
-    }
+  | { type: "SET_PREVIEW_MODE"; payload: { mode: "edit" | "preview" } }
+  | { type: "LOAD_COMPONENTS"; payload: { components: MarkdownComponent[]; fileName?: string; filePath?: string } }
   | { type: "DUPLICATE_COMPONENT"; payload: { id: string } }
   | { type: "UNDO" }
   | { type: "REDO" }

@@ -11,7 +11,7 @@
   "dependencies": {
     "@dnd-kit/core": "latest",
     "@dnd-kit/sortable": "latest",
-    "@dnd-kit/utilities": "^3.2.2",
+    "@dnd-kit/utilities": "latest",
     "@emotion/is-prop-valid": "latest",
     "@octokit/rest": "latest",
     "@radix-ui/react-accordion": "latest",

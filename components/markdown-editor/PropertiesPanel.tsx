@@ -1,96 +1,123 @@
 "use client"
-import type React from "react"
 
+import { useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Settings, Palette, Layout, Type, Plus, Trash2 } from "lucide-react"
 import { useEditor } from "./EditorContext"
+import { Settings, Palette, Type, ChevronDown, Trash2, Copy, Code, Sliders } from "lucide-react"
 
 export function PropertiesPanel() {
-  const { state, updateComponentContent, updateComponentStyle } = useEditor()
+  const { state, updateComponentContent, updateComponentStyle, deleteComponent, duplicateComponent } = useEditor()
+  const [expandedSections, setExpandedSections] = useState<string[]>(["content", "style"])
 
   const selectedComponent = state.components.find((c) => c.id === state.selectedComponent)
 
-  const updateContent = (newContent: any) => {
-    if (!selectedComponent) return
-    updateComponentContent(selectedComponent.id, newContent)
+  const toggleSection = (section: string) => {
+    setExpandedSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]))
   }
 
-  const updateStyle = (field: string, value: any) => {
-    if (!selectedComponent) return
-    updateComponentStyle(selectedComponent.id, { [field]: value })
+  if (!selectedComponent) {
+    return (
+      <div className="h-full flex flex-col bg-card">
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-muted">
+              <Settings className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">Properties</h2>
+              <p className="text-sm text-muted-foreground">Select a component to edit</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+              <Settings className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No Component Selected</h3>
+            <p className="text-muted-foreground max-w-sm">
+              Click on a component in the canvas to view and edit its properties.
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const handleContentUpdate = (updates: Partial<any>) => {
+    updateComponentContent(selectedComponent.id, updates)
+  }
+
+  const handleStyleUpdate = (updates: Partial<any>) => {
+    updateComponentStyle(selectedComponent.id, updates)
+  }
+
+  const handleDelete = () => {
+    deleteComponent(selectedComponent.id)
+  }
+
+  const handleDuplicate = () => {
+    duplicateComponent(selectedComponent.id)
   }
 
   const renderContentEditor = () => {
-    if (!selectedComponent) return null
-
-    const content = selectedComponent.content
-
-    const handleFieldChange = (field: string, value: any) => {
-      updateContent({ ...content, [field]: value })
-    }
-
-    const renderArrayEditor = (
-      propName: string,
-      itemRenderer: (item: any, index: number) => JSX.Element,
-      newItem: any,
-    ) => {
-      const items = content[propName] || []
-      const handleAddItem = () => {
-        handleFieldChange(propName, [...items, newItem])
-      }
-      return (
-        <div>
-          <Label className="capitalize mb-2 block font-medium">{propName}</Label>
-          <div className="space-y-2 border-l-2 pl-4 ml-1">
-            {items.map(itemRenderer)}
-            <Button variant="outline" size="sm" className="mt-2 bg-transparent" onClick={handleAddItem}>
-              <Plus className="w-4 h-4 mr-2" /> Add {propName.replace(/s$/, "")}
-            </Button>
-          </div>
-        </div>
-      )
-    }
-
     switch (selectedComponent.type) {
       case "heading":
         return (
           <div className="space-y-4">
             <div>
-              <Label>Text</Label>
-              <Input value={content.text || ""} onChange={(e) => handleFieldChange("text", e.target.value)} />
+              <Label htmlFor="heading-text">Text</Label>
+              <Input
+                id="heading-text"
+                value={selectedComponent.content.text || ""}
+                onChange={(e) => handleContentUpdate({ text: e.target.value })}
+                placeholder="Enter heading text"
+              />
             </div>
             <div>
-              <Label>Level</Label>
+              <Label htmlFor="heading-level">Level</Label>
               <Select
-                value={content.level?.toString() || "2"}
-                onValueChange={(v) => handleFieldChange("level", Number(v))}
+                value={selectedComponent.content.level?.toString() || "2"}
+                onValueChange={(value) => handleContentUpdate({ level: Number.parseInt(value) })}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 3, 4, 5, 6].map((l) => (
-                    <SelectItem key={l} value={String(l)}>
-                      H{l}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="1">H1</SelectItem>
+                  <SelectItem value="2">H2</SelectItem>
+                  <SelectItem value="3">H3</SelectItem>
+                  <SelectItem value="4">H4</SelectItem>
+                  <SelectItem value="5">H5</SelectItem>
+                  <SelectItem value="6">H6</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
         )
+
       case "paragraph":
         return (
           <div>
-            <Label>Text</Label>
-            <Textarea value={content.text || ""} onChange={(e) => handleFieldChange("text", e.target.value)} rows={5} />
+            <Label htmlFor="paragraph-text">Text</Label>
+            <Textarea
+              id="paragraph-text"
+              value={selectedComponent.content.text || ""}
+              onChange={(e) => handleContentUpdate({ text: e.target.value })}
+              placeholder="Enter paragraph text"
+              rows={4}
+            />
           </div>
         )
 
@@ -98,326 +125,252 @@ export function PropertiesPanel() {
         return (
           <div className="space-y-4">
             <div>
-              <Label>Image URL</Label>
-              <Input value={content.src || ""} onChange={(e) => handleFieldChange("src", e.target.value)} />
+              <Label htmlFor="image-src">Image URL</Label>
+              <Input
+                id="image-src"
+                value={selectedComponent.content.src || ""}
+                onChange={(e) => handleContentUpdate({ src: e.target.value })}
+                placeholder="https://example.com/image.jpg"
+              />
             </div>
             <div>
-              <Label>Alt Text</Label>
-              <Input value={content.alt || ""} onChange={(e) => handleFieldChange("alt", e.target.value)} />
+              <Label htmlFor="image-alt">Alt Text</Label>
+              <Input
+                id="image-alt"
+                value={selectedComponent.content.alt || ""}
+                onChange={(e) => handleContentUpdate({ alt: e.target.value })}
+                placeholder="Describe the image"
+              />
             </div>
             <div>
-              <Label>Caption</Label>
-              <Input value={content.caption || ""} onChange={(e) => handleFieldChange("caption", e.target.value)} />
+              <Label htmlFor="image-caption">Caption</Label>
+              <Input
+                id="image-caption"
+                value={selectedComponent.content.caption || ""}
+                onChange={(e) => handleContentUpdate({ caption: e.target.value })}
+                placeholder="Optional caption"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="image-width">Width</Label>
+                <Input
+                  id="image-width"
+                  value={selectedComponent.content.width || ""}
+                  onChange={(e) => handleContentUpdate({ width: e.target.value })}
+                  placeholder="100%"
+                />
+              </div>
+              <div>
+                <Label htmlFor="image-height">Height</Label>
+                <Input
+                  id="image-height"
+                  value={selectedComponent.content.height || ""}
+                  onChange={(e) => handleContentUpdate({ height: e.target.value })}
+                  placeholder="auto"
+                />
+              </div>
             </div>
           </div>
         )
 
-      case "table":
+      case "button":
         return (
           <div className="space-y-4">
-            {renderArrayEditor(
-              "headers",
-              (header, index) => {
-                const handleHeaderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                  const newHeaders = [...content.headers]
-                  newHeaders[index] = e.target.value
-                  handleFieldChange("headers", newHeaders)
-                }
-                const handleRemoveHeader = () => {
-                  const newHeaders = content.headers.filter((_: any, i: number) => i !== index)
-                  const newRows = content.rows.map((row: string[]) => row.filter((_: any, i: number) => i !== index))
-                  updateContent({ ...content, headers: newHeaders, rows: newRows })
-                }
-                return (
-                  <div key={index} className="flex items-center gap-2">
-                    <Input value={header} onChange={handleHeaderChange} />
-                    <Button variant="ghost" size="icon" onClick={handleRemoveHeader}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )
-              },
-              "New Header",
-            )}
-            <div className="mt-4">
-              <Label className="font-medium">Rows</Label>
-              <div className="space-y-2 border-l-2 pl-4 ml-1">
-                {content.rows?.map((row: string[], rowIndex: number) => (
-                  <div key={rowIndex} className="p-2 border rounded-md">
-                    <div className="flex justify-between items-center mb-2">
-                      <Label>Row {rowIndex + 1}</Label>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() =>
-                          handleFieldChange(
-                            "rows",
-                            content.rows.filter((_: any, i: number) => i !== rowIndex),
-                          )
-                        }
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="space-y-2">
-                      {row.map((cell, cellIndex) => (
-                        <Input
-                          key={cellIndex}
-                          value={cell}
-                          onChange={(e) => {
-                            const newRows = [...content.rows]
-                            newRows[rowIndex][cellIndex] = e.target.value
-                            handleFieldChange("rows", newRows)
-                          }}
-                          placeholder={`Column ${cellIndex + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 bg-transparent"
-                  onClick={() =>
-                    handleFieldChange("rows", [
-                      ...(content.rows || []),
-                      new Array(content.headers?.length || 1).fill(""),
-                    ])
-                  }
+            <div>
+              <Label htmlFor="button-text">Text</Label>
+              <Input
+                id="button-text"
+                value={selectedComponent.content.text || ""}
+                onChange={(e) => handleContentUpdate({ text: e.target.value })}
+                placeholder="Button text"
+              />
+            </div>
+            <div>
+              <Label htmlFor="button-link">Link</Label>
+              <Input
+                id="button-link"
+                value={selectedComponent.content.link || ""}
+                onChange={(e) => handleContentUpdate({ link: e.target.value })}
+                placeholder="https://example.com"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="button-variant">Variant</Label>
+                <Select
+                  value={selectedComponent.content.variant || "default"}
+                  onValueChange={(value) => handleContentUpdate({ variant: value })}
                 >
-                  <Plus className="w-4 h-4 mr-2" /> Add Row
-                </Button>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Default</SelectItem>
+                    <SelectItem value="destructive">Destructive</SelectItem>
+                    <SelectItem value="outline">Outline</SelectItem>
+                    <SelectItem value="secondary">Secondary</SelectItem>
+                    <SelectItem value="ghost">Ghost</SelectItem>
+                    <SelectItem value="link">Link</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="button-size">Size</Label>
+                <Select
+                  value={selectedComponent.content.size || "default"}
+                  onValueChange={(value) => handleContentUpdate({ size: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Default</SelectItem>
+                    <SelectItem value="sm">Small</SelectItem>
+                    <SelectItem value="lg">Large</SelectItem>
+                    <SelectItem value="icon">Icon</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
         )
 
-      case "list":
-      case "orderedList":
-        return renderArrayEditor(
-          "items",
-          (item, index) => {
-            const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-              const newItems = [...content.items]
-              newItems[index] = e.target.value
-              handleFieldChange("items", newItems)
-            }
-            const handleRemoveItem = () => {
-              handleFieldChange(
-                "items",
-                content.items.filter((_: any, i: number) => i !== index),
-              )
-            }
-            return (
-              <div key={index} className="flex items-center gap-2">
-                <Input value={item} onChange={handleItemChange} />
-                <Button variant="ghost" size="icon" onClick={handleRemoveItem}>
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+      case "htmlBlock":
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="text-sm font-medium">HTML Content</Label>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {selectedComponent.content.category === "tailgrids" ? "TailGrids Component" : "Custom HTML Block"}
+                </p>
               </div>
-            )
-          },
-          "New Item",
-        )
+              {selectedComponent.content.category === "tailgrids" && (
+                <Badge variant="secondary" className="text-xs">
+                  TailGrids
+                </Badge>
+              )}
+            </div>
 
-      case "pricing":
-        return renderArrayEditor(
-          "plans",
-          (plan, index) => (
-            <Collapsible key={index} className="border p-2 rounded-md bg-muted/50">
-              <CollapsibleTrigger className="flex justify-between w-full font-semibold text-left">
-                <span>{plan.name || "New Plan"}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleFieldChange(
-                      "plans",
-                      content.plans.filter((_: any, i: number) => i !== index),
-                    )
-                  }}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 mt-2">
-                <div>
-                  <Label>Name</Label>
-                  <Input
-                    value={plan.name}
-                    onChange={(e) => {
-                      const newPlans = [...content.plans]
-                      newPlans[index].name = e.target.value
-                      handleFieldChange("plans", newPlans)
-                    }}
-                  />
-                </div>
-                <div>
-                  <Label>Price</Label>
-                  <Input
-                    value={plan.price}
-                    onChange={(e) => {
-                      const newPlans = [...content.plans]
-                      newPlans[index].price = e.target.value
-                      handleFieldChange("plans", newPlans)
-                    }}
-                  />
-                </div>
-                {renderArrayEditor(
-                  `plans[${index}].features`,
-                  (feature, fIndex) => {
-                    const handleFeatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                      const newPlans = [...content.plans]
-                      newPlans[index].features[fIndex] = e.target.value
-                      handleFieldChange("plans", newPlans)
-                    }
-                    const handleRemoveFeature = () => {
-                      const newPlans = [...content.plans]
-                      newPlans[index].features = newPlans[index].features.filter((_: any, i: number) => i !== fIndex)
-                      handleFieldChange("plans", newPlans)
-                    }
-                    return (
-                      <div key={fIndex} className="flex items-center gap-2">
-                        <Input value={feature} onChange={handleFeatureChange} />
-                        <Button variant="ghost" size="icon" onClick={handleRemoveFeature}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    )
-                  },
-                  "New Feature",
-                )}
-              </CollapsibleContent>
-            </Collapsible>
-          ),
-          { name: "New Plan", price: "$0", period: "/ month", features: [], buttonText: "Sign Up" },
+            <div>
+              <Label htmlFor="html-name">Name</Label>
+              <Input
+                id="html-name"
+                value={selectedComponent.content.name || ""}
+                onChange={(e) => handleContentUpdate({ name: e.target.value })}
+                placeholder="Component name"
+              />
+            </div>
+
+            {selectedComponent.content.editable && (
+              <div>
+                <Label htmlFor="html-content">HTML Content</Label>
+                <Textarea
+                  id="html-content"
+                  value={selectedComponent.content.htmlContent || ""}
+                  onChange={(e) => handleContentUpdate({ htmlContent: e.target.value })}
+                  placeholder="Enter HTML content"
+                  rows={8}
+                  className="font-mono text-sm"
+                />
+              </div>
+            )}
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="html-responsive"
+                checked={selectedComponent.content.responsive || false}
+                onCheckedChange={(checked) => handleContentUpdate({ responsive: checked })}
+              />
+              <Label htmlFor="html-responsive" className="text-sm">
+                Responsive
+              </Label>
+            </div>
+          </div>
         )
 
       default:
         return (
-          <div className="text-center py-8 text-muted-foreground">
-            <Settings className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p>No specific properties available for this component type.</p>
-            <Textarea
-              readOnly
-              value={JSON.stringify(content, null, 2)}
-              className="text-xs mt-2 text-left bg-muted p-2 rounded-md h-48"
-            />
+          <div className="text-center py-8">
+            <Code className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Content editor for {selectedComponent.type} coming soon</p>
           </div>
         )
     }
   }
 
   const renderStyleEditor = () => {
-    if (!selectedComponent) return null
-    const style = selectedComponent.style || {}
     return (
       <div className="space-y-4">
-        <Collapsible defaultOpen>
-          <CollapsibleTrigger className="font-semibold flex items-center gap-2 w-full text-left">
-            <Layout className="w-4 h-4" /> Layout
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2 mt-2 pl-4 ml-1 border-l-2">
-            <div>
-              <Label>Width</Label>
-              <Input
-                value={style.width || ""}
-                onChange={(e) => updateStyle("width", e.target.value)}
-                placeholder="e.g., 100%, 500px"
-              />
-            </div>
-            <div>
-              <Label>Height</Label>
-              <Input
-                value={style.height || ""}
-                onChange={(e) => updateStyle("height", e.target.value)}
-                placeholder="e.g., auto, 300px"
-              />
-            </div>
-            <div>
-              <Label>Padding</Label>
-              <Input
-                value={style.padding || ""}
-                onChange={(e) => updateStyle("padding", e.target.value)}
-                placeholder="e.g., 1rem, 16px"
-              />
-            </div>
-            <div>
-              <Label>Margin</Label>
-              <Input
-                value={style.margin || ""}
-                onChange={(e) => updateStyle("margin", e.target.value)}
-                placeholder="e.g., 1rem, 16px 0"
-              />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-        <Collapsible defaultOpen>
-          <CollapsibleTrigger className="font-semibold flex items-center gap-2 w-full text-left">
-            <Type className="w-4 h-4" /> Typography
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2 mt-2 pl-4 ml-1 border-l-2">
-            <div>
-              <Label>Font Size</Label>
-              <Input
-                value={style.fontSize || ""}
-                onChange={(e) => updateStyle("fontSize", e.target.value)}
-                placeholder="e.g., 16px, 1.2rem"
-              />
-            </div>
-            <div>
-              <Label>Text Color</Label>
-              <Input
-                type="color"
-                value={style.color || "#000000"}
-                onChange={(e) => updateStyle("color", e.target.value)}
-              />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-        <Collapsible defaultOpen>
-          <CollapsibleTrigger className="font-semibold flex items-center gap-2 w-full text-left">
-            <Palette className="w-4 h-4" /> Appearance
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2 mt-2 pl-4 ml-1 border-l-2">
-            <div>
-              <Label>Background Color</Label>
-              <Input
-                type="color"
-                value={style.backgroundColor || "#ffffff"}
-                onChange={(e) => updateStyle("backgroundColor", e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Border</Label>
-              <Input
-                value={style.border || ""}
-                onChange={(e) => updateStyle("border", e.target.value)}
-                placeholder="e.g., 1px solid #ccc"
-              />
-            </div>
-            <div>
-              <Label>Border Radius</Label>
-              <Input
-                value={style.borderRadius || ""}
-                onChange={(e) => updateStyle("borderRadius", e.target.value)}
-                placeholder="e.g., 8px, 0.5rem"
-              />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
-    )
-  }
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="bg-color">Background</Label>
+            <Input
+              id="bg-color"
+              type="color"
+              value={selectedComponent.style.backgroundColor || "#ffffff"}
+              onChange={(e) => handleStyleUpdate({ backgroundColor: e.target.value })}
+            />
+          </div>
+          <div>
+            <Label htmlFor="text-color">Text Color</Label>
+            <Input
+              id="text-color"
+              type="color"
+              value={selectedComponent.style.textColor || "#000000"}
+              onChange={(e) => handleStyleUpdate({ textColor: e.target.value })}
+            />
+          </div>
+        </div>
 
-  if (!selectedComponent) {
-    return (
-      <div className="h-full flex flex-col bg-card">
-        <div className="p-4 border-b border-border">
-          <h2 className="text-lg font-bold">Properties</h2>
-          <p className="text-sm text-muted-foreground">No component selected</p>
+        <div>
+          <Label htmlFor="text-align">Text Alignment</Label>
+          <Select
+            value={selectedComponent.style.textAlign || "left"}
+            onValueChange={(value) => handleStyleUpdate({ textAlign: value })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Left</SelectItem>
+              <SelectItem value="center">Center</SelectItem>
+              <SelectItem value="right">Right</SelectItem>
+              <SelectItem value="justify">Justify</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="padding">Padding</Label>
+            <Input
+              id="padding"
+              value={selectedComponent.style.padding || ""}
+              onChange={(e) => handleStyleUpdate({ padding: e.target.value })}
+              placeholder="16px"
+            />
+          </div>
+          <div>
+            <Label htmlFor="margin">Margin</Label>
+            <Input
+              id="margin"
+              value={selectedComponent.style.margin || ""}
+              onChange={(e) => handleStyleUpdate({ margin: e.target.value })}
+              placeholder="16px"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="border-radius">Border Radius</Label>
+          <Input
+            id="border-radius"
+            value={selectedComponent.style.borderRadius || ""}
+            onChange={(e) => handleStyleUpdate({ borderRadius: e.target.value })}
+            placeholder="8px"
+          />
         </div>
       </div>
     )
@@ -426,21 +379,118 @@ export function PropertiesPanel() {
   return (
     <div className="h-full flex flex-col bg-card">
       <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-bold capitalize">{selectedComponent.type} Properties</h2>
-        <p className="text-xs text-muted-foreground">ID: {selectedComponent.id.slice(0, 8)}</p>
-      </div>
-      <Tabs defaultValue="content" className="flex-grow flex flex-col">
-        <TabsList className="mx-4 mt-4">
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="style">Style</TabsTrigger>
-        </TabsList>
-        <ScrollArea className="flex-1">
-          <div className="p-4">
-            <TabsContent value="content">{renderContentEditor()}</TabsContent>
-            <TabsContent value="style">{renderStyleEditor()}</TabsContent>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary">
+              <Settings className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">Properties</h2>
+              <p className="text-sm text-muted-foreground">
+                {selectedComponent.type.charAt(0).toUpperCase() + selectedComponent.type.slice(1)}
+              </p>
+            </div>
           </div>
-        </ScrollArea>
-      </Tabs>
+          <Badge variant="outline" className="text-xs">
+            {selectedComponent.id.split("-")[1]}
+          </Badge>
+        </div>
+
+        {/* Component Actions */}
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleDuplicate} className="flex-1 bg-transparent">
+            <Copy className="h-4 w-4 mr-2" />
+            Duplicate
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDelete}
+            className="flex-1 text-destructive hover:text-destructive bg-transparent"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
+          </Button>
+        </div>
+      </div>
+
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-4">
+          <Tabs defaultValue="content" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="content" className="text-sm">
+                <Type className="h-4 w-4 mr-2" />
+                Content
+              </TabsTrigger>
+              <TabsTrigger value="style" className="text-sm">
+                <Palette className="h-4 w-4 mr-2" />
+                Style
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="content" className="mt-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Type className="h-4 w-4" />
+                    Content Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>{renderContentEditor()}</CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="style" className="mt-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    Style Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>{renderStyleEditor()}</CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+
+          {/* Advanced Settings */}
+          <Collapsible>
+            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors">
+              <div className="flex items-center gap-2">
+                <Sliders className="h-4 w-4" />
+                <span className="text-sm font-medium">Advanced Settings</span>
+              </div>
+              <ChevronDown className="h-4 w-4" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-2">
+              <Card>
+                <CardContent className="pt-4">
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="custom-css">Custom CSS Classes</Label>
+                      <Input
+                        id="custom-css"
+                        value={selectedComponent.style.className || ""}
+                        onChange={(e) => handleStyleUpdate({ className: e.target.value })}
+                        placeholder="custom-class another-class"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="custom-id">Custom ID</Label>
+                      <Input
+                        id="custom-id"
+                        value={selectedComponent.style.id || ""}
+                        onChange={(e) => handleStyleUpdate({ id: e.target.value })}
+                        placeholder="unique-id"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
+      </ScrollArea>
     </div>
   )
 }

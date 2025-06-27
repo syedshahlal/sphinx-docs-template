@@ -1,5 +1,8 @@
 "use client"
-import type { EditorState, EditorAction, MarkdownComponent } from "./types"
+
+import type React from "react"
+import { createContext, useContext, useReducer, useCallback } from "react"
+import type { EditorState, EditorAction, MarkdownComponent, ComponentStyle } from "./types"
 
 const initialState: EditorState = {
   components: [],
@@ -137,5 +140,97 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
 
 interface EditorContextType {
   state: EditorState
-  addComponent: (component: Omit<MarkdownComponent, "id" | "order">, index?: number, returnId?: (id: string) => void) => void
-  deleteComponent: (\
+  addComponent: (
+    component: Omit<MarkdownComponent, "id" | "order">,
+    index?: number,
+    returnId?: (id: string) => void,
+  ) => void
+  deleteComponent: (id: string) => void
+  updateComponentContent: (id: string, contentUpdates: Partial<any>) => void
+  updateComponentStyle: (id: string, styleUpdates: Partial<ComponentStyle>) => void
+  selectComponent: (id: string | null) => void
+  duplicateComponent: (id: string) => void
+  reorderComponents: (components: MarkdownComponent[]) => void
+  setPreviewMode: (mode: "edit" | "preview") => void
+  loadComponents: (components: MarkdownComponent[], fileName?: string, filePath?: string) => void
+  undo: () => void
+  redo: () => void
+}
+
+const EditorContext = createContext<EditorContextType | undefined>(undefined)
+
+export function EditorProvider({ children }: { children: React.ReactNode }) {
+  const [state, dispatch] = useReducer(editorReducer, initialState)
+
+  const addComponent = useCallback(
+    (component: Omit<MarkdownComponent, "id" | "order">, index?: number, returnId?: (id: string) => void) => {
+      dispatch({ type: "ADD_COMPONENT", payload: { component, index }, returnId })
+    },
+    [],
+  )
+
+  const deleteComponent = useCallback((id: string) => {
+    dispatch({ type: "DELETE_COMPONENT", payload: { id } })
+  }, [])
+
+  const updateComponentContent = useCallback((id: string, contentUpdates: Partial<any>) => {
+    dispatch({ type: "UPDATE_COMPONENT_CONTENT", payload: { id, contentUpdates } })
+  }, [])
+
+  const updateComponentStyle = useCallback((id: string, styleUpdates: Partial<ComponentStyle>) => {
+    dispatch({ type: "UPDATE_COMPONENT_STYLE", payload: { id, styleUpdates } })
+  }, [])
+
+  const selectComponent = useCallback((id: string | null) => {
+    dispatch({ type: "SELECT_COMPONENT", payload: { id } })
+  }, [])
+
+  const duplicateComponent = useCallback((id: string) => {
+    dispatch({ type: "DUPLICATE_COMPONENT", payload: { id } })
+  }, [])
+
+  const reorderComponents = useCallback((components: MarkdownComponent[]) => {
+    dispatch({ type: "REORDER_COMPONENTS", payload: { components } })
+  }, [])
+
+  const setPreviewMode = useCallback((mode: "edit" | "preview") => {
+    dispatch({ type: "SET_PREVIEW_MODE", payload: { mode } })
+  }, [])
+
+  const loadComponents = useCallback((components: MarkdownComponent[], fileName?: string, filePath?: string) => {
+    dispatch({ type: "LOAD_COMPONENTS", payload: { components, fileName, filePath } })
+  }, [])
+
+  const undo = useCallback(() => {
+    dispatch({ type: "UNDO" })
+  }, [])
+
+  const redo = useCallback(() => {
+    dispatch({ type: "REDO" })
+  }, [])
+
+  const value: EditorContextType = {
+    state,
+    addComponent,
+    deleteComponent,
+    updateComponentContent,
+    updateComponentStyle,
+    selectComponent,
+    duplicateComponent,
+    reorderComponents,
+    setPreviewMode,
+    loadComponents,
+    undo,
+    redo,
+  }
+
+  return <EditorContext.Provider value={value}>{children}</EditorContext.Provider>
+}
+
+export function useEditor() {
+  const context = useContext(EditorContext)
+  if (context === undefined) {
+    throw new Error("useEditor must be used within an EditorProvider")
+  }
+  return context
+}
