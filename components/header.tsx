@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -44,15 +44,37 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const theme = isDarkMode ? "dark" : "light"
 
-  const [currentVersion, setCurrentVersion] = useState("v5.7")
+  // Available versions - highest version first (default)
   const [availableVersions] = useState([
-    { version: "v5.7", label: "v5.7 (latest)", url: "/v5.7/", isLatest: true },
-    { version: "v5.6", label: "v5.6", url: "/v5.6/", isLatest: false },
-    { version: "v5.5", label: "v5.5", url: "/v5.5/", isLatest: false },
-    { version: "v5.4", label: "v5.4", url: "/v5.4/", isLatest: false },
+    { version: "5.7", label: "v5.7", url: "/docs/gcp-5.7", isLatest: true },
+    { version: "5.6", label: "v5.6", url: "/docs/gcp-5.6", isLatest: false },
+    { version: "5.5", label: "v5.5", url: "/docs/gcp-5.5", isLatest: false },
+    { version: "5.4", label: "v5.4", url: "/docs/gcp-5.4", isLatest: false },
   ])
 
-  React.useEffect(() => {
+  // Extract version from current path and set current version
+  const [currentVersion, setCurrentVersion] = useState(() => {
+    // Default to highest version
+    return availableVersions[0].version
+  })
+
+  // Extract version from URL path
+  const extractVersionFromPath = (path: string): string => {
+    const match = path.match(/\/docs\/gcp-(\d+\.\d+)/)
+    if (match) {
+      return match[1]
+    }
+    // If no version found in path, return highest version as default
+    return availableVersions[0].version
+  }
+
+  // Update current version based on pathname
+  useEffect(() => {
+    const versionFromPath = extractVersionFromPath(pathname)
+    setCurrentVersion(versionFromPath)
+  }, [pathname, availableVersions])
+
+  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10)
     }
@@ -68,14 +90,15 @@ export function Header() {
   const switchVersion = (version: string) => {
     if (version === currentVersion) return
 
-    // Get current page path
-    const currentPath = window.location.pathname
-    const pathWithoutVersion = currentPath.replace(/^\/v\d+\.\d+/, "")
+    // Get current page path without version
+    const currentPath = pathname
+    const pathWithoutVersion = currentPath.replace(/\/docs\/gcp-\d+\.\d+/, "")
 
-    // Construct new URL
+    // Find the selected version URL
     const selectedVersion = availableVersions.find((v) => v.version === version)
     if (selectedVersion) {
-      const newUrl = `${selectedVersion.url}${pathWithoutVersion.startsWith("/") ? pathWithoutVersion.slice(1) : pathWithoutVersion}`
+      // Construct new URL: /docs/gcp-X.X + remaining path
+      const newUrl = `${selectedVersion.url}${pathWithoutVersion}`
       window.location.href = newUrl
     }
   }
@@ -210,6 +233,8 @@ export function Header() {
               <Input
                 type="search"
                 placeholder="Search docs..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className={`pl-10 pr-12 w-72 h-10 text-sm transition-all duration-300 rounded-lg border-2 ${
                   theme === "dark"
                     ? "bg-slate-900/80 border-slate-600 text-slate-100 placeholder-slate-400 focus:bg-slate-800 focus:border-blue-400 hover:border-slate-500 focus:ring-2 focus:ring-blue-400/20"
@@ -241,7 +266,7 @@ export function Header() {
                       : "bg-white/90 border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900"
                   } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
                 >
-                  <span className="text-sm font-medium">{currentVersion}</span>
+                  <span className="text-sm font-medium">v{currentVersion}</span>
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -306,7 +331,7 @@ export function Header() {
                 aria-label="Notifications"
               >
                 <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-background animate-pulse border-none border-nonepx] border-none border-none" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white dark:border-slate-900" />
               </Button>
 
               {/* Theme Toggle */}
@@ -356,8 +381,8 @@ export function Header() {
                 size="sm"
                 className={`h-10 px-3 rounded-lg transition-all duration-200 ${
                   theme === "dark"
-                    ? "text-slate-300 hover:bg-slate-700/70 hover:text-slate-100"
-                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
+                    ? "text-slate-300 hover:bg-slate-700/70 hover:text-slate-100 hover:shadow-lg hover:shadow-slate-900/20"
+                    : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 hover:shadow-md hover:shadow-slate-200/50"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
               >
                 <div className="flex items-center gap-2">
