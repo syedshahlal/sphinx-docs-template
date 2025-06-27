@@ -14,29 +14,15 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import {
-  Search,
-  Menu,
-  Sun,
-  Moon,
-  User,
-  Settings,
-  LogOut,
-  BookOpen,
-  Code,
-  Zap,
-  Users,
-  FileText,
-  HelpCircle,
-} from "lucide-react"
+import { Search, Menu, Sun, Moon, BookOpen, Code, Zap, Users, Bell, GitBranch, X } from "lucide-react"
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const theme = isDarkMode ? "dark" : "light"
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -174,161 +160,123 @@ export function Header() {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-3 ml-auto">
             {/* Search */}
-            <div className="hidden md:flex relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <div className="hidden md:flex relative group">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
               <Input
                 type="search"
                 placeholder="Search docs..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 w-64 h-9 bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700"
+                className={`pl-10 pr-12 w-72 h-10 text-sm transition-all duration-300 rounded-lg border-2 ${
+                  theme === "dark"
+                    ? "bg-slate-800/50 border-slate-700 text-white placeholder-slate-400 focus:bg-slate-800 focus:border-blue-500 hover:border-slate-600"
+                    : "bg-gray-50/80 border-gray-200 text-slate-900 placeholder-slate-500 focus:bg-white focus:border-blue-500 hover:border-gray-300"
+                } backdrop-blur-sm focus:shadow-lg focus:shadow-blue-500/10`}
               />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center gap-1">
+                <kbd
+                  className={`px-2 py-1 text-xs font-medium rounded border transition-colors ${
+                    theme === "dark"
+                      ? "text-slate-400 bg-slate-700/80 border-slate-600"
+                      : "text-slate-500 bg-white/80 border-slate-300"
+                  }`}
+                >
+                  ⌘K
+                </kbd>
+              </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="hidden sm:flex items-center gap-1">
+            {/* Action Buttons */}
+            <div className="flex items-center gap-1">
+              {/* Notifications */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`relative h-10 w-10 rounded-lg transition-all duration-200 ${
+                  theme === "dark"
+                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-lg"
+                    : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 hover:shadow-md"
+                }`}
+                aria-label="Notifications"
+              >
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-background animate-pulse" />
+              </Button>
+
+              {/* Theme Toggle */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                className={`h-10 w-10 rounded-lg transition-all duration-200 ${
+                  theme === "dark"
+                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-lg"
+                    : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 hover:shadow-md"
+                }`}
+                aria-label="Toggle theme"
+              >
+                <div className="relative">
+                  {theme === "dark" ? (
+                    <Sun className="h-5 w-5 rotate-0 scale-100 transition-all" />
+                  ) : (
+                    <Moon className="h-5 w-5 rotate-0 scale-100 transition-all" />
+                  )}
+                </div>
+              </Button>
+
+              {/* GitHub/Repository Link */}
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+                className={`h-10 w-10 rounded-lg transition-all duration-200 ${
+                  theme === "dark"
+                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-lg"
+                    : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 hover:shadow-md"
+                }`}
+                aria-label="Repository"
+              >
+                <Link href="https://github.com/your-repo" target="_blank" rel="noopener noreferrer">
+                  <GitBranch className="h-5 w-5" />
+                </Link>
+              </Button>
+
+              {/* Divider */}
+              <div className={`w-px h-6 mx-1 ${theme === "dark" ? "bg-slate-700" : "bg-slate-200"}`} />
+
+              {/* User Avatar/Profile */}
               <Button
                 variant="ghost"
                 size="sm"
-                asChild
-                className="h-9 px-3 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                className={`h-10 px-3 rounded-lg transition-all duration-200 ${
+                  theme === "dark"
+                    ? "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-lg"
+                    : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 hover:shadow-md"
+                }`}
               >
-                <Link href="/create-doc">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Create Doc
-                </Link>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className="h-9 px-3 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                <Link href="/markdown-editor">
-                  <Code className="w-4 h-4 mr-2" />
-                  Editor
-                </Link>
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-xs font-medium text-white">U</span>
+                  </div>
+                  <span className="hidden sm:inline text-sm font-medium">User</span>
+                </div>
               </Button>
             </div>
 
-            {/* Theme Toggle */}
+            {/* Mobile Menu Button */}
             <Button
               variant="ghost"
-              size="sm"
-              onClick={toggleTheme}
-              className="h-9 w-9 p-0 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+              size="icon"
+              className={`lg:hidden h-10 w-10 rounded-lg transition-all duration-200 ${
+                theme === "dark"
+                  ? "text-slate-300 hover:bg-slate-700/50 hover:text-white hover:shadow-lg"
+                  : "text-slate-500 hover:bg-slate-100/80 hover:text-slate-800 hover:shadow-md"
+              }`}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle mobile menu"
             >
-              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-
-            {/* User Menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 w-9 p-0 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                >
-                  <User className="w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem>
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <HelpCircle className="w-4 h-4 mr-2" />
-                  Help & Support
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Mobile Menu */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="lg:hidden h-9 w-9 p-0 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                >
-                  <Menu className="w-4 h-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-80">
-                <div className="flex flex-col gap-4 mt-8">
-                  {/* Mobile Search */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <Input
-                      type="search"
-                      placeholder="Search docs..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-10 pr-4"
-                    />
-                  </div>
-
-                  {/* Mobile Navigation */}
-                  <nav className="flex flex-col gap-2">
-                    {navigationItems.map((item) => (
-                      <div key={item.href} className="space-y-2">
-                        <Link
-                          href={item.href}
-                          className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                            isActiveLink(item.href)
-                              ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white"
-                              : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white"
-                          }`}
-                        >
-                          <item.icon className="w-4 h-4" />
-                          {item.title}
-                        </Link>
-                        <div className="ml-7 space-y-1">
-                          {item.items.map((subItem) => (
-                            <Link
-                              key={subItem.href}
-                              href={subItem.href}
-                              className={`block px-3 py-1.5 text-sm rounded-md transition-colors ${
-                                isActiveLink(subItem.href)
-                                  ? "bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white"
-                                  : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white"
-                              }`}
-                            >
-                              {subItem.title}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </nav>
-
-                  {/* Mobile Quick Actions */}
-                  <div className="border-t pt-4 space-y-2">
-                    <Link
-                      href="/create-doc"
-                      className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
-                    >
-                      <FileText className="w-4 h-4" />
-                      Create Document
-                    </Link>
-                    <Link
-                      href="/markdown-editor"
-                      className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white transition-colors"
-                    >
-                      <Code className="w-4 h-4" />
-                      Markdown Editor
-                    </Link>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
           </div>
         </div>
       </div>
