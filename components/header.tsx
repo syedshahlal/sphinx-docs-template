@@ -280,7 +280,7 @@ export function Header() {
                       </span>
                     )}
                   </div>
-                  <ChevronDown className="ml-2 h-4 w-4" />
+                  <ChevronDown className="ml-2 h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -288,7 +288,7 @@ export function Header() {
                 className={`w-56 ${theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}
               >
                 <div className="px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                  Documentation Version
+                  Available Versions
                 </div>
                 <DropdownMenuSeparator className={theme === "dark" ? "bg-slate-700" : "bg-slate-200"} />
                 {availableVersions.map((version) => (
@@ -306,7 +306,7 @@ export function Header() {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span>{version.label}</span>
+                      <span className="font-medium">{version.label}</span>
                       {version.status === "stable" && (
                         <span className="px-1.5 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
                           Stable
