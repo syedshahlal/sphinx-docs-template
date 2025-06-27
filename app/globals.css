@@ -2,20 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Variables for Theme System */
+/* CSS Variables for comprehensive theming */
 :root {
-  /* Light theme (default) */
+  /* Light theme colors */
   --background: 255 255 255;
   --foreground: 15 23 42;
   --card: 255 255 255;
   --card-foreground: 15 23 42;
   --popover: 255 255 255;
   --popover-foreground: 15 23 42;
-  --primary: 227 24 55;
+  --primary: 59 130 246;
   --primary-foreground: 255 255 255;
   --secondary: 241 245 249;
   --secondary-foreground: 15 23 42;
-  --muted: 241 245 249;
+  --muted: 248 250 252;
   --muted-foreground: 100 116 139;
   --accent: 241 245 249;
   --accent-foreground: 15 23 42;
@@ -23,229 +23,419 @@
   --destructive-foreground: 255 255 255;
   --border: 226 232 240;
   --input: 226 232 240;
-  --ring: 227 24 55;
+  --ring: 59 130 246;
   --radius: 0.5rem;
+
+  /* Custom semantic colors */
+  --surface: 255 255 255;
+  --surface-variant: 248 250 252;
+  --on-surface: 15 23 42;
+  --on-surface-variant: 71 85 105;
+  --outline: 203 213 225;
+  --outline-variant: 226 232 240;
+  --shadow: 0 0 0;
+  --scrim: 0 0 0;
+
+  /* Interactive states */
+  --hover-overlay: 0 0 0 / 0.05;
+  --focus-overlay: 59 130 246 / 0.1;
+  --pressed-overlay: 0 0 0 / 0.1;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(59 130 246) 0%, rgb(147 51 234) 100%);
+  --gradient-surface: linear-gradient(135deg, rgb(255 255 255) 0%, rgb(248 250 252) 100%);
 }
 
-/* Dark theme - Enhanced UI Colors */
 [data-theme="dark"] {
-  --background: 15 23 42;
+  /* Dark theme colors */
+  --background: 2 6 23;
   --foreground: 248 250 252;
-  --card: 30 41 59;
+  --card: 15 23 42;
   --card-foreground: 248 250 252;
-  --popover: 30 41 59;
+  --popover: 15 23 42;
   --popover-foreground: 248 250 252;
-  --primary: 59 130 246;
+  --primary: 99 102 241;
   --primary-foreground: 255 255 255;
-  --secondary: 51 65 85;
-  --secondary-foreground: 203 213 225;
-  --muted: 51 65 85;
+  --secondary: 30 41 59;
+  --secondary-foreground: 248 250 252;
+  --muted: 30 41 59;
   --muted-foreground: 148 163 184;
-  --accent: 79 70 229;
-  --accent-foreground: 255 255 255;
+  --accent: 30 41 59;
+  --accent-foreground: 248 250 252;
   --destructive: 239 68 68;
   --destructive-foreground: 255 255 255;
-  --border: 71 85 105;
-  --input: 71 85 105;
-  --ring: 59 130 246;
+  --border: 51 65 85;
+  --input: 51 65 85;
+  --ring: 99 102 241;
+
+  /* Custom semantic colors */
+  --surface: 15 23 42;
+  --surface-variant: 30 41 59;
+  --on-surface: 248 250 252;
+  --on-surface-variant: 148 163 184;
+  --outline: 71 85 105;
+  --outline-variant: 51 65 85;
+  --shadow: 0 0 0;
+  --scrim: 0 0 0;
+
+  /* Interactive states */
+  --hover-overlay: 255 255 255 / 0.05;
+  --focus-overlay: 99 102 241 / 0.2;
+  --pressed-overlay: 255 255 255 / 0.1;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, rgb(99 102 241) 0%, rgb(168 85 247) 100%);
+  --gradient-surface: linear-gradient(135deg, rgb(15 23 42) 0%, rgb(30 41 59) 100%);
 }
 
-/* Apply theme variables to body and html */
-html {
-  background-color: rgb(var(--background));
-  color: rgb(var(--foreground));
-  min-height: 100vh;
-}
-
-body {
-  background-color: rgb(var(--background));
-  color: rgb(var(--foreground));
-  transition: background-color 0.3s ease, color 0.3s ease;
-  font-family: Arial, Helvetica, sans-serif;
-  min-height: 100vh;
-}
-
-/* Ensure all main containers inherit the theme */
-#__next,
-.min-h-screen {
-  background-color: rgb(var(--background));
-  color: rgb(var(--foreground));
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-    border-color: rgb(var(--border));
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-/* Theme-aware components */
-.bg-background {
-  background-color: rgb(var(--background));
-}
-
-.text-foreground {
-  color: rgb(var(--foreground));
-}
-
-.bg-card {
-  background-color: rgb(var(--card));
-}
-
-.text-card-foreground {
-  color: rgb(var(--card-foreground));
-}
-
-.bg-muted {
-  background-color: rgb(var(--muted));
-}
-
-.text-muted-foreground {
-  color: rgb(var(--muted-foreground));
-}
-
-.border-border {
+/* Base styles */
+* {
+  box-sizing: border-box;
   border-color: rgb(var(--border));
 }
 
-/* Enhanced Dark Theme Components */
-[data-theme="dark"] .bg-background {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
 }
 
-[data-theme="dark"] .bg-card {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border: 1px solid rgb(71 85 105 / 0.3);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -1px rgb(0 0 0 / 0.2);
+[data-theme="dark"] html {
+  color-scheme: dark;
 }
 
-[data-theme="dark"] .bg-muted {
-  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Enhanced button styles for dark theme */
-[data-theme="dark"] .btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-  box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.3);
+/* Component base styles */
+.surface {
+  background-color: rgb(var(--surface));
+  color: rgb(var(--on-surface));
 }
 
-[data-theme="dark"] .btn-primary:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+.surface-variant {
+  background-color: rgb(var(--surface-variant));
+  color: rgb(var(--on-surface-variant));
+}
+
+/* Interactive states */
+.interactive {
+  transition: all 0.2s ease;
+}
+
+.interactive:hover {
+  background-color: rgb(var(--hover-overlay));
+}
+
+.interactive:focus-visible {
+  outline: 2px solid rgb(var(--ring));
+  outline-offset: 2px;
+  background-color: rgb(var(--focus-overlay));
+}
+
+.interactive:active {
+  background-color: rgb(var(--pressed-overlay));
+}
+
+/* Card components */
+.card {
+  background: rgb(var(--card));
+  color: rgb(var(--card-foreground));
+  border: 1px solid rgb(var(--border));
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px 0 rgb(var(--shadow) / 0.1), 0 1px 2px -1px rgb(var(--shadow) / 0.1);
+}
+
+.card-elevated {
+  box-shadow: 0 4px 6px -1px rgb(var(--shadow) / 0.1), 0 2px 4px -2px rgb(var(--shadow) / 0.1);
+}
+
+.card-elevated:hover {
+  box-shadow: 0 10px 15px -3px rgb(var(--shadow) / 0.1), 0 4px 6px -4px rgb(var(--shadow) / 0.1);
+}
+
+/* Navigation styles */
+.nav-item {
+  color: rgb(var(--on-surface-variant));
+  transition: color 0.2s ease;
+}
+
+.nav-item:hover {
+  color: rgb(var(--on-surface));
+}
+
+.nav-item.active {
+  color: rgb(var(--primary));
+  font-weight: 500;
+}
+
+/* Button variants */
+.btn-primary {
+  background: var(--gradient-primary);
+  color: rgb(var(--primary-foreground));
+  border: none;
+  box-shadow: 0 1px 2px 0 rgb(var(--shadow) / 0.05);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 6px -1px rgb(var(--shadow) / 0.1);
   transform: translateY(-1px);
 }
 
-/* Enhanced input styles for dark theme */
-[data-theme="dark"] input,
-[data-theme="dark"] textarea {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border: 1px solid rgb(71 85 105 / 0.5);
-  color: rgb(248 250 252);
+.btn-secondary {
+  background-color: rgb(var(--secondary));
+  color: rgb(var(--secondary-foreground));
+  border: 1px solid rgb(var(--border));
 }
 
-[data-theme="dark"] input:focus,
-[data-theme="dark"] textarea:focus {
-  border-color: rgb(59 130 246);
-  box-shadow: 0 0 0 3px rgba(59 130 246, 0.2);
-  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+.btn-ghost {
+  background-color: transparent;
+  color: rgb(var(--on-surface-variant));
 }
 
-/* Enhanced text colors for dark theme */
-[data-theme="dark"] .text-primary {
-  color: rgb(96 165 250);
+.btn-ghost:hover {
+  background-color: rgb(var(--hover-overlay));
+  color: rgb(var(--on-surface));
 }
 
-[data-theme="dark"] .text-secondary {
-  color: rgb(203 213 225);
+/* Form elements */
+.input {
+  background-color: rgb(var(--surface));
+  border: 1px solid rgb(var(--border));
+  color: rgb(var(--on-surface));
+  border-radius: var(--radius);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-[data-theme="dark"] .text-accent {
-  color: rgb(167 139 250);
+.input:focus {
+  border-color: rgb(var(--ring));
+  box-shadow: 0 0 0 3px rgb(var(--ring) / 0.1);
+  outline: none;
 }
 
-/* Enhanced border colors for dark theme */
-[data-theme="dark"] .border-primary {
-  border-color: rgb(59 130 246 / 0.5);
+.input::placeholder {
+  color: rgb(var(--on-surface-variant));
 }
 
-[data-theme="dark"] .border-secondary {
-  border-color: rgb(71 85 105 / 0.5);
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-/* Bank of America specific styles */
-.boa-header {
-  background: linear-gradient(135deg, #0066cc 0%, #004499 100%);
+::-webkit-scrollbar-track {
+  background: rgb(var(--surface-variant));
 }
 
-.boa-card {
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--outline));
+  border-radius: 4px;
 }
 
-.boa-button {
-  background: #0066cc;
-  color: white;
-  transition: all 0.2s ease-in-out;
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--on-surface-variant));
 }
 
-.boa-button:hover {
-  background: #004499;
-  transform: translateY(-1px);
+/* Selection styling */
+::selection {
+  background-color: rgb(var(--primary) / 0.2);
+  color: rgb(var(--on-surface));
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgb(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0 0;
+    --outline: 0 0 0;
+  }
+
+  [data-theme="dark"] {
+    --border: 255 255 255;
+    --outline: 255 255 255;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Print styles */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Utility classes */
+.glass {
+  backdrop-filter: blur(12px);
+  background-color: rgb(var(--surface) / 0.8);
+  border: 1px solid rgb(var(--outline-variant));
+}
+
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.shadow-soft {
+  box-shadow: 0 1px 3px 0 rgb(var(--shadow) / 0.1), 0 1px 2px -1px rgb(var(--shadow) / 0.1);
+}
+
+.shadow-medium {
+  box-shadow: 0 4px 6px -1px rgb(var(--shadow) / 0.1), 0 2px 4px -2px rgb(var(--shadow) / 0.1);
+}
+
+.shadow-large {
+  box-shadow: 0 10px 15px -3px rgb(var(--shadow) / 0.1), 0 4px 6px -4px rgb(var(--shadow) / 0.1);
+}
+
+/* Content-specific styles */
+.prose {
+  color: rgb(var(--on-surface));
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: rgb(var(--on-surface));
+  scroll-margin-top: 6rem;
+}
+
+.prose a {
+  color: rgb(var(--primary));
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--primary) / 0.3);
+  transition: text-decoration-color 0.2s ease;
+}
+
+.prose a:hover {
+  text-decoration-color: rgb(var(--primary));
+}
+
+.prose code {
+  background-color: rgb(var(--surface-variant));
+  color: rgb(var(--on-surface));
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.prose pre {
+  background-color: rgb(var(--surface-variant));
+  border: 1px solid rgb(var(--outline-variant));
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+.prose blockquote {
+  border-left: 4px solid rgb(var(--primary));
+  padding-left: 1rem;
+  color: rgb(var(--on-surface-variant));
+  font-style: italic;
+}
+
+.prose table {
+  border-collapse: collapse;
+  border: 1px solid rgb(var(--outline-variant));
+}
+
+.prose th,
+.prose td {
+  border: 1px solid rgb(var(--outline-variant));
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.prose th {
+  background-color: rgb(var(--surface-variant));
+  font-weight: 600;
 }
