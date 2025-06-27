@@ -4,24 +4,20 @@ import { useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ComponentRenderer } from "./ComponentRenderer"
-import { Monitor, Tablet, Smartphone, Eye, Code, Download, GitBranch } from "lucide-react"
+import { Eye, Code, Globe, Monitor, Tablet, Smartphone, Download, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { MarkdownComponent } from "./types"
+import { useEditor } from "./EditorContext"
 
-interface PreviewPanelProps {
-  components: MarkdownComponent[]
-  previewMode: "edit" | "preview" | "mobile" | "tablet"
-  onPreviewModeChange: (mode: "edit" | "preview" | "mobile" | "tablet") => void
-}
-
-export function PreviewPanel({ components, previewMode, onPreviewModeChange }: PreviewPanelProps) {
-  const [showCode, setShowCode] = useState(false)
+export function PreviewPanel() {
+  const { state } = useEditor()
+  const [previewMode, setPreviewMode] = useState<"mobile" | "tablet" | "desktop">("desktop")
 
   const generateMarkdown = () => {
     let markdown = ""
 
-    components.forEach((component) => {
+    state.components.forEach((component) => {
       switch (component.type) {
         case "heading":
           markdown += `${"#".repeat(component.content.level || 2)} ${component.content.text || "Heading"}\n\n`
@@ -88,13 +84,39 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
     return markdown
   }
 
+  const generateHTML = () => {
+    const markdown = generateMarkdown()
+    // This is a simplified HTML conversion - in a real app you'd use a proper markdown parser
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${state.fileName || "Document"}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 2rem; }
+        h1, h2, h3, h4, h5, h6 { margin-top: 2rem; margin-bottom: 1rem; }
+        code { background: #f4f4f4; padding: 0.2rem 0.4rem; border-radius: 3px; }
+        pre { background: #f4f4f4; padding: 1rem; border-radius: 5px; overflow-x: auto; }
+        blockquote { border-left: 4px solid #ddd; margin: 0; padding-left: 1rem; color: #666; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+        th { background: #f4f4f4; }
+    </style>
+</head>
+<body>
+    ${markdown.replace(/\n/g, "<br>")}
+</body>
+</html>`
+  }
+
   const handleExport = () => {
     const markdown = generateMarkdown()
     const blob = new Blob([markdown], { type: "text/markdown" })
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
     a.href = url
-    a.download = "document.md"
+    a.download = state.fileName || "document.md"
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -126,16 +148,16 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
               <p className="text-sm text-muted-foreground">Live document preview</p>
             </div>
           </div>
-          <Badge variant="secondary">{components.length} components</Badge>
+          <Badge variant="secondary">{state.components.length} components</Badge>
         </div>
 
         {/* Preview Controls */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Button
-              variant={previewMode === "preview" ? "default" : "outline"}
+              variant={previewMode === "desktop" ? "default" : "outline"}
               size="sm"
-              onClick={() => onPreviewModeChange("preview")}
+              onClick={() => setPreviewMode("desktop")}
             >
               <Monitor className="w-4 h-4 mr-2" />
               Desktop
@@ -143,7 +165,7 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
             <Button
               variant={previewMode === "tablet" ? "default" : "outline"}
               size="sm"
-              onClick={() => onPreviewModeChange("tablet")}
+              onClick={() => setPreviewMode("tablet")}
             >
               <Tablet className="w-4 h-4 mr-2" />
               Tablet
@@ -151,7 +173,7 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
             <Button
               variant={previewMode === "mobile" ? "default" : "outline"}
               size="sm"
-              onClick={() => onPreviewModeChange("mobile")}
+              onClick={() => setPreviewMode("mobile")}
             >
               <Smartphone className="w-4 h-4 mr-2" />
               Mobile
@@ -159,62 +181,95 @@ export function PreviewPanel({ components, previewMode, onPreviewModeChange }: P
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant={showCode ? "default" : "outline"} size="sm" onClick={() => setShowCode(!showCode)}>
-              <Code className="w-4 h-4 mr-2" />
-              {showCode ? "Preview" : "Code"}
-            </Button>
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
             <Button variant="outline" size="sm">
-              <GitBranch className="w-4 h-4 mr-2" />
-              Publish
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Open
             </Button>
           </div>
         </div>
       </div>
 
       {/* Preview Content */}
-      <ScrollArea className="flex-1">
-        <div className="p-4 flex justify-center">
-          <div
-            className={cn(
-              "transition-all duration-300 bg-background border border-border rounded-lg shadow-sm",
-              previewMode !== "preview" && "mx-auto",
-            )}
-            style={{
-              width: getPreviewWidth(),
-              minHeight: "600px",
-            }}
-          >
-            <div className="p-6">
-              {showCode ? (
+      <div className="flex-1">
+        <Tabs defaultValue="live" className="h-full flex flex-col">
+          <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3">
+            <TabsTrigger value="live" className="text-sm">
+              <Eye className="h-4 w-4 mr-2" />
+              Live
+            </TabsTrigger>
+            <TabsTrigger value="markdown" className="text-sm">
+              <Code className="h-4 w-4 mr-2" />
+              Markdown
+            </TabsTrigger>
+            <TabsTrigger value="html" className="text-sm">
+              <Globe className="h-4 w-4 mr-2" />
+              HTML
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="live" className="flex-1 mt-4">
+            <ScrollArea className="h-full">
+              <div className="p-4 flex justify-center">
+                <div
+                  className={cn(
+                    "transition-all duration-300 bg-background border border-border rounded-lg shadow-sm",
+                    previewMode !== "desktop" && "mx-auto",
+                  )}
+                  style={{
+                    width: getPreviewWidth(),
+                    minHeight: "600px",
+                  }}
+                >
+                  <div className="p-6">
+                    {state.components.length === 0 ? (
+                      <div className="text-center py-16 text-muted-foreground">
+                        <Eye className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                        <h3 className="text-lg font-semibold mb-2">No Content Yet</h3>
+                        <p>Add components from the palette to see your document preview here.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {state.components.map((component) => (
+                          <ComponentRenderer
+                            key={component.id}
+                            component={component}
+                            isSelected={false}
+                            updateComponentContent={() => {}}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="markdown" className="flex-1 mt-4">
+            <ScrollArea className="h-full">
+              <div className="p-4">
                 <pre className="text-sm text-foreground whitespace-pre-wrap font-mono bg-muted p-4 rounded-lg overflow-auto">
-                  {generateMarkdown()}
+                  {generateMarkdown() || "No content to preview"}
                 </pre>
-              ) : components.length === 0 ? (
-                <div className="text-center py-16 text-muted-foreground">
-                  <Eye className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-semibold mb-2">No Content Yet</h3>
-                  <p>Add components from the palette to see your document preview here.</p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {components.map((component) => (
-                    <ComponentRenderer
-                      key={component.id}
-                      component={component}
-                      isSelected={false}
-                      updateComponentContent={() => {}}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </ScrollArea>
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="html" className="flex-1 mt-4">
+            <ScrollArea className="h-full">
+              <div className="p-4">
+                <pre className="text-sm text-foreground whitespace-pre-wrap font-mono bg-muted p-4 rounded-lg overflow-auto">
+                  {generateHTML()}
+                </pre>
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   )
 }

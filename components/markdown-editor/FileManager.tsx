@@ -4,126 +4,81 @@ import { useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import {
-  FileIcon,
-  FolderIcon,
-  Search,
-  Plus,
-  MoreVertical,
-  Download,
-  Upload,
-  Trash2,
-  Edit,
-  Copy,
-  Star,
-  Clock,
-  FileText,
-  ImageIcon,
-  Code,
-  Database,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { FolderOpen, File, Search, Plus, MoreHorizontal, Clock, User, Star, Trash2, Edit } from "lucide-react"
 
 interface FileItem {
   id: string
   name: string
   type: "file" | "folder"
+  path: string
+  lastModified: string
+  author: string
   size?: string
-  modified: string
   starred?: boolean
-  extension?: string
 }
 
 const mockFiles: FileItem[] = [
   {
     id: "1",
-    name: "Getting Started Guide",
+    name: "getting-started.md",
     type: "file",
+    path: "docs/",
+    lastModified: "2 hours ago",
+    author: "John Doe",
     size: "2.4 KB",
-    modified: "2 hours ago",
     starred: true,
-    extension: "md",
   },
   {
     id: "2",
-    name: "API Documentation",
-    type: "folder",
-    modified: "1 day ago",
+    name: "api-reference.md",
+    type: "file",
+    path: "docs/api/",
+    lastModified: "1 day ago",
+    author: "Jane Smith",
+    size: "15.2 KB",
   },
   {
     id: "3",
-    name: "User Manual",
-    type: "file",
-    size: "5.1 KB",
-    modified: "3 days ago",
-    extension: "md",
+    name: "tutorials",
+    type: "folder",
+    path: "docs/",
+    lastModified: "3 days ago",
+    author: "Team",
   },
   {
     id: "4",
-    name: "Architecture Overview",
+    name: "installation-guide.md",
     type: "file",
-    size: "1.8 KB",
-    modified: "1 week ago",
-    extension: "md",
-  },
-  {
-    id: "5",
-    name: "Images",
-    type: "folder",
-    modified: "2 weeks ago",
+    path: "docs/guides/",
+    lastModified: "1 week ago",
+    author: "Bob Wilson",
+    size: "5.1 KB",
+    starred: true,
   },
 ]
 
-const getFileIcon = (file: FileItem) => {
-  if (file.type === "folder") {
-    return <FolderIcon className="h-4 w-4 text-blue-500" />
-  }
-
-  switch (file.extension) {
-    case "md":
-      return <FileText className="h-4 w-4 text-green-500" />
-    case "jpg":
-    case "png":
-    case "gif":
-      return <ImageIcon className="h-4 w-4 text-purple-500" />
-    case "js":
-    case "ts":
-    case "jsx":
-    case "tsx":
-      return <Code className="h-4 w-4 text-yellow-500" />
-    case "json":
-    case "xml":
-      return <Database className="h-4 w-4 text-orange-500" />
-    default:
-      return <FileIcon className="h-4 w-4 text-gray-500" />
-  }
-}
-
 export function FileManager() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [files, setFiles] = useState<FileItem[]>(mockFiles)
-  const [selectedFiles, setSelectedFiles] = useState<string[]>([])
+  const [selectedTab, setSelectedTab] = useState("recent")
 
-  const filteredFiles = files.filter((file) => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredFiles = mockFiles.filter(
+    (file) =>
+      file.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      file.path.toLowerCase().includes(searchQuery.toLowerCase()),
+  )
 
-  const toggleFileSelection = (fileId: string) => {
-    setSelectedFiles((prev) => (prev.includes(fileId) ? prev.filter((id) => id !== fileId) : [...prev, fileId]))
-  }
-
-  const toggleStar = (fileId: string) => {
-    setFiles((prev) => prev.map((file) => (file.id === fileId ? { ...file, starred: !file.starred } : file)))
-  }
+  const recentFiles = filteredFiles.filter((file) => file.type === "file").slice(0, 5)
+  const starredFiles = filteredFiles.filter((file) => file.starred)
 
   return (
     <div className="h-full flex flex-col bg-card">
       <div className="p-4 border-b border-border">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 rounded-lg bg-primary">
-            <FileIcon className="h-5 w-5 text-primary-foreground" />
+            <FolderOpen className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-foreground">Files</h2>
@@ -131,156 +86,184 @@ export function FileManager() {
           </div>
         </div>
 
-        <div className="flex gap-2 mb-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search files..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button size="sm" className="shrink-0">
-                <Plus className="h-4 w-4 mr-2" />
-                New
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Document</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Input placeholder="Document name" />
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline">
-                    <FileText className="h-4 w-4 mr-2" />
-                    Markdown
-                  </Button>
-                  <Button variant="outline">
-                    <Code className="h-4 w-4 mr-2" />
-                    Template
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+        <div className="relative mb-3">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search files..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-10"
+          />
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-            <Upload className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1 bg-transparent">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
+        <Button className="w-full" size="sm">
+          <Plus className="h-4 w-4 mr-2" />
+          New Document
+        </Button>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-2">
-          {filteredFiles.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                <FileIcon className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">No files found</h3>
-              <p className="text-muted-foreground max-w-sm mx-auto">
-                {searchQuery ? "Try adjusting your search terms" : "Create your first document to get started"}
-              </p>
-            </div>
-          ) : (
-            filteredFiles.map((file) => (
-              <Card
-                key={file.id}
-                className={cn(
-                  "cursor-pointer transition-all duration-200 hover:shadow-md",
-                  selectedFiles.includes(file.id) && "ring-2 ring-primary ring-offset-2",
-                )}
-                onClick={() => toggleFileSelection(file.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {getFileIcon(file)}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-foreground truncate">{file.name}</p>
-                          {file.starred && <Star className="h-4 w-4 text-yellow-500 fill-current" />}
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="flex-1 flex flex-col">
+        <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3">
+          <TabsTrigger value="recent" className="text-sm">
+            <Clock className="h-4 w-4 mr-2" />
+            Recent
+          </TabsTrigger>
+          <TabsTrigger value="starred" className="text-sm">
+            <Star className="h-4 w-4 mr-2" />
+            Starred
+          </TabsTrigger>
+          <TabsTrigger value="all" className="text-sm">
+            <File className="h-4 w-4 mr-2" />
+            All Files
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="recent" className="flex-1 mt-4">
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-3">
+              {recentFiles.length === 0 ? (
+                <div className="text-center py-8">
+                  <Clock className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">No recent files</p>
+                </div>
+              ) : (
+                recentFiles.map((file) => (
+                  <Card key={file.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          <div className="p-2 rounded-lg bg-muted">
+                            <File className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-sm font-medium text-foreground truncate">{file.name}</h3>
+                              {file.starred && <Star className="h-3 w-3 text-yellow-500 fill-current" />}
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-2">{file.path}</p>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <User className="h-3 w-3" />
+                                {file.author}
+                              </span>
+                              <span>{file.lastModified}</span>
+                              {file.size && <span>{file.size}</span>}
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">{file.modified}</span>
-                          {file.size && (
-                            <>
-                              <Separator orientation="vertical" className="h-3" />
-                              <span className="text-xs text-muted-foreground">{file.size}</span>
-                            </>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="starred" className="flex-1 mt-4">
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-3">
+              {starredFiles.length === 0 ? (
+                <div className="text-center py-8">
+                  <Star className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">No starred files</p>
+                </div>
+              ) : (
+                starredFiles.map((file) => (
+                  <Card key={file.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 flex-1">
+                          <div className="p-2 rounded-lg bg-muted">
+                            <File className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="text-sm font-medium text-foreground truncate">{file.name}</h3>
+                              <Star className="h-3 w-3 text-yellow-500 fill-current" />
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-2">{file.path}</p>
+                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <User className="h-3 w-3" />
+                                {file.author}
+                              </span>
+                              <span>{file.lastModified}</span>
+                              {file.size && <span>{file.size}</span>}
+                            </div>
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        <TabsContent value="all" className="flex-1 mt-4">
+          <ScrollArea className="h-full">
+            <div className="p-4 space-y-3">
+              {filteredFiles.map((file) => (
+                <Card key={file.id} className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="p-2 rounded-lg bg-muted">
+                          {file.type === "folder" ? (
+                            <FolderOpen className="h-4 w-4 text-muted-foreground" />
+                          ) : (
+                            <File className="h-4 w-4 text-muted-foreground" />
                           )}
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="text-sm font-medium text-foreground truncate">{file.name}</h3>
+                            {file.starred && <Star className="h-3 w-3 text-yellow-500 fill-current" />}
+                            {file.type === "folder" && (
+                              <Badge variant="secondary" className="text-xs">
+                                Folder
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-2">{file.path}</p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <User className="h-3 w-3" />
+                              {file.author}
+                            </span>
+                            <span>{file.lastModified}</span>
+                            {file.size && <span>{file.size}</span>}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => toggleStar(file.id)}>
-                          <Star className="h-4 w-4 mr-2" />
-                          {file.starred ? "Unstar" : "Star"}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="h-4 w-4 mr-2" />
-                          Rename
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Copy className="h-4 w-4 mr-2" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      </ScrollArea>
-
-      {selectedFiles.length > 0 && (
-        <div className="p-4 border-t border-border bg-muted/50">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {selectedFiles.length} file{selectedFiles.length > 1 ? "s" : ""} selected
-            </span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
-              <Button variant="outline" size="sm" className="text-destructive hover:text-destructive bg-transparent">
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </Button>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          </div>
-        </div>
-      )}
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

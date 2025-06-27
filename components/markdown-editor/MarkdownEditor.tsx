@@ -5,9 +5,7 @@ import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent } from 
 import { ComponentPalette } from "./ComponentPalette"
 import { EditorCanvas } from "./EditorCanvas"
 import { PropertiesPanel } from "./PropertiesPanel"
-import { EditorToolbar } from "./EditorToolbar"
 import { PreviewPanel } from "./PreviewPanel"
-import { FileManager } from "./FileManager"
 import { useEditor } from "./EditorContext"
 import { getDefaultContent } from "./ComponentPalette"
 import type { MarkdownComponent } from "./types"
@@ -15,8 +13,6 @@ import type { MarkdownComponent } from "./types"
 export function MarkdownEditor() {
   const { state, addComponent, selectComponent } = useEditor()
   const [activeId, setActiveId] = useState<string | null>(null)
-  const [showPreview, setShowPreview] = useState(false)
-  const [showFileManager, setShowFileManager] = useState(false)
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
@@ -47,32 +43,25 @@ export function MarkdownEditor() {
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="h-screen flex flex-col bg-background">
-        <EditorToolbar
-          onTogglePreview={() => setShowPreview(!showPreview)}
-          onToggleFileManager={() => setShowFileManager(!showFileManager)}
-          showPreview={showPreview}
-          showFileManager={showFileManager}
-        />
-
+        {/* Main Content - 4 Section Layout */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Component Palette */}
-          <div className="w-80 border-r border-border bg-card">
+          {/* Section 1: Elements/Components Palette */}
+          <div className="w-80 border-r border-border bg-card flex-shrink-0">
             <ComponentPalette />
           </div>
 
-          {/* Main Editor Area */}
-          <div className="flex-1 flex">
-            {showFileManager && (
-              <div className="w-80 border-r border-border bg-card">
-                <FileManager />
-              </div>
-            )}
-
-            <div className="flex-1 relative">{showPreview ? <PreviewPanel /> : <EditorCanvas />}</div>
+          {/* Section 2: Editor Canvas */}
+          <div className="flex-1 min-w-0">
+            <EditorCanvas />
           </div>
 
-          {/* Properties Panel */}
-          <div className="w-80 border-l border-border bg-card">
+          {/* Section 3: Preview Panel */}
+          <div className="w-96 border-l border-border bg-card flex-shrink-0">
+            <PreviewPanel />
+          </div>
+
+          {/* Section 4: Properties Panel */}
+          <div className="w-80 border-l border-border bg-card flex-shrink-0">
             <PropertiesPanel />
           </div>
         </div>
@@ -80,7 +69,7 @@ export function MarkdownEditor() {
 
       <DragOverlay>
         {activeId ? (
-          <div className="bg-primary/10 border-2 border-primary border-dashed rounded-lg p-4">
+          <div className="bg-primary/10 border-2 border-primary border-dashed rounded-lg p-4 shadow-lg">
             <div className="text-sm font-medium">{activeId.replace("palette-", "").replace(/-/g, " ")}</div>
           </div>
         ) : null}
