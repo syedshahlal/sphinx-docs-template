@@ -76,7 +76,7 @@ The application, especially the "Create Doc" feature, requires GitHub credential
     \`\`\`env
     # GitHub Personal Access Token (PAT) with 'repo' scope.
     # Generate one here: https://github.com/settings/tokens
-    NEXT_PUBLIC_GITHUB_TOKEN=ghp_YourGitHubPersonalAccessToken
+    GITHUB_TOKEN=ghp_yourPersonalAccessToken
 
     # The owner of the GitHub repository (your username or organization)
     NEXT_PUBLIC_GITHUB_OWNER=your-github-owner
