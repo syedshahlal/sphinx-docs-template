@@ -37,7 +37,7 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
   }, [version])
 
   return (
-    <aside className="w-[36rem] flex-shrink-0 border-r border-gray-200 dark:border-slate-800 hidden lg:block">
+    <aside className="w-[70%] flex-shrink-0 border-r border-gray-200 dark:border-slate-800 hidden lg:block">
       <div className="h-full py-6 px-4 overflow-y-auto">
         <div className="mb-6">
           <Link href="/" className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-50">
