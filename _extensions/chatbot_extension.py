@@ -54,13 +54,16 @@ class ChatbotDirective(Directive):
         )
         return [chatbot_node]
 
-def create_documentation_index(app: Sphinx, env, docnames):
+def create_documentation_index(app, env, updated):
     """Create searchable index of documentation content"""
     config = app.config.chatbot_config
     if not config.get('enabled', False):
         return
     
     index_data = []
+    
+    # Use all docnames from env if updated is empty, otherwise use updated ones
+    docnames = updated if updated else env.all_docs.keys()
     
     for docname in docnames:
         try:

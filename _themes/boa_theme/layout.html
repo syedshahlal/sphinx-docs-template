@@ -1,0 +1,27 @@
+{% extends "pydata_sphinx_theme/layout.html" %}
+
+{% block extrahead %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ pathto('_static/css/boa-theme.css', 1) }}" />
+<link rel="stylesheet" type="text/css" href="{{ pathto('_static/css/custom.css', 1) }}" />
+{% endblock %}
+
+{% block footer %}
+<footer class="boa-footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <p>&copy; {{ copyright }} Bank of America Corporation. All rights reserved.</p>
+      </div>
+      <div class="col-md-6 text-right">
+        <p>GRA Core Platform Documentation v{{ version }}</p>
+      </div>
+    </div>
+  </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ pathto('_static/js/boa-theme.js', 1) }}"></script>
+{% endblock %}

@@ -1,0 +1,140 @@
+/* Basic Tiptap Styling */
+.ProseMirror {
+  outline: none;
+  min-height: 200px; /* Or as needed */
+  padding: 0.5rem;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Code Block Styling (works with CodeBlockLowlight) */
+.ProseMirror pre {
+  background: #0d0d0d; /* A dark background color */
+  color: #fff;
+  font-family: "JetBrainsMono", monospace;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  white-space: pre-wrap; /* Ensures long lines wrap */
+}
+
+.ProseMirror pre code {
+  color: inherit;
+  padding: 0;
+  background: none;
+  font-size: 0.85em; /* Slightly smaller font size for code */
+}
+
+/* Highlight.js theme integration (if not using Tailwind Typography for code) */
+.hljs-comment,
+.hljs-quote {
+  color: #616161; /* Lighter grey for comments */
+}
+
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attribute,
+.hljs-tag,
+.hljs-name,
+.hljs-regexp,
+.hljs-link,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: #f98181; /* A reddish color for variables, tags, etc. */
+}
+
+.hljs-number,
+.hljs-meta,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params {
+  color: #f2994a; /* An orange color for numbers, types, etc. */
+}
+
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet {
+  color: #a5d6a7; /* A greenish color for strings */
+}
+
+.hljs-title,
+.hljs-section {
+  color: #81d4fa; /* A blueish color for titles */
+}
+
+.hljs-keyword,
+.hljs-selector-tag {
+  color: #c586c0; /* A purplish color for keywords */
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: bold;
+}
+
+/* Table Styling */
+.ProseMirror table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  overflow: hidden; /* For resizable tables */
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  border: 1px solid hsl(var(--border));
+  padding: 0.5rem;
+  min-width: 1em; /* For resizable tables */
+  vertical-align: top; /* For resizable tables */
+  box-sizing: border-box; /* For resizable tables */
+  position: relative; /* For resizable tables */
+}
+
+.ProseMirror th {
+  font-weight: bold;
+  text-align: left;
+  background-color: hsl(var(--muted));
+}
+
+/* For table resizing handles */
+.ProseMirror .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: hsl(var(--primary));
+  pointer-events: none; /* Tiptap handles events */
+  z-index: 20; /* Ensure it's above cell content */
+}
+
+.ProseMirror .tableWrapper {
+  overflow-x: auto; /* Allow horizontal scrolling for very wide tables */
+}
+
+/* Mermaid Diagram Placeholder Styling */
+.ProseMirror div[data-mermaid-diagram] {
+  border: 1px dashed hsl(var(--border));
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: hsl(var(--muted) / 0.5);
+}
+.ProseMirror div[data-mermaid-diagram] pre.mermaid {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: "JetBrainsMono", monospace;
+  color: hsl(var(--foreground));
+}
