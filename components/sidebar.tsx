@@ -79,7 +79,7 @@ export function Sidebar({ version = "v5.7" }: SidebarProps) {
         <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-2">
           Documentation
         </h3>
-        <nav className="space-y-1">{renderNav()}</nav>
+        <nav className="space-y-1 text-white text-white">{renderNav()}</nav>
       </div>
     </aside>
   )
