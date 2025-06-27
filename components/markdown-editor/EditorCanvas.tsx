@@ -32,7 +32,7 @@ export function EditorCanvas() {
 
       {/* Canvas Content */}
       <ScrollArea className="flex-1">
-        <div ref={setNodeRef} className="min-h-full p-8 bg-white" style={{ minHeight: "calc(100vh - 200px)" }}>
+        <div ref={setNodeRef} className="min-h-full p-8 bg-warmGray-700ray-700ray-6008007000050-900al-950al-300-700-900-50" style={{ minHeight: "calc(100vh - 200px)" }}>
           {state.components.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center">
               <div className="w-24 h-24 bg-[#f4f5f7] rounded-full flex items-center justify-center mb-6">
