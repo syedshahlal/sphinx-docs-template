@@ -1,22 +1,32 @@
 "use client"
 
 import { useState } from "react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Folder, File, Plus, Search, MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
+import { Folder, FileIcon, Search, MoreVertical } from "lucide-react"
+
+/* -------------------------------------------------------------------------- */
+/*                                   TYPES                                    */
+/* -------------------------------------------------------------------------- */
 
 interface FileItem {
   id: string
   name: string
   type: "file" | "folder"
   path: string
-  children?: FileItem[]
   modified?: string
   size?: string
+  children?: FileItem[]
 }
+
+/* -------------------------------------------------------------------------- */
+/*                              MOCK FILE SYSTEM                              */
+/* -------------------------------------------------------------------------- */
 
 const mockFiles: FileItem[] = [
   {
@@ -45,113 +55,120 @@ const mockFiles: FileItem[] = [
   },
   {
     id: "4",
-    name: "examples",
-    type: "folder",
-    path: "/examples",
-    children: [
-      {
-        id: "5",
-        name: "basic-usage.md",
-        type: "file",
-        path: "/examples/basic-usage.md",
-        modified: "3 days ago",
-        size: "1.8 KB",
-      },
-    ],
+    name: "README.md",
+    type: "file",
+    path: "/README.md",
+    modified: "3 days ago",
+    size: "1 KB",
   },
 ]
 
-export default function FileManager() {
-  const [files] = useState<FileItem[]>(mockFiles)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(["1", "4"]))
+/* -------------------------------------------------------------------------- */
+/*                           FILE TREE ITEM (RECURSIVE)                       */
+/* -------------------------------------------------------------------------- */
 
-  const toggleFolder = (folderId: string) => {
-    const newExpanded = new Set(expandedFolders)
-    if (newExpanded.has(folderId)) {
-      newExpanded.delete(folderId)
-    } else {
-      newExpanded.add(folderId)
-    }
-    setExpandedFolders(newExpanded)
-  }
+interface FileTreeItemProps {
+  item: FileItem
+  depth: number
+  expanded: Set<string>
+  toggle: (id: string) => void
+}
 
-  const renderFileItem = (item: FileItem, depth = 0) => {
-    const isExpanded = expandedFolders.has(item.id)
+function FileTreeItem({ item, depth, expanded, toggle }: FileTreeItemProps) {
+  const isFolder = item.type === "folder"
+  const isOpen = expanded.has(item.id)
 
-    return (
-      <div key={item.id}>
-        <div
-          className="flex items-center gap-2 p-2 hover:bg-muted/50 rounded-md cursor-pointer"
-          style={{ paddingLeft: `${depth * 16 + 8}px` }}
-          onClick={() => item.type === "folder" && toggleFolder(item.id)}
-        >
-          {item.type === "folder" ? (
-            <Folder className="h-4 w-4 text-blue-500" />
-          ) : (
-            <File className="h-4 w-4 text-gray-500" />
-          )}
-
-          <span className="flex-1 text-sm">{item.name}</span>
-
-          {item.type === "file" && (
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">
-                {item.size}
-              </Badge>
-              <span className="text-xs text-muted-foreground">{item.modified}</span>
-            </div>
-          )}
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                <MoreVertical className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>Rename</DropdownMenuItem>
-              <DropdownMenuItem>Duplicate</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {item.type === "folder" && isExpanded && item.children && (
-          <div>{item.children.map((child) => renderFileItem(child, depth + 1))}</div>
+  return (
+    <>
+      <div
+        style={{ paddingLeft: `${depth * 16 + 8}px` }}
+        className="group flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer hover:bg-muted/50 text-sm"
+        onClick={() => isFolder && toggle(item.id)}
+      >
+        {isFolder ? (
+          <Folder className="h-4 w-4 text-blue-600 shrink-0" />
+        ) : (
+          <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
         )}
+
+        <span className="flex-1 truncate">{item.name}</span>
+
+        {/* File meta */}
+        {item.type === "file" && <span className="text-xs text-muted-foreground">{item.modified}</span>}
+
+        {/* Row actions */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreVertical className="h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>Rename</DropdownMenuItem>
+            <DropdownMenuItem>Duplicate</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-    )
+
+      {isFolder && isOpen && item.children?.length
+        ? item.children.map((child) => (
+            <FileTreeItem key={child.id} item={child} depth={depth + 1} expanded={expanded} toggle={toggle} />
+          ))
+        : null}
+    </>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               FILE MANAGER                                 */
+/* -------------------------------------------------------------------------- */
+
+function FileManagerInner() {
+  const [expanded, setExpanded] = useState<Set<string>>(new Set(["1"]))
+  const [search, setSearch] = useState("")
+
+  const toggleFolder = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
   }
 
-  const filteredFiles = files.filter((file) => file.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  const visible = mockFiles.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()))
 
   return (
     <Card className="h-full">
-      <CardHeader className="pb-3">
+      <CardHeader>
         <CardTitle className="text-lg">Files</CardTitle>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search files..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8"
-            />
-          </div>
-          <Button size="sm" variant="outline">
-            <Plus className="h-4 w-4 mr-1" />
-            New
-          </Button>
+        <div className="relative mt-2">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
         </div>
       </CardHeader>
+
       <CardContent className="p-0">
-        <div className="max-h-96 overflow-y-auto">{filteredFiles.map((file) => renderFileItem(file))}</div>
+        <ScrollArea className="h-[calc(100vh-250px)]">
+          <div className="pb-2">
+            {visible.map((item) => (
+              <FileTreeItem key={item.id} item={item} depth={0} expanded={expanded} toggle={toggleFolder} />
+            ))}
+          </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   )
 }
 
-/* Named export required by build */
-export { FileManager }
+/* -------------------------------------------------------------------------- */
+/*                     DEFAULT + NAMED EXPORT (REQUIRED)                      */
+/* -------------------------------------------------------------------------- */
+
+export default FileManagerInner
+export { FileManagerInner as FileManager }
