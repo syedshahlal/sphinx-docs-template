@@ -520,19 +520,14 @@ export function ComponentRenderer({ component, isSelected, updateComponentConten
       case "htmlBlock":
         return (
           <div className="relative" style={component.style}>
-            <div className="flex items-center gap-2 mb-3">
-              <FileCode className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium text-muted-foreground">
+            <div className="absolute top-2 right-2 z-10">
+              <Badge variant="outline" className="text-xs bg-background">
+                <FileCode className="h-3 w-3 mr-1.5" />
                 {component.content.name || "HTML Block"}
-              </span>
-              {component.content.category === "tailgrids" && (
-                <Badge variant="secondary" className="text-xs">
-                  TailGrids
-                </Badge>
-              )}
+              </Badge>
             </div>
             <div
-              className="prose prose-sm max-w-none"
+              className="prose dark:prose-invert prose-sm max-w-none"
               dangerouslySetInnerHTML={{
                 __html: component.content.htmlContent || "<p>No HTML content</p>",
               }}

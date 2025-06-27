@@ -11,9 +11,8 @@ import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useEditor } from "./EditorContext"
-import { Settings, Palette, Type, ChevronDown, Trash2, Copy, Code, Sliders } from "lucide-react"
+import { Settings, Palette, Type, Trash2, Copy, Code } from "lucide-react"
 
 export function PropertiesPanel() {
   const { state, updateComponentContent, updateComponentStyle, deleteComponent, duplicateComponent } = useEditor()
@@ -381,8 +380,8 @@ export function PropertiesPanel() {
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary">
-              <Settings className="h-5 w-5 text-primary-foreground" />
+            <div className="p-2 rounded-lg bg-primary text-primary-foreground">
+              <Settings className="h-5 w-5" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-foreground">Properties</h2>
@@ -391,12 +390,11 @@ export function PropertiesPanel() {
               </p>
             </div>
           </div>
-          <Badge variant="outline" className="text-xs">
-            {selectedComponent.id.split("-")[1]}
+          <Badge variant="outline" className="text-xs font-mono">
+            ID: {selectedComponent.id.split("-")[0]}
           </Badge>
         </div>
 
-        {/* Component Actions */}
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleDuplicate} className="flex-1 bg-transparent">
             <Copy className="h-4 w-4 mr-2" />
@@ -415,81 +413,38 @@ export function PropertiesPanel() {
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
-          <Tabs defaultValue="content" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="content" className="text-sm">
-                <Type className="h-4 w-4 mr-2" />
-                Content
-              </TabsTrigger>
-              <TabsTrigger value="style" className="text-sm">
-                <Palette className="h-4 w-4 mr-2" />
-                Style
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="content" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 m-4">
+            <TabsTrigger value="content">
+              <Type className="h-4 w-4 mr-2" />
+              Content
+            </TabsTrigger>
+            <TabsTrigger value="style">
+              <Palette className="h-4 w-4 mr-2" />
+              Style
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="content" className="mt-4">
+          <div className="p-4 pt-0">
+            <TabsContent value="content">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Type className="h-4 w-4" />
-                    Content Settings
-                  </CardTitle>
+                <CardHeader>
+                  <CardTitle className="text-base">Content Settings</CardTitle>
                 </CardHeader>
                 <CardContent>{renderContentEditor()}</CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="style" className="mt-4">
+            <TabsContent value="style">
               <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Palette className="h-4 w-4" />
-                    Style Settings
-                  </CardTitle>
+                <CardHeader>
+                  <CardTitle className="text-base">Style Settings</CardTitle>
                 </CardHeader>
                 <CardContent>{renderStyleEditor()}</CardContent>
               </Card>
             </TabsContent>
-          </Tabs>
-
-          {/* Advanced Settings */}
-          <Collapsible>
-            <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border border-border p-3 hover:bg-muted/50 transition-colors">
-              <div className="flex items-center gap-2">
-                <Sliders className="h-4 w-4" />
-                <span className="text-sm font-medium">Advanced Settings</span>
-              </div>
-              <ChevronDown className="h-4 w-4" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-2">
-              <Card>
-                <CardContent className="pt-4">
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="custom-css">Custom CSS Classes</Label>
-                      <Input
-                        id="custom-css"
-                        value={selectedComponent.style.className || ""}
-                        onChange={(e) => handleStyleUpdate({ className: e.target.value })}
-                        placeholder="custom-class another-class"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="custom-id">Custom ID</Label>
-                      <Input
-                        id="custom-id"
-                        value={selectedComponent.style.id || ""}
-                        onChange={(e) => handleStyleUpdate({ id: e.target.value })}
-                        placeholder="unique-id"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
+          </div>
+        </Tabs>
       </ScrollArea>
     </div>
   )

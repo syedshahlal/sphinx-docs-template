@@ -8,10 +8,7 @@ export default function CreateDocPage() {
   return (
     <EditorProvider>
       <div className="h-screen bg-background flex flex-col">
-        {/* Header with Toolbar */}
         <EditorToolbar />
-
-        {/* Main Editor */}
         <div className="flex-1 overflow-hidden">
           <MarkdownEditor />
         </div>
