@@ -3,10 +3,14 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Book, Loader2 } from "lucide-react"
-import CollapsibleNavItem from "./collapsible-nav-item"
+import { CollapsibleNavItem } from "./collapsible-nav-item"
 import type { NavItem } from "@/lib/docs-navigation"
 
-export default function Sidebar() {
+interface SidebarProps {
+  version?: string
+}
+
+export function Sidebar({ version = "v5.7" }: SidebarProps) {
   const [navigation, setNavigation] = useState<NavItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -16,7 +20,7 @@ export default function Sidebar() {
       try {
         setIsLoading(true)
         setError(null)
-        const response = await fetch("/api/docs-nav?version=v5.7")
+        const response = await fetch(`/api/docs-nav?version=${version}`)
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
         }
@@ -30,7 +34,7 @@ export default function Sidebar() {
       }
     }
     fetchNav()
-  }, [])
+  }, [version])
 
   return (
     <aside className="w-72 flex-shrink-0 border-r border-gray-200 dark:border-slate-800 hidden lg:block">
