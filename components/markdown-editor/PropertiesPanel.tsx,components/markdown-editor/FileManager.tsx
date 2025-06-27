@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-\`\`\`tsx
+
 // components/markdown-editor/PropertiesPanel.tsx
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -58,9 +58,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
 }
 
 export default PropertiesPanel
-\`\`\`
 
-\`\`\`tsx
 // components/markdown-editor/FileManager.tsx
 import { Button } from "@/components/ui/button"
 
@@ -79,4 +77,3 @@ const FileManager: React.FC<FileManagerProps> = ({ onSave, onLoad }) => {
 }
 
 export default FileManager;
-\`\`\`
