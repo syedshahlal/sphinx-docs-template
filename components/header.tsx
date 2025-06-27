@@ -44,19 +44,15 @@ export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const theme = isDarkMode ? "dark" : "light"
 
-  // Available versions - dynamically detect from docs structure
-  // Highest version first (default) - v5.8 is now the latest
+  // Available versions - gcp-5.7 as stable (default), gcp-5.8 as beta
   const [availableVersions] = useState([
-    { version: "5.8", label: "v5.8", url: "/docs/gcp-5.8", isLatest: true },
-    { version: "5.7", label: "v5.7", url: "/docs/gcp-5.7", isLatest: false },
-    { version: "5.6", label: "v5.6", url: "/docs/gcp-5.6", isLatest: false },
-    { version: "5.5", label: "v5.5", url: "/docs/gcp-5.5", isLatest: false },
+    { version: "5.7", label: "v5.7", url: "/docs/gcp-5.7", isLatest: false, status: "stable" },
+    { version: "5.8", label: "v5.8", url: "/docs/gcp-5.8", isLatest: true, status: "beta" },
   ])
 
-  // Extract version from current path and set current version
+  // Default to stable version (5.7)
   const [currentVersion, setCurrentVersion] = useState(() => {
-    // Default to highest version (5.8)
-    return availableVersions[0].version
+    return "5.7" // Default to stable version
   })
 
   // Extract version from URL path
@@ -65,15 +61,15 @@ export function Header() {
     if (match) {
       return match[1]
     }
-    // If no version found in path, return highest version as default
-    return availableVersions[0].version
+    // If no version found in path, return stable version as default
+    return "5.7"
   }
 
   // Update current version based on pathname
   useEffect(() => {
     const versionFromPath = extractVersionFromPath(pathname)
     setCurrentVersion(versionFromPath)
-  }, [pathname, availableVersions])
+  }, [pathname])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -159,6 +155,10 @@ export function Header() {
     return pathname === href || pathname.startsWith(href + "/")
   }
 
+  const getCurrentVersionInfo = () => {
+    return availableVersions.find((v) => v.version === currentVersion)
+  }
+
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
@@ -172,7 +172,7 @@ export function Header() {
           {/* Logo and Title - Extreme Left */}
           <div className="flex items-center gap-3 flex-shrink-0">
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <img src="/placeholder.svg?height=32&width=32" alt="Bank of America" className="h-8 w-8" />
+              <img src="/placeholder.svg?height=32&width=32&text=BoA" alt="Bank of America" className="h-8 w-8" />
               <div className="flex flex-col">
                 <span className="font-bold text-lg text-gray-900 dark:text-white leading-tight">GRA Core Platform</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 leading-tight">Documentation</span>
@@ -267,13 +267,25 @@ export function Header() {
                       : "bg-white/90 border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900"
                   } focus:outline-none focus:ring-2 focus:ring-blue-500/30`}
                 >
-                  <span className="text-sm font-medium">v{currentVersion}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">v{currentVersion}</span>
+                    {getCurrentVersionInfo()?.status === "stable" && (
+                      <span className="px-1.5 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
+                        Stable
+                      </span>
+                    )}
+                    {getCurrentVersionInfo()?.status === "beta" && (
+                      <span className="px-1.5 py-0.5 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded">
+                        Beta
+                      </span>
+                    )}
+                  </div>
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className={`w-48 ${theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}
+                className={`w-56 ${theme === "dark" ? "bg-slate-800 border-slate-700" : "bg-white border-slate-200"}`}
               >
                 <div className="px-3 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                   Documentation Version
@@ -295,9 +307,14 @@ export function Header() {
                   >
                     <div className="flex items-center gap-2">
                       <span>{version.label}</span>
-                      {version.isLatest && (
+                      {version.status === "stable" && (
                         <span className="px-1.5 py-0.5 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded">
-                          Latest
+                          Stable
+                        </span>
+                      )}
+                      {version.status === "beta" && (
+                        <span className="px-1.5 py-0.5 text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded">
+                          Beta
                         </span>
                       )}
                     </div>

@@ -1,71 +1,98 @@
 GRA Core Platform v5.8 Documentation
 ====================================
 
-Welcome to the GRA Core Platform v5.8 documentation. This version introduces significant performance improvements, enhanced security features, and new API capabilities.
+Welcome to the GRA Core Platform v5.8 (Beta) documentation. This version introduces significant enhancements in performance, security, and developer experience.
 
 .. note::
-   GRA Core Platform v5.8 is the latest version with enhanced security, 40% performance improvements, and new GraphQL API support.
+   This is a **Beta** release. For production environments, please use `v5.7 (Stable) <../gcp-5.7/index.html>`_.
 
 What's New in v5.8
 ------------------
 
 * **Enhanced Security**: AES-256 encryption and multi-factor authentication
-* **Performance**: 40% improvement in processing speed over v5.7
-* **GraphQL API**: New GraphQL endpoints alongside REST APIs
-* **Real-time Analytics**: Live dashboard with streaming data
-* **Kubernetes Ready**: Native Kubernetes support with Helm charts
-* **Migration Tools**: Automated migration from v5.7 and v5.6
+* **Performance Boost**: 40% improvement in processing speed
+* **GraphQL Support**: New GraphQL API alongside REST
+* **Real-time Analytics**: Live dashboard with WebSocket support
+* **Kubernetes Ready**: Native Helm charts and container orchestration
+* **Developer Tools**: Enhanced SDK with TypeScript support
 
-Quick Start
------------
-
-Get started with GRA Core Platform v5.8 in minutes:
-
-.. code-block:: bash
-
-   # Install GRA Core Platform v5.8
-   pip install gra-core-platform==5.8.0
-   
-   # Initialize your project
-   gra init my-project --version=5.8
-   
-   # Start the development server
-   gra serve --port=8080
-
-Documentation Sections
-----------------------
+Quick Navigation
+---------------
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Getting Started
 
    getting-started/index
+   getting-started/quickstart
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Platform Overview
+
    platform-overview/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Guide
+
    user-guide/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API Reference
+
    api-reference/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Advanced Topics
+
    data-processing/index
    security-compliance/index
    monitoring-analytics/index
    development-tools/index
    deployment-automation/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Migration & Support
+
    migration-guides/index
    troubleshooting/index
+
+Beta Release Notes
+-----------------
+
+.. warning::
+   **Beta Software**: This version is feature-complete but may contain bugs. 
+   Please report issues to our `GitHub repository <https://github.com/bank-of-america/gra-core-platform/issues>`_.
+
+Key Features in Beta:
+
+* GraphQL API endpoints (experimental)
+* Real-time analytics dashboard
+* Enhanced security protocols
+* Kubernetes deployment templates
+* Performance optimizations
+
+Migration from v5.7
+-------------------
+
+For users upgrading from v5.7, please see our comprehensive :doc:`migration-guides/index` which covers:
+
+* Breaking changes and compatibility
+* Step-by-step upgrade process
+* Configuration updates
+* Testing procedures
 
 Support and Community
 --------------------
 
-* **Documentation**: Complete guides and API reference
-* **GitHub**: Source code and issue tracking
-* **Discord**: Community chat and support
-* **Stack Overflow**: Tagged questions and answers
-
-Version Information
-------------------
-
-:Version: 5.8.0
-:Release Date: December 2024
-:Compatibility: Python 3.8+, Node.js 16+
-:License: MIT License
+* **Documentation**: Complete API reference and guides
+* **GitHub**: `Source code and issue tracking <https://github.com/bank-of-america/gra-core-platform>`_
+* **Community**: Developer forums and discussions
+* **Support**: Enterprise support available
 
 Indices and tables
 ==================
