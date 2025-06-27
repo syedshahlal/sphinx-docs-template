@@ -1,6 +1,8 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import { ThemeProvider } from "@/components/theme-provider"
+import Header from "@/components/header"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -17,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className="w-full">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
@@ -27,22 +29,13 @@ export default function RootLayout({
           referrerPolicy="no-referrer"
         />
       </head>
-      <body
-        className={`${inter.className} min-h-screen w-full m-0 p-0 transition-colors duration-300`}
-        style={{
-          backgroundColor: "rgb(var(--background))",
-          color: "rgb(var(--foreground))",
-        }}
-      >
-        <div
-          className="min-h-screen w-full m-0 p-0 transition-colors duration-300"
-          style={{
-            backgroundColor: "rgb(var(--background))",
-            color: "rgb(var(--foreground))",
-          }}
-        >
-          <main className="w-full">{children}</main>
-        </div>
+      <body className={`${inter.className} min-h-screen antialiased`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <div className="relative flex min-h-screen flex-col bg-background">
+            <Header />
+            <main className="flex-1">{children}</main>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   )

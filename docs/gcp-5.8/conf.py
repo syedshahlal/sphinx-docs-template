@@ -1,16 +1,15 @@
 # Configuration file for the Sphinx documentation builder.
-# GRA Core Platform v5.8 (Beta) Documentation
+# GRA Core Platform v5.8 Beta Documentation
 
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../../_extensions'))
 
 # -- Project information -----------------------------------------------------
 project = 'GRA Core Platform'
 copyright = '2024, Bank of America'
-author = 'GRA Core Platform Team'
-version = '5.8'
+author = 'GRA Development Team'
+version = '5.8.0-beta'
 release = '5.8.0-beta'
 
 # -- General configuration ---------------------------------------------------
@@ -19,67 +18,72 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.githubpages',
     'myst_parser',
-    'react_sphinx_integration',
-    'chatbot_extension'
+    'sphinx_rtd_theme',
+    'sphinx_copybutton',
+    'sphinx_tabs.tabs',
+    'sphinx_design',
 ]
 
-templates_path = ['../../_templates']
+templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # -- Options for HTML output ------------------------------------------------
-html_theme = 'gra_theme'
-html_theme_path = ['../../_themes']
-html_static_path = ['../../_static']
+html_theme = 'sphinx_rtd_theme'
+html_theme_options = {
+    'analytics_id': 'G-XXXXXXXXXX',
+    'analytics_anonymize_ip': False,
+    'logo_only': False,
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': False,
+    'vcs_pageview_mode': '',
+    'style_nav_header_background': '#2980B9',
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False
+}
+
+html_static_path = ['_static']
 html_css_files = [
-    'css/boa-theme.css',
-    'css/components.css',
-    'css/content.css',
-    'css/navigation.css',
-    'css/sidebar.css',
-    'css/react-integration.css',
-    'css/chatbot.css',
-    'custom.css'
+    'css/custom.css',
+    'css/beta-theme.css',
 ]
 
 html_js_files = [
     'js/custom.js',
-    'js/navigation.js',
-    'js/search.js',
-    'js/theme-switcher.js',
-    'js/version-compare.js',
-    'js/react-integration.js',
-    'js/chatbot.js',
-    'custom.js'
+    'js/beta-features.js',
 ]
 
+# -- Extension configuration -------------------------------------------------
+todo_include_todos = True
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+
 # Beta version configuration
-html_theme_options = {
+html_context = {
+    'display_github': True,
+    'github_user': 'bankofamerica',
+    'github_repo': 'gra-core-platform',
+    'github_version': 'main',
+    'conf_py_path': '/docs/gcp-5.8/',
     'version_warning': True,
     'version_type': 'beta',
     'stable_version': '5.7.0',
-    'show_version_banner': True,
-    'enable_beta_features': True,
-    'chatbot_enabled': True,
-    'react_components': True
 }
 
-# Source file suffixes
-source_suffix = {
-    '.rst': None,
-    '.md': 'myst_parser',
+# Intersphinx mapping
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
+    'pandas': ('https://pandas.pydata.org/docs/', None),
 }
-
-# Master document
-master_doc = 'index'
-
-# Internationalization
-language = 'en'
-
-# Beta warning configuration
-rst_prolog = """
-.. warning::
-   This is **BETA** documentation for GRA Core Platform v5.8. 
-   Features may change before the stable release. 
-   For production use, please refer to the `stable v5.7 documentation <../gcp-5.7/index.html>`_.
-"""

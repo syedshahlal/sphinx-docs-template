@@ -2,175 +2,356 @@ Getting Started with GRA Core Platform v5.8 Beta
 =================================================
 
 .. warning::
-   This is **BETA** software. Please test thoroughly before production use.
+   **Beta Release Notice**
+   
+   This is a beta version intended for testing and development. Do not use in production environments.
+   For production deployments, use the `stable v5.7 release <../../gcp-5.7/index.html>`_.
 
-Welcome to GRA Core Platform v5.8 Beta! This guide will help you get up and 
-running with the latest features and improvements.
+Welcome to the GRA Core Platform v5.8 Beta! This guide will help you get up and running quickly with the latest features and improvements.
 
 Prerequisites
--------------
+=============
 
 Before installing GRA Core Platform v5.8 Beta, ensure you have:
 
-**System Requirements**
-   - **OS**: Linux (Ubuntu 20.04+, RHEL 8+, CentOS 8+) or macOS 11+
-   - **Memory**: Minimum 8GB RAM (16GB recommended)
-   - **Storage**: 50GB available disk space
-   - **CPU**: 4+ cores recommended
-   - **Network**: Stable internet connection
+System Requirements
+-------------------
 
-**Software Dependencies**
-   - **Docker**: v20.10+ and Docker Compose v2.0+
-   - **Kubernetes**: v1.24+ (for container deployments)
-   - **Node.js**: v18+ (for SDK development)
-   - **Python**: v3.9+ (for Python SDK)
-   - **Java**: OpenJDK 11+ (for Java SDK)
+**Minimum Requirements:**
+- CPU: 4 cores, 2.4 GHz
+- RAM: 8 GB
+- Storage: 50 GB available space
+- Network: Broadband internet connection
 
-**Database Support**
-   - **PostgreSQL**: v13+ (recommended)
-   - **MySQL**: v8.0+
-   - **MongoDB**: v5.0+
-   - **Redis**: v6.0+ (for caching)
+**Recommended Requirements:**
+- CPU: 8 cores, 3.0 GHz or higher
+- RAM: 16 GB or more
+- Storage: 100 GB SSD
+- Network: High-speed internet (100 Mbps+)
+
+Software Dependencies
+---------------------
+
+**Required:**
+- Node.js 18.x or higher
+- Python 3.9 or higher
+- Docker 20.10 or higher
+- Git 2.30 or higher
+
+**Optional but Recommended:**
+- Kubernetes 1.24+
+- Redis 6.2+
+- PostgreSQL 13+
+- MongoDB 5.0+
 
 Installation Methods
---------------------
+====================
 
 Choose your preferred installation method:
 
-1. **Docker Compose** (Recommended for development)
+1. **NPM Installation** (Recommended)
    
    .. code-block:: bash
    
-      # Download the beta compose file
-      curl -O https://releases.gra-core.com/v5.8-beta/docker-compose.yml
-      
-      # Start the platform
-      docker-compose up -d
-      
+      # Install the beta version
+      npm install -g @gra/core-platform@5.8.0-beta
+   
       # Verify installation
-      curl http://localhost:8080/health
+      gra-cli --version
+      # Expected output: GRA Core Platform v5.8.0-beta
 
-2. **Kubernetes Deployment**
+   .. code-block:: bash
+   
+      # Initialize a new project
+      gra-cli init my-project --template beta
+      cd my-project
+   
+      # Install dependencies
+      npm install
+   
+      # Start development server
+      npm run dev
+
+2. **Python Installation**
    
    .. code-block:: bash
    
-      # Add the Helm repository
-      helm repo add gra-core https://charts.gra-core.com
+      # Create virtual environment
+      python -m venv gra-env
+      source gra-env/bin/activate  # On Windows: gra-env\Scripts\activate
+   
+      # Install beta version
+      pip install gra-core-platform==5.8.0b1
+   
+      # Verify installation
+      python -c "import gra_platform; print(gra_platform.__version__)"
+
+3. **Docker Installation**
+   
+   .. code-block:: bash
+   
+      # Pull the beta image
+      docker pull bankofamerica/gra-core-platform:5.8.0-beta
+   
+      # Run container
+      docker run -d \
+        --name gra-platform-beta \
+        -p 8080:8080 \
+        -p 9090:9090 \
+        -e GRA_ENV=development \
+        bankofamerica/gra-core-platform:5.8.0-beta
+
+4. **Kubernetes Deployment**
+   
+   .. code-block:: bash
+   
+      # Add Helm repository
+      helm repo add gra-platform https://charts.gra-platform.com
       helm repo update
-      
-      # Install v5.8 beta
-      helm install gra-core gra-core/platform \
+   
+      # Install beta version
+      helm install gra-platform-beta gra-platform/gra-core \
         --version 5.8.0-beta \
-        --namespace gra-core \
-        --create-namespace
+        --namespace gra-system \
+        --create-namespace \
+        --set image.tag=5.8.0-beta
 
-3. **Binary Installation**
-   
-   .. code-block:: bash
-   
-      # Download the binary
-      wget https://releases.gra-core.com/v5.8-beta/gra-core-linux-amd64.tar.gz
-      
-      # Extract and install
-      tar -xzf gra-core-linux-amd64.tar.gz
-      sudo mv gra-core /usr/local/bin/
-      
-      # Initialize configuration
-      gra-core init --version=5.8-beta
+Configuration
+=============
 
-Quick Start Tutorial
---------------------
+Basic Configuration
+-------------------
 
-Once installed, follow these steps to get started:
-
-**Step 1: Initialize Your Workspace**
-
-.. code-block:: bash
-
-   # Create a new project
-   gra-core create-project my-first-app
-   cd my-first-app
-   
-   # Initialize with beta features
-   gra-core init --enable-beta-features
-
-**Step 2: Configure Authentication**
+Create a configuration file ``gra-config.yaml``:
 
 .. code-block:: yaml
 
-   # config/auth.yml
-   authentication:
-     provider: "oauth2"
-     mfa_enabled: true  # New in v5.8
-     session_timeout: 3600
-     jwt_secret: "your-secret-key"
-
-**Step 3: Set Up Your First API Endpoint**
-
-.. code-block:: javascript
-
-   // Using the new GraphQL API (Beta feature)
-   const { GraphQLServer } = require('@gra-core/graphql-beta');
+   # GRA Core Platform v5.8 Beta Configuration
+   version: "5.8.0-beta"
    
-   const server = new GraphQLServer({
-     typeDefs: `
-       type Query {
-         hello(name: String!): String
-       }
-     `,
-     resolvers: {
-       Query: {
-         hello: (_, { name }) => `Hello, ${name}! Welcome to GRA Core v5.8 Beta`
-       }
-     }
-   });
+   # API Configuration
+   api:
+     host: "localhost"
+     port: 8080
+     ssl: false
+     cors:
+       enabled: true
+       origins: ["http://localhost:3000"]
    
-   server.start({ port: 4000 });
+   # Database Configuration
+   database:
+     type: "postgresql"
+     host: "localhost"
+     port: 5432
+     name: "gra_platform_beta"
+     username: "gra_user"
+     password: "secure_password"
+     ssl: false
+   
+   # Cache Configuration (New in v5.8)
+   cache:
+     type: "redis"
+     host: "localhost"
+     port: 6379
+     cluster: false
+     ttl: 3600
+   
+   # Security Configuration (Enhanced in v5.8)
+   security:
+     encryption:
+       algorithm: "AES-256-GCM"
+       key_rotation: true
+       key_rotation_interval: "30d"
+     authentication:
+       mfa_enabled: true
+       session_timeout: "24h"
+       max_login_attempts: 5
+   
+   # Monitoring Configuration (New in v5.8)
+   monitoring:
+     enabled: true
+     metrics:
+       prometheus: true
+       grafana: true
+     logging:
+       level: "info"
+       format: "json"
+       output: "stdout"
 
-**Step 4: Test Your Setup**
+Environment Variables
+---------------------
 
 .. code-block:: bash
 
-   # Test REST API
-   curl http://localhost:8080/api/v1/health
+   # Core Configuration
+   export GRA_VERSION=5.8.0-beta
+   export GRA_ENV=development
+   export GRA_CONFIG_PATH=./gra-config.yaml
    
-   # Test GraphQL API (New in v5.8)
-   curl -X POST http://localhost:4000/graphql \
-     -H "Content-Type: application/json" \
-     -d '{"query": "{ hello(name: \"World\") }"}'
+   # API Configuration
+   export GRA_API_HOST=localhost
+   export GRA_API_PORT=8080
+   export GRA_API_KEY=your-api-key-here
+   
+   # Database Configuration
+   export GRA_DB_URL=postgresql://user:pass@localhost:5432/gra_beta
+   
+   # Security Configuration (New in v5.8)
+   export GRA_ENCRYPTION_KEY=your-256-bit-encryption-key
+   export GRA_JWT_SECRET=your-jwt-secret-key
+   
+   # Feature Flags (Beta Features)
+   export GRA_ENABLE_GRAPHQL=true
+   export GRA_ENABLE_REALTIME=true
+   export GRA_ENABLE_ANALYTICS=true
 
-Beta Features to Explore
--------------------------
+First Steps
+===========
 
-**1. Enhanced Analytics Dashboard**
-   Access the new real-time dashboard at ``http://localhost:8080/dashboard``
+1. **Verify Installation**
 
-**2. GraphQL Playground**
-   Interactive GraphQL explorer at ``http://localhost:4000/playground``
+.. code-block:: bash
 
-**3. WebSocket Connections**
-   Real-time data streaming capabilities
+   # Check version
+   gra-cli version
+   
+   # Check system status
+   gra-cli status
+   
+   # Run health check
+   gra-cli health
 
-**4. Advanced Monitoring**
-   Comprehensive metrics and alerting system
+2. **Create Your First Project**
+
+.. code-block:: bash
+
+   # Create new project
+   gra-cli create project my-first-app
+   cd my-first-app
+   
+   # Generate sample code
+   gra-cli generate component user-dashboard
+   gra-cli generate api user-service
+
+3. **Start Development Server**
+
+.. code-block:: bash
+
+   # Start all services
+   gra-cli start
+   
+   # Or start specific services
+   gra-cli start api
+   gra-cli start ui
+   gra-cli start worker
+
+4. **Access the Platform**
+
+- **Web UI**: http://localhost:8080
+- **API Documentation**: http://localhost:8080/docs
+- **GraphQL Playground**: http://localhost:8080/graphql
+- **Monitoring Dashboard**: http://localhost:9090
+
+Beta Features to Try
+====================
+
+GraphQL API (New)
+-----------------
+
+.. code-block:: javascript
+
+   // GraphQL query example
+   const query = `
+     query GetUsers($limit: Int!) {
+       users(limit: $limit) {
+         id
+         name
+         email
+         profile {
+           avatar
+           department
+         }
+       }
+     }
+   `;
+   
+   const response = await fetch('/graphql', {
+     method: 'POST',
+     headers: { 'Content-Type': 'application/json' },
+     body: JSON.stringify({ query, variables: { limit: 10 } })
+   });
+
+Real-time Analytics (Enhanced)
+------------------------------
+
+.. code-block:: python
+
+   from gra_platform import Analytics
+   
+   # Initialize analytics client
+   analytics = Analytics(version='5.8.0-beta')
+   
+   # Track custom events
+   analytics.track('user_action', {
+       'action': 'button_click',
+       'component': 'dashboard',
+       'user_id': '12345'
+   })
+   
+   # Get real-time metrics
+   metrics = analytics.get_realtime_metrics()
+   print(f"Active users: {metrics['active_users']}")
+
+Enhanced Security (New)
+-----------------------
+
+.. code-block:: bash
+
+   # Enable MFA for user
+   gra-cli user mfa enable --user-id 12345
+   
+   # Generate API key with specific permissions
+   gra-cli api-key create --name "beta-testing" --permissions "read,write"
+   
+   # Audit security events
+   gra-cli security audit --since "24h"
 
 Next Steps
-----------
+==========
 
-- :doc:`quickstart` - Complete tutorial with examples
-- :doc:`../api-reference/index` - Explore the new APIs
-- :doc:`../user-guide/configuration` - Advanced configuration options
-- :doc:`../migration-guides/index` - Migrating from v5.7
+Now that you have GRA Core Platform v5.8 Beta installed and configured:
 
-Need Help?
-----------
+1. **Complete the Quickstart Tutorial**: :doc:`quickstart`
+2. **Explore the API Reference**: :doc:`../api-reference/index`
+3. **Learn about New Features**: :doc:`../platform-overview/index`
+4. **Join the Beta Community**: https://community.gra-platform.com/beta
 
-- **Documentation**: Continue reading this guide
-- **Community**: Join our `Discord server <https://discord.gg/gra-core>`_
-- **Support**: Email beta-feedback@gra-core.com
-- **Issues**: Report bugs on `GitHub <https://github.com/gra-core/platform/issues>`_
+Troubleshooting
+===============
 
-.. note::
-   **Beta Limitations**: Some features may have limited functionality or 
-   require additional configuration. Please refer to the 
-   :doc:`../troubleshooting/index` section for known issues.
+Common Issues
+-------------
+
+**Installation Fails**
+   - Ensure you have the correct Node.js/Python version
+   - Clear npm/pip cache: ``npm cache clean --force`` or ``pip cache purge``
+   - Check network connectivity and proxy settings
+
+**Service Won't Start**
+   - Check port availability: ``netstat -tulpn | grep :8080``
+   - Verify configuration file syntax
+   - Check logs: ``gra-cli logs --tail 100``
+
+**Database Connection Issues**
+   - Verify database is running and accessible
+   - Check connection string format
+   - Ensure database user has proper permissions
+
+Getting Help
+============
+
+- **Documentation**: Complete guides and API reference
+- **Community Forum**: https://community.gra-platform.com
+- **GitHub Issues**: Report bugs and request features
+- **Email Support**: gra-platform-beta@bankofamerica.com
+- **Slack Channel**: #gra-platform-beta
