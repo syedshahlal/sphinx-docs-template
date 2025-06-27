@@ -228,15 +228,26 @@ export function Header() {
             <div className="flex items-center">
               <Link href="/" className="relative group flex items-center space-x-3">
                 <BankChip />
-                <h1
-                  className={`font-semibold text-lg whitespace-nowrap transition-colors duration-200 ${
-                    theme === "dark"
-                      ? "text-white group-hover:text-blue-300"
-                      : "text-gray-900 group-hover:text-blue-600"
-                  }`}
-                >
-                  GRA Core Platform Docs
-                </h1>
+                <div>
+                  <h1
+                    className={`font-semibold text-lg whitespace-nowrap transition-colors duration-200 leading-tight ${
+                      theme === "dark"
+                        ? "text-white group-hover:text-blue-300"
+                        : "text-gray-900 group-hover:text-blue-600"
+                    }`}
+                  >
+                    GRA Core Platform
+                  </h1>
+                  <p
+                    className={`text-xs transition-colors duration-200 leading-tight ${
+                      theme === "dark"
+                        ? "text-slate-400 group-hover:text-slate-300"
+                        : "text-slate-500 group-hover:text-slate-600"
+                    }`}
+                  >
+                    Documentation
+                  </p>
+                </div>
               </Link>
 
               {/* Version Dropdown */}
