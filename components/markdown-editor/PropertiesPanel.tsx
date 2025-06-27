@@ -8,7 +8,13 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Calendar, Tag, User, Clock, FileText } from "lucide-react"
 
 interface DocumentMetadata {
@@ -116,7 +122,10 @@ export default function PropertiesPanel() {
 
           <div>
             <Label htmlFor="category">Category</Label>
-            <Select value={metadata.category} onValueChange={(value) => handleInputChange("category", value)}>
+            <Select
+              value={metadata.category}
+              onValueChange={(value) => handleInputChange("category", value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -134,7 +143,9 @@ export default function PropertiesPanel() {
             <Label htmlFor="status">Status</Label>
             <Select
               value={metadata.status}
-              onValueChange={(value: "draft" | "review" | "published") => handleInputChange("status", value)}
+              onValueChange={(value: "draft" | "review" | "published") =>
+                handleInputChange("status", value)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select status" />
@@ -175,7 +186,7 @@ export default function PropertiesPanel() {
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
               placeholder="Add tag"
-              onKeyPress={(e) => e.key === "Enter" && addTag()}
+              onKeyDown={(e) => e.key === "Enter" && addTag()}
             />
             <Button onClick={addTag} size="sm">
               Add
@@ -232,5 +243,4 @@ export default function PropertiesPanel() {
   )
 }
 
-/* Named export required by build */
 export { PropertiesPanel }
