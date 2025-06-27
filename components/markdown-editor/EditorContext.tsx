@@ -2,182 +2,192 @@
 
 import type React from "react"
 import { createContext, useContext, useReducer, useCallback } from "react"
-import type { MarkdownComponent } from "./types"
+import type { EditorState, EditorAction, MarkdownComponent } from "./types"
 
-interface EditorState {
-  components: MarkdownComponent[]
-  selectedComponent: string | null
-  fileName: string | null
-  filePath: string | null
-  previewMode: "edit" | "preview" | "mobile" | "tablet"
-  history: MarkdownComponent[][]
-  historyIndex: number
-}
-
-type EditorAction =
-  | { type: "ADD_COMPONENT"; component: Omit<MarkdownComponent, "id" | "order">; afterId?: string }
-  | { type: "UPDATE_COMPONENT_CONTENT"; id: string; content: Partial<any> }
-  | { type: "UPDATE_COMPONENT_STYLE"; id: string; style: Partial<any> }
-  | { type: "DELETE_COMPONENT"; id: string }
-  | { type: "DUPLICATE_COMPONENT"; id: string }
-  | { type: "SELECT_COMPONENT"; id: string | null }
-  | { type: "SET_PREVIEW_MODE"; mode: "edit" | "preview" | "mobile" | "tablet" }
-  | { type: "SET_FILE_NAME"; fileName: string }
-  | { type: "SET_FILE_PATH"; filePath: string }
-  | { type: "UNDO" }
-  | { type: "REDO" }
-  | { type: "SAVE_TO_HISTORY" }
-
-const initialState: EditorState = {
-  components: [],
-  selectedComponent: null,
-  fileName: null,
-  filePath: null,
-  previewMode: "edit",
-  history: [[]],
-  historyIndex: 0,
-}
+const EditorContext = createContext<{
+  state: EditorState
+  addComponent: (
+    component: Omit<MarkdownComponent, "id" | "order">,
+    index?: number,
+    returnId?: (id: string) => void,
+  ) => void
+  deleteComponent: (id: string) => void
+  updateComponentContent: (id: string, contentUpdates: Partial<any>) => void
+  updateComponentStyle: (id: string, styleUpdates: Partial<any>) => void
+  reorderComponents: (components: MarkdownComponent[]) => void
+  selectComponent: (id: string | null) => void
+  setPreviewMode: (mode: "edit" | "preview") => void
+  loadComponents: (components: MarkdownComponent[], fileName?: string, filePath?: string) => void
+  duplicateComponent: (id: string) => void
+  undo: () => void
+  redo: () => void
+  updateFileName: (fileName: string) => void
+} | null>(null)
 
 function generateId(): string {
-  return `component-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  return Math.random().toString(36).substr(2, 9)
 }
 
 function editorReducer(state: EditorState, action: EditorAction): EditorState {
+  const saveToHistory = (newState: Omit<EditorState, "history">) => ({
+    ...newState,
+    history: {
+      past: [...state.history.past, { ...state, history: { past: [], future: [] } }],
+      future: [],
+    },
+  })
+
   switch (action.type) {
     case "ADD_COMPONENT": {
       const id = generateId()
-      const order = action.afterId
-        ? state.components.find((c) => c.id === action.afterId)?.order || 0
-        : state.components.length
-
       const newComponent: MarkdownComponent = {
-        ...action.component,
+        ...action.payload.component,
         id,
-        order,
+        order: action.payload.index ?? state.components.length,
       }
 
-      const newComponents = [...state.components, newComponent].sort((a, b) => a.order - b.order)
+      const newComponents = [...state.components]
+      if (action.payload.index !== undefined) {
+        newComponents.splice(action.payload.index, 0, newComponent)
+      } else {
+        newComponents.push(newComponent)
+      }
 
-      return {
+      // Update order for all components
+      const reorderedComponents = newComponents.map((comp, index) => ({ ...comp, order: index }))
+
+      action.returnId?.(id)
+
+      return saveToHistory({
         ...state,
-        components: newComponents,
-        history: [...state.history.slice(0, state.historyIndex + 1), newComponents],
-        historyIndex: state.historyIndex + 1,
-      }
-    }
-
-    case "UPDATE_COMPONENT_CONTENT": {
-      const newComponents = state.components.map((component) =>
-        component.id === action.id ? { ...component, content: { ...component.content, ...action.content } } : component,
-      )
-
-      return {
-        ...state,
-        components: newComponents,
-        history: [...state.history.slice(0, state.historyIndex + 1), newComponents],
-        historyIndex: state.historyIndex + 1,
-      }
-    }
-
-    case "UPDATE_COMPONENT_STYLE": {
-      const newComponents = state.components.map((component) =>
-        component.id === action.id ? { ...component, style: { ...component.style, ...action.style } } : component,
-      )
-
-      return {
-        ...state,
-        components: newComponents,
-        history: [...state.history.slice(0, state.historyIndex + 1), newComponents],
-        historyIndex: state.historyIndex + 1,
-      }
+        components: reorderedComponents,
+        isDirty: true,
+      })
     }
 
     case "DELETE_COMPONENT": {
-      const newComponents = state.components.filter((component) => component.id !== action.id)
+      const newComponents = state.components.filter((c) => c.id !== action.payload.id)
+      const reorderedComponents = newComponents.map((comp, index) => ({ ...comp, order: index }))
 
-      return {
+      return saveToHistory({
         ...state,
-        components: newComponents,
-        selectedComponent: state.selectedComponent === action.id ? null : state.selectedComponent,
-        history: [...state.history.slice(0, state.historyIndex + 1), newComponents],
-        historyIndex: state.historyIndex + 1,
-      }
+        components: reorderedComponents,
+        selectedComponent: state.selectedComponent === action.payload.id ? null : state.selectedComponent,
+        isDirty: true,
+      })
     }
 
-    case "DUPLICATE_COMPONENT": {
-      const componentToDuplicate = state.components.find((c) => c.id === action.id)
-      if (!componentToDuplicate) return state
+    case "UPDATE_COMPONENT_CONTENT": {
+      const newComponents = state.components.map((comp) =>
+        comp.id === action.payload.id
+          ? { ...comp, content: { ...comp.content, ...action.payload.contentUpdates } }
+          : comp,
+      )
 
-      const id = generateId()
-      const newComponent: MarkdownComponent = {
-        ...componentToDuplicate,
-        id,
-        order: componentToDuplicate.order + 0.5,
-      }
-
-      const newComponents = [...state.components, newComponent].sort((a, b) => a.order - b.order)
-
-      return {
+      return saveToHistory({
         ...state,
         components: newComponents,
-        history: [...state.history.slice(0, state.historyIndex + 1), newComponents],
-        historyIndex: state.historyIndex + 1,
-      }
+        isDirty: true,
+      })
+    }
+
+    case "UPDATE_COMPONENT_STYLE": {
+      const newComponents = state.components.map((comp) =>
+        comp.id === action.payload.id ? { ...comp, style: { ...comp.style, ...action.payload.styleUpdates } } : comp,
+      )
+
+      return saveToHistory({
+        ...state,
+        components: newComponents,
+        isDirty: true,
+      })
+    }
+
+    case "REORDER_COMPONENTS": {
+      const reorderedComponents = action.payload.components.map((comp, index) => ({ ...comp, order: index }))
+
+      return saveToHistory({
+        ...state,
+        components: reorderedComponents,
+        isDirty: true,
+      })
     }
 
     case "SELECT_COMPONENT":
       return {
         ...state,
-        selectedComponent: action.id,
+        selectedComponent: action.payload.id,
       }
 
     case "SET_PREVIEW_MODE":
       return {
         ...state,
-        previewMode: action.mode,
+        previewMode: action.payload.mode,
       }
 
-    case "SET_FILE_NAME":
+    case "LOAD_COMPONENTS":
       return {
         ...state,
-        fileName: action.fileName,
+        components: action.payload.components,
+        fileName: action.payload.fileName,
+        filePath: action.payload.filePath,
+        isDirty: false,
+        selectedComponent: null,
+        history: { past: [], future: [] },
       }
 
-    case "SET_FILE_PATH":
-      return {
-        ...state,
-        filePath: action.filePath,
+    case "DUPLICATE_COMPONENT": {
+      const componentToDuplicate = state.components.find((c) => c.id === action.payload.id)
+      if (!componentToDuplicate) return state
+
+      const id = generateId()
+      const duplicatedComponent: MarkdownComponent = {
+        ...componentToDuplicate,
+        id,
+        order: componentToDuplicate.order + 1,
       }
+
+      const newComponents = [...state.components]
+      newComponents.splice(componentToDuplicate.order + 1, 0, duplicatedComponent)
+      const reorderedComponents = newComponents.map((comp, index) => ({ ...comp, order: index }))
+
+      return saveToHistory({
+        ...state,
+        components: reorderedComponents,
+        selectedComponent: id,
+        isDirty: true,
+      })
+    }
 
     case "UNDO": {
-      if (state.historyIndex > 0) {
-        const newIndex = state.historyIndex - 1
-        return {
-          ...state,
-          components: state.history[newIndex],
-          historyIndex: newIndex,
-        }
+      const { past, future } = state.history
+      if (past.length === 0) return state
+
+      const previous = past[past.length - 1]
+      const newPast = past.slice(0, past.length - 1)
+
+      return {
+        ...previous,
+        history: {
+          past: newPast,
+          future: [{ ...state, history: { past: [], future: [] } }, ...future],
+        },
       }
-      return state
     }
 
     case "REDO": {
-      if (state.historyIndex < state.history.length - 1) {
-        const newIndex = state.historyIndex + 1
-        return {
-          ...state,
-          components: state.history[newIndex],
-          historyIndex: newIndex,
-        }
-      }
-      return state
-    }
+      const { past, future } = state.history
+      if (future.length === 0) return state
 
-    case "SAVE_TO_HISTORY": {
+      const next = future[0]
+      const newFuture = future.slice(1)
+
       return {
-        ...state,
-        history: [...state.history.slice(0, state.historyIndex + 1), state.components],
-        historyIndex: state.historyIndex + 1,
+        ...next,
+        history: {
+          past: [...past, { ...state, history: { past: [], future: [] } }],
+          future: newFuture,
+        },
       }
     }
 
@@ -186,73 +196,59 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
   }
 }
 
-interface EditorContextType {
-  state: EditorState
-  addComponent: (
-    component: Omit<MarkdownComponent, "id" | "order">,
-    afterId?: string,
-    onAdd?: (id: string) => void,
-  ) => void
-  updateComponentContent: (id: string, content: Partial<any>) => void
-  updateComponentStyle: (id: string, style: Partial<any>) => void
-  deleteComponent: (id: string) => void
-  duplicateComponent: (id: string) => void
-  selectComponent: (id: string | null) => void
-  setPreviewMode: (mode: "edit" | "preview" | "mobile" | "tablet") => void
-  setFileName: (fileName: string) => void
-  setFilePath: (filePath: string) => void
-  undo: () => void
-  redo: () => void
-  canUndo: boolean
-  canRedo: boolean
+const initialState: EditorState = {
+  components: [],
+  selectedComponent: null,
+  previewMode: "edit",
+  isDirty: false,
+  fileName: "Untitled Page",
+  filePath: undefined,
+  history: {
+    past: [],
+    future: [],
+  },
 }
-
-const EditorContext = createContext<EditorContextType | undefined>(undefined)
 
 export function EditorProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(editorReducer, initialState)
 
   const addComponent = useCallback(
-    (component: Omit<MarkdownComponent, "id" | "order">, afterId?: string, onAdd?: (id: string) => void) => {
-      dispatch({ type: "ADD_COMPONENT", component, afterId })
-      // Note: In a real implementation, you'd need to get the actual ID from the action
-      if (onAdd) {
-        setTimeout(() => onAdd(generateId()), 0)
-      }
+    (component: Omit<MarkdownComponent, "id" | "order">, index?: number, returnId?: (id: string) => void) => {
+      dispatch({ type: "ADD_COMPONENT", payload: { component, index }, returnId })
     },
     [],
   )
 
-  const updateComponentContent = useCallback((id: string, content: Partial<any>) => {
-    dispatch({ type: "UPDATE_COMPONENT_CONTENT", id, content })
-  }, [])
-
-  const updateComponentStyle = useCallback((id: string, style: Partial<any>) => {
-    dispatch({ type: "UPDATE_COMPONENT_STYLE", id, style })
-  }, [])
-
   const deleteComponent = useCallback((id: string) => {
-    dispatch({ type: "DELETE_COMPONENT", id })
+    dispatch({ type: "DELETE_COMPONENT", payload: { id } })
   }, [])
 
-  const duplicateComponent = useCallback((id: string) => {
-    dispatch({ type: "DUPLICATE_COMPONENT", id })
+  const updateComponentContent = useCallback((id: string, contentUpdates: Partial<any>) => {
+    dispatch({ type: "UPDATE_COMPONENT_CONTENT", payload: { id, contentUpdates } })
+  }, [])
+
+  const updateComponentStyle = useCallback((id: string, styleUpdates: Partial<any>) => {
+    dispatch({ type: "UPDATE_COMPONENT_STYLE", payload: { id, styleUpdates } })
+  }, [])
+
+  const reorderComponents = useCallback((components: MarkdownComponent[]) => {
+    dispatch({ type: "REORDER_COMPONENTS", payload: { components } })
   }, [])
 
   const selectComponent = useCallback((id: string | null) => {
-    dispatch({ type: "SELECT_COMPONENT", id })
+    dispatch({ type: "SELECT_COMPONENT", payload: { id } })
   }, [])
 
-  const setPreviewMode = useCallback((mode: "edit" | "preview" | "mobile" | "tablet") => {
-    dispatch({ type: "SET_PREVIEW_MODE", mode })
+  const setPreviewMode = useCallback((mode: "edit" | "preview") => {
+    dispatch({ type: "SET_PREVIEW_MODE", payload: { mode } })
   }, [])
 
-  const setFileName = useCallback((fileName: string) => {
-    dispatch({ type: "SET_FILE_NAME", fileName })
+  const loadComponents = useCallback((components: MarkdownComponent[], fileName?: string, filePath?: string) => {
+    dispatch({ type: "LOAD_COMPONENTS", payload: { components, fileName, filePath } })
   }, [])
 
-  const setFilePath = useCallback((filePath: string) => {
-    dispatch({ type: "SET_FILE_PATH", filePath })
+  const duplicateComponent = useCallback((id: string) => {
+    dispatch({ type: "DUPLICATE_COMPONENT", payload: { id } })
   }, [])
 
   const undo = useCallback(() => {
@@ -263,24 +259,24 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: "REDO" })
   }, [])
 
-  const canUndo = state.historyIndex > 0
-  const canRedo = state.historyIndex < state.history.length - 1
+  const updateFileName = useCallback((fileName: string) => {
+    dispatch({ type: "UPDATE_COMPONENT_CONTENT", payload: { id: "filename", contentUpdates: { fileName } } })
+  }, [])
 
-  const value: EditorContextType = {
+  const value = {
     state,
     addComponent,
+    deleteComponent,
     updateComponentContent,
     updateComponentStyle,
-    deleteComponent,
-    duplicateComponent,
+    reorderComponents,
     selectComponent,
     setPreviewMode,
-    setFileName,
-    setFilePath,
+    loadComponents,
+    duplicateComponent,
     undo,
     redo,
-    canUndo,
-    canRedo,
+    updateFileName,
   }
 
   return <EditorContext.Provider value={value}>{children}</EditorContext.Provider>
@@ -288,7 +284,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
 
 export function useEditor() {
   const context = useContext(EditorContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useEditor must be used within an EditorProvider")
   }
   return context

@@ -42,34 +42,46 @@ export function MarkdownEditor() {
   }
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-      <ResizablePanelGroup direction="horizontal" className="w-full h-full">
-        <ResizablePanel defaultSize={18} minSize={15} maxSize={25}>
-          <ComponentPalette />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={37} minSize={30}>
-          <EditorCanvas />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={27} minSize={20}>
-          <PreviewPanel />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={18} minSize={15} maxSize={25}>
-          <PropertiesPanel />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+    <div className="h-full bg-[#f7f8f9]">
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+        <ResizablePanelGroup direction="horizontal" className="w-full h-full">
+          {/* Confluence-style Sidebar */}
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+            <ComponentPalette />
+          </ResizablePanel>
 
-      <DragOverlay>
-        {activeId ? (
-          <div className="bg-primary/10 border-2 border-primary border-dashed rounded-lg p-4 shadow-lg">
-            <div className="text-sm font-medium text-primary">
-              {activeId.replace("palette-", "").replace(/-/g, " ")}
+          <ResizableHandle withHandle className="bg-[#dfe1e6] hover:bg-[#b3bac5] w-1" />
+
+          {/* Main Editor Canvas */}
+          <ResizablePanel defaultSize={45} minSize={35}>
+            <EditorCanvas />
+          </ResizablePanel>
+
+          <ResizableHandle withHandle className="bg-[#dfe1e6] hover:bg-[#b3bac5] w-1" />
+
+          {/* Preview Panel */}
+          <ResizablePanel defaultSize={25} minSize={20}>
+            <PreviewPanel />
+          </ResizablePanel>
+
+          <ResizableHandle withHandle className="bg-[#dfe1e6] hover:bg-[#b3bac5] w-1" />
+
+          {/* Properties Panel */}
+          <ResizablePanel defaultSize={10} minSize={15} maxSize={25}>
+            <PropertiesPanel />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+
+        <DragOverlay>
+          {activeId ? (
+            <div className="bg-[#0052cc]/10 border-2 border-[#0052cc] border-dashed rounded-lg p-4 shadow-lg">
+              <div className="text-sm font-medium text-[#0052cc]">
+                {activeId.replace("palette-", "").replace(/-/g, " ")}
+              </div>
             </div>
-          </div>
-        ) : null}
-      </DragOverlay>
-    </DndContext>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+    </div>
   )
 }
