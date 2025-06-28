@@ -845,9 +845,11 @@ jobs:
 // frontend/src/lib/search.ts
 import algoliasearch from 'algoliasearch/lite';
 
+// ⚠️ Replace the two placeholder strings with your real credentials,
+// or load them safely on the server and proxy the request.
 const searchClient = algoliasearch(
-  process.env.NEXT_PUBLIC_ALGOLIA_APP_ID!,
-  process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY!
+  'YOUR_ALGOLIA_APP_ID',
+  'YOUR_ALGOLIA_SEARCH_KEY'
 );
 
 export const searchIndex = searchClient.initIndex('gra_docs');
