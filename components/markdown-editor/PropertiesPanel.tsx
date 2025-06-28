@@ -10,73 +10,80 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button"
 
 /* -------------------------------------------------------------------------- */
-/*                                   TYPES                                    */
+/*                                Type Helpers                                */
 /* -------------------------------------------------------------------------- */
 
 interface StyleUpdates {
   color?: string
   fontSize?: string
-  [key: string]: string | undefined
 }
 
 interface MarkdownComponent {
   id: string
   type: string
-  content: Record<string, unknown>
+  content: { text?: string }
   style?: StyleUpdates
 }
 
-interface PropertiesPanelProps {
-  selectedComponent: MarkdownComponent | null
-  onUpdateComponent: (updates: Partial<MarkdownComponent>) => void
-  onUpdateStyle: (updates: StyleUpdates) => void
+interface PropertiesProps {
+  selected: MarkdownComponent | null
+  onUpdateComponent?: (updates: Partial<MarkdownComponent>) => void
+  onUpdateStyle?: (updates: StyleUpdates) => void
 }
 
 /* -------------------------------------------------------------------------- */
-/*                            PROPERTIES PANEL UI                             */
+/*                               PropertiesPanel                              */
 /* -------------------------------------------------------------------------- */
 
-function PropertiesPanelInner({ selectedComponent, onUpdateComponent, onUpdateStyle }: PropertiesPanelProps) {
-  const [localContent, setLocalContent] = useState(selectedComponent?.content?.text ?? "")
-  const [localColor, setLocalColor] = useState(selectedComponent?.style?.color ?? "")
+function PropertiesPanelInner({ selected, onUpdateComponent = () => {}, onUpdateStyle = () => {} }: PropertiesProps) {
+  const [text, setText] = useState(selected?.content.text ?? "")
+  const [color, setColor] = useState(selected?.style?.color ?? "#000000")
+  const [font, setFont] = useState(selected?.style?.fontSize ?? "text-base")
 
-  if (!selectedComponent) {
+  if (!selected) {
     return (
       <Card className="h-full flex items-center justify-center">
-        <span className="text-muted-foreground text-sm">No component selected</span>
+        <span className="text-muted-foreground text-sm">Select a component</span>
       </Card>
     )
   }
 
   const handleSave = () => {
-    onUpdateComponent({ content: { ...selectedComponent.content, text: localContent } })
-    onUpdateStyle({ color: localColor })
+    onUpdateComponent({ content: { text } })
+    onUpdateStyle({ color, fontSize: font })
   }
 
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Edit Properties</CardTitle>
+        <CardTitle className="text-lg">Component Properties</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+
+      <CardContent className="space-y-5">
+        {/* Text */}
         <div>
-          <Label htmlFor="content">Text</Label>
-          <Textarea id="content" value={localContent as string} onChange={(e) => setLocalContent(e.target.value)} />
+          <Label htmlFor="prop-text">Text</Label>
+          <Textarea id="prop-text" value={text} onChange={(e) => setText(e.target.value)} />
         </div>
 
+        {/* Color */}
         <div>
-          <Label htmlFor="color">Color</Label>
-          <Input id="color" type="color" value={localColor} onChange={(e) => setLocalColor(e.target.value)} />
+          <Label htmlFor="prop-color">Color</Label>
+          <Input
+            id="prop-color"
+            type="color"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            className="h-10 p-1"
+          />
         </div>
 
+        {/* Font size */}
         <div>
-          <Label>Font Size</Label>
-          <Select
-            defaultValue={selectedComponent.style?.fontSize ?? "text-base"}
-            onValueChange={(val) => onUpdateStyle({ fontSize: val })}
-          >
+          <Label>Font size</Label>
+          <Select value={font} onValueChange={(val) => setFont(val)}>
             <SelectTrigger>
-              <SelectValue placeholder="Choose" />
+              <SelectValue placeholder="Font size" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="text-sm">Small</SelectItem>
@@ -86,17 +93,13 @@ function PropertiesPanelInner({ selectedComponent, onUpdateComponent, onUpdateSt
           </Select>
         </div>
 
-        <Button onClick={handleSave} className="w-full">
-          Save changes
+        <Button className="w-full" onClick={handleSave}>
+          Save
         </Button>
       </CardContent>
     </Card>
   )
 }
-
-/* -------------------------------------------------------------------------- */
-/*                     DEFAULT + NAMED EXPORT (REQUIRED)                      */
-/* -------------------------------------------------------------------------- */
 
 export default PropertiesPanelInner
 export { PropertiesPanelInner as PropertiesPanel }

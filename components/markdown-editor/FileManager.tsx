@@ -3,15 +3,15 @@
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import { Folder, FileIcon, Search, MoreVertical } from "lucide-react"
 
 /* -------------------------------------------------------------------------- */
-/*                                   TYPES                                    */
+/*                               Type Definitions                             */
 /* -------------------------------------------------------------------------- */
 
 interface FileItem {
@@ -25,10 +25,10 @@ interface FileItem {
 }
 
 /* -------------------------------------------------------------------------- */
-/*                              MOCK FILE SYSTEM                              */
+/*                               Mock File Tree                               */
 /* -------------------------------------------------------------------------- */
 
-const mockFiles: FileItem[] = [
+const MOCK_FILES: FileItem[] = [
   {
     id: "1",
     name: "docs",
@@ -40,7 +40,7 @@ const mockFiles: FileItem[] = [
         name: "getting-started.md",
         type: "file",
         path: "/docs/getting-started.md",
-        modified: "2 hours ago",
+        modified: "2 h ago",
         size: "2.1 KB",
       },
       {
@@ -48,7 +48,7 @@ const mockFiles: FileItem[] = [
         name: "api-reference.md",
         type: "file",
         path: "/docs/api-reference.md",
-        modified: "1 day ago",
+        modified: "1 d ago",
         size: "5.3 KB",
       },
     ],
@@ -58,31 +58,34 @@ const mockFiles: FileItem[] = [
     name: "README.md",
     type: "file",
     path: "/README.md",
-    modified: "3 days ago",
+    modified: "3 d ago",
     size: "1 KB",
   },
 ]
 
 /* -------------------------------------------------------------------------- */
-/*                           FILE TREE ITEM (RECURSIVE)                       */
+/*                            Recursive Tree Item UI                          */
 /* -------------------------------------------------------------------------- */
 
-interface FileTreeItemProps {
+function FileItemRow({
+  item,
+  depth,
+  expanded,
+  toggle,
+}: {
   item: FileItem
   depth: number
   expanded: Set<string>
   toggle: (id: string) => void
-}
-
-function FileTreeItem({ item, depth, expanded, toggle }: FileTreeItemProps) {
+}) {
   const isFolder = item.type === "folder"
   const isOpen = expanded.has(item.id)
 
   return (
     <>
       <div
+        className="group flex items-center gap-2 rounded-md py-1.5 pr-2 pl-1 cursor-pointer hover:bg-muted/50 text-sm"
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
-        className="group flex items-center gap-2 py-1.5 px-2 rounded-md cursor-pointer hover:bg-muted/50 text-sm"
         onClick={() => isFolder && toggle(item.id)}
       >
         {isFolder ? (
@@ -93,10 +96,8 @@ function FileTreeItem({ item, depth, expanded, toggle }: FileTreeItemProps) {
 
         <span className="flex-1 truncate">{item.name}</span>
 
-        {/* File meta */}
-        {item.type === "file" && <span className="text-xs text-muted-foreground">{item.modified}</span>}
+        {item.type === "file" && <span className="text-xs text-muted-foreground shrink-0">{item.modified}</span>}
 
-        {/* Row actions */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -108,6 +109,7 @@ function FileTreeItem({ item, depth, expanded, toggle }: FileTreeItemProps) {
               <MoreVertical className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Rename</DropdownMenuItem>
             <DropdownMenuItem>Duplicate</DropdownMenuItem>
@@ -116,48 +118,48 @@ function FileTreeItem({ item, depth, expanded, toggle }: FileTreeItemProps) {
         </DropdownMenu>
       </div>
 
-      {isFolder && isOpen && item.children?.length
-        ? item.children.map((child) => (
-            <FileTreeItem key={child.id} item={child} depth={depth + 1} expanded={expanded} toggle={toggle} />
-          ))
-        : null}
+      {isFolder &&
+        isOpen &&
+        item.children?.map((child) => (
+          <FileItemRow key={child.id} item={child} depth={depth + 1} expanded={expanded} toggle={toggle} />
+        ))}
     </>
   )
 }
 
 /* -------------------------------------------------------------------------- */
-/*                               FILE MANAGER                                 */
+/*                                FileManager                                 */
 /* -------------------------------------------------------------------------- */
 
 function FileManagerInner() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set(["1"]))
   const [search, setSearch] = useState("")
 
-  const toggleFolder = (id: string) => {
+  const toggleFolder = (id: string) =>
     setExpanded((prev) => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
       return next
     })
-  }
 
-  const visible = mockFiles.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()))
+  const visible = MOCK_FILES.filter((f) => f.name.toLowerCase().includes(search.toLowerCase()))
 
   return (
     <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-lg">Files</CardTitle>
-        <div className="relative mt-2">
+
+        <div className="relative mt-3">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          <Input className="pl-9" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
       </CardHeader>
 
       <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-240px)]">
           <div className="pb-2">
             {visible.map((item) => (
-              <FileTreeItem key={item.id} item={item} depth={0} expanded={expanded} toggle={toggleFolder} />
+              <FileItemRow key={item.id} item={item} depth={0} expanded={expanded} toggle={toggleFolder} />
             ))}
           </div>
         </ScrollArea>
@@ -165,10 +167,6 @@ function FileManagerInner() {
     </Card>
   )
 }
-
-/* -------------------------------------------------------------------------- */
-/*                     DEFAULT + NAMED EXPORT (REQUIRED)                      */
-/* -------------------------------------------------------------------------- */
 
 export default FileManagerInner
 export { FileManagerInner as FileManager }
